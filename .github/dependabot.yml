@@ -5,6 +5,10 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 10
+    ignore:
+      # On reste sur Symfony 7.4 LTS tant que l'écosystème (Doctrine…) n'est pas prêt pour SF8.
+      - dependency-name: "symfony/*"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: npm
     directory: /app
