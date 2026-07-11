@@ -1,5 +1,2 @@
 api_login_check:
     path: /api/v1/login_check
-
-api_token_refresh:
-    path: /api/v1/token/refresh

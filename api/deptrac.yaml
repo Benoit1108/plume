@@ -17,7 +17,7 @@ deptrac:
     - name: Framework
       collectors:
         - type: classNameRegex
-          value: '#^(Symfony|Doctrine|ApiPlatform|Monolog)\\#'
+          value: '#^(Symfony|Doctrine|ApiPlatform|Monolog|Lexik|Gesdinet|Psr)\\#'
   ruleset:
     # Le Domaine ne dépend de RIEN (ni Application, ni Infrastructure, ni Framework).
     Domain: ~

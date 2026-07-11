@@ -2,16 +2,11 @@ security:
     password_hashers:
         Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
 
-    # M0 : provider en mémoire (un utilisateur de dev).
-    # TODO M0-finalisation : basculer sur un provider entité du contexte Account,
-    # et injecter le tenant_id dans les claims JWT (voir TenantContext).
     providers:
-        dev_users:
-            memory:
-                users:
-                    dev@plume.local:
-                        password: '$2y$13$changeme_hash_placeholder_replace_me_now'
-                        roles: ['ROLE_USER']
+        app_users:
+            entity:
+                class: App\Account\Infrastructure\Persistence\User
+                property: email
 
     firewalls:
         dev:
@@ -28,21 +23,14 @@ security:
                 success_handler: lexik_jwt_authentication.handler.authentication_success
                 failure_handler: lexik_jwt_authentication.handler.authentication_failure
 
-        refresh:
-            pattern: ^/api/v1/token/refresh$
-            stateless: true
-            refresh_jwt:
-                check_path: /api/v1/token/refresh
-
         api:
             pattern: ^/api/v1
             stateless: true
-            provider: dev_users
+            provider: app_users
             jwt: ~
 
     access_control:
         - { path: ^/api/v1/login_check$, roles: PUBLIC_ACCESS }
-        - { path: ^/api/v1/token/refresh$, roles: PUBLIC_ACCESS }
         - { path: ^/api/(v1/)?docs, roles: PUBLIC_ACCESS }
         - { path: ^/api/v1, roles: ROLE_USER }
 

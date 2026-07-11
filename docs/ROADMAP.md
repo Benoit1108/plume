@@ -14,9 +14,9 @@ Fondations techniques.
 - [x] Docker Compose local : FrankenPHP + Postgres 17 + worker Messenger + Scheduler.
 - [x] Squelette hexagonal par bounded context (`Domain`/`Application`/`Infrastructure`) + tranche `Lead` de référence.
 - [x] Bus CQRS (Messenger : command sync + event async) *(relais outbox à finaliser)*.
-- [x] Multi-tenancy : `TenantId`, `TenantContext`, `TenantFilter` *(listener + enregistrement du filtre à finaliser)*.
-- [x] Qualité : PHPStan (max), CS-Fixer, PHPUnit (test de domaine), CI GitHub Actions.
-- [ ] Auth JWT access + refresh : config posée (provider mémoire) → **basculer sur provider entité + claims `tenant_id`**.
+- [x] Multi-tenancy : `TenantId`, `TenantContext`, `TenantFilter` enregistré et **activé par requête** (au JWT authentifié).
+- [x] Qualité : PHPStan (max), CS-Fixer, **Deptrac** (couches DDD), PHPUnit, CI GitHub Actions.
+- [x] Auth JWT **access** : provider entité `User`, claim `tenant_id`, vérifiée end-to-end. *(Refresh token différé — mapping gesdinet+attributs.)*
 
 > **M0 — vérifié en local (Docker)** : `composer install` (Symfony 7.4.14 / PHP 8.5.8),
 > clés JWT générées, kernel qui boote, API servie sur `https://localhost:8443/api/v1`
@@ -24,12 +24,10 @@ Fondations techniques.
 > PHPStan (max) + php-cs-fixer verts, front (Nuxt 4 + Nuxt UI + i18n) build + lint verts.
 > Démarrage : `make up` puis `make jwt-keys` (clés hors dépôt).
 >
-> **Reste avant/pendant M1** (non bloquant pour démarrer) :
-> 1. Contexte `Account` : entité `SecurityUser` + provider (remplace le provider mémoire),
->    listener `JWTCreatedEvent` (claim `tenant_id`) alimentant le `TenantContext`.
-> 2. Enregistrer le `TenantFilter` (doctrine `filters`) + listener `kernel.request`.
-> 3. Relais **transactional outbox** (events stockés → transport `async`).
-> 4. Mapping Doctrine des agrégats + 1re migration (remplace le repository en mémoire).
+> **Reste pour clôturer M0** :
+> 1. Relais **transactional outbox** (domain events stockés → transport `async`).
+> 2. Mapping Doctrine de l'agrégat `Lead` + migration (remplace le repository en mémoire).
+> 3. *(différé)* Refresh token JWT (mapping gesdinet + attributs à régler).
 
 ### M1 — Cœur prospection 🔜 *(première version utilisable)*
 - [ ] **Répertoire** : CRUD Organisation + Contact, tags, **import CSV**.
