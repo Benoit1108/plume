@@ -12,6 +12,7 @@
 /app/.output/
 /app/.data/
 /app/dist/
+/app/coverage/
 
 # Divers
 .DS_Store
