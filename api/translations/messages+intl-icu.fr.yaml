@@ -1,0 +1,16 @@
+# Catalogue FR (format ICU). Domaine "messages".
+lead:
+    status:
+        TO_CONTACT: À contacter
+        CONTACTED: Contactée
+        FOLLOWED_UP: Relancée
+        IN_DISCUSSION: En discussion
+        SAMPLE_TEST: Test / Échantillon
+        WON: Gagnée
+        LOST: Perdue
+        PAUSED: En pause
+segment:
+    PUBLISHING: Édition
+    AUDIOVISUAL: Audiovisuel
+    TECHNICAL: Technique
+    OTHER: Autre

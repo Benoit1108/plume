@@ -1,0 +1,35 @@
+framework:
+    messenger:
+        default_bus: command.bus
+
+        buses:
+            # Une commande = une transaction (doctrine_transaction).
+            command.bus:
+                middleware:
+                    - doctrine_transaction
+            # Lectures.
+            query.bus:
+                default_middleware:
+                    allow_no_handlers: false
+            # Domain events : publiés APRÈS commit, consommés en asynchrone.
+            event.bus:
+                default_middleware:
+                    allow_no_handlers: true
+                middleware:
+                    - dispatch_after_current_bus
+
+        transports:
+            async:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                options:
+                    use_notify: true
+                retry_strategy:
+                    max_retries: 3
+                    delay: 1000
+                    multiplier: 2
+            # Transactional outbox : à câbler (relais des events stockés → async).
+            # scheduler_default est fourni par symfony/scheduler.
+
+        routing:
+            # Les domain events (marqueur) partent en asynchrone.
+            'App\Shared\Domain\DomainEvent': async

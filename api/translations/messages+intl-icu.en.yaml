@@ -1,0 +1,16 @@
+# EN catalogue (ICU format). "messages" domain.
+lead:
+    status:
+        TO_CONTACT: To contact
+        CONTACTED: Contacted
+        FOLLOWED_UP: Followed up
+        IN_DISCUSSION: In discussion
+        SAMPLE_TEST: Sample test
+        WON: Won
+        LOST: Lost
+        PAUSED: Paused
+segment:
+    PUBLISHING: Publishing
+    AUDIOVISUAL: Audiovisual
+    TECHNICAL: Technical
+    OTHER: Other

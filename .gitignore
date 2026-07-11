@@ -1,0 +1,19 @@
+# Backend (Symfony)
+/api/vendor/
+/api/var/
+/api/.env.local
+/api/.env.*.local
+/api/config/jwt/*.pem
+/api/config/secrets/*/*.php
+
+# Frontend (Nuxt)
+/app/node_modules/
+/app/.nuxt/
+/app/.output/
+/app/.data/
+/app/dist/
+
+# Divers
+.DS_Store
+*.log
+docker-compose.override.yaml

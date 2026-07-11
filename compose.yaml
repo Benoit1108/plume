@@ -1,0 +1,84 @@
+# Stack de développement local — Plume
+# FrankenPHP (API) + Postgres + worker Messenger (events async) + Scheduler + Nuxt
+name: plume
+
+services:
+  database:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: plume
+      POSTGRES_USER: plume
+      POSTGRES_PASSWORD: plume
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U plume"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  php:
+    build:
+      context: ./api
+    environment:
+      DATABASE_URL: "postgresql://plume:plume@database:5432/plume?serverVersion=17&charset=utf8"
+      MESSENGER_TRANSPORT_DSN: "doctrine://default"
+      APP_ENV: dev
+    ports:
+      - "443:443"   # https://localhost (FrankenPHP)
+      - "80:80"
+    volumes:
+      - ./api:/app
+      - caddy-data:/data
+    depends_on:
+      database:
+        condition: service_healthy
+
+  # Consommateur des domain events (bus asynchrone + outbox relay)
+  worker:
+    build:
+      context: ./api
+    command: ["php", "bin/console", "messenger:consume", "async", "-vv", "--time-limit=3600"]
+    environment:
+      DATABASE_URL: "postgresql://plume:plume@database:5432/plume?serverVersion=17&charset=utf8"
+      MESSENGER_TRANSPORT_DSN: "doctrine://default"
+      APP_ENV: dev
+    volumes:
+      - ./api:/app
+    depends_on:
+      database:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Symfony Scheduler (relances dues, recalculs périodiques)
+  scheduler:
+    build:
+      context: ./api
+    command: ["php", "bin/console", "messenger:consume", "scheduler_default", "-vv"]
+    environment:
+      DATABASE_URL: "postgresql://plume:plume@database:5432/plume?serverVersion=17&charset=utf8"
+      MESSENGER_TRANSPORT_DSN: "doctrine://default"
+      APP_ENV: dev
+    volumes:
+      - ./api:/app
+    depends_on:
+      database:
+        condition: service_healthy
+    restart: unless-stopped
+
+  app:
+    image: node:22-alpine
+    working_dir: /app
+    command: sh -c "npm install && npm run dev -- --host"
+    environment:
+      NUXT_PUBLIC_API_BASE: "https://localhost"
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./app:/app
+
+volumes:
+  db-data:
+  caddy-data:

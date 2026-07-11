@@ -1,0 +1,19 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+
+/*
+ * Design system de Plume — Tailwind v4 est configuré en CSS-first (bloc @theme),
+ * pas de tailwind.config.js. C'est ici qu'on possède les tokens :
+ *   - palette de marque (couleurs), typographie, radius, échelle d'espacement.
+ * Les alias sémantiques (primary/neutral) se règlent dans app.config.ts.
+ *
+ * Exemple (à remplacer par l'identité visuelle définitive) :
+ *
+ * @theme {
+ *   --font-sans: "Inter", system-ui, sans-serif;
+ *   --radius-md: 0.5rem;
+ *   // --color-brand-500: #10b981;  puis primary: 'brand' dans app.config.ts
+ * }
+ *
+ * Overrides de composants Nuxt UI et styles sombres/clairs additionnels ci-dessous.
+ */

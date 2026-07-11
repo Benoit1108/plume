@@ -1,0 +1,26 @@
+{
+  "name": "plume-app",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "nuxt dev",
+    "build": "nuxt build",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "@nuxt/ui": "latest",
+    "@nuxtjs/i18n": "latest",
+    "@pinia/nuxt": "latest",
+    "nuxt": "latest",
+    "pinia": "latest",
+    "vue": "latest"
+  },
+  "devDependencies": {
+    "@nuxt/eslint": "latest",
+    "eslint": "latest",
+    "typescript": "latest"
+  }
+}

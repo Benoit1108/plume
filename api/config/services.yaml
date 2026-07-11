@@ -1,0 +1,19 @@
+parameters:
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/DependencyInjection/'
+            - '../src/Kernel.php'
+            # Le domaine est du PHP pur : pas de services, pas d'autowiring.
+            - '../src/*/Domain/'
+
+    # Buses CQRS : les implémentations Messenger réalisent les ports de la couche Application.
+    App\Shared\Application\Command\CommandBus: '@App\Shared\Infrastructure\Bus\MessengerCommandBus'
+    App\Shared\Application\Query\QueryBus: '@App\Shared\Infrastructure\Bus\MessengerQueryBus'
+    App\Shared\Application\Event\EventBus: '@App\Shared\Infrastructure\Bus\MessengerEventBus'

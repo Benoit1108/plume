@@ -1,0 +1,18 @@
+api_platform:
+    title: Plume API
+    version: 0.1.0
+    description: API du mini-CRM de prospection Plume
+    # Les ApiResource sont des DTO exposés en Infrastructure ; jamais les entités
+    # Doctrine ni les agrégats. State Providers/Processors délèguent au bus CQRS.
+    mapping:
+        paths:
+            - '%kernel.project_dir%/src'
+    formats:
+        jsonld: ['application/ld+json']
+        json: ['application/json']
+    defaults:
+        stateless: true
+        route_prefix: /v1   # toutes les routes sous /api/v1 (cf. ADR-0011)
+        cache_headers:
+            vary: ['Content-Type', 'Authorization', 'Origin']
+    # Erreurs au format RFC 7807 (application/problem+json) — natif API Platform.

@@ -1,0 +1,10 @@
+includes:
+    - vendor/phpstan/phpstan-symfony/extension.neon
+
+parameters:
+    level: max
+    paths:
+        - src
+        - tests
+    # Le domaine (src/*/Domain) doit rester du PHP pur : aucune dépendance framework.
+    # (Règle documentée dans CLAUDE.md ; à outiller plus tard via deptrac.)
