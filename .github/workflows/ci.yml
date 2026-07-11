@@ -21,12 +21,14 @@ jobs:
           coverage: none
       - name: Install dependencies
         run: composer install --no-interaction --prefer-dist
+      - name: Warm up cache (compile container for PHPStan)
+        run: php bin/console cache:warmup
       - name: Coding standards
         run: vendor/bin/php-cs-fixer fix --dry-run --diff
       - name: Static analysis
         run: vendor/bin/phpstan analyse
       - name: Tests
-        run: php bin/phpunit
+        run: vendor/bin/phpunit
 
   frontend:
     name: Frontend (Nuxt)

@@ -12,7 +12,7 @@ api_platform:
         json: ['application/json']
     defaults:
         stateless: true
-        route_prefix: /v1   # toutes les routes sous /api/v1 (cf. ADR-0011)
         cache_headers:
             vary: ['Content-Type', 'Authorization', 'Origin']
+    # Versionnement /api/v1 : préfixe de montage dans config/routes/api_platform.yaml.
     # Erreurs au format RFC 7807 (application/problem+json) — natif API Platform.

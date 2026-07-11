@@ -23,7 +23,7 @@ Prochaine étape possible : scaffolding du squelette monorepo (voir `docs/ROADMA
 
 | Brique     | Choix                                                         |
 |------------|---------------------------------------------------------------|
-| Backend    | Symfony 8.x (PHP 8.5), API Platform, Messenger, Scheduler     |
+| Backend    | Symfony 7.4 LTS (PHP 8.5), API Platform, Messenger, Scheduler  |
 | Domaine    | DDD, architecture hexagonale, monolithe modulaire par contexte|
 | ORM / BDD  | Doctrine ORM + `symfony/uid` / PostgreSQL 17                  |
 | Frontend   | Nuxt (Vue 3, TS) + Nuxt UI + Pinia + i18n (FR/EN)             |

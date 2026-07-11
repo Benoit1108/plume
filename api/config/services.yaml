@@ -17,3 +17,6 @@ services:
     App\Shared\Application\Command\CommandBus: '@App\Shared\Infrastructure\Bus\MessengerCommandBus'
     App\Shared\Application\Query\QueryBus: '@App\Shared\Infrastructure\Bus\MessengerQueryBus'
     App\Shared\Application\Event\EventBus: '@App\Shared\Infrastructure\Bus\MessengerEventBus'
+
+    # Repositories : interface (Domain, hors conteneur) -> implémentation (Infrastructure).
+    App\Prospecting\Domain\Lead\LeadRepository: '@App\Prospecting\Infrastructure\Persistence\InMemory\InMemoryLeadRepository'

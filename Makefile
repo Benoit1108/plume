@@ -1,8 +1,14 @@
 .DEFAULT_GOAL := help
 DC := docker compose
-PHP := $(DC) exec php
+UID := $(shell id -u)
+GID := $(shell id -g)
+# Commandes ponctuelles en tant qu'utilisateur hôte (évite les fichiers root-owned)
+# avec un HOME/COMPOSER_HOME inscriptibles.
+PHP := $(DC) run --rm --no-deps --user $(UID):$(GID) -e HOME=/tmp -e COMPOSER_HOME=/tmp/composer php
+# Variante avec dépendances (DB up) pour les migrations.
+PHP_DB := $(DC) run --rm --user $(UID):$(GID) -e HOME=/tmp -e COMPOSER_HOME=/tmp/composer php
 
-.PHONY: help up down build install migrate jwt-keys test phpstan cs cs-fix front-install front-lint
+.PHONY: help up down build install lock jwt-keys migrate test phpstan cs cs-fix front-install front-lint
 
 help: ## Affiche cette aide
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS=":.*?## "}; {printf "  \033[36m%-14s\033[0m %s\n", $$1, $$2}'
@@ -16,17 +22,20 @@ down: ## Arrête la stack
 build: ## (Re)build les images
 	$(DC) build
 
-install: ## composer install dans le conteneur php
+install: ## composer install (utilisateur hôte)
 	$(PHP) composer install
 
-migrate: ## Applique les migrations Doctrine
-	$(PHP) php bin/console doctrine:migrations:migrate --no-interaction
+lock: ## Met à jour composer.lock
+	$(PHP) composer update --lock
 
 jwt-keys: ## Génère la paire de clés JWT (Lexik)
 	$(PHP) php bin/console lexik:jwt:generate-keypair --skip-if-exists
 
+migrate: ## Applique les migrations Doctrine (DB requise)
+	$(PHP_DB) php bin/console doctrine:migrations:migrate --no-interaction
+
 test: ## Lance PHPUnit
-	$(PHP) php bin/phpunit
+	$(PHP) vendor/bin/phpunit
 
 phpstan: ## Analyse statique (niveau max)
 	$(PHP) vendor/bin/phpstan analyse

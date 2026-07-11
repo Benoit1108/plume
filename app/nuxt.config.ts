@@ -25,7 +25,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       // URL de l'API Symfony (surchargeable par NUXT_PUBLIC_API_BASE).
-      apiBase: 'https://localhost',
+      apiBase: 'https://localhost:8443',
     },
   },
 

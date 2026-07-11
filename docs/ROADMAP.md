@@ -10,7 +10,7 @@ Légende : ✅ acté · 🔜 V1 · 🕓 V2 · 💤 Futur
 
 ### M0 — Socle 🔜
 Fondations techniques.
-- [x] Monorepo scaffoldé (`api/` Symfony 8, `app/` Nuxt).
+- [x] Monorepo scaffoldé (`api/` Symfony 7.4 LTS, `app/` Nuxt).
 - [x] Docker Compose local : FrankenPHP + Postgres 17 + worker Messenger + Scheduler.
 - [x] Squelette hexagonal par bounded context (`Domain`/`Application`/`Infrastructure`) + tranche `Lead` de référence.
 - [x] Bus CQRS (Messenger : command sync + event async) *(relais outbox à finaliser)*.
@@ -18,13 +18,18 @@ Fondations techniques.
 - [x] Qualité : PHPStan (max), CS-Fixer, PHPUnit (test de domaine), CI GitHub Actions.
 - [ ] Auth JWT access + refresh : config posée (provider mémoire) → **basculer sur provider entité + claims `tenant_id`**.
 
-> **M0 — à finaliser au premier `composer install`** (réseau requis) :
-> 1. `make build && make install` (composer dans le conteneur) puis `make front-install`.
-> 2. `make jwt-keys` (génère la paire de clés Lexik).
-> 3. Contexte `Account` : entité `SecurityUser` + provider, listener `JWTCreatedEvent` (claim `tenant_id`) alimentant le `TenantContext`.
-> 4. Enregistrer le `TenantFilter` (doctrine `filters`) + listener `kernel.request` qui l'active avec le tenant courant.
-> 5. Relais **transactional outbox** (events stockés → transport `async`).
-> 6. Mapping Doctrine des agrégats (XML en `Infrastructure/Persistence`) + première migration.
+> **M0 — vérifié en local (Docker)** : `composer install` (Symfony 7.4.14 / PHP 8.5.8),
+> clés JWT générées, kernel qui boote, API servie sur `https://localhost:8443/api/v1`
+> (docs publiques `200`, entrypoint protégé `401 JWT Token not found`), PHPUnit +
+> PHPStan (max) + php-cs-fixer verts, front (Nuxt 4 + Nuxt UI + i18n) build + lint verts.
+> Démarrage : `make up` puis `make jwt-keys` (clés hors dépôt).
+>
+> **Reste avant/pendant M1** (non bloquant pour démarrer) :
+> 1. Contexte `Account` : entité `SecurityUser` + provider (remplace le provider mémoire),
+>    listener `JWTCreatedEvent` (claim `tenant_id`) alimentant le `TenantContext`.
+> 2. Enregistrer le `TenantFilter` (doctrine `filters`) + listener `kernel.request`.
+> 3. Relais **transactional outbox** (events stockés → transport `async`).
+> 4. Mapping Doctrine des agrégats + 1re migration (remplace le repository en mémoire).
 
 ### M1 — Cœur prospection 🔜 *(première version utilisable)*
 - [ ] **Répertoire** : CRUD Organisation + Contact, tags, **import CSV**.

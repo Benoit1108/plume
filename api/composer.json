@@ -7,6 +7,7 @@
         "php": ">=8.5",
         "ext-ctype": "*",
         "ext-iconv": "*",
+        "api-platform/doctrine-orm": "^4.1",
         "api-platform/symfony": "^4.1",
         "doctrine/dbal": "^4.2",
         "doctrine/doctrine-bundle": "^2.13",
@@ -14,22 +15,23 @@
         "doctrine/orm": "^3.3",
         "gesdinet/jwt-refresh-token-bundle": "^1.5",
         "lexik/jwt-authentication-bundle": "^3.1",
-        "symfony/console": "8.0.*",
-        "symfony/dotenv": "8.0.*",
+        "symfony/console": "7.4.*",
+        "symfony/doctrine-messenger": "7.4.*",
+        "symfony/dotenv": "7.4.*",
         "symfony/flex": "^2",
-        "symfony/framework-bundle": "8.0.*",
+        "symfony/framework-bundle": "7.4.*",
+        "symfony/messenger": "7.4.*",
         "symfony/monolog-bundle": "^3.10",
-        "symfony/translation": "8.0.*",
-        "symfony/messenger": "8.0.*",
-        "symfony/doctrine-messenger": "8.0.*",
-        "symfony/property-access": "8.0.*",
-        "symfony/property-info": "8.0.*",
-        "symfony/runtime": "8.0.*",
-        "symfony/scheduler": "8.0.*",
-        "symfony/security-bundle": "8.0.*",
-        "symfony/serializer": "8.0.*",
-        "symfony/uid": "8.0.*",
-        "symfony/validator": "8.0.*"
+        "symfony/property-access": "7.4.*",
+        "symfony/property-info": "7.4.*",
+        "symfony/runtime": "7.4.*",
+        "symfony/scheduler": "7.4.*",
+        "symfony/security-bundle": "7.4.*",
+        "symfony/serializer": "7.4.*",
+        "symfony/translation": "7.4.*",
+        "symfony/uid": "7.4.*",
+        "symfony/validator": "7.4.*",
+        "symfony/yaml": "7.4.*"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.64",
@@ -37,7 +39,7 @@
         "phpstan/phpstan-symfony": "^2.0",
         "phpunit/phpunit": "^11.4",
         "symfony/maker-bundle": "^1.61",
-        "symfony/phpunit-bridge": "8.0.*"
+        "symfony/phpunit-bridge": "7.4.*"
     },
     "config": {
         "allow-plugins": {
@@ -71,7 +73,7 @@
     "extra": {
         "symfony": {
             "allow-contrib": false,
-            "require": "8.0.*"
+            "require": "7.4.*"
         }
     }
 }

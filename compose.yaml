@@ -23,12 +23,12 @@ services:
     build:
       context: ./api
     environment:
+      SERVER_NAME: localhost
       DATABASE_URL: "postgresql://plume:plume@database:5432/plume?serverVersion=17&charset=utf8"
       MESSENGER_TRANSPORT_DSN: "doctrine://default"
       APP_ENV: dev
     ports:
-      - "443:443"   # https://localhost (FrankenPHP)
-      - "80:80"
+      - "8443:443"   # https://localhost:8443 (FrankenPHP) — ports bas souvent déjà pris en local
     volumes:
       - ./api:/app
       - caddy-data:/data
@@ -41,6 +41,8 @@ services:
     build:
       context: ./api
     command: ["php", "bin/console", "messenger:consume", "async", "-vv", "--time-limit=3600"]
+    healthcheck:
+      disable: true   # ne sert pas de HTTP (healthcheck FrankenPHP hérité inadapté)
     environment:
       DATABASE_URL: "postgresql://plume:plume@database:5432/plume?serverVersion=17&charset=utf8"
       MESSENGER_TRANSPORT_DSN: "doctrine://default"
@@ -57,6 +59,8 @@ services:
     build:
       context: ./api
     command: ["php", "bin/console", "messenger:consume", "scheduler_default", "-vv"]
+    healthcheck:
+      disable: true   # ne sert pas de HTTP (healthcheck FrankenPHP hérité inadapté)
     environment:
       DATABASE_URL: "postgresql://plume:plume@database:5432/plume?serverVersion=17&charset=utf8"
       MESSENGER_TRANSPORT_DSN: "doctrine://default"
@@ -73,7 +77,7 @@ services:
     working_dir: /app
     command: sh -c "npm install && npm run dev -- --host"
     environment:
-      NUXT_PUBLIC_API_BASE: "https://localhost"
+      NUXT_PUBLIC_API_BASE: "https://localhost:8443"
     ports:
       - "3000:3000"
     volumes:

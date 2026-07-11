@@ -1,7 +1,7 @@
 # FrankenPHP + PHP 8.5 (tag à ajuster selon disponibilité de l'image officielle)
 FROM dunglas/frankenphp:php8.5
 
-ENV SERVER_NAME=:80,:443
+ENV SERVER_NAME=localhost
 
 RUN install-php-extensions \
     pdo_pgsql \
