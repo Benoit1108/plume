@@ -6,11 +6,10 @@ namespace App\Prospecting\Application\Command\ContactLead;
 
 use App\Prospecting\Domain\Lead\LeadId;
 use App\Prospecting\Domain\Lead\LeadRepository;
+use App\Shared\Application\Command\CommandHandler;
 use App\Shared\Application\Event\EventBus;
-use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
-#[AsMessageHandler(bus: 'command.bus')]
-final class ContactLeadHandler
+final class ContactLeadHandler implements CommandHandler
 {
     public function __construct(
         private readonly LeadRepository $leads,

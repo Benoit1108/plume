@@ -8,7 +8,7 @@ PHP := $(DC) run --rm --no-deps --user $(UID):$(GID) -e HOME=/tmp -e COMPOSER_HO
 # Variante avec dépendances (DB up) pour les migrations.
 PHP_DB := $(DC) run --rm --user $(UID):$(GID) -e HOME=/tmp -e COMPOSER_HOME=/tmp/composer php
 
-.PHONY: help up down build install lock jwt-keys migrate test phpstan cs cs-fix audit schema-validate openapi front-install front-lint front-typecheck front-test
+.PHONY: help up down build install lock jwt-keys migrate test phpstan deptrac cs cs-fix audit schema-validate openapi front-install front-lint front-typecheck front-test
 
 help: ## Affiche cette aide
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS=":.*?## "}; {printf "  \033[36m%-14s\033[0m %s\n", $$1, $$2}'
@@ -39,6 +39,9 @@ test: ## Lance PHPUnit
 
 phpstan: ## Analyse statique (niveau max)
 	$(PHP) vendor/bin/phpstan analyse
+
+deptrac: ## Vérifie les frontières DDD (couches)
+	$(PHP) vendor/bin/deptrac analyse --no-progress
 
 cs: ## Vérifie le style (dry-run)
 	$(PHP) vendor/bin/php-cs-fixer fix --dry-run --diff
