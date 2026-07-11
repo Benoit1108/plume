@@ -73,10 +73,12 @@ services:
     restart: unless-stopped
 
   app:
-    image: node:22-alpine
+    image: node:24-alpine
     working_dir: /app
+    user: "1000:1000"   # évite les fichiers root-owned dans app/ (node_modules, .nuxt)
     command: sh -c "npm install && npm run dev -- --host"
     environment:
+      HOME: /tmp
       NUXT_PUBLIC_API_BASE: "https://localhost:8443"
     ports:
       - "3000:3000"

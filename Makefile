@@ -8,7 +8,7 @@ PHP := $(DC) run --rm --no-deps --user $(UID):$(GID) -e HOME=/tmp -e COMPOSER_HO
 # Variante avec dépendances (DB up) pour les migrations.
 PHP_DB := $(DC) run --rm --user $(UID):$(GID) -e HOME=/tmp -e COMPOSER_HOME=/tmp/composer php
 
-.PHONY: help up down build install lock jwt-keys migrate test phpstan cs cs-fix front-install front-lint
+.PHONY: help up down build install lock jwt-keys migrate test phpstan cs cs-fix audit schema-validate openapi front-install front-lint front-typecheck front-test
 
 help: ## Affiche cette aide
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS=":.*?## "}; {printf "  \033[36m%-14s\033[0m %s\n", $$1, $$2}'
@@ -46,8 +46,23 @@ cs: ## Vérifie le style (dry-run)
 cs-fix: ## Corrige le style
 	$(PHP) vendor/bin/php-cs-fixer fix
 
+audit: ## Audit de sécurité des dépendances PHP
+	$(PHP) composer audit
+
+schema-validate: ## Valide le mapping Doctrine (DB requise)
+	$(PHP_DB) php bin/console doctrine:schema:validate --skip-sync
+
+openapi: ## Régénère le contrat OpenAPI (openapi.json)
+	$(PHP) php bin/console api:openapi:export --output=openapi.json
+
 front-install: ## npm install (front)
 	$(DC) run --rm app npm install
 
 front-lint: ## Lint du front
 	$(DC) run --rm app npm run lint
+
+front-typecheck: ## Type-check du front
+	$(DC) run --rm app npm run type-check
+
+front-test: ## Tests front + coverage
+	$(DC) run --rm app npm run test:coverage

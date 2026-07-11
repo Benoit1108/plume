@@ -8,7 +8,10 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "type-check": "nuxt typecheck",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@nuxt/ui": "latest",
@@ -20,7 +23,10 @@
   },
   "devDependencies": {
     "@nuxt/eslint": "latest",
+    "@vitest/coverage-v8": "latest",
     "eslint": "latest",
-    "typescript": "latest"
+    "typescript": "latest",
+    "vitest": "latest",
+    "vue-tsc": "latest"
   }
 }
