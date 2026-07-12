@@ -23,3 +23,7 @@
 /phpunit.xml
 /.phpunit.cache/
 ###< phpunit/phpunit ###
+
+###> deptrac ###
+/.deptrac.cache
+###< deptrac ###
