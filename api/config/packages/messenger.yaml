@@ -11,12 +11,12 @@ framework:
             query.bus:
                 default_middleware:
                     allow_no_handlers: false
-            # Domain events : publiés APRÈS commit, consommés en asynchrone.
+            # Outbox transactionnel : les domain events sont insérés dans le transport
+            # async (table messenger_messages) DANS la transaction de la commande
+            # (doctrine_transaction) — atomicité garantie, aucun event perdu.
             event.bus:
                 default_middleware:
                     allow_no_handlers: true
-                middleware:
-                    - dispatch_after_current_bus
 
         transports:
             async:

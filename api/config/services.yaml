@@ -28,4 +28,4 @@ services:
     App\Shared\Application\Event\EventBus: '@App\Shared\Infrastructure\Bus\MessengerEventBus'
 
     # Repositories : interface (Domain, hors conteneur) -> implémentation (Infrastructure).
-    App\Prospecting\Domain\Lead\LeadRepository: '@App\Prospecting\Infrastructure\Persistence\InMemory\InMemoryLeadRepository'
+    App\Prospecting\Domain\Lead\LeadRepository: '@App\Prospecting\Infrastructure\Persistence\Doctrine\DoctrineLeadRepository'

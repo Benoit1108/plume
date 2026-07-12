@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+                  https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+    <!-- Le Domaine reste pur : mapping de l'agrégat Lead décrit ici (hors src/ pour ne pas
+         entrer en conflit avec le scan des resources API Platform). -->
+    <entity name="App\Prospecting\Domain\Lead\Lead" table="lead">
+        <id name="id" type="lead_id" column="id">
+            <generator strategy="NONE"/>
+        </id>
+        <field name="tenantId" type="tenant_id" column="tenant_id"/>
+        <field name="organizationId" type="string" column="organization_id"/>
+        <field name="segment" type="string" column="segment" enum-type="App\Prospecting\Domain\Lead\Segment"/>
+        <field name="status" type="string" column="status" enum-type="App\Prospecting\Domain\Lead\PipelineStatus"/>
+    </entity>
+</doctrine-mapping>

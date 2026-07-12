@@ -2,6 +2,9 @@ doctrine:
     dbal:
         url: '%env(resolve:DATABASE_URL)%'
         profiling_collect_backtrace: '%kernel.debug%'
+        types:
+            lead_id: App\Prospecting\Infrastructure\Persistence\Doctrine\Type\LeadIdType
+            tenant_id: App\Shared\Infrastructure\Persistence\Doctrine\Type\TenantIdType
     orm:
         auto_generate_proxy_classes: true
         enable_lazy_ghost_objects: true
@@ -17,6 +20,11 @@ doctrine:
                 is_bundle: false
                 dir: '%kernel.project_dir%/src/Account/Infrastructure/Persistence'
                 prefix: 'App\Account\Infrastructure\Persistence'
+            Prospecting:
+                type: xml
+                is_bundle: false
+                dir: '%kernel.project_dir%/config/doctrine/prospecting'
+                prefix: 'App\Prospecting\Domain\Lead'
         filters:
             # Isolation multi-tenant : activé par requête (TenantContextListener).
             tenant:

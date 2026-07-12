@@ -8,12 +8,13 @@ Légende : ✅ acté · 🔜 V1 · 🕓 V2 · 💤 Futur
 
 ## V1
 
-### M0 — Socle 🔜
+### M0 — Socle ✅
 Fondations techniques.
 - [x] Monorepo scaffoldé (`api/` Symfony 7.4 LTS, `app/` Nuxt).
 - [x] Docker Compose local : FrankenPHP + Postgres 17 + worker Messenger + Scheduler.
 - [x] Squelette hexagonal par bounded context (`Domain`/`Application`/`Infrastructure`) + tranche `Lead` de référence.
-- [x] Bus CQRS (Messenger : command sync + event async) *(relais outbox à finaliser)*.
+- [x] Bus CQRS (Messenger : command sync + event async) + **outbox transactionnel** (transport doctrine).
+- [x] Persistance : mapping Doctrine de l'agrégat `Lead` (XML hors `src/`, VO en types DBAL), `DoctrineLeadRepository`.
 - [x] Multi-tenancy : `TenantId`, `TenantContext`, `TenantFilter` enregistré et **activé par requête** (au JWT authentifié).
 - [x] Qualité : PHPStan (max), CS-Fixer, **Deptrac** (couches DDD), PHPUnit, CI GitHub Actions.
 - [x] Auth JWT **access** : provider entité `User`, claim `tenant_id`, vérifiée end-to-end. *(Refresh token différé — mapping gesdinet+attributs.)*
@@ -24,10 +25,11 @@ Fondations techniques.
 > PHPStan (max) + php-cs-fixer verts, front (Nuxt 4 + Nuxt UI + i18n) build + lint verts.
 > Démarrage : `make up` puis `make jwt-keys` (clés hors dépôt).
 >
-> **Reste pour clôturer M0** :
-> 1. Relais **transactional outbox** (domain events stockés → transport `async`).
-> 2. Mapping Doctrine de l'agrégat `Lead` + migration (remplace le repository en mémoire).
-> 3. *(différé)* Refresh token JWT (mapping gesdinet + attributs à régler).
+> **M0 clôturé** ✅ — outbox transactionnel (events insérés dans la transaction de la commande
+> via le transport doctrine async) + mapping Doctrine de `Lead` (VO en types DBAL) remplaçant
+> le repo en mémoire ; persistance + outbox vérifiés end-to-end.
+>
+> *(Différé, hors périmètre M0)* Refresh token JWT (mapping gesdinet + attributs à régler).
 
 ### M1 — Cœur prospection 🔜 *(première version utilisable)*
 - [ ] **Répertoire** : CRUD Organisation + Contact, tags, **import CSV**.
