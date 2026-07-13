@@ -6,6 +6,7 @@ namespace App\Directory\Domain\Organization;
 
 use App\Directory\Domain\Organization\Event\ContactAdded;
 use App\Directory\Domain\Organization\Event\OrganizationCreated;
+use App\Directory\Domain\Organization\Exception\ContactNotFound;
 use App\Directory\Domain\Organization\Exception\DuplicateContactEmail;
 use App\Shared\Domain\AggregateRoot;
 use App\Shared\Domain\ValueObject\CountryCode;
@@ -114,11 +115,64 @@ final class Organization extends AggregateRoot
         $this->recordEvent(new ContactAdded($this->id->toString(), $contact->id()->toString(), $now));
     }
 
+    public function updateContact(
+        ContactId $contactId,
+        string $fullName,
+        ?string $role,
+        ?EmailAddress $email,
+        ?string $phone,
+        ?string $linkedinUrl,
+        ?LanguageCode $preferredLanguage,
+    ): void {
+        $existing = $this->contactWithId($contactId);
+        if (null !== $email && $this->hasOtherContactWithEmail($contactId, $email)) {
+            throw DuplicateContactEmail::forEmail($email);
+        }
+
+        // Remplace l'élément par une nouvelle instance (réf. différente) pour que Doctrine
+        // détecte le changement dans la collection JSON.
+        $replacement = new Contact($contactId, $fullName, $role, $email, $phone, $linkedinUrl, $preferredLanguage);
+        if ($existing->doNotContact()) {
+            $replacement->markDoNotContact();
+        }
+
+        $this->contacts = array_map(
+            static fn (Contact $contact): Contact => $contact->id()->equals($contactId) ? $replacement : $contact,
+            $this->contacts,
+        );
+    }
+
     public function removeContact(ContactId $contactId): void
     {
         $this->contacts = array_values(
             array_filter($this->contacts, static fn (Contact $contact): bool => !$contact->id()->equals($contactId)),
         );
+    }
+
+    private function contactWithId(ContactId $contactId): Contact
+    {
+        foreach ($this->contacts as $contact) {
+            if ($contact->id()->equals($contactId)) {
+                return $contact;
+            }
+        }
+
+        throw ContactNotFound::withId($contactId);
+    }
+
+    private function hasOtherContactWithEmail(ContactId $contactId, EmailAddress $email): bool
+    {
+        foreach ($this->contacts as $contact) {
+            if ($contact->id()->equals($contactId)) {
+                continue;
+            }
+            $existing = $contact->email();
+            if (null !== $existing && $existing->equals($email)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /** Marque l'organisation (et ses contacts) en « ne pas contacter » (RGPD). */

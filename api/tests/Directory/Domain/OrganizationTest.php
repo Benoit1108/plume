@@ -8,6 +8,7 @@ use App\Directory\Domain\Organization\Contact;
 use App\Directory\Domain\Organization\ContactId;
 use App\Directory\Domain\Organization\Event\ContactAdded;
 use App\Directory\Domain\Organization\Event\OrganizationCreated;
+use App\Directory\Domain\Organization\Exception\ContactNotFound;
 use App\Directory\Domain\Organization\Exception\DuplicateContactEmail;
 use App\Directory\Domain\Organization\Organization;
 use App\Directory\Domain\Organization\OrganizationId;
@@ -101,5 +102,35 @@ final class OrganizationTest extends TestCase
 
         self::assertTrue($org->doNotContact());
         self::assertTrue($org->contacts()[0]->doNotContact());
+    }
+
+    public function testUpdateContactReplacesDetails(): void
+    {
+        $org = $this->anOrganization();
+        $org->addContact($this->aContact('c1', 'a@b.fr'), new \DateTimeImmutable());
+
+        $org->updateContact(ContactId::fromString('c1'), 'Jean Nouveau', 'Éditeur', null, null, null, null);
+
+        self::assertSame('Jean Nouveau', $org->contacts()[0]->fullName());
+        self::assertSame('Éditeur', $org->contacts()[0]->role());
+        self::assertNull($org->contacts()[0]->email());
+    }
+
+    public function testUpdateUnknownContactThrows(): void
+    {
+        $org = $this->anOrganization();
+
+        $this->expectException(ContactNotFound::class);
+        $org->updateContact(ContactId::fromString('nope'), 'X', null, null, null, null, null);
+    }
+
+    public function testRemoveContact(): void
+    {
+        $org = $this->anOrganization();
+        $org->addContact($this->aContact('c1', 'a@b.fr'), new \DateTimeImmutable());
+
+        $org->removeContact(ContactId::fromString('c1'));
+
+        self::assertCount(0, $org->contacts());
     }
 }

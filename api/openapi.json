@@ -12,6 +12,294 @@
         }
     ],
     "paths": {
+        "/api/v1/organizations/{organizationId}/contacts": {
+            "post": {
+                "operationId": "api_organizations_organizationIdcontacts_post",
+                "tags": [
+                    "Contact"
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Contact resource created",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Contact.jsonld-contact.read"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Contact-contact.read"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Creates a Contact resource.",
+                "description": "Creates a Contact resource.",
+                "parameters": [
+                    {
+                        "name": "organizationId",
+                        "in": "path",
+                        "description": "OrganizationResource identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ],
+                "requestBody": {
+                    "description": "The new Contact resource",
+                    "content": {
+                        "application/ld+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Contact-contact.write"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Contact-contact.write"
+                            }
+                        }
+                    },
+                    "required": true
+                }
+            }
+        },
+        "/api/v1/organizations/{organizationId}/contacts/{id}": {
+            "delete": {
+                "operationId": "api_organizations_organizationIdcontacts_id_delete",
+                "tags": [
+                    "Contact"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Contact resource deleted"
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Removes the Contact resource.",
+                "description": "Removes the Contact resource.",
+                "parameters": [
+                    {
+                        "name": "organizationId",
+                        "in": "path",
+                        "description": "OrganizationResource identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Contact identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            },
+            "patch": {
+                "operationId": "api_organizations_organizationIdcontacts_id_patch",
+                "tags": [
+                    "Contact"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Contact resource updated",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Contact.jsonld-contact.read"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Contact-contact.read"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Updates the Contact resource.",
+                "description": "Updates the Contact resource.",
+                "parameters": [
+                    {
+                        "name": "organizationId",
+                        "in": "path",
+                        "description": "OrganizationResource identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Contact identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ],
+                "requestBody": {
+                    "description": "The updated Contact resource",
+                    "content": {
+                        "application/merge-patch+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Contact-contact.write.jsonMergePatch"
+                            }
+                        }
+                    },
+                    "required": true
+                }
+            }
+        },
         "/api/v1/login_check": {
             "post": {
                 "operationId": "login_check_post",
@@ -82,7 +370,7 @@
                             "application/ld+json": {
                                 "schema": {
                                     "type": "object",
-                                    "description": "Organization.jsonld collection.",
+                                    "description": "Organization.jsonld-org.read collection.",
                                     "allOf": [
                                         {
                                             "$ref": "#/components/schemas/HydraCollectionBaseSchema"
@@ -96,7 +384,7 @@
                                                 "member": {
                                                     "type": "array",
                                                     "items": {
-                                                        "$ref": "#/components/schemas/Organization.jsonld"
+                                                        "$ref": "#/components/schemas/Organization.jsonld-org.read"
                                                     }
                                                 }
                                             }
@@ -108,7 +396,7 @@
                                 "schema": {
                                     "type": "array",
                                     "items": {
-                                        "$ref": "#/components/schemas/Organization"
+                                        "$ref": "#/components/schemas/Organization-org.read"
                                     }
                                 }
                             }
@@ -144,12 +432,12 @@
                         "content": {
                             "application/ld+json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Organization.jsonld"
+                                    "$ref": "#/components/schemas/Organization.jsonld-org.read"
                                 }
                             },
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Organization"
+                                    "$ref": "#/components/schemas/Organization-org.read"
                                 }
                             }
                         },
@@ -206,12 +494,12 @@
                     "content": {
                         "application/ld+json": {
                             "schema": {
-                                "$ref": "#/components/schemas/Organization"
+                                "$ref": "#/components/schemas/Organization-org.write"
                             }
                         },
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/Organization"
+                                "$ref": "#/components/schemas/Organization-org.write"
                             }
                         }
                     },
@@ -231,12 +519,12 @@
                         "content": {
                             "application/ld+json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Organization.jsonld"
+                                    "$ref": "#/components/schemas/Organization.jsonld-org.read"
                                 }
                             },
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Organization"
+                                    "$ref": "#/components/schemas/Organization-org.read"
                                 }
                             }
                         }
@@ -291,12 +579,12 @@
                         "content": {
                             "application/ld+json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Organization.jsonld"
+                                    "$ref": "#/components/schemas/Organization.jsonld-org.read"
                                 }
                             },
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Organization"
+                                    "$ref": "#/components/schemas/Organization-org.read"
                                 }
                             }
                         },
@@ -387,7 +675,7 @@
                     "content": {
                         "application/merge-patch+json": {
                             "schema": {
-                                "$ref": "#/components/schemas/Organization.jsonMergePatch"
+                                "$ref": "#/components/schemas/Organization-org.write.jsonMergePatch"
                             }
                         }
                     },
@@ -539,8 +827,9 @@
                 ],
                 "description": "Unprocessable entity"
             },
-            "ContactResource": {
+            "Contact-contact.read": {
                 "type": "object",
+                "description": "DTO d'un contact : imbriqu\u00e9 (org:read) + sous-endpoints sous une organisation.",
                 "properties": {
                     "id": {
                         "type": [
@@ -559,6 +848,10 @@
                         ]
                     },
                     "email": {
+                        "format": "email",
+                        "externalDocs": {
+                            "url": "https://schema.org/email"
+                        },
                         "type": [
                             "string",
                             "null"
@@ -585,11 +878,106 @@
                     "doNotContact": {
                         "default": false,
                         "type": "boolean"
+                    }
+                },
+                "required": [
+                    "fullName"
+                ]
+            },
+            "Contact-contact.write": {
+                "type": "object",
+                "description": "DTO d'un contact : imbriqu\u00e9 (org:read) + sous-endpoints sous une organisation.",
+                "required": [
+                    "fullName"
+                ],
+                "properties": {
+                    "fullName": {
+                        "default": "",
+                        "type": "string"
+                    },
+                    "role": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "email": {
+                        "format": "email",
+                        "externalDocs": {
+                            "url": "https://schema.org/email"
+                        },
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "phone": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "linkedinUrl": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "preferredLanguage": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     }
                 }
             },
-            "ContactResource.jsonld": {
+            "Contact-contact.write.jsonMergePatch": {
                 "type": "object",
+                "description": "DTO d'un contact : imbriqu\u00e9 (org:read) + sous-endpoints sous une organisation.",
+                "properties": {
+                    "fullName": {
+                        "default": "",
+                        "type": "string"
+                    },
+                    "role": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "email": {
+                        "format": "email",
+                        "externalDocs": {
+                            "url": "https://schema.org/email"
+                        },
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "phone": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "linkedinUrl": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "preferredLanguage": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                }
+            },
+            "Contact-org.read": {
+                "type": "object",
+                "description": "DTO d'un contact : imbriqu\u00e9 (org:read) + sous-endpoints sous une organisation.",
                 "properties": {
                     "id": {
                         "type": [
@@ -608,6 +996,10 @@
                         ]
                     },
                     "email": {
+                        "format": "email",
+                        "externalDocs": {
+                            "url": "https://schema.org/email"
+                        },
                         "type": [
                             "string",
                             "null"
@@ -635,7 +1027,138 @@
                         "default": false,
                         "type": "boolean"
                     }
-                }
+                },
+                "required": [
+                    "fullName"
+                ]
+            },
+            "Contact.jsonld-contact.read": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/HydraItemBaseSchema"
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "fullName": {
+                                "default": "",
+                                "type": "string"
+                            },
+                            "role": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "email": {
+                                "format": "email",
+                                "externalDocs": {
+                                    "url": "https://schema.org/email"
+                                },
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "phone": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "linkedinUrl": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "preferredLanguage": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "doNotContact": {
+                                "default": false,
+                                "type": "boolean"
+                            }
+                        },
+                        "required": [
+                            "fullName"
+                        ]
+                    }
+                ],
+                "description": "DTO d'un contact : imbriqu\u00e9 (org:read) + sous-endpoints sous une organisation."
+            },
+            "Contact.jsonld-org.read": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/HydraItemBaseSchema"
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "fullName": {
+                                "default": "",
+                                "type": "string"
+                            },
+                            "role": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "email": {
+                                "format": "email",
+                                "externalDocs": {
+                                    "url": "https://schema.org/email"
+                                },
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "phone": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "linkedinUrl": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "preferredLanguage": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "doNotContact": {
+                                "default": false,
+                                "type": "boolean"
+                            }
+                        },
+                        "required": [
+                            "fullName"
+                        ]
+                    }
+                ],
+                "description": "DTO d'un contact : imbriqu\u00e9 (org:read) + sous-endpoints sous une organisation."
             },
             "Error": {
                 "type": "object",
@@ -888,7 +1411,7 @@
                     "@type"
                 ]
             },
-            "Organization": {
+            "Organization-org.read": {
                 "type": "object",
                 "description": "Resource API (DTO) du R\u00e9pertoire \u2014 jamais l'agr\u00e9gat/entit\u00e9 Doctrine.",
                 "properties": {
@@ -951,7 +1474,7 @@
                     "contacts": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/ContactResource"
+                            "$ref": "#/components/schemas/Contact-org.read"
                         }
                     }
                 },
@@ -959,16 +1482,13 @@
                     "name"
                 ]
             },
-            "Organization.jsonMergePatch": {
+            "Organization-org.write": {
                 "type": "object",
                 "description": "Resource API (DTO) du R\u00e9pertoire \u2014 jamais l'agr\u00e9gat/entit\u00e9 Doctrine.",
+                "required": [
+                    "name"
+                ],
                 "properties": {
-                    "id": {
-                        "type": [
-                            "string",
-                            "null"
-                        ]
-                    },
                     "name": {
                         "default": "",
                         "type": "string"
@@ -1018,16 +1538,66 @@
                     "doNotContact": {
                         "default": false,
                         "type": "boolean"
-                    },
-                    "contacts": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/ContactResource"
-                        }
                     }
                 }
             },
-            "Organization.jsonld": {
+            "Organization-org.write.jsonMergePatch": {
+                "type": "object",
+                "description": "Resource API (DTO) du R\u00e9pertoire \u2014 jamais l'agr\u00e9gat/entit\u00e9 Doctrine.",
+                "properties": {
+                    "name": {
+                        "default": "",
+                        "type": "string"
+                    },
+                    "type": {
+                        "enum": [
+                            "PUBLISHER",
+                            "AV_STUDIO",
+                            "AGENCY",
+                            "OTHER"
+                        ],
+                        "default": "OTHER",
+                        "type": "string"
+                    },
+                    "website": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "country": {
+                        "minLength": 2,
+                        "maxLength": 2,
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "workingLanguages": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "segments": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "notes": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "doNotContact": {
+                        "default": false,
+                        "type": "boolean"
+                    }
+                }
+            },
+            "Organization.jsonld-org.read": {
                 "allOf": [
                     {
                         "$ref": "#/components/schemas/HydraItemBaseSchema"
@@ -1094,7 +1664,7 @@
                             "contacts": {
                                 "type": "array",
                                 "items": {
-                                    "$ref": "#/components/schemas/ContactResource.jsonld"
+                                    "$ref": "#/components/schemas/Contact.jsonld-org.read"
                                 }
                             }
                         },
@@ -1121,6 +1691,10 @@
     },
     "security": [],
     "tags": [
+        {
+            "name": "Contact",
+            "description": "DTO d'un contact : imbriqu\u00e9 (org:read) + sous-endpoints sous une organisation."
+        },
         {
             "name": "Organization",
             "description": "Resource API (DTO) du R\u00e9pertoire \u2014 jamais l'agr\u00e9gat/entit\u00e9 Doctrine."

@@ -73,7 +73,7 @@ final class OrganizationProvider implements ProviderInterface
         return $resource;
     }
 
-    private static function toContactResource(Contact $contact): ContactResource
+    public static function toContactResource(Contact $contact): ContactResource
     {
         $resource = new ContactResource();
         $resource->id = $contact->id()->toString();
