@@ -26,8 +26,16 @@ final class Version20260713190000 extends AbstractMigration
     public function up(Schema $schema): void
     {
         // Données transitoires de dev (squelette M0 + events à l'ancien format).
+        // messenger_messages est créée au runtime par le transport doctrine :
+        // absente sur une base vierge (CI), d'où la garde.
         $this->addSql('DELETE FROM lead');
-        $this->addSql('DELETE FROM messenger_messages');
+        $this->addSql(<<<'SQL'
+            DO $$ BEGIN
+                IF to_regclass('public.messenger_messages') IS NOT NULL THEN
+                    DELETE FROM messenger_messages;
+                END IF;
+            END $$;
+            SQL);
 
         $this->addSql('ALTER TABLE lead ADD contact_id VARCHAR(255) DEFAULT NULL');
         $this->addSql('ALTER TABLE lead ADD language_pair VARCHAR(5) NOT NULL');
