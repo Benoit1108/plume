@@ -17,7 +17,7 @@ Fondations techniques.
 - [x] Persistance : mapping Doctrine de l'agrégat `Lead` (XML hors `src/`, VO en types DBAL), `DoctrineLeadRepository`.
 - [x] Multi-tenancy : `TenantId`, `TenantContext`, `TenantFilter` enregistré et **activé par requête** (au JWT authentifié).
 - [x] Qualité : PHPStan (max), CS-Fixer, **Deptrac** (couches DDD), PHPUnit, CI GitHub Actions.
-- [x] Auth JWT **access** : provider entité `User`, claim `tenant_id`, vérifiée end-to-end. *(Refresh token différé — mapping gesdinet+attributs.)*
+- [x] Auth JWT **access + refresh** : provider entité `User`, claim `tenant_id`, refresh token (gesdinet 2.0) — vérifiés end-to-end.
 
 > **M0 — vérifié en local (Docker)** : `composer install` (Symfony 7.4.14 / PHP 8.5.8),
 > clés JWT générées, kernel qui boote, API servie sur `https://localhost:8443/api/v1`
@@ -29,7 +29,7 @@ Fondations techniques.
 > via le transport doctrine async) + mapping Doctrine de `Lead` (VO en types DBAL) remplaçant
 > le repo en mémoire ; persistance + outbox vérifiés end-to-end.
 >
-> *(Différé, hors périmètre M0)* Refresh token JWT (mapping gesdinet + attributs à régler).
+> Refresh token JWT : ✅ fait (gesdinet 2.0, entité concrète + mapping XML, `/api/v1/token/refresh`).
 
 ### M1 — Cœur prospection 🔜 *(première version utilisable)*
 
