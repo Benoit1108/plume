@@ -37,3 +37,8 @@ services:
 
     # Read models (côté query du CQRS) : lecture SQL directe, scoping tenant fail-closed.
     App\Directory\Application\ReadModel\OrganizationSearch: '@App\Directory\Infrastructure\ReadModel\DoctrineOrganizationSearch'
+    App\Prospecting\Application\ReadModel\LeadSearch: '@App\Prospecting\Infrastructure\ReadModel\DoctrineLeadSearch'
+    App\Prospecting\Application\ReadModel\LeadTimeline: '@App\Prospecting\Infrastructure\ReadModel\DoctrineLeadTimeline'
+
+    # Frontière de contexte Prospection → Répertoire (port applicatif).
+    App\Prospecting\Application\OrganizationGateway: '@App\Prospecting\Infrastructure\Gateway\DirectoryOrganizationGateway'

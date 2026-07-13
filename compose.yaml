@@ -42,10 +42,9 @@ services:
       database:
         condition: service_healthy
 
-  # Consommateur des domain events (bus asynchrone + outbox relay)
-  # Profil "full" : pas nécessaire pour le dev front/domaine.
+  # Consommateur des domain events (outbox -> projections, ex. journal d'interactions).
+  # Dans la stack PAR DÉFAUT depuis M1.2 : la timeline en dépend.
   worker:
-    profiles: ["full"]
     build:
       context: ./api
     command: ["php", "bin/console", "messenger:consume", "async", "-vv", "--time-limit=3600"]

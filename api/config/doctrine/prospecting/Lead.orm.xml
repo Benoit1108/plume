@@ -8,13 +8,23 @@
     <entity name="App\Prospecting\Domain\Lead\Lead" table="lead">
         <indexes>
             <index name="idx_lead_tenant" columns="tenant_id"/>
+            <index name="idx_lead_tenant_status" columns="tenant_id,status"/>
+            <index name="idx_lead_tenant_organization" columns="tenant_id,organization_id"/>
         </indexes>
         <id name="id" type="lead_id" column="id">
             <generator strategy="NONE"/>
         </id>
         <field name="tenantId" type="tenant_id" column="tenant_id"/>
         <field name="organizationId" type="string" column="organization_id"/>
+        <field name="contactId" type="string" column="contact_id" nullable="true"/>
+        <field name="languagePair" type="language_pair" column="language_pair" length="5"/>
+        <field name="source" type="string" column="source" enum-type="App\Prospecting\Domain\Lead\LeadSource"/>
+        <field name="priority" type="string" column="priority" enum-type="App\Prospecting\Domain\Lead\Priority"/>
         <field name="segment" type="string" column="segment" enum-type="App\Shared\Domain\ValueObject\Segment"/>
         <field name="status" type="string" column="status" enum-type="App\Prospecting\Domain\Lead\PipelineStatus"/>
+        <field name="statusBeforePause" type="string" column="status_before_pause" nullable="true" enum-type="App\Prospecting\Domain\Lead\PipelineStatus"/>
+        <field name="createdAt" type="datetime_immutable" column="created_at"/>
+        <field name="lastContactedAt" type="datetime_immutable" column="last_contacted_at" nullable="true"/>
+        <field name="lastReplyAt" type="datetime_immutable" column="last_reply_at" nullable="true"/>
     </entity>
 </doctrine-mapping>

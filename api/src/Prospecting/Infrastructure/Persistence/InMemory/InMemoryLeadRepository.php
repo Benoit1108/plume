@@ -28,4 +28,15 @@ final class InMemoryLeadRepository implements LeadRepository
         return $this->leads[$id->toString()]
             ?? throw LeadNotFound::withId($id);
     }
+
+    public function hasActiveForOrganization(string $organizationId): bool
+    {
+        foreach ($this->leads as $lead) {
+            if ($lead->organizationId() === $organizationId && !$lead->status()->isTerminal()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

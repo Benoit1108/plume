@@ -300,6 +300,1055 @@
                 }
             }
         },
+        "/api/v1/leads/{leadId}/interactions": {
+            "get": {
+                "operationId": "api_leads_leadIdinteractions_get_collection",
+                "tags": [
+                    "Interaction"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Interaction collection",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "type": "object",
+                                    "description": "Interaction.jsonld-interaction.read collection.",
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/HydraCollectionBaseSchema"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "required": [
+                                                "member"
+                                            ],
+                                            "properties": {
+                                                "member": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/Interaction.jsonld-interaction.read"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Interaction-interaction.read"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "Retrieves the collection of Interaction resources.",
+                "description": "Retrieves the collection of Interaction resources.",
+                "parameters": [
+                    {
+                        "name": "leadId",
+                        "in": "path",
+                        "description": "LeadResource identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "The collection page number",
+                        "required": false,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 1
+                        },
+                        "style": "form",
+                        "explode": true
+                    }
+                ]
+            }
+        },
+        "/api/v1/leads": {
+            "get": {
+                "operationId": "api_leads_get_collection",
+                "tags": [
+                    "Lead"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lead collection",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "type": "object",
+                                    "description": "Lead.jsonld-lead.read collection.",
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/HydraCollectionBaseSchema"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "required": [
+                                                "member"
+                                            ],
+                                            "properties": {
+                                                "member": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/Lead.jsonld-lead.read"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Lead-lead.read"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "Retrieves the collection of Lead resources.",
+                "description": "Retrieves the collection of Lead resources.",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "The collection page number",
+                        "required": false,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 1
+                        },
+                        "style": "form",
+                        "explode": true
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "Filtre par statut du pipeline",
+                        "required": false,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "TO_CONTACT",
+                                "CONTACTED",
+                                "FOLLOWED_UP",
+                                "IN_DISCUSSION",
+                                "SAMPLE_TEST",
+                                "WON",
+                                "LOST",
+                                "PAUSED"
+                            ]
+                        },
+                        "style": "form",
+                        "explode": true
+                    },
+                    {
+                        "name": "priority",
+                        "in": "query",
+                        "description": "Filtre par priorit\u00e9",
+                        "required": false,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "LOW",
+                                "MEDIUM",
+                                "HIGH"
+                            ]
+                        },
+                        "style": "form",
+                        "explode": true
+                    },
+                    {
+                        "name": "segment",
+                        "in": "query",
+                        "description": "Filtre par segment",
+                        "required": false,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "PUBLISHING",
+                                "AUDIOVISUAL",
+                                "TECHNICAL",
+                                "OTHER"
+                            ]
+                        },
+                        "style": "form",
+                        "explode": true
+                    },
+                    {
+                        "name": "itemsPerPage",
+                        "in": "query",
+                        "description": "Lead itemsPerPage",
+                        "required": false,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 200,
+                            "default": 100
+                        },
+                        "style": "form",
+                        "explode": true
+                    }
+                ]
+            },
+            "post": {
+                "operationId": "api_leads_post",
+                "tags": [
+                    "Lead"
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Lead resource created",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Lead.jsonld-lead.read"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Lead-lead.read"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Creates a Lead resource.",
+                "description": "Creates a Lead resource.",
+                "parameters": [],
+                "requestBody": {
+                    "description": "The new Lead resource",
+                    "content": {
+                        "application/ld+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Lead-lead.write"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Lead-lead.write"
+                            }
+                        }
+                    },
+                    "required": true
+                }
+            }
+        },
+        "/api/v1/leads/{id}": {
+            "get": {
+                "operationId": "api_leads_id_get",
+                "tags": [
+                    "Lead"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lead resource",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Lead.jsonld-lead.read"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Lead-lead.read"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Retrieves a Lead resource.",
+                "description": "Retrieves a Lead resource.",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Lead identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            }
+        },
+        "/api/v1/leads/{id}/contact": {
+            "post": {
+                "operationId": "lead_contact",
+                "tags": [
+                    "Lead"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lead resource created",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Lead.jsonld-lead.read"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Lead-lead.read"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Marquer la piste contact\u00e9e",
+                "description": "Marquer la piste contact\u00e9e",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Lead identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            }
+        },
+        "/api/v1/leads/{id}/lose": {
+            "post": {
+                "operationId": "lead_lose",
+                "tags": [
+                    "Lead"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lead resource created",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Lead.jsonld-lead.read"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Lead-lead.read"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Marquer perdue",
+                "description": "Marquer perdue",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Lead identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            }
+        },
+        "/api/v1/leads/{id}/pause": {
+            "post": {
+                "operationId": "lead_pause",
+                "tags": [
+                    "Lead"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lead resource created",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Lead.jsonld-lead.read"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Lead-lead.read"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Mettre en pause",
+                "description": "Mettre en pause",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Lead identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            }
+        },
+        "/api/v1/leads/{id}/reply": {
+            "post": {
+                "operationId": "lead_reply",
+                "tags": [
+                    "Lead"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lead resource created",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Lead.jsonld-lead.read"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Lead-lead.read"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Enregistrer une r\u00e9ponse (ouvre la discussion)",
+                "description": "Enregistrer une r\u00e9ponse (ouvre la discussion)",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Lead identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            }
+        },
+        "/api/v1/leads/{id}/resume": {
+            "post": {
+                "operationId": "lead_resume",
+                "tags": [
+                    "Lead"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lead resource created",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Lead.jsonld-lead.read"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Lead-lead.read"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Reprendre (retour au statut m\u00e9moris\u00e9)",
+                "description": "Reprendre (retour au statut m\u00e9moris\u00e9)",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Lead identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            }
+        },
+        "/api/v1/leads/{id}/sample-test": {
+            "post": {
+                "operationId": "lead_sample_test",
+                "tags": [
+                    "Lead"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lead resource created",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Lead.jsonld-lead.read"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Lead-lead.read"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Passer au test/\u00e9chantillon",
+                "description": "Passer au test/\u00e9chantillon",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Lead identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            }
+        },
+        "/api/v1/leads/{id}/win": {
+            "post": {
+                "operationId": "lead_win",
+                "tags": [
+                    "Lead"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lead resource created",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Lead.jsonld-lead.read"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Lead-lead.read"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Marquer gagn\u00e9e",
+                "description": "Marquer gagn\u00e9e",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Lead identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            }
+        },
+        "/api/v1/leads/{leadId}/notes": {
+            "post": {
+                "operationId": "api_leads_leadIdnotes_post",
+                "tags": [
+                    "LeadNote"
+                ],
+                "responses": {
+                    "201": {
+                        "description": "LeadNote resource created",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LeadNote.jsonld-lead_note.read"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LeadNote-lead_note.read"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Creates a LeadNote resource.",
+                "description": "Creates a LeadNote resource.",
+                "parameters": [
+                    {
+                        "name": "leadId",
+                        "in": "path",
+                        "description": "LeadResource identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ],
+                "requestBody": {
+                    "description": "The new LeadNote resource",
+                    "content": {
+                        "application/ld+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LeadNote-lead_note.write"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LeadNote-lead_note.write"
+                            }
+                        }
+                    },
+                    "required": true
+                }
+            }
+        },
         "/api/v1/login_check": {
             "post": {
                 "operationId": "login_check_post",
@@ -1603,6 +2652,397 @@
                     "@type"
                 ]
             },
+            "Interaction-interaction.read": {
+                "type": "object",
+                "description": "Entr\u00e9e du journal d'interactions (timeline d'une piste) \u2014 lecture seule.",
+                "properties": {
+                    "id": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "type": {
+                        "default": "",
+                        "type": "string"
+                    },
+                    "payload": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    },
+                    "occurredOn": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                }
+            },
+            "Interaction.jsonld-interaction.read": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/HydraItemBaseSchema"
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "type": {
+                                "default": "",
+                                "type": "string"
+                            },
+                            "payload": {
+                                "type": "object",
+                                "additionalProperties": {
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
+                                }
+                            },
+                            "occurredOn": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            }
+                        }
+                    }
+                ],
+                "description": "Entr\u00e9e du journal d'interactions (timeline d'une piste) \u2014 lecture seule."
+            },
+            "Lead-lead.read": {
+                "type": "object",
+                "description": "Piste (DTO) \u2014 API orient\u00e9e cas d'usage : les transitions sont des POST d\u00e9di\u00e9s\n(pas de PATCH de statut), chacune mappe une commande m\u00e9tier. Transition\ninterdite \u2192 409 (mapping Conflict).",
+                "properties": {
+                    "id": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "organizationId": {
+                        "format": "uuid",
+                        "externalDocs": {
+                            "url": "https://schema.org/identifier"
+                        },
+                        "default": "",
+                        "type": "string"
+                    },
+                    "organizationName": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "contactId": {
+                        "format": "uuid",
+                        "externalDocs": {
+                            "url": "https://schema.org/identifier"
+                        },
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "languagePair": {
+                        "pattern": "^([a-zA-Z]{2}>[a-zA-Z]{2})$",
+                        "default": "",
+                        "type": "string"
+                    },
+                    "source": {
+                        "enum": [
+                            "DIRECT",
+                            "REFERRAL",
+                            "JOB_BOARD",
+                            "OTHER"
+                        ],
+                        "default": "DIRECT",
+                        "type": "string"
+                    },
+                    "priority": {
+                        "enum": [
+                            "LOW",
+                            "MEDIUM",
+                            "HIGH"
+                        ],
+                        "default": "MEDIUM",
+                        "type": "string"
+                    },
+                    "segment": {
+                        "enum": [
+                            "PUBLISHING",
+                            "AUDIOVISUAL",
+                            "TECHNICAL",
+                            "OTHER"
+                        ],
+                        "default": "OTHER",
+                        "type": "string"
+                    },
+                    "status": {
+                        "default": "TO_CONTACT",
+                        "type": "string"
+                    },
+                    "allowedActions": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "createdAt": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "lastContactedAt": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "lastReplyAt": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                },
+                "required": [
+                    "organizationId",
+                    "languagePair"
+                ]
+            },
+            "Lead-lead.write": {
+                "type": "object",
+                "description": "Piste (DTO) \u2014 API orient\u00e9e cas d'usage : les transitions sont des POST d\u00e9di\u00e9s\n(pas de PATCH de statut), chacune mappe une commande m\u00e9tier. Transition\ninterdite \u2192 409 (mapping Conflict).",
+                "required": [
+                    "organizationId",
+                    "languagePair"
+                ],
+                "properties": {
+                    "organizationId": {
+                        "format": "uuid",
+                        "externalDocs": {
+                            "url": "https://schema.org/identifier"
+                        },
+                        "default": "",
+                        "type": "string"
+                    },
+                    "contactId": {
+                        "format": "uuid",
+                        "externalDocs": {
+                            "url": "https://schema.org/identifier"
+                        },
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "languagePair": {
+                        "pattern": "^([a-zA-Z]{2}>[a-zA-Z]{2})$",
+                        "default": "",
+                        "type": "string"
+                    },
+                    "source": {
+                        "enum": [
+                            "DIRECT",
+                            "REFERRAL",
+                            "JOB_BOARD",
+                            "OTHER"
+                        ],
+                        "default": "DIRECT",
+                        "type": "string"
+                    },
+                    "priority": {
+                        "enum": [
+                            "LOW",
+                            "MEDIUM",
+                            "HIGH"
+                        ],
+                        "default": "MEDIUM",
+                        "type": "string"
+                    },
+                    "segment": {
+                        "enum": [
+                            "PUBLISHING",
+                            "AUDIOVISUAL",
+                            "TECHNICAL",
+                            "OTHER"
+                        ],
+                        "default": "OTHER",
+                        "type": "string"
+                    }
+                }
+            },
+            "Lead.jsonld-lead.read": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/HydraItemBaseSchema"
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "organizationId": {
+                                "format": "uuid",
+                                "externalDocs": {
+                                    "url": "https://schema.org/identifier"
+                                },
+                                "default": "",
+                                "type": "string"
+                            },
+                            "organizationName": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "contactId": {
+                                "format": "uuid",
+                                "externalDocs": {
+                                    "url": "https://schema.org/identifier"
+                                },
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "languagePair": {
+                                "pattern": "^([a-zA-Z]{2}>[a-zA-Z]{2})$",
+                                "default": "",
+                                "type": "string"
+                            },
+                            "source": {
+                                "enum": [
+                                    "DIRECT",
+                                    "REFERRAL",
+                                    "JOB_BOARD",
+                                    "OTHER"
+                                ],
+                                "default": "DIRECT",
+                                "type": "string"
+                            },
+                            "priority": {
+                                "enum": [
+                                    "LOW",
+                                    "MEDIUM",
+                                    "HIGH"
+                                ],
+                                "default": "MEDIUM",
+                                "type": "string"
+                            },
+                            "segment": {
+                                "enum": [
+                                    "PUBLISHING",
+                                    "AUDIOVISUAL",
+                                    "TECHNICAL",
+                                    "OTHER"
+                                ],
+                                "default": "OTHER",
+                                "type": "string"
+                            },
+                            "status": {
+                                "default": "TO_CONTACT",
+                                "type": "string"
+                            },
+                            "allowedActions": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            "createdAt": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "lastContactedAt": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "lastReplyAt": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            }
+                        },
+                        "required": [
+                            "organizationId",
+                            "languagePair"
+                        ]
+                    }
+                ],
+                "description": "Piste (DTO) \u2014 API orient\u00e9e cas d'usage : les transitions sont des POST d\u00e9di\u00e9s\n(pas de PATCH de statut), chacune mappe une commande m\u00e9tier. Transition\ninterdite \u2192 409 (mapping Conflict)."
+            },
+            "LeadNote-lead_note.read": {
+                "type": "object",
+                "description": "Note manuelle sur une piste \u2014 vers\u00e9e au journal d'interactions (via event).",
+                "required": [
+                    "text"
+                ],
+                "properties": {
+                    "text": {
+                        "maxLength": 5000,
+                        "default": "",
+                        "type": "string"
+                    }
+                }
+            },
+            "LeadNote-lead_note.write": {
+                "type": "object",
+                "description": "Note manuelle sur une piste \u2014 vers\u00e9e au journal d'interactions (via event).",
+                "required": [
+                    "text"
+                ],
+                "properties": {
+                    "text": {
+                        "maxLength": 5000,
+                        "default": "",
+                        "type": "string"
+                    }
+                }
+            },
+            "LeadNote.jsonld-lead_note.read": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/HydraItemBaseSchema"
+                    },
+                    {
+                        "type": "object",
+                        "required": [
+                            "text"
+                        ],
+                        "properties": {
+                            "text": {
+                                "maxLength": 5000,
+                                "default": "",
+                                "type": "string"
+                            }
+                        }
+                    }
+                ],
+                "description": "Note manuelle sur une piste \u2014 vers\u00e9e au journal d'interactions (via event)."
+            },
             "Organization-org.read": {
                 "type": "object",
                 "description": "Resource API (DTO) du R\u00e9pertoire \u2014 jamais l'agr\u00e9gat/entit\u00e9 Doctrine.",
@@ -2014,6 +3454,18 @@
         {
             "name": "Organization",
             "description": "Resource API (DTO) du R\u00e9pertoire \u2014 jamais l'agr\u00e9gat/entit\u00e9 Doctrine."
+        },
+        {
+            "name": "Interaction",
+            "description": "Entr\u00e9e du journal d'interactions (timeline d'une piste) \u2014 lecture seule."
+        },
+        {
+            "name": "LeadNote",
+            "description": "Note manuelle sur une piste \u2014 vers\u00e9e au journal d'interactions (via event)."
+        },
+        {
+            "name": "Lead",
+            "description": "Piste (DTO) \u2014 API orient\u00e9e cas d'usage : les transitions sont des POST d\u00e9di\u00e9s\n(pas de PATCH de statut), chacune mappe une commande m\u00e9tier. Transition\ninterdite \u2192 409 (mapping Conflict)."
         }
     ],
     "webhooks": {}

@@ -43,3 +43,11 @@ framework:
         routing:
             # Les domain events (marqueur) partent en asynchrone.
             'App\Shared\Domain\DomainEvent': async
+
+when@test:
+    framework:
+        messenger:
+            transports:
+                # En test, les events sont consommés EN LIGNE (projections immédiates,
+                # assertions déterministes). La prod reste asynchrone (outbox + worker).
+                async: 'sync://'

@@ -8,6 +8,7 @@ use App\Prospecting\Domain\Lead\Exception\LeadNotFound;
 use App\Prospecting\Domain\Lead\Lead;
 use App\Prospecting\Domain\Lead\LeadId;
 use App\Prospecting\Domain\Lead\LeadRepository;
+use App\Prospecting\Domain\Lead\PipelineStatus;
 use Doctrine\ORM\EntityManagerInterface;
 
 final class DoctrineLeadRepository implements LeadRepository
@@ -38,5 +39,20 @@ final class DoctrineLeadRepository implements LeadRepository
         }
 
         return $lead;
+    }
+
+    public function hasActiveForOrganization(string $organizationId): bool
+    {
+        $count = $this->em->createQueryBuilder()
+            ->select('COUNT(l.id)')
+            ->from(Lead::class, 'l')
+            ->where('l.organizationId = :organizationId')
+            ->andWhere('l.status NOT IN (:terminal)')
+            ->setParameter('organizationId', $organizationId)
+            ->setParameter('terminal', [PipelineStatus::WON->value, PipelineStatus::LOST->value])
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return ((int) $count) > 0;
     }
 }

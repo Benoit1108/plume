@@ -150,8 +150,8 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - name: Start API stack (Postgres + FrankenPHP)
-        run: docker compose up -d --build database php
+      - name: Start API stack (Postgres + FrankenPHP + worker)
+        run: docker compose up -d --build database php worker
 
       - name: Install backend dependencies (in container)
         run: docker compose run --rm --no-deps php composer install --no-interaction --no-progress

@@ -10,6 +10,7 @@ doctrine:
             language_code_list: App\Directory\Infrastructure\Persistence\Doctrine\Type\LanguageCodeListType
             segment_list: App\Directory\Infrastructure\Persistence\Doctrine\Type\SegmentListType
             contact_collection: App\Directory\Infrastructure\Persistence\Doctrine\Type\ContactCollectionType
+            language_pair: App\Prospecting\Infrastructure\Persistence\Doctrine\Type\LanguagePairType
     orm:
         validate_xml_mapping: true
         naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
