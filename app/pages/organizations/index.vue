@@ -1,74 +1,70 @@
 <script setup lang="ts">
 import type { Organization } from '~/types/directory'
 
+const { t } = useI18n()
+const { typeLabel, segmentLabel, typeOptions } = useDirectoryLabels()
 const directory = useDirectory()
 
 const type = ref('')
 const q = ref('')
+const qDebounced = useDebounced(q, 300)
+
+const typeFilterItems = computed(() => [
+  { value: '', label: t('directory.list.typeAll') },
+  ...typeOptions.value,
+])
 
 const { data: organizations, status } = await useAsyncData<Organization[]>(
   'organizations',
-  () => directory.list({ type: type.value || undefined, q: q.value || undefined }),
-  { server: false, default: () => [], watch: [type, q] },
+  () => directory.list({ type: type.value || undefined, q: qDebounced.value || undefined }),
+  { server: false, default: () => [], watch: [type, qDebounced] },
 )
-
-const typeLabels: Record<string, string> = {
-  PUBLISHER: 'Éditeur',
-  AV_STUDIO: 'Labo A/V',
-  AGENCY: 'Agence',
-  OTHER: 'Autre',
-}
-const segmentLabels: Record<string, string> = {
-  PUBLISHING: 'Édition',
-  AUDIOVISUAL: 'Audiovisuel',
-  TECHNICAL: 'Technique',
-  OTHER: 'Autre',
-}
-
-const selectClass = 'text-sm rounded-md border border-default bg-default text-default px-3 py-2'
 </script>
 
 <template>
   <UContainer class="py-8">
     <div class="flex items-end gap-4 flex-wrap">
       <div>
-        <p class="text-[11px] uppercase tracking-widest text-dimmed font-semibold">Atelier · cibles</p>
-        <h1 class="font-serif text-3xl font-semibold mt-1">Répertoire</h1>
+        <p class="text-[11px] uppercase tracking-widest text-dimmed font-semibold">{{ t('directory.eyebrow') }}</p>
+        <h1 class="font-serif text-3xl font-semibold mt-1">{{ t('directory.title') }}</h1>
       </div>
       <div class="ml-auto flex gap-2">
-        <UButton color="neutral" variant="outline" icon="i-lucide-upload" to="/organizations/import">Importer CSV</UButton>
-        <UButton icon="i-lucide-plus" to="/organizations/new">Organisation</UButton>
+        <UButton color="neutral" variant="outline" icon="i-lucide-upload" to="/organizations/import">
+          {{ t('directory.list.importCsv') }}
+        </UButton>
+        <UButton icon="i-lucide-plus" to="/organizations/new">{{ t('directory.list.newOrganization') }}</UButton>
       </div>
     </div>
 
     <div class="flex gap-2 flex-wrap mt-6">
-      <select v-model="type" :class="selectClass" aria-label="Filtrer par type">
-        <option value="">Type — tous</option>
-        <option value="PUBLISHER">Éditeur</option>
-        <option value="AV_STUDIO">Labo A/V</option>
-        <option value="AGENCY">Agence</option>
-        <option value="OTHER">Autre</option>
-      </select>
-      <UInput v-model="q" icon="i-lucide-search" placeholder="Rechercher une organisation…" class="flex-1 min-w-48" />
+      <USelect
+        v-model="type"
+        :items="typeFilterItems"
+        value-key="value"
+        label-key="label"
+        :aria-label="t('directory.list.typeFilter')"
+        class="w-44"
+      />
+      <UInput v-model="q" icon="i-lucide-search" :placeholder="t('directory.list.searchPlaceholder')" class="flex-1 min-w-48" />
     </div>
 
     <div class="mt-4">
-      <div v-if="status === 'pending'" class="py-12 text-center text-dimmed">Chargement…</div>
+      <div v-if="status === 'pending'" class="py-12 text-center text-dimmed">{{ t('common.loading') }}</div>
 
       <div v-else-if="!organizations.length" class="py-12 text-center text-muted border border-default rounded-xl">
-        Aucune organisation. Créez votre première cible.
+        {{ t('directory.list.empty') }}
       </div>
 
       <template v-else>
-        <!-- Desktop : tableau -->
+        <!-- Desktop : tableau (le nom est un vrai lien -> accessible clavier) -->
         <div class="hidden sm:block overflow-x-auto border border-default rounded-xl bg-elevated/40">
           <table class="w-full text-sm min-w-[640px]">
             <thead>
               <tr class="text-left text-[11px] uppercase tracking-wider text-dimmed">
-                <th class="px-4 py-3 font-semibold border-b border-default">Organisation</th>
-                <th class="px-4 py-3 font-semibold border-b border-default">Segments</th>
-                <th class="px-4 py-3 font-semibold border-b border-default">Langues</th>
-                <th class="px-4 py-3 font-semibold border-b border-default">Contacts</th>
+                <th class="px-4 py-3 font-semibold border-b border-default">{{ t('directory.list.colOrganization') }}</th>
+                <th class="px-4 py-3 font-semibold border-b border-default">{{ t('directory.list.colSegments') }}</th>
+                <th class="px-4 py-3 font-semibold border-b border-default">{{ t('directory.list.colLanguages') }}</th>
+                <th class="px-4 py-3 font-semibold border-b border-default">{{ t('directory.list.colContacts') }}</th>
                 <th class="px-4 py-3 font-semibold border-b border-default" />
               </tr>
             </thead>
@@ -80,13 +76,18 @@ const selectClass = 'text-sm rounded-md border border-default bg-default text-de
                 @click="navigateTo(`/organizations/${org.id}`)"
               >
                 <td class="px-4 py-3 border-b border-default">
-                  <div class="font-semibold">{{ org.name }}</div>
-                  <div class="text-xs text-dimmed">{{ typeLabels[org.type] ?? org.type }}</div>
+                  <NuxtLink
+                    :to="`/organizations/${org.id}`"
+                    class="font-semibold rounded-sm focus-visible:outline-2 focus-visible:outline-primary"
+                    :aria-label="t('directory.list.openOrganization', { name: org.name })"
+                    @click.stop
+                  >{{ org.name }}</NuxtLink>
+                  <div class="text-xs text-dimmed">{{ typeLabel(org.type) }}</div>
                 </td>
                 <td class="px-4 py-3 border-b border-default">
                   <div class="flex gap-1.5 flex-wrap">
                     <UBadge v-for="s in org.segments" :key="s" color="neutral" variant="soft" size="sm">
-                      {{ segmentLabels[s] ?? s }}
+                      {{ segmentLabel(s) }}
                     </UBadge>
                   </div>
                 </td>
@@ -99,7 +100,10 @@ const selectClass = 'text-sm rounded-md border border-default bg-default text-de
                   {{ org.contacts?.length ?? 0 }}
                 </td>
                 <td class="px-4 py-3 border-b border-default text-right">
-                  <UIcon v-if="org.doNotContact" name="i-lucide-flag" class="text-error" />
+                  <template v-if="org.doNotContact">
+                    <UIcon name="i-lucide-flag" class="text-error" aria-hidden="true" />
+                    <span class="sr-only">{{ t('directory.doNotContact.flag') }}</span>
+                  </template>
                 </td>
               </tr>
             </tbody>
@@ -109,27 +113,29 @@ const selectClass = 'text-sm rounded-md border border-default bg-default text-de
         <!-- Mobile : cartes -->
         <ul class="sm:hidden flex flex-col gap-3">
           <li v-for="org in organizations" :key="org.id">
-            <button
-              type="button"
-              class="w-full text-left border border-default rounded-xl p-4 bg-elevated/40 flex flex-col gap-2"
-              @click="navigateTo(`/organizations/${org.id}`)"
+            <NuxtLink
+              :to="`/organizations/${org.id}`"
+              class="block w-full text-left border border-default rounded-xl p-4 bg-elevated/40 flex flex-col gap-2 focus-visible:outline-2 focus-visible:outline-primary"
             >
               <div class="flex items-center gap-2">
                 <span class="font-semibold">{{ org.name }}</span>
-                <UIcon v-if="org.doNotContact" name="i-lucide-flag" class="text-error ml-auto shrink-0" />
+                <template v-if="org.doNotContact">
+                  <UIcon name="i-lucide-flag" class="text-error ml-auto shrink-0" aria-hidden="true" />
+                  <span class="sr-only">{{ t('directory.doNotContact.flag') }}</span>
+                </template>
               </div>
               <div class="text-xs text-dimmed">
-                {{ typeLabels[org.type] ?? org.type }} · {{ org.contacts?.length ?? 0 }} contact(s)
+                {{ typeLabel(org.type) }} · {{ t('directory.list.contactsCount', { count: org.contacts?.length ?? 0 }, org.contacts?.length ?? 0) }}
               </div>
               <div v-if="org.segments.length" class="flex gap-1.5 flex-wrap">
                 <UBadge v-for="s in org.segments" :key="s" color="neutral" variant="soft" size="sm">
-                  {{ segmentLabels[s] ?? s }}
+                  {{ segmentLabel(s) }}
                 </UBadge>
               </div>
               <div v-if="org.workingLanguages.length" class="flex gap-1 flex-wrap">
                 <LangStamp v-for="l in org.workingLanguages" :key="l" :code="l" />
               </div>
-            </button>
+            </NuxtLink>
           </li>
         </ul>
       </template>

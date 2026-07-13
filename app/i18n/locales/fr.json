@@ -1,19 +1,137 @@
 {
-  "tagline": "Mini-CRM de prospection pour traductrice indépendante.",
-  "theme": {
-    "toggle": "Changer de thème"
-  },
   "auth": {
     "tagline": "L'atelier de prospection des traducteurs.",
     "email": "Email",
     "password": "Mot de passe",
     "signIn": "Se connecter",
-    "error": "Identifiants incorrects."
-  },
-  "home": {
-    "welcome": "Bienvenue",
-    "connectedAs": "Connectée en tant que {email}.",
-    "repertoireSoon": "Le Répertoire arrive à la prochaine étape de M1.1.",
+    "error": "Identifiants incorrects.",
     "logout": "Se déconnecter"
+  },
+  "theme": {
+    "toLight": "Passer au thème clair",
+    "toDark": "Passer au thème sombre"
+  },
+  "locale": {
+    "label": "Langue"
+  },
+  "nav": {
+    "menu": "Navigation",
+    "openMenu": "Ouvrir le menu",
+    "today": "Aujourd'hui",
+    "leads": "Pistes",
+    "directory": "Répertoire",
+    "templates": "Modèles"
+  },
+  "actions": {
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "create": "Créer",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "add": "Ajouter",
+    "confirm": "Confirmer"
+  },
+  "common": {
+    "loading": "Chargement…",
+    "error": "Une erreur est survenue. Réessaie."
+  },
+  "directory": {
+    "eyebrow": "Atelier · cibles",
+    "title": "Répertoire",
+    "types": {
+      "PUBLISHER": "Éditeur",
+      "AV_STUDIO": "Labo A/V",
+      "AGENCY": "Agence",
+      "OTHER": "Autre"
+    },
+    "segments": {
+      "PUBLISHING": "Édition",
+      "AUDIOVISUAL": "Audiovisuel",
+      "TECHNICAL": "Technique",
+      "OTHER": "Autre"
+    },
+    "list": {
+      "importCsv": "Importer CSV",
+      "newOrganization": "Organisation",
+      "typeAll": "Type — tous",
+      "typeFilter": "Filtrer par type",
+      "searchPlaceholder": "Rechercher une organisation…",
+      "colOrganization": "Organisation",
+      "colSegments": "Segments",
+      "colLanguages": "Langues",
+      "colContacts": "Contacts",
+      "empty": "Aucune organisation. Crée ta première cible.",
+      "contactsCount": "aucun contact | {count} contact | {count} contacts",
+      "openOrganization": "Ouvrir {name}"
+    },
+    "form": {
+      "name": "Nom",
+      "type": "Type",
+      "country": "Pays",
+      "countryPlaceholder": "FR",
+      "website": "Site web",
+      "websitePlaceholder": "https://…",
+      "workingLanguages": "Langues de travail",
+      "workingLanguagesHint": "Codes séparés par un espace, ex. en fr",
+      "segments": "Segments",
+      "notes": "Notes"
+    },
+    "new": {
+      "title": "Nouvelle organisation",
+      "error": "Création impossible. Vérifie les champs (le nom est requis, unique par compte)."
+    },
+    "detail": {
+      "editTitle": "Modifier l'organisation",
+      "notFound": "Organisation introuvable.",
+      "contacts": "Contacts",
+      "addContact": "Contact",
+      "noContacts": "Aucun contact pour l'instant.",
+      "deleteContactTitle": "Supprimer ce contact ?",
+      "deleteContactBody": "{name} sera définitivement supprimé de cette organisation.",
+      "allowContactTitle": "Réautoriser le démarchage ?",
+      "allowContactBody": "Assure-toi que la personne a bien redonné son accord — chaque bascule est tracée."
+    },
+    "doNotContact": {
+      "flag": "Ne pas contacter",
+      "mark": "Ne pas contacter",
+      "clear": "Réautoriser"
+    },
+    "contactForm": {
+      "fullName": "Nom complet",
+      "role": "Rôle",
+      "email": "Email",
+      "phone": "Téléphone",
+      "linkedin": "LinkedIn",
+      "preferredLanguage": "Langue préférée"
+    },
+    "import": {
+      "title": "Importer des organisations",
+      "intro": "Dépose un fichier CSV. Le séparateur (virgule ou point-virgule) est détecté automatiquement.",
+      "columnsTitle": "Colonnes reconnues",
+      "columnName": "nom",
+      "columnNameRequired": "(obligatoire)",
+      "columnType": "type",
+      "columnTypeHint": "éditeur, labo A/V, agence, autre",
+      "columnOthers": "pays (code ISO, ex. FR), langues (ex. « en fr »), segments, site, notes",
+      "columnContact": "contact, email, rôle, téléphone — contact principal, optionnel",
+      "chooseFile": "Choisir un fichier CSV",
+      "run": "Lancer l'import",
+      "imported": "Importées",
+      "skipped": "Ignorées",
+      "failed": "En échec",
+      "skippedHint": "Les organisations dont le nom existe déjà sont ignorées (pas de doublon).",
+      "lineAbbr": "L.{line}",
+      "seeDirectory": "Voir le répertoire",
+      "error": "Import impossible — vérifie le format du fichier."
+    },
+    "toasts": {
+      "created": "Organisation créée.",
+      "updated": "Modifications enregistrées.",
+      "marked": "Organisation marquée « ne pas contacter ».",
+      "cleared": "Démarchage réautorisé.",
+      "contactAdded": "Contact ajouté.",
+      "contactUpdated": "Contact modifié.",
+      "contactDeleted": "Contact supprimé."
+    }
   }
 }

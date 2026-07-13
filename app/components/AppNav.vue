@@ -1,15 +1,16 @@
 <script setup lang="ts">
+const { t } = useI18n()
 const auth = useAuthStore()
 const route = useRoute()
 
 defineEmits<{ navigate: [] }>()
 
-const nav: { label: string, to: string | null }[] = [
-  { label: 'Aujourd\'hui', to: null },
-  { label: 'Pistes', to: null },
-  { label: 'Répertoire', to: '/organizations' },
-  { label: 'Modèles', to: null },
-]
+const nav = computed((): { label: string, to: string | null }[] => [
+  { label: t('nav.today'), to: null },
+  { label: t('nav.leads'), to: null },
+  { label: t('nav.directory'), to: '/organizations' },
+  { label: t('nav.templates'), to: null },
+])
 </script>
 
 <template>

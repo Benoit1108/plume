@@ -1,19 +1,137 @@
 {
-  "tagline": "Prospecting mini-CRM for freelance translators.",
-  "theme": {
-    "toggle": "Toggle theme"
-  },
   "auth": {
     "tagline": "The translator's prospecting studio.",
     "email": "Email",
     "password": "Password",
     "signIn": "Sign in",
-    "error": "Invalid credentials."
-  },
-  "home": {
-    "welcome": "Welcome",
-    "connectedAs": "Signed in as {email}.",
-    "repertoireSoon": "The Directory is coming in the next M1.1 step.",
+    "error": "Invalid credentials.",
     "logout": "Sign out"
+  },
+  "theme": {
+    "toLight": "Switch to light theme",
+    "toDark": "Switch to dark theme"
+  },
+  "locale": {
+    "label": "Language"
+  },
+  "nav": {
+    "menu": "Navigation",
+    "openMenu": "Open menu",
+    "today": "Today",
+    "leads": "Leads",
+    "directory": "Directory",
+    "templates": "Templates"
+  },
+  "actions": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "create": "Create",
+    "edit": "Edit",
+    "delete": "Delete",
+    "add": "Add",
+    "confirm": "Confirm"
+  },
+  "common": {
+    "loading": "Loading…",
+    "error": "Something went wrong. Try again."
+  },
+  "directory": {
+    "eyebrow": "Studio · targets",
+    "title": "Directory",
+    "types": {
+      "PUBLISHER": "Publisher",
+      "AV_STUDIO": "A/V studio",
+      "AGENCY": "Agency",
+      "OTHER": "Other"
+    },
+    "segments": {
+      "PUBLISHING": "Publishing",
+      "AUDIOVISUAL": "Audiovisual",
+      "TECHNICAL": "Technical",
+      "OTHER": "Other"
+    },
+    "list": {
+      "importCsv": "Import CSV",
+      "newOrganization": "Organization",
+      "typeAll": "Type — all",
+      "typeFilter": "Filter by type",
+      "searchPlaceholder": "Search organizations…",
+      "colOrganization": "Organization",
+      "colSegments": "Segments",
+      "colLanguages": "Languages",
+      "colContacts": "Contacts",
+      "empty": "No organizations yet. Create your first target.",
+      "contactsCount": "no contacts | {count} contact | {count} contacts",
+      "openOrganization": "Open {name}"
+    },
+    "form": {
+      "name": "Name",
+      "type": "Type",
+      "country": "Country",
+      "countryPlaceholder": "FR",
+      "website": "Website",
+      "websitePlaceholder": "https://…",
+      "workingLanguages": "Working languages",
+      "workingLanguagesHint": "Space-separated codes, e.g. en fr",
+      "segments": "Segments",
+      "notes": "Notes"
+    },
+    "new": {
+      "title": "New organization",
+      "error": "Could not create. Check the fields (name is required and unique per account)."
+    },
+    "detail": {
+      "editTitle": "Edit organization",
+      "notFound": "Organization not found.",
+      "contacts": "Contacts",
+      "addContact": "Contact",
+      "noContacts": "No contacts yet.",
+      "deleteContactTitle": "Delete this contact?",
+      "deleteContactBody": "{name} will be permanently removed from this organization.",
+      "allowContactTitle": "Allow outreach again?",
+      "allowContactBody": "Make sure the person has actually opted back in — every change is tracked."
+    },
+    "doNotContact": {
+      "flag": "Do not contact",
+      "mark": "Do not contact",
+      "clear": "Allow again"
+    },
+    "contactForm": {
+      "fullName": "Full name",
+      "role": "Role",
+      "email": "Email",
+      "phone": "Phone",
+      "linkedin": "LinkedIn",
+      "preferredLanguage": "Preferred language"
+    },
+    "import": {
+      "title": "Import organizations",
+      "intro": "Drop a CSV file. The separator (comma or semicolon) is detected automatically.",
+      "columnsTitle": "Recognized columns",
+      "columnName": "name",
+      "columnNameRequired": "(required)",
+      "columnType": "type",
+      "columnTypeHint": "publisher, A/V studio, agency, other",
+      "columnOthers": "country (ISO code, e.g. FR), languages (e.g. “en fr”), segments, website, notes",
+      "columnContact": "contact, email, role, phone — main contact, optional",
+      "chooseFile": "Choose a CSV file",
+      "run": "Run import",
+      "imported": "Imported",
+      "skipped": "Skipped",
+      "failed": "Failed",
+      "skippedHint": "Organizations whose name already exists are skipped (no duplicates).",
+      "lineAbbr": "L.{line}",
+      "seeDirectory": "View directory",
+      "error": "Import failed — check the file format."
+    },
+    "toasts": {
+      "created": "Organization created.",
+      "updated": "Changes saved.",
+      "marked": "Organization marked “do not contact”.",
+      "cleared": "Outreach allowed again.",
+      "contactAdded": "Contact added.",
+      "contactUpdated": "Contact updated.",
+      "contactDeleted": "Contact deleted."
+    }
   }
 }

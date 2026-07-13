@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const { t } = useI18n()
 const colorMode = useColorMode()
 
 const isDark = computed(() => colorMode.value === 'dark')
@@ -14,7 +15,7 @@ function toggle(): void {
     color="neutral"
     variant="ghost"
     size="sm"
-    :aria-label="isDark ? 'Passer au thème clair' : 'Passer au thème sombre'"
+    :aria-label="isDark ? t('theme.toLight') : t('theme.toDark')"
     @click="toggle"
   />
 </template>

@@ -9,6 +9,8 @@ const props = defineProps<{
 
 const emit = defineEmits<{ submit: [ContactInput], cancel: [] }>()
 
+const { t } = useI18n()
+
 const form = reactive({
   fullName: props.initial?.fullName ?? '',
   role: props.initial?.role ?? '',
@@ -33,34 +35,28 @@ function onSubmit(): void {
 <template>
   <form class="flex flex-col gap-3" @submit.prevent="onSubmit">
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-      <div class="flex flex-col gap-1.5">
-        <label class="text-sm font-medium">Nom complet</label>
+      <UFormField :label="t('directory.contactForm.fullName')" required>
         <UInput v-model="form.fullName" required class="w-full" />
-      </div>
-      <div class="flex flex-col gap-1.5">
-        <label class="text-sm font-medium">Rôle</label>
+      </UFormField>
+      <UFormField :label="t('directory.contactForm.role')">
         <UInput v-model="form.role" class="w-full" />
-      </div>
-      <div class="flex flex-col gap-1.5">
-        <label class="text-sm font-medium">Email</label>
+      </UFormField>
+      <UFormField :label="t('directory.contactForm.email')">
         <UInput v-model="form.email" type="email" class="w-full" />
-      </div>
-      <div class="flex flex-col gap-1.5">
-        <label class="text-sm font-medium">Téléphone</label>
+      </UFormField>
+      <UFormField :label="t('directory.contactForm.phone')">
         <UInput v-model="form.phone" class="w-full" />
-      </div>
-      <div class="flex flex-col gap-1.5">
-        <label class="text-sm font-medium">LinkedIn</label>
-        <UInput v-model="form.linkedinUrl" class="w-full" />
-      </div>
-      <div class="flex flex-col gap-1.5">
-        <label class="text-sm font-medium">Langue préférée</label>
+      </UFormField>
+      <UFormField :label="t('directory.contactForm.linkedin')">
+        <UInput v-model="form.linkedinUrl" type="url" class="w-full" />
+      </UFormField>
+      <UFormField :label="t('directory.contactForm.preferredLanguage')">
         <UInput v-model="form.preferredLanguage" maxlength="2" placeholder="fr" class="w-full" />
-      </div>
+      </UFormField>
     </div>
     <div class="flex gap-2">
-      <UButton type="submit" size="sm" :loading="submitting">{{ submitLabel ?? 'Enregistrer' }}</UButton>
-      <UButton type="button" size="sm" color="neutral" variant="ghost" @click="emit('cancel')">Annuler</UButton>
+      <UButton type="submit" size="sm" :loading="submitting">{{ submitLabel ?? t('actions.save') }}</UButton>
+      <UButton type="button" size="sm" color="neutral" variant="ghost" @click="emit('cancel')">{{ t('actions.cancel') }}</UButton>
     </div>
   </form>
 </template>

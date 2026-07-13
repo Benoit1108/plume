@@ -27,6 +27,10 @@ async function onSubmit(): Promise<void> {
 
 <template>
   <div class="min-h-screen grid place-items-center p-6">
+    <div class="absolute top-4 right-4 flex gap-2">
+      <LocaleSwitcher />
+      <ThemeToggle />
+    </div>
     <UCard class="w-full max-w-sm">
       <div class="flex flex-col gap-1.5">
         <PlumeMark :size="30" />

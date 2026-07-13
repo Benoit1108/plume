@@ -1,18 +1,21 @@
 export type OrganizationType = 'PUBLISHER' | 'AV_STUDIO' | 'AGENCY' | 'OTHER'
+export type Segment = 'PUBLISHING' | 'AUDIOVISUAL' | 'TECHNICAL' | 'OTHER'
 
+/** Contact tel que retourné par l'API (persisté : id garanti). */
 export interface Contact {
-  id?: string
+  id: string
   fullName: string
   role?: string | null
   email?: string | null
   phone?: string | null
   linkedinUrl?: string | null
   preferredLanguage?: string | null
-  doNotContact?: boolean
+  doNotContact: boolean
 }
 
+/** Organisation telle que retournée par l'API (persistée : id garanti). */
 export interface Organization {
-  id?: string
+  id: string
   name: string
   type: OrganizationType
   website?: string | null
