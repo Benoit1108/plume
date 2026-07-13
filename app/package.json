@@ -26,6 +26,7 @@
   },
   "devDependencies": {
     "@nuxt/eslint": "latest",
+    "@types/node": "^26.1.1",
     "@vitest/coverage-v8": "latest",
     "eslint": "latest",
     "typescript": "latest",
