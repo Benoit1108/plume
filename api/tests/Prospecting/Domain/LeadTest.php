@@ -10,7 +10,7 @@ use App\Prospecting\Domain\Lead\Exception\IllegalStatusTransition;
 use App\Prospecting\Domain\Lead\Lead;
 use App\Prospecting\Domain\Lead\LeadId;
 use App\Prospecting\Domain\Lead\PipelineStatus;
-use App\Prospecting\Domain\Lead\Segment;
+use App\Shared\Domain\ValueObject\Segment;
 use App\Shared\Domain\ValueObject\TenantId;
 use PHPUnit\Framework\TestCase;
 

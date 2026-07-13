@@ -8,6 +8,7 @@ use App\Prospecting\Domain\Lead\Event\LeadContacted;
 use App\Prospecting\Domain\Lead\Event\LeadCreated;
 use App\Prospecting\Domain\Lead\Exception\IllegalStatusTransition;
 use App\Shared\Domain\AggregateRoot;
+use App\Shared\Domain\ValueObject\Segment;
 use App\Shared\Domain\ValueObject\TenantId;
 
 /**

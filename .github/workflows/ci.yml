@@ -81,7 +81,7 @@ jobs:
       - name: Coding standards
         run: vendor/bin/php-cs-fixer fix --dry-run --diff
       - name: Static analysis
-        run: vendor/bin/phpstan analyse
+        run: vendor/bin/phpstan analyse --memory-limit=1G
       - name: Architecture boundaries (deptrac)
         run: vendor/bin/deptrac analyse --no-progress
       - name: Validate Doctrine mapping

@@ -2,9 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Prospecting\Domain\Lead;
+namespace App\Shared\Domain\ValueObject;
 
-/** Segment métier ciblé (conditionne le ton de la génération). */
+/**
+ * Segment métier — partagé entre le Répertoire (domaines d'une Organisation)
+ * et la Prospection (segment d'une Piste). Conditionne le ton de la génération.
+ */
 enum Segment: string
 {
     case PUBLISHING = 'PUBLISHING';     // Édition / livres

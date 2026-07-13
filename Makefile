@@ -41,7 +41,7 @@ test: ## Lance PHPUnit
 	$(PHP) vendor/bin/phpunit
 
 phpstan: ## Analyse statique (niveau max)
-	$(PHP) vendor/bin/phpstan analyse
+	$(PHP) vendor/bin/phpstan analyse --memory-limit=1G
 
 deptrac: ## Vérifie les frontières DDD (couches)
 	$(PHP) vendor/bin/deptrac analyse --no-progress
