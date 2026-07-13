@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+                  https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+    <!-- Agrégat Répertoire : contacts en JSON (chargé/sauvé en bloc). Domaine pur. -->
+    <entity name="App\Directory\Domain\Organization\Organization" table="organization">
+        <id name="id" type="organization_id" column="id">
+            <generator strategy="NONE"/>
+        </id>
+        <field name="tenantId" type="tenant_id" column="tenant_id"/>
+        <field name="name" type="string" column="name"/>
+        <field name="type" type="string" column="type" enum-type="App\Directory\Domain\Organization\OrganizationType"/>
+        <field name="website" type="string" column="website" nullable="true"/>
+        <field name="country" type="country_code" column="country" length="2" nullable="true"/>
+        <field name="workingLanguages" type="language_code_list" column="working_languages"/>
+        <field name="segments" type="segment_list" column="segments"/>
+        <field name="notes" type="text" column="notes" nullable="true"/>
+        <field name="doNotContact" type="boolean" column="do_not_contact"/>
+        <field name="contacts" type="contact_collection" column="contacts"/>
+    </entity>
+</doctrine-mapping>

@@ -29,3 +29,4 @@ services:
 
     # Repositories : interface (Domain, hors conteneur) -> implémentation (Infrastructure).
     App\Prospecting\Domain\Lead\LeadRepository: '@App\Prospecting\Infrastructure\Persistence\Doctrine\DoctrineLeadRepository'
+    App\Directory\Domain\Organization\OrganizationRepository: '@App\Directory\Infrastructure\Persistence\Doctrine\DoctrineOrganizationRepository'

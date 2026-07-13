@@ -5,6 +5,11 @@ doctrine:
         types:
             lead_id: App\Prospecting\Infrastructure\Persistence\Doctrine\Type\LeadIdType
             tenant_id: App\Shared\Infrastructure\Persistence\Doctrine\Type\TenantIdType
+            organization_id: App\Directory\Infrastructure\Persistence\Doctrine\Type\OrganizationIdType
+            country_code: App\Directory\Infrastructure\Persistence\Doctrine\Type\CountryCodeType
+            language_code_list: App\Directory\Infrastructure\Persistence\Doctrine\Type\LanguageCodeListType
+            segment_list: App\Directory\Infrastructure\Persistence\Doctrine\Type\SegmentListType
+            contact_collection: App\Directory\Infrastructure\Persistence\Doctrine\Type\ContactCollectionType
     orm:
         validate_xml_mapping: true
         naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
@@ -22,6 +27,11 @@ doctrine:
                 is_bundle: false
                 dir: '%kernel.project_dir%/config/doctrine/prospecting'
                 prefix: 'App\Prospecting\Domain\Lead'
+            Directory:
+                type: xml
+                is_bundle: false
+                dir: '%kernel.project_dir%/config/doctrine/directory'
+                prefix: 'App\Directory\Domain\Organization'
             AccountAuth:
                 type: xml
                 is_bundle: false
