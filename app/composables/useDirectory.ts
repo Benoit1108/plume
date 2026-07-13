@@ -1,4 +1,4 @@
-import type { Contact, Organization } from '~/types/directory'
+import type { Contact, ImportResult, Organization } from '~/types/directory'
 
 interface JsonLdCollection<T> {
   member?: T[]
@@ -28,5 +28,7 @@ export function useDirectory() {
       api<Contact>(`/api/v1/organizations/${orgId}/contacts/${contactId}`, { method: 'PATCH', body: data, headers: patch }),
     removeContact: (orgId: string, contactId: string) =>
       api<unknown>(`/api/v1/organizations/${orgId}/contacts/${contactId}`, { method: 'DELETE' }),
+    importCsv: (content: string) =>
+      api<ImportResult>('/api/v1/organizations/import', { method: 'POST', body: { content }, headers: ldWrite }),
   }
 }

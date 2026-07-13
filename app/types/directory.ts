@@ -33,3 +33,10 @@ export type ContactInput = Pick<
   Contact,
   'fullName' | 'role' | 'email' | 'phone' | 'linkedinUrl' | 'preferredLanguage'
 >
+
+export interface ImportResult {
+  imported: number
+  skipped: number
+  failed: number
+  errors: { line: number, message: string }[]
+}

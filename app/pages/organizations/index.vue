@@ -36,7 +36,7 @@ const selectClass = 'text-sm rounded-md border border-default bg-default text-de
         <h1 class="font-serif text-3xl font-semibold mt-1">Répertoire</h1>
       </div>
       <div class="ml-auto flex gap-2">
-        <UButton color="neutral" variant="outline" icon="i-lucide-upload" disabled>Importer CSV</UButton>
+        <UButton color="neutral" variant="outline" icon="i-lucide-upload" to="/organizations/import">Importer CSV</UButton>
         <UButton icon="i-lucide-plus" to="/organizations/new">Organisation</UButton>
       </div>
     </div>

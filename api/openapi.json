@@ -682,6 +682,93 @@
                     "required": true
                 }
             }
+        },
+        "/api/v1/organizations/import": {
+            "post": {
+                "operationId": "api_organizationsimport_post",
+                "tags": [
+                    "OrganizationImport"
+                ],
+                "responses": {
+                    "201": {
+                        "description": "OrganizationImport resource created",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OrganizationImport.jsonld-org_import.read"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OrganizationImport-org_import.read"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Creates a OrganizationImport resource.",
+                "description": "Creates a OrganizationImport resource.",
+                "parameters": [],
+                "requestBody": {
+                    "description": "The new OrganizationImport resource",
+                    "content": {
+                        "application/ld+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/OrganizationImport-org_import.write"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/OrganizationImport-org_import.write"
+                            }
+                        }
+                    },
+                    "required": true
+                }
+            }
         }
     },
     "components": {
@@ -1674,6 +1761,100 @@
                     }
                 ],
                 "description": "Resource API (DTO) du R\u00e9pertoire \u2014 jamais l'agr\u00e9gat/entit\u00e9 Doctrine."
+            },
+            "OrganizationImport-org_import.read": {
+                "type": "object",
+                "description": "Import CSV d'organisations : POST du contenu brut, r\u00e9ponse = r\u00e9capitulatif.\nChaque ligne valide cr\u00e9e une organisation (transaction ind\u00e9pendante) ; une ligne\nfautive n'annule pas les autres.",
+                "properties": {
+                    "imported": {
+                        "default": 0,
+                        "type": "integer"
+                    },
+                    "skipped": {
+                        "default": 0,
+                        "type": "integer"
+                    },
+                    "failed": {
+                        "default": 0,
+                        "type": "integer"
+                    },
+                    "errors": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "anyOf": [
+                                    {
+                                        "type": "integer"
+                                    },
+                                    {
+                                        "type": "string"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            },
+            "OrganizationImport-org_import.write": {
+                "type": "object",
+                "description": "Import CSV d'organisations : POST du contenu brut, r\u00e9ponse = r\u00e9capitulatif.\nChaque ligne valide cr\u00e9e une organisation (transaction ind\u00e9pendante) ; une ligne\nfautive n'annule pas les autres.",
+                "required": [
+                    "content"
+                ],
+                "properties": {
+                    "content": {
+                        "default": "",
+                        "type": "string"
+                    },
+                    "delimiter": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                }
+            },
+            "OrganizationImport.jsonld-org_import.read": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/HydraItemBaseSchema"
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "imported": {
+                                "default": 0,
+                                "type": "integer"
+                            },
+                            "skipped": {
+                                "default": 0,
+                                "type": "integer"
+                            },
+                            "failed": {
+                                "default": 0,
+                                "type": "integer"
+                            },
+                            "errors": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "additionalProperties": {
+                                        "anyOf": [
+                                            {
+                                                "type": "integer"
+                                            },
+                                            {
+                                                "type": "string"
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ],
+                "description": "Import CSV d'organisations : POST du contenu brut, r\u00e9ponse = r\u00e9capitulatif.\nChaque ligne valide cr\u00e9e une organisation (transaction ind\u00e9pendante) ; une ligne\nfautive n'annule pas les autres."
             }
         },
         "responses": {},
@@ -1694,6 +1875,10 @@
         {
             "name": "Contact",
             "description": "DTO d'un contact : imbriqu\u00e9 (org:read) + sous-endpoints sous une organisation."
+        },
+        {
+            "name": "OrganizationImport",
+            "description": "Import CSV d'organisations : POST du contenu brut, r\u00e9ponse = r\u00e9capitulatif.\nChaque ligne valide cr\u00e9e une organisation (transaction ind\u00e9pendante) ; une ligne\nfautive n'annule pas les autres."
         },
         {
             "name": "Organization",
