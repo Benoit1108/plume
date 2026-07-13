@@ -37,7 +37,9 @@ async function onSubmit(): Promise<void> {
         <p class="text-sm text-muted">{{ t('auth.tagline') }}</p>
       </div>
 
-      <form class="mt-6 flex flex-col gap-4" @submit.prevent="onSubmit">
+      <!-- method="post" : si un submit part AVANT l'hydratation (handler pas encore
+           attaché), le navigateur POSTe au lieu de mettre le mot de passe dans l'URL. -->
+      <form method="post" class="mt-6 flex flex-col gap-4" @submit.prevent="onSubmit">
         <UFormField :label="t('auth.email')" name="email">
           <UInput v-model="email" type="email" autocomplete="username" required class="w-full" />
         </UFormField>

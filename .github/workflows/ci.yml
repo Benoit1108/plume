@@ -141,3 +141,56 @@ jobs:
       # test
       - name: Tests (coverage)
         run: npm run test:coverage
+
+  # --- e2e : navigateur réel contre la stack complète (SSR, hydratation, API) ---
+  e2e:
+    name: E2E (Playwright)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Start API stack (Postgres + FrankenPHP)
+        run: docker compose up -d --build database php
+
+      - name: Install backend dependencies (in container)
+        run: docker compose run --rm --no-deps php composer install --no-interaction --no-progress
+
+      - name: Prepare backend (JWT keys, schema, e2e user)
+        run: |
+          docker compose run --rm --no-deps php php bin/console lexik:jwt:generate-keypair --skip-if-exists
+          docker compose run --rm php php bin/console doctrine:migrations:migrate --no-interaction
+          docker compose run --rm php php bin/console app:user:create e2e@plume.test e2e-secret-123
+
+      - name: Wait for API
+        run: |
+          for i in $(seq 1 60); do
+            curl -skf https://localhost:8443/api/v1/docs > /dev/null && exit 0
+            sleep 2
+          done
+          docker compose logs php
+          exit 1
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+      - name: Install frontend dependencies
+        run: npm ci
+        working-directory: app
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+        working-directory: app
+
+      - name: Run E2E smoke tests
+        run: npx playwright test
+        working-directory: app
+
+      - name: Upload traces on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-traces
+          path: app/test-results/
+          retention-days: 7

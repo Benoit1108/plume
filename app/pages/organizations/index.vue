@@ -5,20 +5,29 @@ const { t } = useI18n()
 const { typeLabel, segmentLabel, typeOptions } = useDirectoryLabels()
 const directory = useDirectory()
 
-const type = ref('')
+// Sentinelle « tous » : Reka UI (USelect) interdit la valeur '' (réservée au placeholder).
+const TYPE_ALL = 'ALL'
+const type = ref(TYPE_ALL)
 const q = ref('')
 const qDebounced = useDebounced(q, 300)
 
 const typeFilterItems = computed(() => [
-  { value: '', label: t('directory.list.typeAll') },
+  { value: TYPE_ALL, label: t('directory.list.typeAll') },
   ...typeOptions.value,
 ])
 
 const { data: organizations, status } = await useAsyncData<Organization[]>(
   'organizations',
-  () => directory.list({ type: type.value || undefined, q: qDebounced.value || undefined }),
+  () => directory.list({
+    type: type.value !== TYPE_ALL ? type.value : undefined,
+    q: qDebounced.value || undefined,
+  }),
   { server: false, default: () => [], watch: [type, qDebounced] },
 )
+
+// server:false → au SSR le fetch n'a pas démarré (status 'idle') : rendre le même
+// état « chargement » que le client à l'hydratation, sinon mismatch de branches v-if.
+const loading = computed(() => status.value === 'idle' || status.value === 'pending')
 </script>
 
 <template>
@@ -49,7 +58,7 @@ const { data: organizations, status } = await useAsyncData<Organization[]>(
     </div>
 
     <div class="mt-4">
-      <div v-if="status === 'pending'" class="py-12 text-center text-dimmed">{{ t('common.loading') }}</div>
+      <div v-if="loading" class="py-12 text-center text-dimmed">{{ t('common.loading') }}</div>
 
       <div v-else-if="!organizations.length" class="py-12 text-center text-muted border border-default rounded-xl">
         {{ t('directory.list.empty') }}

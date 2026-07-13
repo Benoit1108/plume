@@ -15,6 +15,9 @@ const { data: org, refresh, status } = await useAsyncData<Organization | null>(
   { server: false, default: () => null },
 )
 
+// server:false → même état « chargement » au SSR (idle) et à l'hydratation (pending).
+const loading = computed(() => status.value === 'idle' || status.value === 'pending')
+
 const editing = ref(false)
 const savingOrg = ref(false)
 const addingContact = ref(false)
@@ -157,7 +160,7 @@ async function deleteContact(): Promise<void> {
       {{ t('directory.title') }}
     </UButton>
 
-    <div v-if="status === 'pending'" class="text-dimmed py-12">{{ t('common.loading') }}</div>
+    <div v-if="loading" class="text-dimmed py-12">{{ t('common.loading') }}</div>
     <div v-else-if="!org" class="text-muted py-12">{{ t('directory.detail.notFound') }}</div>
 
     <template v-else>

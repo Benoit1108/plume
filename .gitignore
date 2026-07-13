@@ -18,3 +18,7 @@
 .DS_Store
 *.log
 docker-compose.override.yaml
+
+# Playwright (E2E)
+/app/test-results/
+/app/playwright-report/

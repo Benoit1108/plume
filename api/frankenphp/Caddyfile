@@ -1,4 +1,8 @@
 {
+	# Options globales injectées par l'environnement (dev : `local_certs` pour que
+	# les hostnames internes comme `php` reçoivent un certificat de la CA locale
+	# au lieu d'une tentative ACME/Let's Encrypt vouée à l'échec).
+	{$CADDY_GLOBAL_OPTIONS}
 	frankenphp
 	order php_server before file_server
 }
