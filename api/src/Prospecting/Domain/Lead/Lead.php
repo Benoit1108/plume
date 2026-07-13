@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Prospecting\Domain\Lead;
 
+use App\Prospecting\Domain\Lead\Event\FollowUpCancelled;
+use App\Prospecting\Domain\Lead\Event\FollowUpScheduled;
+use App\Prospecting\Domain\Lead\Event\FollowUpSent;
 use App\Prospecting\Domain\Lead\Event\LeadContacted;
 use App\Prospecting\Domain\Lead\Event\LeadCreated;
 use App\Prospecting\Domain\Lead\Event\LeadLost;
@@ -13,6 +16,7 @@ use App\Prospecting\Domain\Lead\Event\LeadResumed;
 use App\Prospecting\Domain\Lead\Event\LeadWon;
 use App\Prospecting\Domain\Lead\Event\NoteAdded;
 use App\Prospecting\Domain\Lead\Event\ReplyReceived;
+use App\Prospecting\Domain\Lead\Exception\FollowUpNotAllowed;
 use App\Prospecting\Domain\Lead\Exception\IllegalStatusTransition;
 use App\Shared\Domain\AggregateRoot;
 use App\Shared\Domain\Exception\InvalidValue;
@@ -24,12 +28,14 @@ use App\Shared\Domain\ValueObject\TenantId;
  * Piste de prospection — agrégat racine du contexte Prospecting.
  *
  * Domaine pur : le temps est injecté (paramètre) pour rester déterministe et testable.
- * Les Relances (`FollowUp`) arrivent en M1.3 ; les Interactions sont un journal
- * séparé alimenté par les domain events (cf. DOMAIN-MODEL.md, ADR-0003).
- * Références inter-contextes par ID uniquement (organizationId, contactId).
+ * Les Relances (`FollowUp`) vivent DANS l'agrégat (collection JSONB) avec une
+ * dénormalisation `nextFollowUpAt` pour la requête « dues aujourd'hui » ;
+ * les Interactions sont un journal séparé alimenté par les domain events
+ * (cf. DOMAIN-MODEL.md, ADR-0003). Références inter-contextes par ID uniquement.
  */
 final class Lead extends AggregateRoot
 {
+    /** @param FollowUp[] $followUps */
     private function __construct(
         private readonly LeadId $id,
         private readonly TenantId $tenantId,
@@ -44,6 +50,9 @@ final class Lead extends AggregateRoot
         private readonly \DateTimeImmutable $createdAt,
         private ?\DateTimeImmutable $lastContactedAt,
         private ?\DateTimeImmutable $lastReplyAt,
+        private array $followUps,
+        private ?\DateTimeImmutable $nextFollowUpAt,
+        private ?string $nextFollowUpLabel,
     ) {
     }
 
@@ -76,25 +85,78 @@ final class Lead extends AggregateRoot
             $now,
             null,
             null,
+            [],
+            null,
+            null,
         );
         $lead->recordEvent(new LeadCreated($tenantId->toString(), $id->toString(), $organizationId, $now));
 
         return $lead;
     }
 
+    /** Contact établi : la cadence démarre (1ʳᵉ relance auto-planifiée à J+7). */
     public function contact(\DateTimeImmutable $now): void
     {
         $this->transitionTo(PipelineStatus::CONTACTED);
         $this->lastContactedAt = $now;
         $this->recordEvent(new LeadContacted($this->tenantId->toString(), $this->id->toString(), $now));
+        $this->autoScheduleFollowUp($now);
     }
 
-    /** Réponse entrante : la discussion s'ouvre (annulera les relances en M1.3). */
+    /** Réponse entrante : la discussion s'ouvre, la relance en attente est annulée. */
     public function recordReply(\DateTimeImmutable $now): void
     {
         $this->transitionTo(PipelineStatus::IN_DISCUSSION);
         $this->lastReplyAt = $now;
         $this->recordEvent(new ReplyReceived($this->tenantId->toString(), $this->id->toString(), $now));
+        $this->cancelPendingFollowUp(FollowUpCancelReason::REPLY, $now);
+    }
+
+    /** Relance faite (acte manuel en M1 — l'envoi réel arrive en M2). Cadence : suivante auto. */
+    public function recordFollowUp(\DateTimeImmutable $now): void
+    {
+        $this->transitionTo(PipelineStatus::FOLLOWED_UP);
+
+        $pending = $this->pendingFollowUp();
+        if (null !== $pending) {
+            $this->replaceFollowUp($pending->done());
+            $followUpId = $pending->id();
+        } else {
+            // Relance faite sans planification préalable : on la consigne (cadence + journal).
+            $done = new FollowUp(FollowUpId::generate(), $now, null, FollowUpStatus::DONE);
+            $this->followUps[] = $done;
+            $followUpId = $done->id();
+        }
+
+        $this->syncNextFollowUp();
+        $this->recordEvent(new FollowUpSent($this->tenantId->toString(), $this->id->toString(), $followUpId->toString(), $now));
+        $this->autoScheduleFollowUp($now);
+    }
+
+    /** Planification (ou replanification) manuelle — remplace la relance en attente. */
+    public function scheduleFollowUp(\DateTimeImmutable $dueAt, ?string $label, \DateTimeImmutable $now): void
+    {
+        $this->guardFollowUpAllowed();
+        if ($dueAt->format('Y-m-d') < $now->format('Y-m-d')) {
+            throw InvalidValue::because('A follow-up cannot be scheduled in the past.');
+        }
+
+        $pending = $this->pendingFollowUp();
+        if (null !== $pending) {
+            // Remplacement silencieux : le fait métier est la nouvelle planification.
+            $this->followUps = array_values(array_filter(
+                $this->followUps,
+                static fn (FollowUp $followUp): bool => !$followUp->id()->equals($pending->id()),
+            ));
+        }
+
+        $this->applySchedule($dueAt, null !== $label && '' !== trim($label) ? trim($label) : null, auto: false, now: $now);
+    }
+
+    /** Annulation volontaire de la relance en attente (sans effet s'il n'y en a pas). */
+    public function cancelFollowUp(\DateTimeImmutable $now): void
+    {
+        $this->cancelPendingFollowUp(FollowUpCancelReason::MANUAL, $now);
     }
 
     public function moveToSampleTest(\DateTimeImmutable $now): void
@@ -107,23 +169,27 @@ final class Lead extends AggregateRoot
     {
         $this->transitionTo(PipelineStatus::WON);
         $this->recordEvent(new LeadWon($this->tenantId->toString(), $this->id->toString(), $now));
+        $this->cancelPendingFollowUp(FollowUpCancelReason::TERMINAL, $now);
     }
 
     public function markLost(\DateTimeImmutable $now): void
     {
         $this->transitionTo(PipelineStatus::LOST);
         $this->recordEvent(new LeadLost($this->tenantId->toString(), $this->id->toString(), $now));
+        $this->cancelPendingFollowUp(FollowUpCancelReason::TERMINAL, $now);
     }
 
-    /** Mise en pause : mémorise le statut courant pour reprendre exactement là. */
+    /** Mise en pause : mémorise le statut courant, annule la relance en attente. */
     public function pause(\DateTimeImmutable $now): void
     {
         $from = $this->status;
         $this->transitionTo(PipelineStatus::PAUSED);
         $this->statusBeforePause = $from;
         $this->recordEvent(new LeadPaused($this->tenantId->toString(), $this->id->toString(), $from->value, $now));
+        $this->cancelPendingFollowUp(FollowUpCancelReason::PAUSED, $now);
     }
 
+    /** Reprise au statut mémorisé — sans replanification automatique (l'utilisatrice décide). */
     public function resume(\DateTimeImmutable $now): void
     {
         $target = $this->statusBeforePause
@@ -142,6 +208,93 @@ final class Lead extends AggregateRoot
         }
 
         $this->recordEvent(new NoteAdded($this->tenantId->toString(), $this->id->toString(), $trimmed, $now));
+    }
+
+    // ----- Relances : mécanique interne -----
+
+    /** Cadence par défaut : J+7 après contact, puis J+21, J+45 après chaque relance faite. */
+    private function autoScheduleFollowUp(\DateTimeImmutable $now): void
+    {
+        $delay = FollowUpCadence::nextDelayInDays($this->doneFollowUpsCount());
+        if (null === $delay || null !== $this->pendingFollowUp()) {
+            return;
+        }
+
+        $this->applySchedule($now->modify(sprintf('+%d days', $delay)), null, auto: true, now: $now);
+    }
+
+    private function applySchedule(\DateTimeImmutable $dueAt, ?string $label, bool $auto, \DateTimeImmutable $now): void
+    {
+        $followUp = FollowUp::pending(FollowUpId::generate(), $dueAt, $label);
+        $this->followUps[] = $followUp;
+        $this->syncNextFollowUp();
+        $this->recordEvent(new FollowUpScheduled(
+            $this->tenantId->toString(),
+            $this->id->toString(),
+            $followUp->id()->toString(),
+            $dueAt->format('Y-m-d'),
+            $label,
+            $auto,
+            $now,
+        ));
+    }
+
+    private function cancelPendingFollowUp(FollowUpCancelReason $reason, \DateTimeImmutable $now): void
+    {
+        $pending = $this->pendingFollowUp();
+        if (null === $pending) {
+            return;
+        }
+
+        $this->replaceFollowUp($pending->cancelled());
+        $this->syncNextFollowUp();
+        $this->recordEvent(new FollowUpCancelled(
+            $this->tenantId->toString(),
+            $this->id->toString(),
+            $pending->id()->toString(),
+            $reason->value,
+            $now,
+        ));
+    }
+
+    private function guardFollowUpAllowed(): void
+    {
+        if ($this->status->isTerminal() || PipelineStatus::PAUSED === $this->status) {
+            throw FollowUpNotAllowed::inStatus($this->status);
+        }
+    }
+
+    private function pendingFollowUp(): ?FollowUp
+    {
+        foreach ($this->followUps as $followUp) {
+            if ($followUp->isPending()) {
+                return $followUp;
+            }
+        }
+
+        return null;
+    }
+
+    private function doneFollowUpsCount(): int
+    {
+        return \count(array_filter($this->followUps, static fn (FollowUp $followUp): bool => FollowUpStatus::DONE === $followUp->status()));
+    }
+
+    /** Remplace l'instance (réf. différente) pour que Doctrine détecte la mutation JSON. */
+    private function replaceFollowUp(FollowUp $replacement): void
+    {
+        $this->followUps = array_map(
+            static fn (FollowUp $followUp): FollowUp => $followUp->id()->equals($replacement->id()) ? $replacement : $followUp,
+            $this->followUps,
+        );
+    }
+
+    /** Maintient la dénormalisation servant la requête « dues aujourd'hui ». */
+    private function syncNextFollowUp(): void
+    {
+        $pending = $this->pendingFollowUp();
+        $this->nextFollowUpAt = $pending?->dueAt();
+        $this->nextFollowUpLabel = $pending?->label();
     }
 
     private function transitionTo(PipelineStatus $target): void
@@ -216,5 +369,21 @@ final class Lead extends AggregateRoot
     public function lastReplyAt(): ?\DateTimeImmutable
     {
         return $this->lastReplyAt;
+    }
+
+    /** @return FollowUp[] */
+    public function followUps(): array
+    {
+        return $this->followUps;
+    }
+
+    public function nextFollowUpAt(): ?\DateTimeImmutable
+    {
+        return $this->nextFollowUpAt;
+    }
+
+    public function nextFollowUpLabel(): ?string
+    {
+        return $this->nextFollowUpLabel;
     }
 }

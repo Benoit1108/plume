@@ -10,6 +10,7 @@
             <index name="idx_lead_tenant" columns="tenant_id"/>
             <index name="idx_lead_tenant_status" columns="tenant_id,status"/>
             <index name="idx_lead_tenant_organization" columns="tenant_id,organization_id"/>
+            <index name="idx_lead_tenant_next_follow_up" columns="tenant_id,next_follow_up_at"/>
         </indexes>
         <id name="id" type="lead_id" column="id">
             <generator strategy="NONE"/>
@@ -26,5 +27,10 @@
         <field name="createdAt" type="datetime_immutable" column="created_at"/>
         <field name="lastContactedAt" type="datetime_immutable" column="last_contacted_at" nullable="true"/>
         <field name="lastReplyAt" type="datetime_immutable" column="last_reply_at" nullable="true"/>
+        <field name="followUps" type="follow_up_collection" column="follow_ups">
+            <options><option name="jsonb">true</option></options>
+        </field>
+        <field name="nextFollowUpAt" type="datetime_immutable" column="next_follow_up_at" nullable="true"/>
+        <field name="nextFollowUpLabel" type="string" column="next_follow_up_label" nullable="true"/>
     </entity>
 </doctrine-mapping>

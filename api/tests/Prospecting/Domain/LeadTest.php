@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Tests\Prospecting\Domain;
 
+use App\Prospecting\Domain\Lead\Event\FollowUpCancelled;
+use App\Prospecting\Domain\Lead\Event\FollowUpScheduled;
+use App\Prospecting\Domain\Lead\Event\FollowUpSent;
 use App\Prospecting\Domain\Lead\Event\LeadContacted;
 use App\Prospecting\Domain\Lead\Event\LeadCreated;
 use App\Prospecting\Domain\Lead\Event\LeadLost;
@@ -13,7 +16,9 @@ use App\Prospecting\Domain\Lead\Event\LeadResumed;
 use App\Prospecting\Domain\Lead\Event\LeadWon;
 use App\Prospecting\Domain\Lead\Event\NoteAdded;
 use App\Prospecting\Domain\Lead\Event\ReplyReceived;
+use App\Prospecting\Domain\Lead\Exception\FollowUpNotAllowed;
 use App\Prospecting\Domain\Lead\Exception\IllegalStatusTransition;
+use App\Prospecting\Domain\Lead\FollowUpStatus;
 use App\Prospecting\Domain\Lead\Lead;
 use App\Prospecting\Domain\Lead\LeadId;
 use App\Prospecting\Domain\Lead\LeadSource;
@@ -118,8 +123,9 @@ final class LeadTest extends TestCase
         $lead->markWon($this->now->modify('+10 days'));
 
         self::assertSame(PipelineStatus::WON, $lead->status());
+        // La cadence vit avec le pipeline : relance auto au contact, annulée à la réponse.
         self::assertSame(
-            [LeadContacted::class, ReplyReceived::class, LeadMovedToSampleTest::class, LeadWon::class],
+            [LeadContacted::class, FollowUpScheduled::class, ReplyReceived::class, FollowUpCancelled::class, LeadMovedToSampleTest::class, LeadWon::class],
             array_map(get_class(...), $lead->pullDomainEvents()),
         );
     }
@@ -224,5 +230,126 @@ final class LeadTest extends TestCase
         $lead->addNote('Perdue : budget gelé — retenter en 2027.', $this->now);
 
         self::assertCount(1, $lead->pullDomainEvents());
+    }
+
+    // ----- Relances (M1.3) -----
+
+    public function testContactAutoSchedulesFirstFollowUpAtSevenDays(): void
+    {
+        $lead = $this->aLead();
+        $lead->pullDomainEvents();
+
+        $lead->contact($this->now);
+
+        self::assertSame('2026-07-20', $lead->nextFollowUpAt()?->format('Y-m-d'));
+        $events = $lead->pullDomainEvents();
+        self::assertInstanceOf(FollowUpScheduled::class, $events[1]);
+        self::assertTrue($events[1]->auto);
+        self::assertSame('2026-07-20', $events[1]->dueAt);
+    }
+
+    public function testFollowUpCadenceProgressesThenStops(): void
+    {
+        $lead = $this->aLeadIn(PipelineStatus::CONTACTED); // relance auto J+7 en attente
+
+        $lead->recordFollowUp($this->now); // 1 faite -> J+21
+        self::assertSame(PipelineStatus::FOLLOWED_UP, $lead->status());
+        self::assertSame('2026-08-03', $lead->nextFollowUpAt()?->format('Y-m-d'));
+
+        $lead->recordFollowUp($this->now); // 2 faites -> J+45
+        self::assertSame('2026-08-27', $lead->nextFollowUpAt()?->format('Y-m-d'));
+
+        $lead->recordFollowUp($this->now); // 3 faites -> fin de cadence
+        self::assertNull($lead->nextFollowUpAt());
+
+        $events = $lead->pullDomainEvents();
+        self::assertSame(3, \count(array_filter($events, static fn (object $e): bool => $e instanceof FollowUpSent)));
+        self::assertSame(2, \count(array_filter($events, static fn (object $e): bool => $e instanceof FollowUpScheduled)));
+    }
+
+    public function testReplyCancelsPendingFollowUp(): void
+    {
+        $lead = $this->aLeadIn(PipelineStatus::CONTACTED);
+
+        $lead->recordReply($this->now);
+
+        self::assertNull($lead->nextFollowUpAt());
+        $events = $lead->pullDomainEvents();
+        self::assertInstanceOf(FollowUpCancelled::class, $events[1]);
+        self::assertSame('REPLY', $events[1]->reason);
+    }
+
+    public function testTerminalAndPauseCancelPendingFollowUp(): void
+    {
+        $lead = $this->aLeadIn(PipelineStatus::CONTACTED);
+        $lead->markLost($this->now);
+        self::assertNull($lead->nextFollowUpAt());
+
+        $lead = $this->aLeadIn(PipelineStatus::CONTACTED);
+        $lead->pause($this->now);
+        self::assertNull($lead->nextFollowUpAt());
+        $lead->resume($this->now); // la reprise ne replanifie pas seule
+        self::assertNull($lead->nextFollowUpAt());
+    }
+
+    public function testManualRescheduleReplacesPendingFollowUp(): void
+    {
+        $lead = $this->aLeadIn(PipelineStatus::CONTACTED);
+
+        $lead->scheduleFollowUp($this->now->modify('+2 days'), '  Relancer après le salon  ', $this->now);
+
+        self::assertSame('2026-07-15', $lead->nextFollowUpAt()?->format('Y-m-d'));
+        self::assertSame('Relancer après le salon', $lead->nextFollowUpLabel());
+        // Une seule PENDING : l'auto J+7 a été remplacée, pas empilée.
+        self::assertCount(1, array_filter($lead->followUps(), static fn ($f): bool => $f->isPending()));
+    }
+
+    public function testFollowUpScheduledTodayIsAcceptedButPastIsRejected(): void
+    {
+        $lead = $this->aLeadIn(PipelineStatus::CONTACTED);
+
+        $lead->scheduleFollowUp($this->now, null, $this->now); // aujourd'hui : OK
+        self::assertSame('2026-07-13', $lead->nextFollowUpAt()?->format('Y-m-d'));
+
+        $this->expectException(InvalidValue::class);
+        $lead->scheduleFollowUp($this->now->modify('-1 day'), null, $this->now);
+    }
+
+    public function testNoFollowUpOnTerminalOrPausedLead(): void
+    {
+        $lead = $this->aLeadIn(PipelineStatus::PAUSED);
+        try {
+            $lead->scheduleFollowUp($this->now->modify('+3 days'), null, $this->now);
+            self::fail('scheduleFollowUp devrait être refusé en pause');
+        } catch (FollowUpNotAllowed) {
+        }
+
+        $lead = $this->aLeadIn(PipelineStatus::WON);
+        $this->expectException(FollowUpNotAllowed::class);
+        $lead->scheduleFollowUp($this->now->modify('+3 days'), null, $this->now);
+    }
+
+    public function testManualCancelIsIdempotent(): void
+    {
+        $lead = $this->aLeadIn(PipelineStatus::CONTACTED);
+
+        $lead->cancelFollowUp($this->now);
+        self::assertNull($lead->nextFollowUpAt());
+        self::assertInstanceOf(FollowUpCancelled::class, $lead->pullDomainEvents()[0]);
+
+        $lead->cancelFollowUp($this->now); // plus rien à annuler : aucun event
+        self::assertCount(0, $lead->pullDomainEvents());
+    }
+
+    public function testFollowUpWithoutScheduleStillCountsInCadence(): void
+    {
+        $lead = $this->aLeadIn(PipelineStatus::CONTACTED);
+        $lead->cancelFollowUp($this->now); // plus de PENDING
+        $lead->pullDomainEvents();
+
+        $lead->recordFollowUp($this->now); // consignée DONE + cadence continue (J+21)
+
+        self::assertSame('2026-08-03', $lead->nextFollowUpAt()?->format('Y-m-d'));
+        self::assertSame(1, \count(array_filter($lead->followUps(), static fn ($f): bool => FollowUpStatus::DONE === $f->status())));
     }
 }
