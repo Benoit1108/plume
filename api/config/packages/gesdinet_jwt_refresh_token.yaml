@@ -1,3 +1,6 @@
 gesdinet_jwt_refresh_token:
     refresh_token_class: App\Account\Infrastructure\Auth\RefreshToken
     ttl: 2592000   # 30 jours
+    # Rotation : chaque refresh consomme le token et en émet un nouveau.
+    # Un refresh token volé ne survit donc pas au prochain usage légitime.
+    single_use: true

@@ -1,0 +1,8 @@
+framework:
+    rate_limiter:
+        # Endpoints token publics (refresh/invalidate) : 10 requêtes / 15 min par IP.
+        # login_check est couvert séparément par login_throttling (security.yaml).
+        token_endpoints:
+            policy: sliding_window
+            limit: 10
+            interval: '15 minutes'

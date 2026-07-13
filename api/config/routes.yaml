@@ -3,3 +3,9 @@ api_login_check:
 
 api_token_refresh:
     path: /api/v1/token/refresh
+
+# Révocation d'un refresh token (appelé au logout par le front).
+api_token_invalidate:
+    path: /api/v1/token/invalidate
+    controller: App\Account\Infrastructure\Http\InvalidateRefreshTokenController
+    methods: [POST]

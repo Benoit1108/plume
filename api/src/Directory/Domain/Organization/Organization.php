@@ -9,6 +9,7 @@ use App\Directory\Domain\Organization\Event\OrganizationCreated;
 use App\Directory\Domain\Organization\Exception\ContactNotFound;
 use App\Directory\Domain\Organization\Exception\DuplicateContactEmail;
 use App\Shared\Domain\AggregateRoot;
+use App\Shared\Domain\Exception\InvalidValue;
 use App\Shared\Domain\ValueObject\CountryCode;
 use App\Shared\Domain\ValueObject\EmailAddress;
 use App\Shared\Domain\ValueObject\LanguageCode;
@@ -200,7 +201,7 @@ final class Organization extends AggregateRoot
     {
         $trimmed = trim($name);
         if ('' === $trimmed) {
-            throw new \InvalidArgumentException('Organization name cannot be empty.');
+            throw InvalidValue::because('Organization name cannot be empty.');
         }
 
         return $trimmed;

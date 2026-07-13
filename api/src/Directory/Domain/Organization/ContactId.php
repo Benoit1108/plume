@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace App\Directory\Domain\Organization;
 
+use App\Shared\Domain\Exception\InvalidValue;
+
 final class ContactId
 {
     private function __construct(private readonly string $value)
     {
         if ('' === $value) {
-            throw new \InvalidArgumentException('ContactId cannot be empty.');
+            throw InvalidValue::because('ContactId cannot be empty.');
         }
     }
 

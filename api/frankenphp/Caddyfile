@@ -6,5 +6,18 @@
 {$SERVER_NAME:localhost} {
 	root * /app/public
 	encode zstd br gzip
+
+	# Durcissement : l'API ne sert que du JSON, aucune raison d'être encadrée
+	# ni d'exécuter quoi que ce soit côté navigateur.
+	header {
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Content-Security-Policy "default-src 'none'; frame-ancestors 'none'"
+		Permissions-Policy "camera=(), microphone=(), geolocation=()"
+		-Server
+		-X-Powered-By
+	}
+
 	php_server
 }

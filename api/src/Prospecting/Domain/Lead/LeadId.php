@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace App\Prospecting\Domain\Lead;
 
+use App\Shared\Domain\Exception\InvalidValue;
+
 final class LeadId
 {
     private function __construct(private readonly string $value)
     {
         if ('' === $value) {
-            throw new \InvalidArgumentException('LeadId cannot be empty.');
+            throw InvalidValue::because('LeadId cannot be empty.');
         }
     }
 

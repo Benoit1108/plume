@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Directory\Domain\Organization;
 
+use App\Shared\Domain\Exception\InvalidValue;
 use App\Shared\Domain\ValueObject\EmailAddress;
 use App\Shared\Domain\ValueObject\LanguageCode;
 
@@ -30,7 +31,7 @@ final class Contact
     {
         $trimmed = trim($name);
         if ('' === $trimmed) {
-            throw new \InvalidArgumentException('Contact full name cannot be empty.');
+            throw InvalidValue::because('Contact full name cannot be empty.');
         }
 
         return $trimmed;

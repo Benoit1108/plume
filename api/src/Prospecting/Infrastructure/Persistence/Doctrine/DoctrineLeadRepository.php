@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Prospecting\Infrastructure\Persistence\Doctrine;
 
+use App\Prospecting\Domain\Lead\Exception\LeadNotFound;
 use App\Prospecting\Domain\Lead\Lead;
 use App\Prospecting\Domain\Lead\LeadId;
 use App\Prospecting\Domain\Lead\LeadRepository;
@@ -23,7 +24,19 @@ final class DoctrineLeadRepository implements LeadRepository
 
     public function get(LeadId $id): Lead
     {
-        return $this->em->find(Lead::class, $id)
-            ?? throw new \RuntimeException(sprintf('Lead "%s" not found.', $id->toString()));
+        // Requête (et non find()) pour que le filtre tenant s'applique -> isolation.
+        $lead = $this->em->createQueryBuilder()
+            ->select('l')
+            ->from(Lead::class, 'l')
+            ->where('l.id = :id')
+            ->setParameter('id', $id)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        if (!$lead instanceof Lead) {
+            throw LeadNotFound::withId($id);
+        }
+
+        return $lead;
     }
 }

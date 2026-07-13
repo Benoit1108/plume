@@ -32,6 +32,7 @@ final class OrganizationResource
     public ?string $id = null;
 
     #[Assert\NotBlank]
+    #[Assert\Length(max: 255)]
     #[Groups(['org:read', 'org:write'])]
     public string $name = '';
 
@@ -39,21 +40,26 @@ final class OrganizationResource
     #[Groups(['org:read', 'org:write'])]
     public string $type = 'OTHER';
 
+    #[Assert\Url(requireTld: true)]
+    #[Assert\Length(max: 255)]
     #[Groups(['org:read', 'org:write'])]
     public ?string $website = null;
 
-    #[Assert\Length(exactly: 2)]
+    #[Assert\Country]
     #[Groups(['org:read', 'org:write'])]
     public ?string $country = null;
 
     /** @var string[] */
+    #[Assert\All([new Assert\Regex(pattern: '/^[a-zA-Z]{2}$/', message: 'Code langue ISO 639-1 attendu (ex. fr).')])]
     #[Groups(['org:read', 'org:write'])]
     public array $workingLanguages = [];
 
     /** @var string[] */
+    #[Assert\All([new Assert\Choice(['PUBLISHING', 'AUDIOVISUAL', 'TECHNICAL', 'OTHER'])])]
     #[Groups(['org:read', 'org:write'])]
     public array $segments = [];
 
+    #[Assert\Length(max: 10000)]
     #[Groups(['org:read', 'org:write'])]
     public ?string $notes = null;
 

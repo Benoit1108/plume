@@ -8,6 +8,7 @@ use App\Directory\Domain\Organization\OrganizationId;
 use App\Directory\Domain\Organization\OrganizationRepository;
 use App\Directory\Domain\Organization\OrganizationType;
 use App\Shared\Application\Command\CommandHandler;
+use App\Shared\Domain\Exception\InvalidValue;
 use App\Shared\Domain\ValueObject\CountryCode;
 use App\Shared\Domain\ValueObject\LanguageCode;
 use App\Shared\Domain\ValueObject\Segment;
@@ -24,11 +25,11 @@ final class UpdateOrganizationHandler implements CommandHandler
 
         $organization->updateProfile(
             $command->name,
-            OrganizationType::from($command->type),
+            OrganizationType::tryFrom($command->type) ?? throw InvalidValue::because(sprintf('Unknown organization type "%s".', $command->type)),
             $command->website,
             null !== $command->country ? CountryCode::fromString($command->country) : null,
             array_map(static fn (string $code): LanguageCode => LanguageCode::fromString($code), $command->workingLanguages),
-            array_map(static fn (string $segment): Segment => Segment::from($segment), $command->segments),
+            array_map(static fn (string $segment): Segment => Segment::tryFrom($segment) ?? throw InvalidValue::because(sprintf('Unknown segment "%s".', $segment)), $command->segments),
             $command->notes,
         );
 

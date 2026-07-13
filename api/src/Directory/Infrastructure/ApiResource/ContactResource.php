@@ -51,22 +51,29 @@ final class ContactResource
     public ?string $id = null;
 
     #[Assert\NotBlank]
+    #[Assert\Length(max: 255)]
     #[Groups(['org:read', 'contact:read', 'contact:write'])]
     public string $fullName = '';
 
+    #[Assert\Length(max: 255)]
     #[Groups(['org:read', 'contact:read', 'contact:write'])]
     public ?string $role = null;
 
     #[Assert\Email]
+    #[Assert\Length(max: 255)]
     #[Groups(['org:read', 'contact:read', 'contact:write'])]
     public ?string $email = null;
 
+    #[Assert\Length(max: 50)]
     #[Groups(['org:read', 'contact:read', 'contact:write'])]
     public ?string $phone = null;
 
+    #[Assert\Url(requireTld: true)]
+    #[Assert\Length(max: 255)]
     #[Groups(['org:read', 'contact:read', 'contact:write'])]
     public ?string $linkedinUrl = null;
 
+    #[Assert\Regex(pattern: '/^[a-zA-Z]{2}$/', message: 'Code langue ISO 639-1 attendu (ex. fr).')]
     #[Groups(['org:read', 'contact:read', 'contact:write'])]
     public ?string $preferredLanguage = null;
 

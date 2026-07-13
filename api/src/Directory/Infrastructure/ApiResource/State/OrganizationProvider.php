@@ -14,6 +14,7 @@ use App\Directory\Domain\Organization\Organization;
 use App\Directory\Infrastructure\ApiResource\ContactResource;
 use App\Directory\Infrastructure\ApiResource\OrganizationResource;
 use App\Shared\Application\Query\QueryBus;
+use App\Shared\Domain\Exception\NotFound;
 use App\Shared\Domain\ValueObject\LanguageCode;
 use App\Shared\Domain\ValueObject\Segment;
 
@@ -49,7 +50,7 @@ final class OrganizationProvider implements ProviderInterface
         try {
             /** @var Organization $organization */
             $organization = $this->queryBus->ask(new GetOrganization($id));
-        } catch (\RuntimeException) {
+        } catch (NotFound) {
             return null;
         }
 

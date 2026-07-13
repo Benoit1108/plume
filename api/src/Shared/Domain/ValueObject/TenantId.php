@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace App\Shared\Domain\ValueObject;
 
+use App\Shared\Domain\Exception\InvalidValue;
+
 final class TenantId
 {
     private function __construct(private readonly string $value)
     {
         if ('' === $value) {
-            throw new \InvalidArgumentException('TenantId cannot be empty.');
+            throw InvalidValue::because('TenantId cannot be empty.');
         }
     }
 

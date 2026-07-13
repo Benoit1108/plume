@@ -4,13 +4,15 @@ declare(strict_types=1);
 
 namespace App\Shared\Domain\ValueObject;
 
+use App\Shared\Domain\Exception\InvalidValue;
+
 /** Code langue ISO 639-1 (ex. fr, en, es). */
 final class LanguageCode
 {
     private function __construct(private readonly string $value)
     {
         if (1 !== preg_match('/^[a-z]{2}$/', $value)) {
-            throw new \InvalidArgumentException(sprintf('Invalid ISO 639-1 language code "%s".', $value));
+            throw InvalidValue::because(sprintf('Invalid ISO 639-1 language code "%s".', $value));
         }
     }
 

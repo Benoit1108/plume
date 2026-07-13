@@ -8,6 +8,6 @@ interface LeadRepository
 {
     public function save(Lead $lead): void;
 
-    /** @throws \RuntimeException si la piste est introuvable */
+    /** @throws Exception\LeadNotFound si introuvable (dans le périmètre du tenant) */
     public function get(LeadId $id): Lead;
 }

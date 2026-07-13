@@ -16,6 +16,10 @@ security:
         login:
             pattern: ^/api/v1/login_check$
             stateless: true
+            # Anti force brute : 5 tentatives / 15 min (par IP + identifiant).
+            login_throttling:
+                max_attempts: 5
+                interval: '15 minutes'
             json_login:
                 check_path: /api/v1/login_check
                 username_path: email
@@ -38,9 +42,19 @@ security:
 
     access_control:
         - { path: ^/api/v1/login_check$, roles: PUBLIC_ACCESS }
-        - { path: ^/api/v1/token/refresh$, roles: PUBLIC_ACCESS }
+        - { path: ^/api/v1/token/(refresh|invalidate)$, roles: PUBLIC_ACCESS }
+        # /docs public en dev/test uniquement (surchargé en prod ci-dessous).
         - { path: ^/api/(v1/)?docs, roles: PUBLIC_ACCESS }
         - { path: ^/api/v1, roles: ROLE_USER }
+
+when@prod:
+    security:
+        # En prod, le contrat OpenAPI n'est pas public : la liste remplace celle du dessus.
+        access_control:
+            - { path: ^/api/v1/login_check$, roles: PUBLIC_ACCESS }
+            - { path: ^/api/v1/token/(refresh|invalidate)$, roles: PUBLIC_ACCESS }
+            - { path: ^/api/(v1/)?docs, roles: ROLE_USER }
+            - { path: ^/api/v1, roles: ROLE_USER }
 
 when@test:
     security:

@@ -14,5 +14,10 @@ api_platform:
         stateless: true
         cache_headers:
             vary: ['Content-Type', 'Authorization', 'Origin']
+    # Les erreurs métier (hiérarchie App\Shared\Domain\Exception) sont mappées vers
+    # des statuts HTTP sémantiques — RFC 7807 natif pour le corps de la réponse.
+    exception_to_status:
+        App\Shared\Domain\Exception\InvalidValue: 422
+        App\Shared\Domain\Exception\NotFound: 404
+        App\Shared\Domain\Exception\Conflict: 409
     # Versionnement /api/v1 : préfixe de montage dans config/routes/api_platform.yaml.
-    # Erreurs au format RFC 7807 (application/problem+json) — natif API Platform.

@@ -28,12 +28,17 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 final class OrganizationImportResource
 {
-    /** Contenu brut du fichier CSV. */
+    /** Nombre maximal de lignes de données par import (borne anti-abus). */
+    public const MAX_ROWS = 1000;
+
+    /** Contenu brut du fichier CSV (borné à ~1 Mo — au-delà, scinder le fichier). */
     #[Assert\NotBlank]
+    #[Assert\Length(max: 1_000_000, maxMessage: 'Fichier trop volumineux ({{ value_length }} caractères, max {{ limit }}). Scindez-le en plusieurs imports.')]
     #[Groups(['org_import:write'])]
     public string $content = '';
 
     /** Délimiteur forcé (`,`, `;` ou tabulation) ; auto-détecté si absent. */
+    #[Assert\Choice([',', ';', "\t"])]
     #[Groups(['org_import:write'])]
     public ?string $delimiter = null;
 

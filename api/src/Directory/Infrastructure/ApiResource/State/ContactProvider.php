@@ -10,6 +10,7 @@ use App\Directory\Application\Query\GetOrganization\GetOrganization;
 use App\Directory\Domain\Organization\Organization;
 use App\Directory\Infrastructure\ApiResource\ContactResource;
 use App\Shared\Application\Query\QueryBus;
+use App\Shared\Domain\Exception\NotFound;
 
 /**
  * Charge un contact (pour PATCH/DELETE) au sein de son organisation (scoping tenant via le query).
@@ -33,7 +34,7 @@ final class ContactProvider implements ProviderInterface
         try {
             /** @var Organization $organization */
             $organization = $this->queryBus->ask(new GetOrganization($organizationId));
-        } catch (\RuntimeException) {
+        } catch (NotFound) {
             return null;
         }
 

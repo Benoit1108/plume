@@ -10,6 +10,7 @@ use App\Directory\Domain\Organization\OrganizationRepository;
 use App\Directory\Domain\Organization\OrganizationType;
 use App\Shared\Application\Command\CommandHandler;
 use App\Shared\Application\Event\EventBus;
+use App\Shared\Domain\Exception\InvalidValue;
 use App\Shared\Domain\ValueObject\CountryCode;
 use App\Shared\Domain\ValueObject\LanguageCode;
 use App\Shared\Domain\ValueObject\Segment;
@@ -29,12 +30,12 @@ final class CreateOrganizationHandler implements CommandHandler
             OrganizationId::fromString($command->id),
             TenantId::fromString($command->tenantId),
             $command->name,
-            OrganizationType::from($command->type),
+            OrganizationType::tryFrom($command->type) ?? throw InvalidValue::because(sprintf('Unknown organization type "%s".', $command->type)),
             new \DateTimeImmutable(),
             website: $command->website,
             country: null !== $command->country ? CountryCode::fromString($command->country) : null,
             workingLanguages: array_map(static fn (string $code): LanguageCode => LanguageCode::fromString($code), $command->workingLanguages),
-            segments: array_map(static fn (string $segment): Segment => Segment::from($segment), $command->segments),
+            segments: array_map(static fn (string $segment): Segment => Segment::tryFrom($segment) ?? throw InvalidValue::because(sprintf('Unknown segment "%s".', $segment)), $command->segments),
             notes: $command->notes,
         );
 

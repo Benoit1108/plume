@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace App\Shared\Domain\ValueObject;
 
+use App\Shared\Domain\Exception\InvalidValue;
+
 final class EmailAddress
 {
     private function __construct(private readonly string $value)
     {
         if (false === filter_var($value, \FILTER_VALIDATE_EMAIL)) {
-            throw new \InvalidArgumentException(sprintf('Invalid email address "%s".', $value));
+            throw InvalidValue::because(sprintf('Invalid email address "%s".', $value));
         }
     }
 

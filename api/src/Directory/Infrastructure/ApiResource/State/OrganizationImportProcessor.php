@@ -14,7 +14,9 @@ use App\Directory\Infrastructure\ApiResource\OrganizationImportResource;
 use App\Directory\Infrastructure\Import\CsvOrganizationParser;
 use App\Shared\Application\Command\CommandBus;
 use App\Shared\Application\Query\QueryBus;
+use App\Shared\Domain\Exception\DomainError;
 use App\Shared\Infrastructure\Doctrine\Tenancy\TenantContext;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\Uid\Uuid;
 
@@ -31,6 +33,7 @@ final class OrganizationImportProcessor implements ProcessorInterface
         private readonly QueryBus $queryBus,
         private readonly TenantContext $tenantContext,
         private readonly CsvOrganizationParser $parser,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -42,6 +45,10 @@ final class OrganizationImportProcessor implements ProcessorInterface
             $parsed = $this->parser->parse($data->content, $data->delimiter);
         } catch (\InvalidArgumentException $exception) {
             throw new UnprocessableEntityHttpException($exception->getMessage(), $exception);
+        }
+
+        if (\count($parsed->rows) > OrganizationImportResource::MAX_ROWS) {
+            throw new UnprocessableEntityHttpException(sprintf('Fichier trop volumineux : %d lignes (maximum %d par import). Scindez-le.', \count($parsed->rows), OrganizationImportResource::MAX_ROWS));
         }
 
         $result = new OrganizationImportResource();
@@ -75,9 +82,15 @@ final class OrganizationImportProcessor implements ProcessorInterface
                     $row->segments,
                     $row->notes,
                 ));
-            } catch (\Throwable $exception) {
+            } catch (DomainError $exception) {
                 ++$result->failed;
                 $result->errors[] = ['line' => $row->line, 'message' => sprintf('« %s » : %s', $row->name, $exception->getMessage())];
+                continue;
+            } catch (\Throwable $exception) {
+                // Panne technique : rien d'interne ne doit fuiter vers le client.
+                $this->logger->error('Import CSV : échec inattendu.', ['line' => $row->line, 'exception' => $exception]);
+                ++$result->failed;
+                $result->errors[] = ['line' => $row->line, 'message' => sprintf('« %s » : erreur interne, ligne non importée.', $row->name)];
                 continue;
             }
 
@@ -96,8 +109,11 @@ final class OrganizationImportProcessor implements ProcessorInterface
                         null,
                         null,
                     ));
-                } catch (\Throwable $exception) {
+                } catch (DomainError $exception) {
                     $result->errors[] = ['line' => $row->line, 'message' => sprintf('« %s » importée, mais contact ignoré : %s', $row->name, $exception->getMessage())];
+                } catch (\Throwable $exception) {
+                    $this->logger->error('Import CSV : échec inattendu sur le contact.', ['line' => $row->line, 'exception' => $exception]);
+                    $result->errors[] = ['line' => $row->line, 'message' => sprintf('« %s » importée, mais contact ignoré (erreur interne).', $row->name)];
                 }
             }
         }

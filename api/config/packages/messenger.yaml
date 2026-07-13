@@ -18,6 +18,11 @@ framework:
                 default_middleware:
                     allow_no_handlers: true
 
+        # Après épuisement des retries, les messages partent dans `failed`
+        # (table messenger_messages, queue dédiée) au lieu d'être perdus —
+        # cohérent avec la garantie outbox « aucun event perdu ».
+        failure_transport: failed
+
         transports:
             async:
                 dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
@@ -27,7 +32,12 @@ framework:
                     max_retries: 3
                     delay: 1000
                     multiplier: 2
-            # Transactional outbox : à câbler (relais des events stockés → async).
+            failed:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                options:
+                    queue_name: failed
+            # Outbox : l'INSERT dans le transport doctrine rejoint la transaction
+            # de la commande (même connexion) — atomicité garantie.
             # scheduler_default est fourni par symfony/scheduler.
 
         routing:

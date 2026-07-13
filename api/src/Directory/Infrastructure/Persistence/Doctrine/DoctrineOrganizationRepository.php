@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Directory\Infrastructure\Persistence\Doctrine;
 
+use App\Directory\Domain\Organization\Exception\OrganizationNotFound;
 use App\Directory\Domain\Organization\Organization;
 use App\Directory\Domain\Organization\OrganizationId;
 use App\Directory\Domain\Organization\OrganizationRepository;
@@ -34,7 +35,7 @@ final class DoctrineOrganizationRepository implements OrganizationRepository
             ->getOneOrNullResult();
 
         if (!$organization instanceof Organization) {
-            throw new \RuntimeException(sprintf('Organization "%s" not found.', $id->toString()));
+            throw OrganizationNotFound::withId($id);
         }
 
         return $organization;

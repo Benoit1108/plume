@@ -8,7 +8,7 @@ interface OrganizationRepository
 {
     public function save(Organization $organization): void;
 
-    /** @throws \RuntimeException si l'organisation est introuvable */
+    /** @throws Exception\OrganizationNotFound si introuvable (dans le périmètre du tenant) */
     public function get(OrganizationId $id): Organization;
 
     /**

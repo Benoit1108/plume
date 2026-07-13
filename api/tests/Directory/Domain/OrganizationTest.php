@@ -13,6 +13,7 @@ use App\Directory\Domain\Organization\Exception\DuplicateContactEmail;
 use App\Directory\Domain\Organization\Organization;
 use App\Directory\Domain\Organization\OrganizationId;
 use App\Directory\Domain\Organization\OrganizationType;
+use App\Shared\Domain\Exception\InvalidValue;
 use App\Shared\Domain\ValueObject\EmailAddress;
 use App\Shared\Domain\ValueObject\Segment;
 use App\Shared\Domain\ValueObject\TenantId;
@@ -62,7 +63,7 @@ final class OrganizationTest extends TestCase
 
     public function testEmptyNameIsRejected(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidValue::class);
 
         Organization::create(
             OrganizationId::fromString('x'),
