@@ -7,11 +7,13 @@ namespace App\Prospecting\Infrastructure\ApiResource\State;
 use ApiPlatform\Metadata\HttpOperation;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
+use App\Prospecting\Application\Command\CancelFollowUp\CancelFollowUp;
 use App\Prospecting\Application\Command\ContactLead\ContactLead;
 use App\Prospecting\Application\Command\MarkLeadLost\MarkLeadLost;
 use App\Prospecting\Application\Command\MarkLeadWon\MarkLeadWon;
 use App\Prospecting\Application\Command\MoveToSampleTest\MoveToSampleTest;
 use App\Prospecting\Application\Command\PauseLead\PauseLead;
+use App\Prospecting\Application\Command\RecordFollowUp\RecordFollowUp;
 use App\Prospecting\Application\Command\RecordReply\RecordReply;
 use App\Prospecting\Application\Command\ResumeLead\ResumeLead;
 use App\Prospecting\Application\Query\GetLead\GetLead;
@@ -30,6 +32,7 @@ final class LeadTransitionProcessor implements ProcessorInterface
 {
     private const COMMANDS = [
         'contact' => ContactLead::class,
+        'follow-up' => RecordFollowUp::class,
         'reply' => RecordReply::class,
         'sample-test' => MoveToSampleTest::class,
         'win' => MarkLeadWon::class,
@@ -44,11 +47,18 @@ final class LeadTransitionProcessor implements ProcessorInterface
     ) {
     }
 
-    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): LeadResource
+    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): ?LeadResource
     {
         $id = $uriVariables['id'] ?? null;
         if (!\is_string($id)) {
             throw new \LogicException('Missing lead id.');
+        }
+
+        // DELETE /leads/{id}/follow-up : annulation de la relance planifiée (204).
+        if ($operation instanceof HttpOperation && 'DELETE' === $operation->getMethod()) {
+            $this->commandBus->dispatch(new CancelFollowUp($id));
+
+            return null;
         }
 
         $uriTemplate = $operation instanceof HttpOperation ? (string) $operation->getUriTemplate() : '';

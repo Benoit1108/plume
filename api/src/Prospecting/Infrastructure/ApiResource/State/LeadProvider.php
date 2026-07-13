@@ -81,6 +81,8 @@ final class LeadProvider implements ProviderInterface
         $resource->createdAt = $view->createdAt->format(\DateTimeInterface::ATOM);
         $resource->lastContactedAt = $view->lastContactedAt?->format(\DateTimeInterface::ATOM);
         $resource->lastReplyAt = $view->lastReplyAt?->format(\DateTimeInterface::ATOM);
+        $resource->nextFollowUpAt = $view->nextFollowUpAt?->format('Y-m-d');
+        $resource->nextFollowUpLabel = $view->nextFollowUpLabel;
 
         return $resource;
     }

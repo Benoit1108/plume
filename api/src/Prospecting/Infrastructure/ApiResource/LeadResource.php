@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Prospecting\Infrastructure\ApiResource;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
@@ -45,6 +46,8 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Post(uriTemplate: '/leads/{id}/lose', name: 'lead_lose', provider: LeadProvider::class, processor: LeadTransitionProcessor::class, input: false, status: 200, openapi: new \ApiPlatform\OpenApi\Model\Operation(summary: 'Marquer perdue')),
         new Post(uriTemplate: '/leads/{id}/pause', name: 'lead_pause', provider: LeadProvider::class, processor: LeadTransitionProcessor::class, input: false, status: 200, openapi: new \ApiPlatform\OpenApi\Model\Operation(summary: 'Mettre en pause')),
         new Post(uriTemplate: '/leads/{id}/resume', name: 'lead_resume', provider: LeadProvider::class, processor: LeadTransitionProcessor::class, input: false, status: 200, openapi: new \ApiPlatform\OpenApi\Model\Operation(summary: 'Reprendre (retour au statut mémorisé)')),
+        new Post(uriTemplate: '/leads/{id}/follow-up', name: 'lead_follow_up', provider: LeadProvider::class, processor: LeadTransitionProcessor::class, input: false, status: 200, openapi: new \ApiPlatform\OpenApi\Model\Operation(summary: 'Relance faite (la cadence planifie la suivante)')),
+        new Delete(uriTemplate: '/leads/{id}/follow-up', name: 'lead_cancel_follow_up', provider: LeadProvider::class, processor: LeadTransitionProcessor::class, openapi: new \ApiPlatform\OpenApi\Model\Operation(summary: 'Annuler la relance planifiée')),
     ],
 )]
 final class LeadResource
@@ -96,4 +99,10 @@ final class LeadResource
 
     #[Groups(['lead:read'])]
     public ?string $lastReplyAt = null;
+
+    #[Groups(['lead:read'])]
+    public ?string $nextFollowUpAt = null;
+
+    #[Groups(['lead:read'])]
+    public ?string $nextFollowUpLabel = null;
 }

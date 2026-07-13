@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Prospecting\Infrastructure\Projection;
 
+use App\Prospecting\Domain\Lead\Event\FollowUpCancelled;
+use App\Prospecting\Domain\Lead\Event\FollowUpScheduled;
+use App\Prospecting\Domain\Lead\Event\FollowUpSent;
 use App\Prospecting\Domain\Lead\Event\LeadContacted;
 use App\Prospecting\Domain\Lead\Event\LeadCreated;
 use App\Prospecting\Domain\Lead\Event\LeadLost;
@@ -82,6 +85,25 @@ final class InteractionProjector
     public function onNoteAdded(NoteAdded $event): void
     {
         $this->record($event, $event->tenantId, $event->leadId, 'note', ['text' => $event->text]);
+    }
+
+    #[AsMessageHandler(bus: 'event.bus')]
+    public function onFollowUpScheduled(FollowUpScheduled $event): void
+    {
+        $this->record($event, $event->tenantId, $event->leadId, 'follow_up_scheduled', ['dueAt' => $event->dueAt, 'label' => $event->label, 'auto' => $event->auto]);
+    }
+
+    /** Type `followed_up` : compte comme acte de démarchage (progression hebdo). */
+    #[AsMessageHandler(bus: 'event.bus')]
+    public function onFollowUpSent(FollowUpSent $event): void
+    {
+        $this->record($event, $event->tenantId, $event->leadId, 'followed_up');
+    }
+
+    #[AsMessageHandler(bus: 'event.bus')]
+    public function onFollowUpCancelled(FollowUpCancelled $event): void
+    {
+        $this->record($event, $event->tenantId, $event->leadId, 'follow_up_cancelled', ['reason' => $event->reason]);
     }
 
     /** @param array<string, mixed> $payload */

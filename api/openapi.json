@@ -745,6 +745,138 @@
                 ]
             }
         },
+        "/api/v1/leads/{id}/follow-up": {
+            "post": {
+                "operationId": "lead_follow_up",
+                "tags": [
+                    "Lead"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lead resource created",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Lead.jsonld-lead.read"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Lead-lead.read"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Relance faite (la cadence planifie la suivante)",
+                "description": "Relance faite (la cadence planifie la suivante)",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Lead identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            },
+            "delete": {
+                "operationId": "lead_cancel_follow_up",
+                "tags": [
+                    "Lead"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Lead resource deleted"
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Annuler la relance planifi\u00e9e",
+                "description": "Annuler la relance planifi\u00e9e",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Lead identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            }
+        },
         "/api/v1/leads/{id}/lose": {
             "post": {
                 "operationId": "lead_lose",
@@ -1247,6 +1379,106 @@
                         "explode": false
                     }
                 ]
+            }
+        },
+        "/api/v1/leads/{leadId}/schedule-follow-up": {
+            "post": {
+                "operationId": "api_leads_leadIdschedule-follow-up_post",
+                "tags": [
+                    "LeadFollowUp"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "LeadFollowUp resource created",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LeadFollowUp.LeadResource.jsonld-lead.read"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LeadFollowUp.LeadResource-lead.read"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Planifier / replanifier la relance",
+                "description": "Planifier / replanifier la relance",
+                "parameters": [
+                    {
+                        "name": "leadId",
+                        "in": "path",
+                        "description": "LeadResource identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ],
+                "requestBody": {
+                    "description": "The new LeadFollowUp resource",
+                    "content": {
+                        "application/ld+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LeadFollowUp-lead_follow_up.write"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LeadFollowUp-lead_follow_up.write"
+                            }
+                        }
+                    },
+                    "required": true
+                }
             }
         },
         "/api/v1/leads/{leadId}/notes": {
@@ -1862,6 +2094,205 @@
                     },
                     "required": true
                 }
+            }
+        },
+        "/api/v1/profile": {
+            "get": {
+                "operationId": "api_profile_get",
+                "tags": [
+                    "Profile"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Profile resource",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Profile.jsonld-profile.read"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Profile-profile.read"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Retrieves a Profile resource.",
+                "description": "Retrieves a Profile resource.",
+                "parameters": []
+            },
+            "patch": {
+                "operationId": "api_profile_patch",
+                "tags": [
+                    "Profile"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Profile resource updated",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Profile.jsonld-profile.read"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Profile-profile.read"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Updates the Profile resource.",
+                "description": "Updates the Profile resource.",
+                "parameters": [],
+                "requestBody": {
+                    "description": "The updated Profile resource",
+                    "content": {
+                        "application/merge-patch+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Profile-profile.write.jsonMergePatch"
+                            }
+                        }
+                    },
+                    "required": true
+                }
+            }
+        },
+        "/api/v1/today": {
+            "get": {
+                "operationId": "api_today_get",
+                "tags": [
+                    "Today"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Today resource",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Today.jsonld-today.read_lead.read"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Today-today.read_lead.read"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Retrieves a Today resource.",
+                "description": "Retrieves a Today resource.",
+                "parameters": []
             }
         }
     },
@@ -2816,6 +3247,18 @@
                             "string",
                             "null"
                         ]
+                    },
+                    "nextFollowUpAt": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "nextFollowUpLabel": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     }
                 },
                 "required": [
@@ -2884,6 +3327,120 @@
                         "type": "string"
                     }
                 }
+            },
+            "Lead-today.read_lead.read": {
+                "type": "object",
+                "description": "Piste (DTO) \u2014 API orient\u00e9e cas d'usage : les transitions sont des POST d\u00e9di\u00e9s\n(pas de PATCH de statut), chacune mappe une commande m\u00e9tier. Transition\ninterdite \u2192 409 (mapping Conflict).",
+                "properties": {
+                    "id": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "organizationId": {
+                        "format": "uuid",
+                        "externalDocs": {
+                            "url": "https://schema.org/identifier"
+                        },
+                        "default": "",
+                        "type": "string"
+                    },
+                    "organizationName": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "contactId": {
+                        "format": "uuid",
+                        "externalDocs": {
+                            "url": "https://schema.org/identifier"
+                        },
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "languagePair": {
+                        "pattern": "^([a-zA-Z]{2}>[a-zA-Z]{2})$",
+                        "default": "",
+                        "type": "string"
+                    },
+                    "source": {
+                        "enum": [
+                            "DIRECT",
+                            "REFERRAL",
+                            "JOB_BOARD",
+                            "OTHER"
+                        ],
+                        "default": "DIRECT",
+                        "type": "string"
+                    },
+                    "priority": {
+                        "enum": [
+                            "LOW",
+                            "MEDIUM",
+                            "HIGH"
+                        ],
+                        "default": "MEDIUM",
+                        "type": "string"
+                    },
+                    "segment": {
+                        "enum": [
+                            "PUBLISHING",
+                            "AUDIOVISUAL",
+                            "TECHNICAL",
+                            "OTHER"
+                        ],
+                        "default": "OTHER",
+                        "type": "string"
+                    },
+                    "status": {
+                        "default": "TO_CONTACT",
+                        "type": "string"
+                    },
+                    "allowedActions": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "createdAt": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "lastContactedAt": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "lastReplyAt": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "nextFollowUpAt": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "nextFollowUpLabel": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                },
+                "required": [
+                    "organizationId",
+                    "languagePair"
+                ]
             },
             "Lead.jsonld-lead.read": {
                 "allOf": [
@@ -2984,6 +3541,18 @@
                                     "string",
                                     "null"
                                 ]
+                            },
+                            "nextFollowUpAt": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "nextFollowUpLabel": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
                             }
                         },
                         "required": [
@@ -2993,6 +3562,383 @@
                     }
                 ],
                 "description": "Piste (DTO) \u2014 API orient\u00e9e cas d'usage : les transitions sont des POST d\u00e9di\u00e9s\n(pas de PATCH de statut), chacune mappe une commande m\u00e9tier. Transition\ninterdite \u2192 409 (mapping Conflict)."
+            },
+            "Lead.jsonld-today.read_lead.read": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/HydraItemBaseSchema"
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "organizationId": {
+                                "format": "uuid",
+                                "externalDocs": {
+                                    "url": "https://schema.org/identifier"
+                                },
+                                "default": "",
+                                "type": "string"
+                            },
+                            "organizationName": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "contactId": {
+                                "format": "uuid",
+                                "externalDocs": {
+                                    "url": "https://schema.org/identifier"
+                                },
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "languagePair": {
+                                "pattern": "^([a-zA-Z]{2}>[a-zA-Z]{2})$",
+                                "default": "",
+                                "type": "string"
+                            },
+                            "source": {
+                                "enum": [
+                                    "DIRECT",
+                                    "REFERRAL",
+                                    "JOB_BOARD",
+                                    "OTHER"
+                                ],
+                                "default": "DIRECT",
+                                "type": "string"
+                            },
+                            "priority": {
+                                "enum": [
+                                    "LOW",
+                                    "MEDIUM",
+                                    "HIGH"
+                                ],
+                                "default": "MEDIUM",
+                                "type": "string"
+                            },
+                            "segment": {
+                                "enum": [
+                                    "PUBLISHING",
+                                    "AUDIOVISUAL",
+                                    "TECHNICAL",
+                                    "OTHER"
+                                ],
+                                "default": "OTHER",
+                                "type": "string"
+                            },
+                            "status": {
+                                "default": "TO_CONTACT",
+                                "type": "string"
+                            },
+                            "allowedActions": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            "createdAt": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "lastContactedAt": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "lastReplyAt": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "nextFollowUpAt": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "nextFollowUpLabel": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            }
+                        },
+                        "required": [
+                            "organizationId",
+                            "languagePair"
+                        ]
+                    }
+                ],
+                "description": "Piste (DTO) \u2014 API orient\u00e9e cas d'usage : les transitions sont des POST d\u00e9di\u00e9s\n(pas de PATCH de statut), chacune mappe une commande m\u00e9tier. Transition\ninterdite \u2192 409 (mapping Conflict)."
+            },
+            "LeadFollowUp-lead_follow_up.write": {
+                "type": "object",
+                "description": "Planification (ou replanification) manuelle de la relance d'une piste.",
+                "required": [
+                    "dueAt"
+                ],
+                "properties": {
+                    "dueAt": {
+                        "pattern": "^(\\d{4}-\\d{2}-\\d{2})$",
+                        "default": "",
+                        "type": "string"
+                    },
+                    "label": {
+                        "maxLength": 255,
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                }
+            },
+            "LeadFollowUp.LeadResource-lead.read": {
+                "type": "object",
+                "description": "Planification (ou replanification) manuelle de la relance d'une piste.",
+                "properties": {
+                    "id": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "organizationId": {
+                        "format": "uuid",
+                        "externalDocs": {
+                            "url": "https://schema.org/identifier"
+                        },
+                        "default": "",
+                        "type": "string"
+                    },
+                    "organizationName": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "contactId": {
+                        "format": "uuid",
+                        "externalDocs": {
+                            "url": "https://schema.org/identifier"
+                        },
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "languagePair": {
+                        "pattern": "^([a-zA-Z]{2}>[a-zA-Z]{2})$",
+                        "default": "",
+                        "type": "string"
+                    },
+                    "source": {
+                        "enum": [
+                            "DIRECT",
+                            "REFERRAL",
+                            "JOB_BOARD",
+                            "OTHER"
+                        ],
+                        "default": "DIRECT",
+                        "type": "string"
+                    },
+                    "priority": {
+                        "enum": [
+                            "LOW",
+                            "MEDIUM",
+                            "HIGH"
+                        ],
+                        "default": "MEDIUM",
+                        "type": "string"
+                    },
+                    "segment": {
+                        "enum": [
+                            "PUBLISHING",
+                            "AUDIOVISUAL",
+                            "TECHNICAL",
+                            "OTHER"
+                        ],
+                        "default": "OTHER",
+                        "type": "string"
+                    },
+                    "status": {
+                        "default": "TO_CONTACT",
+                        "type": "string"
+                    },
+                    "allowedActions": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "createdAt": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "lastContactedAt": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "lastReplyAt": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "nextFollowUpAt": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "nextFollowUpLabel": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                },
+                "required": [
+                    "organizationId",
+                    "languagePair"
+                ]
+            },
+            "LeadFollowUp.LeadResource.jsonld-lead.read": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/HydraItemBaseSchema"
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "organizationId": {
+                                "format": "uuid",
+                                "externalDocs": {
+                                    "url": "https://schema.org/identifier"
+                                },
+                                "default": "",
+                                "type": "string"
+                            },
+                            "organizationName": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "contactId": {
+                                "format": "uuid",
+                                "externalDocs": {
+                                    "url": "https://schema.org/identifier"
+                                },
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "languagePair": {
+                                "pattern": "^([a-zA-Z]{2}>[a-zA-Z]{2})$",
+                                "default": "",
+                                "type": "string"
+                            },
+                            "source": {
+                                "enum": [
+                                    "DIRECT",
+                                    "REFERRAL",
+                                    "JOB_BOARD",
+                                    "OTHER"
+                                ],
+                                "default": "DIRECT",
+                                "type": "string"
+                            },
+                            "priority": {
+                                "enum": [
+                                    "LOW",
+                                    "MEDIUM",
+                                    "HIGH"
+                                ],
+                                "default": "MEDIUM",
+                                "type": "string"
+                            },
+                            "segment": {
+                                "enum": [
+                                    "PUBLISHING",
+                                    "AUDIOVISUAL",
+                                    "TECHNICAL",
+                                    "OTHER"
+                                ],
+                                "default": "OTHER",
+                                "type": "string"
+                            },
+                            "status": {
+                                "default": "TO_CONTACT",
+                                "type": "string"
+                            },
+                            "allowedActions": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
+                            },
+                            "createdAt": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "lastContactedAt": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "lastReplyAt": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "nextFollowUpAt": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "nextFollowUpLabel": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            }
+                        },
+                        "required": [
+                            "organizationId",
+                            "languagePair"
+                        ]
+                    }
+                ],
+                "description": "Planification (ou replanification) manuelle de la relance d'une piste."
             },
             "LeadNote-lead_note.read": {
                 "type": "object",
@@ -3426,6 +4372,140 @@
                     }
                 ],
                 "description": "Import CSV d'organisations : POST du contenu brut, r\u00e9ponse = r\u00e9capitulatif.\nChaque ligne valide cr\u00e9e une organisation (transaction ind\u00e9pendante) ; une ligne\nfautive n'annule pas les autres."
+            },
+            "Profile-profile.read": {
+                "type": "object",
+                "description": "Profil de la traductrice (singleton par tenant) \u2014 M1.3 : objectif hebdo.",
+                "properties": {
+                    "id": {
+                        "default": "me",
+                        "type": "string"
+                    },
+                    "weeklyGoal": {
+                        "minimum": 1,
+                        "maximum": 99,
+                        "default": 5,
+                        "type": "integer"
+                    },
+                    "timezone": {
+                        "default": "Europe/Paris",
+                        "type": "string"
+                    }
+                }
+            },
+            "Profile-profile.write.jsonMergePatch": {
+                "type": "object",
+                "description": "Profil de la traductrice (singleton par tenant) \u2014 M1.3 : objectif hebdo.",
+                "properties": {
+                    "weeklyGoal": {
+                        "minimum": 1,
+                        "maximum": 99,
+                        "default": 5,
+                        "type": "integer"
+                    }
+                }
+            },
+            "Profile.jsonld-profile.read": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/HydraItemBaseSchema"
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "default": "me",
+                                "type": "string"
+                            },
+                            "weeklyGoal": {
+                                "minimum": 1,
+                                "maximum": 99,
+                                "default": 5,
+                                "type": "integer"
+                            },
+                            "timezone": {
+                                "default": "Europe/Paris",
+                                "type": "string"
+                            }
+                        }
+                    }
+                ],
+                "description": "Profil de la traductrice (singleton par tenant) \u2014 M1.3 : objectif hebdo."
+            },
+            "Today-today.read_lead.read": {
+                "type": "object",
+                "description": "L'\u00e9cran \u00ab Aujourd'hui \u00bb : relances dues, pistes \u00e0 contacter, progression hebdo.",
+                "properties": {
+                    "id": {
+                        "default": "today",
+                        "type": "string"
+                    },
+                    "followUpsDue": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Lead-today.read_lead.read"
+                        }
+                    },
+                    "toContact": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Lead-today.read_lead.read"
+                        }
+                    },
+                    "weeklyTarget": {
+                        "default": 0,
+                        "type": "integer"
+                    },
+                    "weeklyDone": {
+                        "default": 0,
+                        "type": "integer"
+                    },
+                    "streak": {
+                        "default": 0,
+                        "type": "integer"
+                    }
+                }
+            },
+            "Today.jsonld-today.read_lead.read": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/HydraItemBaseSchema"
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "default": "today",
+                                "type": "string"
+                            },
+                            "followUpsDue": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/Lead.jsonld-today.read_lead.read"
+                                }
+                            },
+                            "toContact": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/Lead.jsonld-today.read_lead.read"
+                                }
+                            },
+                            "weeklyTarget": {
+                                "default": 0,
+                                "type": "integer"
+                            },
+                            "weeklyDone": {
+                                "default": 0,
+                                "type": "integer"
+                            },
+                            "streak": {
+                                "default": 0,
+                                "type": "integer"
+                            }
+                        }
+                    }
+                ],
+                "description": "L'\u00e9cran \u00ab Aujourd'hui \u00bb : relances dues, pistes \u00e0 contacter, progression hebdo."
             }
         },
         "responses": {},
@@ -3444,6 +4524,10 @@
     "security": [],
     "tags": [
         {
+            "name": "Profile",
+            "description": "Profil de la traductrice (singleton par tenant) \u2014 M1.3 : objectif hebdo."
+        },
+        {
             "name": "Contact",
             "description": "DTO d'un contact : imbriqu\u00e9 (org:read) + sous-endpoints sous une organisation."
         },
@@ -3460,12 +4544,20 @@
             "description": "Entr\u00e9e du journal d'interactions (timeline d'une piste) \u2014 lecture seule."
         },
         {
+            "name": "LeadFollowUp",
+            "description": "Planification (ou replanification) manuelle de la relance d'une piste."
+        },
+        {
             "name": "LeadNote",
             "description": "Note manuelle sur une piste \u2014 vers\u00e9e au journal d'interactions (via event)."
         },
         {
             "name": "Lead",
             "description": "Piste (DTO) \u2014 API orient\u00e9e cas d'usage : les transitions sont des POST d\u00e9di\u00e9s\n(pas de PATCH de statut), chacune mappe une commande m\u00e9tier. Transition\ninterdite \u2192 409 (mapping Conflict)."
+        },
+        {
+            "name": "Today",
+            "description": "L'\u00e9cran \u00ab Aujourd'hui \u00bb : relances dues, pistes \u00e0 contacter, progression hebdo."
         }
     ],
     "webhooks": {}

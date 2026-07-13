@@ -134,8 +134,12 @@ final class LeadApiTest extends ApiTestCase
         $collection = $response->toArray();
         /** @var list<array{type: string, payload: array<string, mixed>}> $items */
         $items = $collection['member'] ?? $collection['hydra:member'] ?? [];
-        self::assertCount(6, $items);
-        self::assertSame(['note', 'won', 'sample_test', 'reply', 'contacted', 'created'], array_column($items, 'type'));
+        self::assertCount(8, $items);
+        // La cadence vit avec le pipeline : relance auto au contact, annulée à la réponse.
+        self::assertSame(
+            ['note', 'won', 'sample_test', 'follow_up_cancelled', 'reply', 'follow_up_scheduled', 'contacted', 'created'],
+            array_column($items, 'type'),
+        );
         self::assertSame('Contrat signé !', $items[0]['payload']['text'] ?? null);
     }
 

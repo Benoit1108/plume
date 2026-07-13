@@ -34,6 +34,11 @@ doctrine:
                 is_bundle: false
                 dir: '%kernel.project_dir%/config/doctrine/directory'
                 prefix: 'App\Directory\Domain\Organization'
+            AccountProfile:
+                type: xml
+                is_bundle: false
+                dir: '%kernel.project_dir%/config/doctrine/account-profile'
+                prefix: 'App\Account\Domain\Profile'
             AccountAuth:
                 type: xml
                 is_bundle: false

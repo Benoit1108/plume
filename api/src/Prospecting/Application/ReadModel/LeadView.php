@@ -7,7 +7,7 @@ namespace App\Prospecting\Application\ReadModel;
 /** Vue de lecture d'une piste — immuable, découplée de l'agrégat (ADR-0013). */
 final class LeadView
 {
-    /** @param string[] $allowedActions actions de transition proposables (contact, reply, win…) */
+    /** @param string[] $allowedActions actions de transition proposables (contact, follow-up, reply, win…) */
     public function __construct(
         public readonly string $id,
         public readonly string $organizationId,
@@ -22,6 +22,8 @@ final class LeadView
         public readonly \DateTimeImmutable $createdAt,
         public readonly ?\DateTimeImmutable $lastContactedAt,
         public readonly ?\DateTimeImmutable $lastReplyAt,
+        public readonly ?\DateTimeImmutable $nextFollowUpAt,
+        public readonly ?string $nextFollowUpLabel,
     ) {
     }
 }
