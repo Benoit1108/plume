@@ -40,7 +40,11 @@ Fondations techniques.
       écrans responsives i18n FR/EN, pagination, pyramide de tests complète
       (domaine / application / fonctionnel Postgres avec isolation tenant).
       *Reportés : tags (non conçus), filtres segment/langue (JSONB, attendre le volume).*
-- [ ] **M1.2 — Piste** : création, machine à états, kanban + liste.
+- [x] **M1.2 — Piste** ✅ : Lead complet (paire de langues, origine, priorité, pause/reprise),
+      machine à états exhaustive, API cas d'usage (409 sur transition interdite), garde RGPD
+      via le gateway Répertoire, une piste active par organisation, **journal d'interactions**
+      (première projection asynchrone, idempotente), kanban + fiche avec timeline + création
+      depuis l'organisation. *Reporté : drag-and-drop (itération 2), FOLLOWED_UP (M1.3).*
 - [ ] **M1.3 — Interactions & relances** : journal (projection), planification par statut,
       écran « à faire aujourd'hui », cadences ; **régularité** (objectif hebdo, série).
 - [ ] **M1.4 — Rédaction assistée** : génération mail + lettre (FR/EN/ES), ton par segment,

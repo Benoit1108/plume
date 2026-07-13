@@ -133,5 +133,82 @@
       "contactUpdated": "Contact modifié.",
       "contactDeleted": "Contact supprimé."
     }
+  },
+  "pipeline": {
+    "eyebrow": "Atelier · pipeline",
+    "title": "Pistes",
+    "newLead": "Piste",
+    "empty": "Aucune piste. Crée ta première piste ici ou depuis une organisation du Répertoire.",
+    "statuses": {
+      "TO_CONTACT": "À contacter",
+      "CONTACTED": "Contactée",
+      "FOLLOWED_UP": "Relancée",
+      "IN_DISCUSSION": "En discussion",
+      "SAMPLE_TEST": "Test / Échantillon",
+      "WON": "Gagnée",
+      "LOST": "Perdue",
+      "PAUSED": "En pause"
+    },
+    "priorities": {
+      "LOW": "Basse",
+      "MEDIUM": "Moyenne",
+      "HIGH": "Haute"
+    },
+    "sources": {
+      "DIRECT": "Démarchage direct",
+      "REFERRAL": "Recommandation",
+      "JOB_BOARD": "Annonce",
+      "OTHER": "Autre"
+    },
+    "actions": {
+      "contact": "Contacter",
+      "reply": "Réponse reçue",
+      "sample-test": "Test / Échantillon",
+      "win": "Gagnée",
+      "lose": "Perdue",
+      "pause": "Mettre en pause",
+      "resume": "Reprendre"
+    },
+    "confirmLoseTitle": "Marquer la piste perdue ?",
+    "confirmLoseBody": "« {name} » passera en statut terminal — plus aucune transition ne sera possible (les notes restent autorisées).",
+    "detail": {
+      "notFound": "Piste introuvable.",
+      "timeline": "Journal",
+      "noInteractions": "Aucune interaction pour l'instant.",
+      "addNote": "Ajouter une note",
+      "notePlaceholder": "Note…",
+      "createdAt": "Créée le {date}",
+      "lastContact": "Dernier contact : {date}",
+      "lastReply": "Dernière réponse : {date}"
+    },
+    "timeline": {
+      "created": "Piste créée",
+      "contacted": "Contact établi",
+      "reply": "Réponse reçue",
+      "sample_test": "Passage en test / échantillon",
+      "won": "Piste gagnée",
+      "lost": "Piste perdue",
+      "paused": "Mise en pause",
+      "resumed": "Reprise",
+      "note": "Note"
+    },
+    "new": {
+      "title": "Nouvelle piste",
+      "organization": "Organisation",
+      "contact": "Contact (optionnel)",
+      "noContact": "— aucun —",
+      "languagePair": "Paire de langues",
+      "languagePairHint": "Format en>fr (source > cible)",
+      "source": "Origine",
+      "priority": "Priorité",
+      "segment": "Segment",
+      "error": "Création impossible. Une piste active existe peut-être déjà pour cette organisation, ou celle-ci est marquée « ne pas contacter »."
+    },
+    "toasts": {
+      "created": "Piste créée.",
+      "updated": "Piste mise à jour.",
+      "noteAdded": "Note ajoutée."
+    },
+    "createFromOrg": "Créer une piste"
   }
 }

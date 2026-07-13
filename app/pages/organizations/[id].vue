@@ -194,6 +194,15 @@ async function deleteContact(): Promise<void> {
         </div>
 
         <div class="flex gap-2 shrink-0 flex-wrap sm:ml-auto">
+          <UButton
+            v-if="!org.doNotContact"
+            size="sm"
+            variant="outline"
+            icon="i-lucide-kanban"
+            :to="`/leads/new?organizationId=${org.id}`"
+          >
+            {{ t('pipeline.createFromOrg') }}
+          </UButton>
           <UButton color="neutral" variant="outline" size="sm" :loading="togglingDoNotContact" @click="onToggleDoNotContact">
             {{ org.doNotContact ? t('directory.doNotContact.clear') : t('directory.doNotContact.mark') }}
           </UButton>

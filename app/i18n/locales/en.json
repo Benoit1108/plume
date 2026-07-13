@@ -133,5 +133,82 @@
       "contactUpdated": "Contact updated.",
       "contactDeleted": "Contact deleted."
     }
+  },
+  "pipeline": {
+    "eyebrow": "Studio · pipeline",
+    "title": "Leads",
+    "newLead": "Lead",
+    "empty": "No leads yet. Create your first one here or from a Directory organization.",
+    "statuses": {
+      "TO_CONTACT": "To contact",
+      "CONTACTED": "Contacted",
+      "FOLLOWED_UP": "Followed up",
+      "IN_DISCUSSION": "In discussion",
+      "SAMPLE_TEST": "Sample / Test",
+      "WON": "Won",
+      "LOST": "Lost",
+      "PAUSED": "Paused"
+    },
+    "priorities": {
+      "LOW": "Low",
+      "MEDIUM": "Medium",
+      "HIGH": "High"
+    },
+    "sources": {
+      "DIRECT": "Direct outreach",
+      "REFERRAL": "Referral",
+      "JOB_BOARD": "Job board",
+      "OTHER": "Other"
+    },
+    "actions": {
+      "contact": "Contact",
+      "reply": "Reply received",
+      "sample-test": "Sample / Test",
+      "win": "Won",
+      "lose": "Lost",
+      "pause": "Pause",
+      "resume": "Resume"
+    },
+    "confirmLoseTitle": "Mark this lead as lost?",
+    "confirmLoseBody": "“{name}” will reach a terminal status — no further transition will be possible (notes remain allowed).",
+    "detail": {
+      "notFound": "Lead not found.",
+      "timeline": "Journal",
+      "noInteractions": "No interactions yet.",
+      "addNote": "Add a note",
+      "notePlaceholder": "Note…",
+      "createdAt": "Created on {date}",
+      "lastContact": "Last contact: {date}",
+      "lastReply": "Last reply: {date}"
+    },
+    "timeline": {
+      "created": "Lead created",
+      "contacted": "Contact made",
+      "reply": "Reply received",
+      "sample_test": "Moved to sample/test",
+      "won": "Lead won",
+      "lost": "Lead lost",
+      "paused": "Paused",
+      "resumed": "Resumed",
+      "note": "Note"
+    },
+    "new": {
+      "title": "New lead",
+      "organization": "Organization",
+      "contact": "Contact (optional)",
+      "noContact": "— none —",
+      "languagePair": "Language pair",
+      "languagePairHint": "Format en>fr (source > target)",
+      "source": "Source",
+      "priority": "Priority",
+      "segment": "Segment",
+      "error": "Could not create. An active lead may already exist for this organization, or it is marked “do not contact”."
+    },
+    "toasts": {
+      "created": "Lead created.",
+      "updated": "Lead updated.",
+      "noteAdded": "Note added."
+    },
+    "createFromOrg": "Create a lead"
   }
 }

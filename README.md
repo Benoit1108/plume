@@ -17,8 +17,9 @@ Un mini-CRM SaaS (multi-tenant dès l'architecture, mono-utilisatrice en V1) qui
 ## État du projet
 
 - **M0 — fondations** : livré (monorepo, Docker, CI durcie, auth JWT + refresh, tenancy).
-- **M1.1 — Répertoire** : livré (API Organisations + Contacts, import CSV, écrans Nuxt responsives, i18n FR/EN) + **revue de santé appliquée** (`docs/reviews/`).
-- **Prochaine étape : M1.2 — pipeline Lead** (voir [`docs/ROADMAP.md`](docs/ROADMAP.md)).
+- **M1.1 — Répertoire** : livré (API Organisations + Contacts, import CSV, écrans responsives, i18n FR/EN) + **revue de santé appliquée** (`docs/reviews/`).
+- **M1.2 — Pipeline Lead** : livré (machine à états, kanban + fiche avec journal d'interactions projeté, garde RGPD, E2E Playwright).
+- **Prochaine étape : M1.3 — relances & régularité** (voir [`docs/ROADMAP.md`](docs/ROADMAP.md)).
 
 ## Stack
 
@@ -62,7 +63,7 @@ plume/
 ## Développement local
 
 ```bash
-# 1. Stack minimale (Postgres + API FrankenPHP)
+# 1. Stack de dev (Postgres + API FrankenPHP + worker Messenger — le journal en dépend)
 make up
 
 # 2. Première installation uniquement :

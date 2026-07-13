@@ -72,6 +72,16 @@ Le vocabulaire métier ci-dessous est **contractuel** et reste en **français** 
 | Rapport d'import | `ImportReport` : importées `imported`, ignorées `skipped` (doublon de nom), en échec `failed` + erreurs par ligne |
 | Parseur CSV | `CsvOrganizationParser` (Infrastructure — délimiteur auto, en-têtes FR/EN) |
 
+### Prospection — VOs et enums de la Piste
+| Métier (FR) | Code (EN) |
+|---|---|
+| PaireDeLangue (source>cible, ex. en>fr) | `LanguagePair` |
+| Origine de la piste | `LeadSource` : `DIRECT` (démarchage direct), `REFERRAL` (recommandation), `JOB_BOARD` (annonce), `OTHER` |
+| Priorité | `Priority` : `LOW` \| `MEDIUM` \| `HIGH` |
+| Une piste active par organisation | invariant `ActiveLeadAlreadyExists` (index partiel en filet) |
+| Démarchage interdit (RGPD) | `OrganizationNotContactable` — vérifié via le port `OrganizationGateway` |
+| Journal d'interactions | table `interaction` (projection append-only des events, idempotente par `event_id`) |
+
 ### Méthodes de l'agrégat `Lead`
 | Métier (FR) | Code (EN) |
 |---|---|
@@ -91,7 +101,7 @@ Le vocabulaire métier ci-dessous est **contractuel** et reste en **français** 
 | RelancePlanifiée | `FollowUpScheduled` |
 | RelanceEnvoyée | `FollowUpSent` |
 | RéponseReçue | `ReplyReceived` |
-| StatutChangé | `StatusChanged` |
+| PassageAuTest / MiseEnPause / Reprise | `LeadMovedToSampleTest` / `LeadPaused` / `LeadResumed` |
 | PisteGagnée / PistePerdue | `LeadWon` / `LeadLost` |
 | NoteAjoutée | `NoteAdded` |
 | OrganisationCréée | `OrganizationCreated` |
