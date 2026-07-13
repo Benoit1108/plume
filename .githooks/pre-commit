@@ -1,0 +1,19 @@
+#!/bin/sh
+# Hook pre-commit Plume — mêmes vérifications de style que la CI, en local.
+# Installation : make hooks
+set -e
+
+if git diff --cached --name-only | grep -q '^api/.*\.php$'; then
+    echo "pre-commit → PHP-CS-Fixer (dry-run)…"
+    docker compose run --rm --no-deps --user "$(id -u):$(id -g)" -e HOME=/tmp php \
+        vendor/bin/php-cs-fixer fix --dry-run --quiet \
+        || { echo "✗ Style PHP non conforme — lance 'make cs-fix' puis recommence."; exit 1; }
+fi
+
+if git diff --cached --name-only | grep -qE '^app/.*\.(ts|vue|js|mjs)$'; then
+    echo "pre-commit → ESLint…"
+    (cd app && npx eslint . --cache) \
+        || { echo "✗ ESLint en échec — corrige puis recommence."; exit 1; }
+fi
+
+echo "pre-commit ✓"

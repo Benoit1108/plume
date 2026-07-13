@@ -50,6 +50,27 @@ Le vocabulaire métier ci-dessous est **contractuel** et reste en **français** 
 | Tarif | `Rate` |
 | Source | `LeadSource` |
 | Priorité | `Priority` |
+| AdresseEmail | `EmailAddress` |
+| CodePays (ISO 3166-1) | `CountryCode` |
+| CodeLangue (ISO 639-1) | `LanguageCode` |
+| IdentifiantDeTenant | `TenantId` |
+
+### Répertoire — `Organization`
+| Métier (FR) | Code (EN) |
+|---|---|
+| Type d'organisation | `OrganizationType` : `PUBLISHER` (Éditeur), `AV_STUDIO` (Labo A/V), `AGENCY` (Agence), `OTHER` (Autre) |
+| Ne pas contacter (RGPD) | `doNotContact` — **réversible et tracé** (`markDoNotContact()` / `allowContact()`, events dédiés) |
+| Nom unique (par tenant) | invariant `OrganizationNameAlreadyUsed` (insensible à la casse) |
+| mettre à jour le profil | `updateProfile()` |
+| ajouter / modifier / retirer un contact | `addContact()` / `updateContact()` / `removeContact()` |
+
+### Répertoire — Import CSV
+| Métier (FR) | Code (EN) |
+|---|---|
+| Import (orchestration) | `OrganizationImporter` (Application) |
+| Ligne d'import | `ImportedOrganizationRow` |
+| Rapport d'import | `ImportReport` : importées `imported`, ignorées `skipped` (doublon de nom), en échec `failed` + erreurs par ligne |
+| Parseur CSV | `CsvOrganizationParser` (Infrastructure — délimiteur auto, en-têtes FR/EN) |
 
 ### Méthodes de l'agrégat `Lead`
 | Métier (FR) | Code (EN) |
@@ -73,6 +94,10 @@ Le vocabulaire métier ci-dessous est **contractuel** et reste en **français** 
 | StatutChangé | `StatusChanged` |
 | PisteGagnée / PistePerdue | `LeadWon` / `LeadLost` |
 | NoteAjoutée | `NoteAdded` |
+| OrganisationCréée | `OrganizationCreated` |
+| ProfilOrganisationMisÀJour | `OrganizationProfileUpdated` |
+| ContactAjouté / Modifié / Retiré | `ContactAdded` / `ContactUpdated` / `ContactRemoved` |
+| DémarchageInterdit / Réautorisé | `OrganizationDoNotContactMarked` / `OrganizationDoNotContactCleared` |
 
 ### Statuts du pipeline
 | Métier (FR) | Code (EN) |
@@ -107,7 +132,7 @@ Le vocabulaire métier ci-dessous est **contractuel** et reste en **français** 
 | **Relance**     | Action de suivi **planifiée** (ex. J+10 sans réponse). Vit dans l'agrégat Piste. |
 | **Cadence**     | Suite de délais définissant l'échéancier des relances (ex. J+7, J+21, J+45). |
 | **Objectif**    | Cible de régularité (ex. 10 démarchages/semaine). Progression et **série** dérivées des événements. |
-| **Segment**     | Domaine visé : `EDITION`, `AUDIOVISUEL`, `TECHNIQUE`, `AUTRE`. Conditionne le ton des messages. |
+| **Segment**     | Domaine visé — valeurs de code (EN, contractuelles) : `PUBLISHING`, `AUDIOVISUAL`, `TECHNICAL`, `OTHER` (UI : Édition, Audiovisuel, Technique, Autre). Conditionne le ton des messages. |
 
 ## Contexte Répertoire
 

@@ -1,0 +1,28 @@
+name: CodeQL
+
+# Analyse sécurité statique du front (JS/TS). PHP n'est pas supporté par CodeQL —
+# le backend est couvert par composer audit + PHPStan max + gitleaks.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: '30 5 * * 1' # lundi matin
+
+permissions:
+  contents: read
+
+jobs:
+  analyze:
+    name: Analyze (JS/TS)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: github/codeql-action/init@v4
+        with:
+          languages: javascript-typescript
+      - uses: github/codeql-action/analyze@v4

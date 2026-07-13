@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace App\Prospecting\Infrastructure\Persistence\InMemory;
 
+use App\Prospecting\Domain\Lead\Exception\LeadNotFound;
 use App\Prospecting\Domain\Lead\Lead;
 use App\Prospecting\Domain\Lead\LeadId;
 use App\Prospecting\Domain\Lead\LeadRepository;
 
 /**
- * M0 : implémentation en mémoire, pour compiler le conteneur et tester la couche
- * applicative. À remplacer par une implémentation Doctrine en M1 (mapping des agrégats).
- * Symfony crée automatiquement l'alias LeadRepository -> cette classe (implémentation unique).
+ * Double de test de la couche applicative (le binding de production pointe
+ * DoctrineLeadRepository — cf. config/services.yaml).
  */
 final class InMemoryLeadRepository implements LeadRepository
 {
@@ -26,6 +26,6 @@ final class InMemoryLeadRepository implements LeadRepository
     public function get(LeadId $id): Lead
     {
         return $this->leads[$id->toString()]
-            ?? throw new \RuntimeException(sprintf('Lead "%s" not found.', $id->toString()));
+            ?? throw LeadNotFound::withId($id);
     }
 }

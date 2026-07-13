@@ -16,52 +16,68 @@ Cœur métier = **pipeline de prospection + relances**. Voir `README.md` et `doc
 
 ## Règles d'architecture (non négociables)
 
-- **Sens des dépendances** : `Infrastructure → Application → Domain`. Jamais l'inverse.
-- **`Domain/` est du PHP pur** : aucune dépendance à Symfony, Doctrine, API Platform. Pas d'annotation ORM sur les agrégats (mapping en Infrastructure).
+- **Sens des dépendances** : `Infrastructure → Application → Domain`. Jamais l'inverse (deptrac le vérifie en CI).
+- **`Domain/` est du PHP pur** : aucune dépendance à Symfony, Doctrine, API Platform. Pas d'annotation ORM sur les agrégats (mapping XML dans `api/config/doctrine/`).
 - **Un contexte ne dépend d'un autre que par ID** (références cross-agrégat) ou **par port** (interface). Jamais d'accès direct à un agrégat d'un autre contexte.
-- **Une commande = une transaction.** Les domain events sont dispatchés **après commit** (transactional outbox).
-- **Les queries lisent des read models**, pas les agrégats.
+- **Une commande = une transaction.** Les domain events sont dispatchés via l'outbox transactionnel (transport doctrine, même transaction que la commande).
+- **Toute mutation d'agrégat émet un domain event** (projections, journal, traçabilité RGPD).
+- **Les queries lisent des read models** (vues immuables via un port `…Search`, SQL direct fail-closed sur le tenant — cf. ADR-0013), jamais les agrégats.
 - **API Platform expose des DTO**, jamais les entités Doctrine ni les agrégats. State Providers/Processors délèguent au bus CQRS.
-- **Multi-tenancy = préoccupation d'infra** : `SQLFilter` sur `tenant_id`, le domaine n'en sait rien.
+- **Les erreurs métier héritent de `Shared\Domain\Exception\DomainError`** (`InvalidValue` → 422, `NotFound` → 404, `Conflict` → 409 — mapping `exception_to_status`). Jamais d'exception SPL nue dans le domaine.
+- **Multi-tenancy = préoccupation d'infra** : `SQLFilter` sur `tenant_id` (ORM) + prédicat explicite (read models DBAL), toujours **fail-closed**. Le domaine n'en sait rien.
+- **Pas d'horloge ni d'UUID en dur** dans Application : ports `Clock` et `IdGenerator`.
 - **Secrets/tokens chiffrés au repos** ; jamais de credential en clair en base ou en log.
 
 ## Ajouter une fonctionnalité (flux type)
 
 1. Modéliser dans `Domain/` (méthode d'agrégat + invariants + domain event).
-2. Écrire un **Command** + son **Handler** dans `Application/`.
+2. Écrire un **Command** + son **Handler** dans `Application/` (le handler publie les events).
 3. Implémenter le repository/adapter dans `Infrastructure/`.
-4. Réagir à l'event : **projection** (read model) et/ou notification.
-5. Exposer via **DTO + State Processor/Provider** (API Platform).
-6. Tests : domaine (unitaire, sans DB) → application (repo in-memory) → intégration.
-7. Front Nuxt : store Pinia + vue.
+4. Lecture : vue + port dans `Application/ReadModel/`, implémentation SQL en Infrastructure.
+5. Exposer via **DTO + State Processor/Provider** (API Platform) avec contraintes Assert complètes ; régénérer `openapi.json` (`make openapi` — diff bloquant en CI).
+6. Tests : domaine (pur) → application (repo in-memory, `tests/Support/`) → fonctionnel (`ApiTestCase` + Postgres).
+7. Front Nuxt : composable/store + vue — **tout texte passe par i18n** (fr + en), toasts sur les mutations, confirmation avant action destructive.
 
 ## Conventions de code
 
 - **PHP 8.5**, typage strict (`declare(strict_types=1)`).
-- **PHPStan niveau max** et **PHP-CS-Fixer** doivent passer avant commit.
-- VOs immuables, validation dans le constructeur (échec = exception domaine).
+- **PHPStan niveau max** et **PHP-CS-Fixer** doivent passer avant commit (`make hooks` installe le hook pre-commit).
+- VOs immuables, validation dans le constructeur (échec = `InvalidValue`).
 - Nommage du **code en anglais** (classes, méthodes, events, propriétés) via la table de correspondance du glossaire ; **pas d'identifiants accentués**. Le vocabulaire **métier reste français** dans l'UI et la doc.
-- Front : TypeScript strict, ESLint/Prettier, composants Vue en `<script setup>`.
+- Front : TypeScript strict, ESLint, composants Vue en `<script setup>`, libellés métier centralisés (`useDirectoryLabels` + locales i18n).
 
 ## Tests
 
 - Le domaine se teste **sans base de données** — c'est un objectif de conception, pas un accident.
-- Pas de fonctionnalité métier sans test de domaine correspondant.
-- `test-runner` / commandes de test : à compléter une fois M0 scaffoldé.
+- Pas de fonctionnalité métier sans test de domaine correspondant ; pas de handler sans test d'application ; pas d'endpoint sans test fonctionnel (l'**isolation tenant** est couverte par `tests/Functional/`).
+- Front : seuils de coverage **bloquants** dans `vitest.config.ts` — ne pas les baisser pour faire passer un build.
 
-## Commandes (à compléter au jalon M0)
+## Commandes
 
 ```bash
-docker compose up -d          # stack locale
-# composer test / phpstan / cs-fixer  → TBD après scaffolding
-# npm run dev / test / lint (app/)     → TBD après scaffolding
+make up             # stack dev minimale (Postgres + API https://localhost:8443)
+make migrate        # migrations Doctrine
+make jwt-keys       # génère les clés JWT locales (une fois)
+make test           # PHPUnit complet (crée/migre la base _test)
+make phpstan        # analyse statique niveau max
+make deptrac        # frontières DDD
+make cs-fix         # PHP-CS-Fixer
+make openapi        # régénère api/openapi.json (obligatoire après tout changement d'API)
+make hooks          # installe le hook git pre-commit
+
+cd app && npm run dev          # front (http://localhost:3000, proxy /api vers l'API)
+cd app && npm run test:coverage / lint / type-check
 ```
+
+Créer un utilisateur local : `docker compose exec php php bin/console app:user:create <email>` (mot de passe demandé).
 
 ## Git
 
-- Le dépôt n'est pas encore initialisé. À l'init : brancher par fonctionnalité, messages de commit clairs.
-- Ne jamais committer de secrets (`.env.local`, tokens OAuth, clés JWT).
+- **Trunk-based assumé** : commits atomiques sur `main`, CI verte obligatoire, jamais de force-push (protection de branche active). Une branche courte reste bienvenue pour une exploration risquée.
+- Messages conventionnels (`feat(scope): …`, `fix: …`, `docs: …`), descriptions en français.
+- Ne jamais committer de secrets (`.env.local`, tokens OAuth, clés JWT — gitignorés).
 
 ## État actuel
 
-Conception terminée, docs posées, **code non initialisé**. Prochaine étape : jalon **M0** (voir `docs/ROADMAP.md`).
+**M0 (fondations) et M1.1 (Répertoire : API + écrans + import CSV) livrés**, revue de santé
+appliquée (`docs/reviews/`). Prochaine étape : **M1.2 — pipeline Lead** (voir `docs/ROADMAP.md`).

@@ -16,8 +16,9 @@ Un mini-CRM SaaS (multi-tenant dès l'architecture, mono-utilisatrice en V1) qui
 
 ## État du projet
 
-Phase de **conception terminée**, documentation posée. Le code n'est pas encore initialisé.
-Prochaine étape possible : scaffolding du squelette monorepo (voir `docs/ROADMAP.md`, jalon **M0**).
+- **M0 — fondations** : livré (monorepo, Docker, CI durcie, auth JWT + refresh, tenancy).
+- **M1.1 — Répertoire** : livré (API Organisations + Contacts, import CSV, écrans Nuxt responsives, i18n FR/EN) + **revue de santé appliquée** (`docs/reviews/`).
+- **Prochaine étape : M1.2 — pipeline Lead** (voir [`docs/ROADMAP.md`](docs/ROADMAP.md)).
 
 ## Stack
 
@@ -26,26 +27,25 @@ Prochaine étape possible : scaffolding du squelette monorepo (voir `docs/ROADMA
 | Backend    | Symfony 7.4 LTS (PHP 8.5), API Platform, Messenger, Scheduler  |
 | Domaine    | DDD, architecture hexagonale, monolithe modulaire par contexte|
 | ORM / BDD  | Doctrine ORM + `symfony/uid` / PostgreSQL 17                  |
-| Frontend   | Nuxt (Vue 3, TS) + Nuxt UI + Pinia + i18n (FR/EN)             |
-| Auth       | JWT access + refresh (Lexik)                                  |
+| Frontend   | Nuxt 4 (Vue 3, TS) + Nuxt UI + Pinia + i18n (FR/EN)           |
+| Auth       | JWT access + refresh avec rotation (Lexik + Gesdinet)         |
 | IA         | API Claude (derrière une couche anti-corruption)             |
 | Email      | Gmail API + Microsoft Graph (OAuth), tokens chiffrés          |
 | Runtime    | FrankenPHP + worker Messenger + Scheduler, via Docker Compose |
 
-## Structure du dépôt (monorepo, cible)
+## Structure du dépôt (monorepo)
 
 ```
 plume/
 ├─ api/              # application Symfony (backend)
-│  └─ src/
-│     ├─ Prospection/        # Core domain
-│     ├─ Repertoire/
-│     ├─ RedactionAssistee/
-│     ├─ PasserelleEmail/
-│     ├─ Sourcing/
-│     ├─ Compte/             # tenancy, auth, profil
-│     └─ Shared/             # Kernel: VOs communs, bus, TenantId, SQLFilter
-├─ app/              # application Nuxt 3 (frontend)
+│  ├─ src/
+│  │  ├─ Prospecting/        # Core domain (pipeline Lead)
+│  │  ├─ Directory/          # Répertoire (organisations, contacts, import)
+│  │  ├─ Account/            # tenancy, auth, profil
+│  │  └─ Shared/             # VOs communs, bus CQRS, exceptions domaine, tenancy
+│  ├─ config/doctrine/       # mapping XML (le domaine reste pur)
+│  └─ tests/                 # domaine (pur) + application (in-memory) + fonctionnels (Postgres)
+├─ app/              # application Nuxt 4 (frontend)
 └─ docs/             # documentation (voir ci-dessous)
 ```
 
@@ -56,14 +56,33 @@ plume/
 - [`docs/architecture/DOMAIN-MODEL.md`](docs/architecture/DOMAIN-MODEL.md) — agrégats, value objects, events, machine à états.
 - [`docs/ROADMAP.md`](docs/ROADMAP.md) — jalons M0→M3, puis V2 et futur.
 - [`docs/architecture/decisions/`](docs/architecture/decisions/) — ADRs (décisions d'architecture tracées).
+- [`docs/reviews/`](docs/reviews/) — revues de santé périodiques.
 - [`CLAUDE.md`](CLAUDE.md) — conventions et règles pour travailler dans ce dépôt.
 
-## Développement local (cible)
-
-> Ces commandes seront valides une fois le jalon **M0** scaffoldé.
+## Développement local
 
 ```bash
-docker compose up -d        # FrankenPHP + Postgres + worker + scheduler
-# API   : https://localhost
+# 1. Stack minimale (Postgres + API FrankenPHP)
+make up
+
+# 2. Première installation uniquement :
+make install          # dépendances composer
+make jwt-keys         # paire de clés JWT locale
+make migrate          # schéma de base
+docker compose exec php php bin/console app:user:create vous@exemple.fr
+#    → crée l'utilisateur (le mot de passe est demandé, saisie masquée)
+
+# 3. Frontend (sur l'hôte)
+cd app && npm install && npm run dev
+
+# API   : https://localhost:8443 (certificat auto-signé — le front passe par un proxy)
 # App   : http://localhost:3000
 ```
+
+Qualité (identiques à la CI) : `make test`, `make phpstan`, `make deptrac`, `make cs`,
+`make openapi` (contrat diff-vérifié), et côté front `npm run lint / type-check / test:coverage`.
+`make hooks` installe le hook git pre-commit.
+
+## Licence
+
+Code source visible, **tous droits réservés** — voir [`LICENSE`](LICENSE).

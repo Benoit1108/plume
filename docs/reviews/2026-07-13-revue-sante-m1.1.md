@@ -180,3 +180,31 @@ ce sera cher après M2.
 ---
 
 *Revue menée le 2026-07-13 (fin M1.1, avant M1.2). À rejouer en fin de M1.*
+
+---
+
+## Post-scriptum — remédiation (même jour)
+
+Les 3 lots ont été appliqués dans la foulée (commits `5a4e8ca` → fin de journée) :
+
+- **Lot 1 (P0)** ✅ intégral — exceptions domaine → 422/404/409, bornes d'import
+  (1 Mo / 1000 lignes, testé), rate limiting login + endpoints token, providers
+  sans 404 accidentels, contraintes Assert complètes, confirmations + toasts front,
+  table accessible clavier, gitleaks bloquant, CLAUDE.md/README réécrits.
+- **Lot 2 (P1)** ✅ intégral — D1 : unicité du nom (invariant + index unique, 409) ;
+  D3 : « ne pas contacter » réversible tracé par events ; events sur toutes les
+  mutations ; import en couche Application ; read models réels + pagination ;
+  migration (index tenant, JSONB, tenant_id UUID) ; rotation single_use +
+  invalidation au logout + purge planifiée + mutex front ; pyramide de tests
+  (48 back dont 8 fonctionnels Postgres avec isolation tenant, 24 front avec
+  seuils bloquants) ; i18n 100 % (D2) ; ports Clock/IdGenerator.
+- **Lot 3 (P2)** ✅ intégral — LICENSE propriétaire (D4 : repo public conservé pour
+  l'épinglage GitHub) ; trunk-based assumé + protection de branche (D5) ; CodeQL
+  (JS/TS) ; hooks pre-commit (`make hooks`) ; deps front pinnées ; code mort purgé ;
+  glossaire/ROADMAP/DOMAIN-MODEL/ADRs synchronisés (ADR-0012 JSONB, ADR-0013
+  read models, amendement ADR-0009) ; note M1.1 : DoD cochée + écarts tracés ;
+  mot de passe CLI en saisie masquée ; timeouts CI.
+
+Restes assumés (tracés) : filtres segment/langue JSONB (ROADMAP), refresh token en
+cookie httpOnly côté serveur (durcissement V2), stamp Messenger `tenant_id` dès le
+premier handler asynchrone (note dans TenantFilter).

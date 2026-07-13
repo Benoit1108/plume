@@ -31,16 +31,21 @@ Fondations techniques.
 >
 > Refresh token JWT : ✅ fait (gesdinet 2.0, entité concrète + mapping XML, `/api/v1/token/refresh`).
 
-### M1 — Cœur prospection 🔜 *(première version utilisable)*
+### M1 — Cœur prospection 🚧 *(première version utilisable)*
 
-> 📐 Note de conception détaillée : [`docs/design/M1-conception.md`](design/M1-conception.md).
-- [ ] **Répertoire** : CRUD Organisation + Contact, tags, **import CSV**.
-- [ ] **Piste** : création, machine à états, kanban + liste.
-- [ ] **Interactions** : journal (projection) + saisie manuelle (note, appel).
-- [ ] **Relances** : planification par statut, écran « à faire aujourd'hui », cadences.
-- [ ] **Régularité** : objectif hebdomadaire, progression, **série** (choix : central dès M1).
-- [ ] **Rédaction assistée** : génération mail + lettre (FR/EN/ES), ton par segment, réécriture, Modèles.
-- [ ] **Tableau de bord** : à contacter, relances dues, taux de réponse, conversion.
+> 📐 Note de conception détaillée : [`docs/design/M1-conception.md`](design/M1-conception.md)
+> (découpage M1.1 → M1.5). Revue de santé fin M1.1 : [`docs/reviews/`](reviews/).
+- [x] **M1.1 — Répertoire** ✅ : CRUD Organisation + Contact (unicité du nom par tenant,
+      « ne pas contacter » réversible et tracé), **import CSV** (borné, dédoublonné),
+      écrans responsives i18n FR/EN, pagination, pyramide de tests complète
+      (domaine / application / fonctionnel Postgres avec isolation tenant).
+      *Reportés : tags (non conçus), filtres segment/langue (JSONB, attendre le volume).*
+- [ ] **M1.2 — Piste** : création, machine à états, kanban + liste.
+- [ ] **M1.3 — Interactions & relances** : journal (projection), planification par statut,
+      écran « à faire aujourd'hui », cadences ; **régularité** (objectif hebdo, série).
+- [ ] **M1.4 — Rédaction assistée** : génération mail + lettre (FR/EN/ES), ton par segment,
+      réécriture, Modèles.
+- [ ] **M1.5 — Tableau de bord** : à contacter, relances dues, taux de réponse, conversion.
 
 ### M2 — Passerelle email 🔜
 - [ ] Connexion OAuth **Gmail + Outlook**, tokens chiffrés.

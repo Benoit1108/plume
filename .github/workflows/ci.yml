@@ -14,17 +14,17 @@ permissions:
   contents: read
 
 jobs:
-  # --- security : scan de secrets sur tout l'historique (non bloquant) ---
+  # --- security : scan de secrets sur tout l'historique (BLOQUANT : dépôt public) ---
   secrets:
     name: Secret scan (gitleaks)
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - name: gitleaks
         uses: gitleaks/gitleaks-action@v3
-        continue-on-error: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -32,6 +32,7 @@ jobs:
   backend:
     name: Backend (Symfony)
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     defaults:
       run:
         working-directory: api
@@ -106,6 +107,7 @@ jobs:
   frontend:
     name: Frontend (Nuxt)
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     defaults:
       run:
         working-directory: app

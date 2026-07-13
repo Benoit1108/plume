@@ -10,7 +10,7 @@ Choix des technologies et de l'environnement d'exécution, aligné sur la maîtr
 - **Backend** : Symfony **7.4 LTS** (PHP 8.5), API Platform, Messenger (command + event bus), Scheduler.
 - **Domaine/ORM** : Doctrine ORM + `symfony/uid` (UUID), mapping en Infrastructure.
 - **BDD** : PostgreSQL 17 (JSONB pour payloads/email brut, full-text pour la recherche).
-- **Frontend** : Nuxt 3 (Vue 3, TypeScript) + Pinia.
+- **Frontend** : Nuxt 3 (Vue 3, TypeScript) + Pinia. *(Amendé 2026-07-13 : livré en **Nuxt 4** — même écosystème, décision inchangée.)*
 - **IA** : API Claude derrière une couche anti-corruption.
 - **Email** : Gmail API + Microsoft Graph (OAuth).
 - **Runtime local** : **FrankenPHP + Postgres + worker Messenger + Scheduler** via **Docker Compose**.

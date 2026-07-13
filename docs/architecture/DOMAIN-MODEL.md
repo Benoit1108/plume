@@ -45,7 +45,7 @@ Piste (Aggregate Root)
 À_CONTACTER ─► CONTACTÉE ─► RELANCÉE ⭯ ─► EN_DISCUSSION ─► TEST/ÉCHANTILLON ─► GAGNÉE
                   │            │              │                    │           (→ Mission, futur)
                   └────────────┴──────────────┴────────────────────┴────► PERDUE
-       (tout état actif) ◄────────────────────────────────────────► EN_PAUSE
+       (tout état actif, sauf TEST_ECHANTILLON — phase courte non interruptible) ◄─► EN_PAUSE
 ```
 
 - Transition **automatique** : réponse entrante depuis `CONTACTÉE`/`RELANCÉE` → `EN_DISCUSSION` (déclenchée par la Passerelle email).
@@ -76,7 +76,7 @@ Table append-only écrite par des handlers réagissant aux domain events (`Piste
 |----|--------|
 | **PaireDeLangue** | (LangueSource, LangueCible), codes ISO 639. Directionnelle. |
 | **Langue** | Code ISO 639-1 validé. |
-| **Segment** | `EDITION` \| `AUDIOVISUEL` \| `TECHNIQUE` \| `AUTRE`. |
+| **Segment** | `PUBLISHING` \| `AUDIOVISUAL` \| `TECHNICAL` \| `OTHER` (UI : Édition, Audiovisuel, Technique, Autre). |
 | **StatutPipeline** | Enum + règles de transition. |
 | **Source** | `DEMARCHAGE_DIRECT` \| `PROZ` \| `LINKEDIN` \| `TRANSLATORSCAFE` \| `RSS` \| `RECOMMANDATION` \| `IMPORT`. |
 | **Priorite** | `HAUTE` \| `MOYENNE` \| `BASSE`. |

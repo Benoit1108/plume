@@ -23,7 +23,8 @@ final class ContactLeadHandler implements CommandHandler
         $lead->contact(new \DateTimeImmutable());
         $this->leads->save($lead);
 
-        // Publiés après commit (dispatch_after_current_bus), consommés en asynchrone.
+        // Outbox : l'INSERT des events dans le transport doctrine rejoint la transaction
+        // de la commande (même connexion) ; consommés en asynchrone par le worker.
         $this->eventBus->publish(...$lead->pullDomainEvents());
     }
 }

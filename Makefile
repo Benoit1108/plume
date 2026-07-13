@@ -37,6 +37,11 @@ jwt-keys: ## Génère la paire de clés JWT (Lexik)
 migrate: ## Applique les migrations Doctrine (DB requise)
 	$(PHP_DB) php bin/console doctrine:migrations:migrate --no-interaction
 
+hooks: ## Installe le hook git pre-commit (cs-fixer + eslint)
+	git config core.hooksPath .githooks
+	chmod +x .githooks/pre-commit
+	@echo "Hook pre-commit actif (.githooks/)."
+
 test: ## Lance PHPUnit (unitaires + fonctionnels — crée/migre la base de test)
 	$(DC) run --rm --user $(UID):$(GID) -e HOME=/tmp -e COMPOSER_HOME=/tmp/composer -e APP_ENV=test php \
 		sh -c "php bin/console doctrine:database:create --if-not-exists \

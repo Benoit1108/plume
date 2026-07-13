@@ -30,7 +30,9 @@ final class CreateUserCommand extends Command
     {
         $this
             ->addArgument('email', InputArgument::REQUIRED, 'Email')
-            ->addArgument('password', InputArgument::REQUIRED, 'Mot de passe')
+            // Optionnel : sans argument, le mot de passe est demandé en saisie masquée
+            // (évite qu'il traîne dans l'historique shell ou la liste des process).
+            ->addArgument('password', InputArgument::OPTIONAL, 'Mot de passe (déconseillé en argument — demandé sinon)')
             ->addOption('tenant', null, InputOption::VALUE_REQUIRED, 'UUID du tenant (généré si absent)');
     }
 
@@ -40,8 +42,14 @@ final class CreateUserCommand extends Command
 
         /** @var string $email */
         $email = $input->getArgument('email');
-        /** @var string $plain */
-        $plain = $input->getArgument('password');
+        /** @var string|null $passwordArg */
+        $passwordArg = $input->getArgument('password');
+        $plain = $passwordArg ?? $io->askHidden('Mot de passe');
+        if (!\is_string($plain) || '' === $plain) {
+            $io->error('Mot de passe requis.');
+
+            return Command::FAILURE;
+        }
         /** @var string|null $tenantOpt */
         $tenantOpt = $input->getOption('tenant');
 
