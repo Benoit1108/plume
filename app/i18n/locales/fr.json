@@ -2,5 +2,18 @@
   "tagline": "Mini-CRM de prospection pour traductrice indépendante.",
   "theme": {
     "toggle": "Changer de thème"
+  },
+  "auth": {
+    "tagline": "L'atelier de prospection des traducteurs.",
+    "email": "Email",
+    "password": "Mot de passe",
+    "signIn": "Se connecter",
+    "error": "Identifiants incorrects."
+  },
+  "home": {
+    "welcome": "Bienvenue",
+    "connectedAs": "Connectée en tant que {email}.",
+    "repertoireSoon": "Le Répertoire arrive à la prochaine étape de M1.1.",
+    "logout": "Se déconnecter"
   }
 }

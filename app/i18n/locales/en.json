@@ -2,5 +2,18 @@
   "tagline": "Prospecting mini-CRM for freelance translators.",
   "theme": {
     "toggle": "Toggle theme"
+  },
+  "auth": {
+    "tagline": "The translator's prospecting studio.",
+    "email": "Email",
+    "password": "Password",
+    "signIn": "Sign in",
+    "error": "Invalid credentials."
+  },
+  "home": {
+    "welcome": "Welcome",
+    "connectedAs": "Signed in as {email}.",
+    "repertoireSoon": "The Directory is coming in the next M1.1 step.",
+    "logout": "Sign out"
   }
 }
