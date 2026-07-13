@@ -14,8 +14,8 @@ const { data: allLeads, status } = await useAsyncData<Lead[]>(
 
 const loading = computed(() => status.value === 'idle' || status.value === 'pending')
 
-/** Colonnes du kanban — FOLLOWED_UP rejoindra le tableau en M1.3 (relances). */
-const COLUMNS: LeadStatus[] = ['TO_CONTACT', 'CONTACTED', 'IN_DISCUSSION', 'SAMPLE_TEST', 'PAUSED', 'WON', 'LOST']
+/** Colonnes du kanban (tous les statuts du pipeline). */
+const COLUMNS: LeadStatus[] = ['TO_CONTACT', 'CONTACTED', 'FOLLOWED_UP', 'IN_DISCUSSION', 'SAMPLE_TEST', 'PAUSED', 'WON', 'LOST']
 
 const byStatus = computed(() => {
   const groups = new Map<LeadStatus, Lead[]>(COLUMNS.map(s => [s, []]))

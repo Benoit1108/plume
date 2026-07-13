@@ -1,4 +1,6 @@
-# Glossaire — langage ubiquitaire
+| RelancePlanifiée | `FollowUpScheduled` (dueAt, auto) |
+| RelanceFaite | `FollowUpSent` (l'envoi réel arrive en M2) |
+| RelanceAnnulée | `FollowUpCancelled` (reason) |# Glossaire — langage ubiquitaire
 
 Le vocabulaire métier ci-dessous est **contractuel** et reste en **français** (langue de l'utilisatrice et du métier) : UI, échanges, documentation. Le **code** (classes, méthodes, events) est en **anglais**, via la table de correspondance ci-dessous qui fait le pont sans trahir l'*ubiquitous language*. Voir [ADR-0010](architecture/decisions/0010-langue-de-nommage.md).
 
@@ -82,6 +84,16 @@ Le vocabulaire métier ci-dessous est **contractuel** et reste en **français** 
 | Démarchage interdit (RGPD) | `OrganizationNotContactable` — vérifié via le port `OrganizationGateway` |
 | Journal d'interactions | table `interaction` (projection append-only des events, idempotente par `event_id`) |
 
+### Prospection — Relance (`FollowUp`, M1.3)
+| Métier (FR) | Code (EN) |
+|---|---|
+| Relance (entité dans l'agrégat Lead) | `FollowUp` : échéance `dueAt`, libellé, statut `PENDING` \| `DONE` \| `CANCELLED` — une seule PENDING par piste |
+| Cadence par défaut | `FollowUpCadence` : J+7, J+21, J+45 (auto après contact et chaque relance faite) |
+| Motif d'annulation | `FollowUpCancelReason` : `REPLY` \| `TERMINAL` \| `PAUSED` \| `MANUAL` |
+| Prochaine relance (dénormalisée) | `nextFollowUpAt` / `nextFollowUpLabel` (requête « dues aujourd'hui ») |
+| Objectif hebdomadaire | `Profile.weeklyGoal` (Account) — un acte = contact ou relance faite |
+| Série | `streak` : semaines ISO consécutives ≥ objectif (calculée sur le journal) |
+
 ### Méthodes de l'agrégat `Lead`
 | Métier (FR) | Code (EN) |
 |---|---|
@@ -98,8 +110,9 @@ Le vocabulaire métier ci-dessous est **contractuel** et reste en **français** 
 |---|---|
 | PisteCréée | `LeadCreated` |
 | PisteContactée | `LeadContacted` |
-| RelancePlanifiée | `FollowUpScheduled` |
-| RelanceEnvoyée | `FollowUpSent` |
+| RelancePlanifiée | `FollowUpScheduled` (dueAt, auto) |
+| RelanceFaite | `FollowUpSent` (l'envoi réel arrive en M2) |
+| RelanceAnnulée | `FollowUpCancelled` (reason) |
 | RéponseReçue | `ReplyReceived` |
 | PassageAuTest / MiseEnPause / Reprise | `LeadMovedToSampleTest` / `LeadPaused` / `LeadResumed` |
 | PisteGagnée / PistePerdue | `LeadWon` / `LeadLost` |

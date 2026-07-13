@@ -6,7 +6,7 @@ const route = useRoute()
 defineEmits<{ navigate: [] }>()
 
 const nav = computed((): { label: string, to: string | null }[] => [
-  { label: t('nav.today'), to: null },
+  { label: t('nav.today'), to: '/today' },
   { label: t('nav.leads'), to: '/leads' },
   { label: t('nav.directory'), to: '/organizations' },
   { label: t('nav.templates'), to: null },

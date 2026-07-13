@@ -42,6 +42,38 @@ describe('useLeads', () => {
     await expect(useLeads().timeline('l1')).resolves.toHaveLength(1)
   })
 
+  it('list et timeline retombent proprement sans member', async () => {
+    apiMock.mockResolvedValueOnce({})
+    await expect(useLeads().list()).resolves.toEqual([])
+    apiMock.mockResolvedValueOnce({})
+    await expect(useLeads().timeline('l1')).resolves.toEqual([])
+    apiMock.mockResolvedValueOnce({ member: [{ id: 'i1' }] })
+    await expect(useLeads().timeline('l1')).resolves.toHaveLength(1)
+  })
+
+  it('scheduleFollowUp null-ifie le libellé absent', async () => {
+    apiMock.mockResolvedValue({})
+    await useLeads().scheduleFollowUp('l1', '2026-07-20')
+    const [, options] = apiMock.mock.calls[0] as [string, { body: { label: string | null } }]
+    expect(options.body.label).toBeNull()
+  })
+
+  it('les relances visent les bons endpoints', async () => {
+    apiMock.mockResolvedValue({})
+    const leads = useLeads()
+
+    await leads.followUp('l1')
+    await leads.scheduleFollowUp('l1', '2026-07-20', 'Salon')
+    await leads.cancelFollowUp('l1')
+
+    const calls = apiMock.mock.calls.map(([path, options]) => [path, (options as { method?: string } | undefined)?.method ?? 'GET'])
+    expect(calls).toEqual([
+      ['/api/v1/leads/l1/follow-up', 'POST'],
+      ['/api/v1/leads/l1/schedule-follow-up', 'POST'],
+      ['/api/v1/leads/l1/follow-up', 'DELETE'],
+    ])
+  })
+
   it('create et get visent les bonnes routes', async () => {
     apiMock.mockResolvedValue({ id: 'l1' })
     const leads = useLeads()

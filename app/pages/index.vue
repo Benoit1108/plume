@@ -1,6 +1,6 @@
 <script setup lang="ts">
-// L'accueil redirige vers le Répertoire (écran principal de M1.1).
-await navigateTo('/organizations', { replace: true })
+// L'écran du quotidien est la porte d'entrée (décision M1.3 n°5).
+await navigateTo('/today', { replace: true })
 </script>
 
 <template>

@@ -190,7 +190,10 @@
       "lost": "Piste perdue",
       "paused": "Mise en pause",
       "resumed": "Reprise",
-      "note": "Note"
+      "note": "Note",
+      "follow_up_scheduled": "Relance planifiée",
+      "followed_up": "Relance faite",
+      "follow_up_cancelled": "Relance annulée"
     },
     "new": {
       "title": "Nouvelle piste",
@@ -207,8 +210,41 @@
     "toasts": {
       "created": "Piste créée.",
       "updated": "Piste mise à jour.",
-      "noteAdded": "Note ajoutée."
+      "noteAdded": "Note ajoutée.",
+      "followUpDone": "Relance faite.",
+      "followUpScheduled": "Relance planifiée.",
+      "followUpCancelled": "Relance annulée."
     },
-    "createFromOrg": "Créer une piste"
+    "createFromOrg": "Créer une piste",
+    "followUpBlock": {
+      "title": "Prochaine relance",
+      "none": "Aucune relance planifiée.",
+      "dueOn": "Prévue le {date}",
+      "overdue": "En retard depuis le {date}",
+      "done": "Relance faite",
+      "reschedule": "Replanifier",
+      "cancel": "Annuler la relance",
+      "scheduleTitle": "Planifier la relance",
+      "dateLabel": "Échéance",
+      "labelLabel": "Libellé (optionnel)",
+      "schedule": "Planifier"
+    }
+  },
+  "today": {
+    "eyebrow": "Atelier · quotidien",
+    "title": "Aujourd'hui",
+    "empty": "Rien à faire aujourd'hui — profite-en pour ajouter des cibles au Répertoire.",
+    "followUpsDue": "Relances dues",
+    "toContact": "À contacter",
+    "open": "Ouvrir",
+    "dueOn": "Échéance {date}",
+    "overdueSince": "En retard ({date})",
+    "goal": {
+      "title": "Objectif hebdo",
+      "streak": "aucune série | {count} semaine de suite | {count} semaines de suite",
+      "edit": "Modifier l'objectif",
+      "goalLabel": "Actes de démarchage par semaine",
+      "hint": "Un acte = un contact ou une relance faite."
+    }
   }
 }

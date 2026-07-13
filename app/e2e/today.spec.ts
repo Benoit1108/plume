@@ -29,53 +29,52 @@ async function login(page: Page): Promise<void> {
   await page.getByRole('textbox').first().fill(E2E_EMAIL)
   await page.locator('input[type="password"]').fill(E2E_PASSWORD)
   await page.getByRole('button', { name: /se connecter|sign in/i }).click()
-  // Depuis M1.3, l'accueil est « Aujourd'hui ».
-  await page.waitForURL('**/today')
+  await page.waitForURL(/\/(today|organizations)/)
 }
 
-test('parcours pipeline : organisation → piste → contact → réponse → gagnée, journal projeté', async ({ page }) => {
+test('parcours quotidien : à contacter → contact → relance replanifiée → relance faite', async ({ page }) => {
   const errors = watchConsole(page)
-  const orgName = `E2E Pipeline ${Date.now()}`
+  const orgName = `E2E Aujourdhui ${Date.now()}`
 
   await login(page)
 
-  // Créer l'organisation cible.
+  // Créer organisation + piste.
   await page.goto('/organizations/new')
   await waitForHydration(page)
   await page.getByRole('textbox').first().fill(orgName)
   await page.getByRole('button', { name: /créer|create/i }).click()
   await page.waitForURL(/\/organizations\/[0-9a-f-]+$/)
-
-  // Créer la piste depuis la fiche organisation (bouton contextualisé).
   await page.getByRole('link', { name: /créer une piste|create a lead/i }).click()
   await page.waitForURL(/\/leads\/new/)
   await waitForHydration(page)
   await page.getByRole('button', { name: /créer|create/i }).click()
-
-  // Fiche piste : statut initial + actions légales seulement.
   await page.waitForURL(/\/leads\/[0-9a-f-]+$/)
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText(orgName)
-  await expect(page.getByRole('button', { name: /^contacter$|^contact$/i })).toBeVisible()
+  const leadUrl = page.url()
 
-  // Contact → réponse → discussion (le bouton suivant apparaît après chaque refresh).
-  await page.getByRole('button', { name: /^contacter$|^contact$/i }).click()
-  await page.getByRole('button', { name: /réponse reçue|reply received/i }).click()
-  await page.getByRole('button', { name: /^gagnée$|^won$/i }).click()
-
-  // Statut terminal : plus aucune action de transition.
-  await expect(page.getByText(/gagnée|won/i).first()).toBeVisible()
-
-  // Note + journal (projection asynchrone : le worker tourne, on attend l'apparition).
-  await page.getByRole('textbox', { name: /ajouter une note|add a note/i }).fill('Note E2E')
-  await page.getByRole('button', { name: /ajouter une note|add a note/i }).click()
-  await expect(page.getByText('Note E2E')).toBeVisible({ timeout: 15_000 })
-  await expect(page.getByText(/contact établi|contact made/i)).toBeVisible({ timeout: 15_000 })
-
-  // Kanban : la piste gagnée est dans la colonne Gagnée.
-  await page.goto('/leads')
+  // « Aujourd'hui » : la piste attend dans À contacter — action rapide Contacter.
+  await page.goto('/today')
   await waitForHydration(page)
-  const wonColumn = page.getByRole('region', { name: /gagnée|won/i })
-  await expect(wonColumn.getByText(orgName)).toBeVisible()
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+  const toContactRow = page.locator('li', { hasText: orgName }).first()
+  await expect(toContactRow).toBeVisible()
+  await toContactRow.getByRole('button', { name: /^contacter$|^contact$/i }).click()
+  await expect(page.locator('li', { hasText: orgName })).toHaveCount(0) // relance J+7 : pas due
+
+  // Fiche : replanifier la relance à aujourd'hui.
+  await page.goto(leadUrl)
+  await waitForHydration(page)
+  await page.getByRole('button', { name: /replanifier|reschedule/i }).click()
+  await page.locator('input[type="date"]').fill(new Date().toISOString().slice(0, 10))
+  await page.getByRole('button', { name: /^planifier$|^schedule$/i }).click()
+  await expect(page.getByText(/prévue le|due on/i)).toBeVisible()
+
+  // « Aujourd'hui » : la relance est due — action rapide Relance faite.
+  await page.goto('/today')
+  await waitForHydration(page)
+  const dueRow = page.locator('li', { hasText: orgName }).first()
+  await expect(dueRow).toBeVisible()
+  await dueRow.getByRole('button', { name: /relance faite|follow-up done/i }).click()
+  await expect(page.locator('li', { hasText: orgName })).toHaveCount(0) // suivante à J+21
 
   expect(errors).toEqual([])
 })

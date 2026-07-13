@@ -190,7 +190,10 @@
       "lost": "Lead lost",
       "paused": "Paused",
       "resumed": "Resumed",
-      "note": "Note"
+      "note": "Note",
+      "follow_up_scheduled": "Follow-up scheduled",
+      "followed_up": "Follow-up done",
+      "follow_up_cancelled": "Follow-up cancelled"
     },
     "new": {
       "title": "New lead",
@@ -207,8 +210,41 @@
     "toasts": {
       "created": "Lead created.",
       "updated": "Lead updated.",
-      "noteAdded": "Note added."
+      "noteAdded": "Note added.",
+      "followUpDone": "Follow-up done.",
+      "followUpScheduled": "Follow-up scheduled.",
+      "followUpCancelled": "Follow-up cancelled."
     },
-    "createFromOrg": "Create a lead"
+    "createFromOrg": "Create a lead",
+    "followUpBlock": {
+      "title": "Next follow-up",
+      "none": "No follow-up scheduled.",
+      "dueOn": "Due on {date}",
+      "overdue": "Overdue since {date}",
+      "done": "Follow-up done",
+      "reschedule": "Reschedule",
+      "cancel": "Cancel follow-up",
+      "scheduleTitle": "Schedule the follow-up",
+      "dateLabel": "Due date",
+      "labelLabel": "Label (optional)",
+      "schedule": "Schedule"
+    }
+  },
+  "today": {
+    "eyebrow": "Studio · daily",
+    "title": "Today",
+    "empty": "Nothing due today — a good time to add targets to the Directory.",
+    "followUpsDue": "Follow-ups due",
+    "toContact": "To contact",
+    "open": "Open",
+    "dueOn": "Due {date}",
+    "overdueSince": "Overdue ({date})",
+    "goal": {
+      "title": "Weekly goal",
+      "streak": "no streak | {count} week in a row | {count} weeks in a row",
+      "edit": "Edit goal",
+      "goalLabel": "Outreach actions per week",
+      "hint": "One action = a contact or a follow-up done."
+    }
   }
 }

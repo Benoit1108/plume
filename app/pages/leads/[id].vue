@@ -95,7 +95,60 @@ const timelineIcon: Record<Interaction['type'], string> = {
   paused: 'i-lucide-pause',
   resumed: 'i-lucide-play',
   note: 'i-lucide-sticky-note',
+  follow_up_scheduled: 'i-lucide-alarm-clock',
+  followed_up: 'i-lucide-alarm-clock-check',
+  follow_up_cancelled: 'i-lucide-alarm-clock-off',
 }
+
+// ----- Relance (bloc « Prochaine relance ») -----
+const scheduling = ref(false)
+const scheduleDate = ref('')
+const scheduleLabel = ref('')
+const savingSchedule = ref(false)
+
+function openScheduler(): void {
+  scheduleDate.value = lead.value?.nextFollowUpAt?.slice(0, 10) ?? new Date().toISOString().slice(0, 10)
+  scheduleLabel.value = lead.value?.nextFollowUpLabel ?? ''
+  scheduling.value = true
+}
+
+async function saveSchedule(): Promise<void> {
+  savingSchedule.value = true
+  try {
+    await leads.scheduleFollowUp(id, scheduleDate.value, scheduleLabel.value || null)
+    scheduling.value = false
+    await Promise.all([refresh(), refreshTimeline()])
+    scheduleTimelineCatchUp()
+    toast.add({ title: t('pipeline.toasts.followUpScheduled'), color: 'success' })
+  }
+  catch {
+    toast.add({ title: t('common.error'), color: 'error' })
+  }
+  finally {
+    savingSchedule.value = false
+  }
+}
+
+async function cancelSchedule(): Promise<void> {
+  try {
+    await leads.cancelFollowUp(id)
+    await Promise.all([refresh(), refreshTimeline()])
+    scheduleTimelineCatchUp()
+    toast.add({ title: t('pipeline.toasts.followUpCancelled'), color: 'success' })
+  }
+  catch {
+    toast.add({ title: t('common.error'), color: 'error' })
+  }
+}
+
+const followUpOverdue = computed(() => {
+  const due = lead.value?.nextFollowUpAt
+  return Boolean(due && due.slice(0, 10) < new Date().toISOString().slice(0, 10))
+})
+
+const canScheduleFollowUp = computed(() =>
+  Boolean(lead.value && !['WON', 'LOST', 'PAUSED'].includes(lead.value.status)),
+)
 </script>
 
 <template>
@@ -145,6 +198,38 @@ const timelineIcon: Record<Interaction['type'], string> = {
         </div>
       </div>
 
+      <!-- Prochaine relance -->
+      <section v-if="canScheduleFollowUp" class="mt-8 border border-default rounded-xl p-4 bg-elevated/40">
+        <div class="flex items-center gap-3 flex-wrap">
+          <UIcon name="i-lucide-alarm-clock" class="text-primary shrink-0" aria-hidden="true" />
+          <p class="text-sm font-semibold">{{ t('pipeline.followUpBlock.title') }}</p>
+          <template v-if="lead.nextFollowUpAt">
+            <span class="text-sm" :class="followUpOverdue ? 'text-error font-medium' : 'text-muted'">
+              {{ followUpOverdue
+                ? t('pipeline.followUpBlock.overdue', { date: formatDate(lead.nextFollowUpAt) })
+                : t('pipeline.followUpBlock.dueOn', { date: formatDate(lead.nextFollowUpAt) }) }}
+            </span>
+            <span v-if="lead.nextFollowUpLabel" class="text-sm text-dimmed">— {{ lead.nextFollowUpLabel }}</span>
+          </template>
+          <span v-else class="text-sm text-dimmed">{{ t('pipeline.followUpBlock.none') }}</span>
+          <div class="ml-auto flex gap-2">
+            <UButton size="xs" variant="outline" icon="i-lucide-calendar" @click="openScheduler">
+              {{ t('pipeline.followUpBlock.reschedule') }}
+            </UButton>
+            <UButton
+              v-if="lead.nextFollowUpAt"
+              size="xs"
+              variant="ghost"
+              color="neutral"
+              icon="i-lucide-alarm-clock-off"
+              @click="cancelSchedule"
+            >
+              {{ t('pipeline.followUpBlock.cancel') }}
+            </UButton>
+          </div>
+        </div>
+      </section>
+
       <section class="mt-10">
         <p class="text-[11px] uppercase tracking-widest text-dimmed font-semibold">{{ t('pipeline.detail.timeline') }}</p>
 
@@ -178,6 +263,28 @@ const timelineIcon: Record<Interaction['type'], string> = {
           </li>
         </ol>
       </section>
+
+      <!-- Modale de (re)planification -->
+      <UModal v-model:open="scheduling" :title="t('pipeline.followUpBlock.scheduleTitle')">
+        <template #body>
+          <div class="flex flex-col gap-4">
+            <UFormField :label="t('pipeline.followUpBlock.dateLabel')" required>
+              <UInput v-model="scheduleDate" type="date" class="w-full" />
+            </UFormField>
+            <UFormField :label="t('pipeline.followUpBlock.labelLabel')">
+              <UInput v-model="scheduleLabel" class="w-full" />
+            </UFormField>
+          </div>
+        </template>
+        <template #footer>
+          <div class="flex gap-2 justify-end w-full">
+            <UButton color="neutral" variant="ghost" @click="() => { scheduling = false }">{{ t('actions.cancel') }}</UButton>
+            <UButton :loading="savingSchedule" :disabled="!scheduleDate" @click="saveSchedule">
+              {{ t('pipeline.followUpBlock.schedule') }}
+            </UButton>
+          </div>
+        </template>
+      </UModal>
 
       <ConfirmDialog
         v-model:open="confirmLose"

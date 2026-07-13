@@ -34,7 +34,8 @@ async function login(page: Page): Promise<void> {
   await page.getByRole('textbox').first().fill(E2E_EMAIL)
   await page.locator('input[type="password"]').fill(E2E_PASSWORD)
   await page.getByRole('button', { name: /se connecter|sign in/i }).click()
-  await page.waitForURL('**/organizations')
+  // Depuis M1.3, l'accueil est « Aujourd'hui ».
+  await page.waitForURL('**/today')
 }
 
 test('un visiteur non connecté est redirigé vers /login', async ({ page }) => {
@@ -51,6 +52,7 @@ test('login puis Répertoire : rendu complet sans erreur console', async ({ page
   const errors = watchConsole(page)
 
   await login(page)
+  await page.goto('/organizations')
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
   await waitForHydration(page)
   // Le filtre de type (USelect) doit être opérationnel — régression Reka « value ='' ».

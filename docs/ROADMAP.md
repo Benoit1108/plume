@@ -45,8 +45,11 @@ Fondations techniques.
       via le gateway Répertoire, une piste active par organisation, **journal d'interactions**
       (première projection asynchrone, idempotente), kanban + fiche avec timeline + création
       depuis l'organisation. *Reporté : drag-and-drop (itération 2), FOLLOWED_UP (M1.3).*
-- [ ] **M1.3 — Interactions & relances** : journal (projection), planification par statut,
-      écran « à faire aujourd'hui », cadences ; **régularité** (objectif hebdo, série).
+- [x] **M1.3 — Relances & régularité** ✅ : `FollowUp` dans l'agrégat (cadence auto
+      J+7/21/45, annulation sur réponse/terminal/pause, une seule en attente),
+      **écran « Aujourd'hui »** (accueil : relances dues + à contacter + actions rapides),
+      objectif hebdo + **série** calculés sur le journal, profil (Account) naissant,
+      API cas d'usage relances + /today + /profile. *(Le journal était déjà M1.2.)*
 - [ ] **M1.4 — Rédaction assistée** : génération mail + lettre (FR/EN/ES), ton par segment,
       réécriture, Modèles.
 - [ ] **M1.5 — Tableau de bord** : à contacter, relances dues, taux de réponse, conversion.

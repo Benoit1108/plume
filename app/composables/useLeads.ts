@@ -22,6 +22,13 @@ export function useLeads() {
     /** Transition métier : POST /leads/{id}/{action} — 409 si interdite. */
     transition: (id: string, action: LeadAction) =>
       api<Lead>(`/api/v1/leads/${id}/${action}`, { method: 'POST', body: {}, headers: ldWrite }),
+    /** Relance faite (la cadence planifie la suivante). */
+    followUp: (id: string) =>
+      api<Lead>(`/api/v1/leads/${id}/follow-up`, { method: 'POST', body: {}, headers: ldWrite }),
+    scheduleFollowUp: (id: string, dueAt: string, label?: string | null) =>
+      api<Lead>(`/api/v1/leads/${id}/schedule-follow-up`, { method: 'POST', body: { dueAt, label: label || null }, headers: ldWrite }),
+    cancelFollowUp: (id: string) =>
+      api<unknown>(`/api/v1/leads/${id}/follow-up`, { method: 'DELETE' }),
     addNote: (id: string, text: string) =>
       api<{ text: string }>(`/api/v1/leads/${id}/notes`, { method: 'POST', body: { text }, headers: ldWrite }),
     async timeline(id: string): Promise<Interaction[]> {

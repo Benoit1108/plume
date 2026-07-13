@@ -9,6 +9,17 @@ export default defineNuxtConfig({
 
   css: ['~/assets/css/main.css'],
 
+  // Icônes : tout ce qui est référencé dans les sources est embarqué dans le
+  // bundle client, et l'endpoint de secours vit HORS de /api — sinon le proxy
+  // dev (/api -> API Symfony) l'avale et les icônes non bundlées font 404.
+  icon: {
+    localApiEndpoint: '/_nuxt_icon',
+    clientBundle: {
+      scan: true,
+      sizeLimitKb: 512,
+    },
+  },
+
   // Thème sombre par défaut (clair disponible via bascule).
   // classSuffix:'' -> la classe appliquée est `dark` (attendue par Tailwind/Nuxt UI).
   colorMode: {
