@@ -11,8 +11,8 @@ use App\Directory\Application\Command\CreateOrganization\CreateOrganization;
 use App\Directory\Application\Command\UpdateOrganization\UpdateOrganization;
 use App\Directory\Infrastructure\ApiResource\OrganizationResource;
 use App\Shared\Application\Command\CommandBus;
+use App\Shared\Application\IdGenerator;
 use App\Shared\Infrastructure\Doctrine\Tenancy\TenantContext;
-use Symfony\Component\Uid\Uuid;
 
 /**
  * Écriture (POST / PATCH) : délègue au CommandBus. Le tenant vient du contexte (JWT).
@@ -24,13 +24,14 @@ final class OrganizationProcessor implements ProcessorInterface
     public function __construct(
         private readonly CommandBus $commandBus,
         private readonly TenantContext $tenantContext,
+        private readonly IdGenerator $ids,
     ) {
     }
 
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): OrganizationResource
     {
         if ($operation instanceof Post) {
-            $id = Uuid::v7()->toRfc4122();
+            $id = $this->ids->generate();
             $this->commandBus->dispatch(new CreateOrganization(
                 $id,
                 $this->currentTenantId(),

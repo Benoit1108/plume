@@ -9,6 +9,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\QueryParameter;
 use App\Directory\Infrastructure\ApiResource\State\OrganizationProcessor;
 use App\Directory\Infrastructure\ApiResource\State\OrganizationProvider;
 use Symfony\Component\Serializer\Attribute\Groups;
@@ -20,7 +21,15 @@ use Symfony\Component\Validator\Constraints as Assert;
     normalizationContext: ['groups' => ['org:read']],
     denormalizationContext: ['groups' => ['org:write']],
     operations: [
-        new GetCollection(provider: OrganizationProvider::class),
+        new GetCollection(
+            provider: OrganizationProvider::class,
+            parameters: [
+                'type' => new QueryParameter(schema: ['type' => 'string', 'enum' => ['PUBLISHER', 'AV_STUDIO', 'AGENCY', 'OTHER']], description: "Filtre par type d'organisation"),
+                'q' => new QueryParameter(schema: ['type' => 'string'], description: 'Recherche sur le nom (insensible à la casse)'),
+                'page' => new QueryParameter(schema: ['type' => 'integer', 'minimum' => 1, 'default' => 1], description: 'Page de résultats'),
+                'itemsPerPage' => new QueryParameter(schema: ['type' => 'integer', 'minimum' => 1, 'maximum' => 100, 'default' => 30], description: 'Taille de page (max 100)'),
+            ],
+        ),
         new Get(provider: OrganizationProvider::class),
         new Post(processor: OrganizationProcessor::class),
         new Patch(provider: OrganizationProvider::class, processor: OrganizationProcessor::class),

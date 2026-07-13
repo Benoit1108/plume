@@ -4,22 +4,21 @@ declare(strict_types=1);
 
 namespace App\Directory\Application\Query\ListOrganizations;
 
-use App\Directory\Domain\Organization\Organization;
-use App\Directory\Domain\Organization\OrganizationRepository;
-use App\Directory\Domain\Organization\OrganizationType;
+use App\Directory\Application\ReadModel\OrganizationPage;
+use App\Directory\Application\ReadModel\OrganizationSearch;
 use App\Shared\Application\Query\QueryHandler;
 
 final class ListOrganizationsHandler implements QueryHandler
 {
-    public function __construct(private readonly OrganizationRepository $organizations)
+    public function __construct(private readonly OrganizationSearch $organizations)
     {
     }
 
-    /** @return Organization[] */
-    public function __invoke(ListOrganizations $query): array
+    public function __invoke(ListOrganizations $query): OrganizationPage
     {
-        $type = null !== $query->type ? OrganizationType::tryFrom($query->type) : null;
+        $page = max(1, $query->page);
+        $itemsPerPage = min(100, max(1, $query->itemsPerPage));
 
-        return $this->organizations->findMatching($type, $query->search);
+        return $this->organizations->search($query->type, $query->search, $page, $itemsPerPage);
     }
 }

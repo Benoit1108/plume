@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Directory\Infrastructure\Import;
 
+use App\Directory\Application\Import\ImportedOrganizationRow;
+
 /**
  * Parse un CSV d'organisations en lignes normalisées.
  *
@@ -110,7 +112,7 @@ final class CsvOrganizationParser
                 continue;
             }
 
-            $rows[] = new ImportedRow(
+            $rows[] = new ImportedOrganizationRow(
                 line: $line,
                 name: $name,
                 type: $this->mapType($value('type')),

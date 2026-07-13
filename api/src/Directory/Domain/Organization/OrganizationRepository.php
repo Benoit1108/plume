@@ -11,10 +11,16 @@ interface OrganizationRepository
     /** @throws Exception\OrganizationNotFound si introuvable (dans le périmètre du tenant) */
     public function get(OrganizationId $id): Organization;
 
+    /** Le nom est-il déjà pris (insensible à la casse), hors l'organisation ignorée ? */
+    public function isNameTaken(string $name, ?OrganizationId $ignore = null): bool;
+
     /**
-     * Liste (scoping tenant automatique via le filtre Doctrine) filtrée par type et/ou texte.
+     * Parmi les noms candidats, ceux déjà pris — retournés normalisés (minuscules, trim).
+     * Sert au dédoublonnage d'import en une seule requête.
      *
-     * @return Organization[]
+     * @param string[] $names
+     *
+     * @return string[]
      */
-    public function findMatching(?OrganizationType $type, ?string $query): array;
+    public function takenNamesAmong(array $names): array;
 }

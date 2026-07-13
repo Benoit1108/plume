@@ -418,6 +418,51 @@
                         },
                         "style": "form",
                         "explode": true
+                    },
+                    {
+                        "name": "type",
+                        "in": "query",
+                        "description": "Filtre par type d'organisation",
+                        "required": false,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "PUBLISHER",
+                                "AV_STUDIO",
+                                "AGENCY",
+                                "OTHER"
+                            ]
+                        },
+                        "style": "form",
+                        "explode": true
+                    },
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "description": "Recherche sur le nom (insensible \u00e0 la casse)",
+                        "required": false,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "form",
+                        "explode": true
+                    },
+                    {
+                        "name": "itemsPerPage",
+                        "in": "query",
+                        "description": "Taille de page (max 100)",
+                        "required": false,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 100,
+                            "default": 30
+                        },
+                        "style": "form",
+                        "explode": true
                     }
                 ]
             },

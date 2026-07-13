@@ -81,4 +81,9 @@ final class Contact
     {
         $this->doNotContact = true;
     }
+
+    public function allowContact(): void
+    {
+        $this->doNotContact = false;
+    }
 }

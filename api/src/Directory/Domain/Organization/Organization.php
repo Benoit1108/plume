@@ -5,7 +5,12 @@ declare(strict_types=1);
 namespace App\Directory\Domain\Organization;
 
 use App\Directory\Domain\Organization\Event\ContactAdded;
+use App\Directory\Domain\Organization\Event\ContactRemoved;
+use App\Directory\Domain\Organization\Event\ContactUpdated;
 use App\Directory\Domain\Organization\Event\OrganizationCreated;
+use App\Directory\Domain\Organization\Event\OrganizationDoNotContactCleared;
+use App\Directory\Domain\Organization\Event\OrganizationDoNotContactMarked;
+use App\Directory\Domain\Organization\Event\OrganizationProfileUpdated;
 use App\Directory\Domain\Organization\Exception\ContactNotFound;
 use App\Directory\Domain\Organization\Exception\DuplicateContactEmail;
 use App\Shared\Domain\AggregateRoot;
@@ -19,6 +24,7 @@ use App\Shared\Domain\ValueObject\TenantId;
 /**
  * Organisation (maison d'édition, labo A/V, agence…) — agrégat racine du Répertoire.
  * Contient ses Contact ; toute mutation d'un contact passe par la racine.
+ * Chaque mutation émet un domain event (projections, journal, traçabilité RGPD).
  */
 final class Organization extends AggregateRoot
 {
@@ -76,11 +82,6 @@ final class Organization extends AggregateRoot
         return $organization;
     }
 
-    public function rename(string $name): void
-    {
-        $this->name = self::guardName($name);
-    }
-
     /**
      * Met à jour le profil (remplace les champs éditables — cohérent avec un PATCH fusionné).
      *
@@ -95,6 +96,7 @@ final class Organization extends AggregateRoot
         array $workingLanguages,
         array $segments,
         ?string $notes,
+        \DateTimeImmutable $now,
     ): void {
         $this->name = self::guardName($name);
         $this->type = $type;
@@ -103,6 +105,7 @@ final class Organization extends AggregateRoot
         $this->workingLanguages = array_values($workingLanguages);
         $this->segments = array_values($segments);
         $this->notes = $notes;
+        $this->recordEvent(new OrganizationProfileUpdated($this->id->toString(), $now));
     }
 
     public function addContact(Contact $contact, \DateTimeImmutable $now): void
@@ -124,6 +127,7 @@ final class Organization extends AggregateRoot
         ?string $phone,
         ?string $linkedinUrl,
         ?LanguageCode $preferredLanguage,
+        \DateTimeImmutable $now,
     ): void {
         $existing = $this->contactWithId($contactId);
         if (null !== $email && $this->hasOtherContactWithEmail($contactId, $email)) {
@@ -141,13 +145,48 @@ final class Organization extends AggregateRoot
             static fn (Contact $contact): Contact => $contact->id()->equals($contactId) ? $replacement : $contact,
             $this->contacts,
         );
+        $this->recordEvent(new ContactUpdated($this->id->toString(), $contactId->toString(), $now));
     }
 
-    public function removeContact(ContactId $contactId): void
+    public function removeContact(ContactId $contactId, \DateTimeImmutable $now): void
     {
+        $this->contactWithId($contactId); // lève ContactNotFound si absent
+
         $this->contacts = array_values(
             array_filter($this->contacts, static fn (Contact $contact): bool => !$contact->id()->equals($contactId)),
         );
+        $this->recordEvent(new ContactRemoved($this->id->toString(), $contactId->toString(), $now));
+    }
+
+    /**
+     * Marque l'organisation (et ses contacts) en « ne pas contacter » (RGPD).
+     * L'event trace le fait — la bascule est réversible mais jamais silencieuse.
+     */
+    public function markDoNotContact(\DateTimeImmutable $now): void
+    {
+        if ($this->doNotContact) {
+            return;
+        }
+
+        $this->doNotContact = true;
+        foreach ($this->contacts as $contact) {
+            $contact->markDoNotContact();
+        }
+        $this->recordEvent(new OrganizationDoNotContactMarked($this->id->toString(), $now));
+    }
+
+    /** Réautorise le démarchage (correction ou consentement retrouvé) — tracé par event. */
+    public function allowContact(\DateTimeImmutable $now): void
+    {
+        if (!$this->doNotContact) {
+            return;
+        }
+
+        $this->doNotContact = false;
+        foreach ($this->contacts as $contact) {
+            $contact->allowContact();
+        }
+        $this->recordEvent(new OrganizationDoNotContactCleared($this->id->toString(), $now));
     }
 
     private function contactWithId(ContactId $contactId): Contact
@@ -174,15 +213,6 @@ final class Organization extends AggregateRoot
         }
 
         return false;
-    }
-
-    /** Marque l'organisation (et ses contacts) en « ne pas contacter » (RGPD). */
-    public function markDoNotContact(): void
-    {
-        $this->doNotContact = true;
-        foreach ($this->contacts as $contact) {
-            $contact->markDoNotContact();
-        }
     }
 
     private function hasContactWithEmail(EmailAddress $email): bool

@@ -7,7 +7,7 @@ namespace App\Directory\Infrastructure\ApiResource\State;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use App\Directory\Application\Query\GetOrganization\GetOrganization;
-use App\Directory\Domain\Organization\Organization;
+use App\Directory\Application\ReadModel\OrganizationView;
 use App\Directory\Infrastructure\ApiResource\ContactResource;
 use App\Shared\Application\Query\QueryBus;
 use App\Shared\Domain\Exception\NotFound;
@@ -32,14 +32,14 @@ final class ContactProvider implements ProviderInterface
         }
 
         try {
-            /** @var Organization $organization */
+            /** @var OrganizationView $organization */
             $organization = $this->queryBus->ask(new GetOrganization($organizationId));
         } catch (NotFound) {
             return null;
         }
 
-        foreach ($organization->contacts() as $contact) {
-            if ($contact->id()->toString() === $contactId) {
+        foreach ($organization->contacts as $contact) {
+            if ($contact->id === $contactId) {
                 return OrganizationProvider::toContactResource($contact);
             }
         }

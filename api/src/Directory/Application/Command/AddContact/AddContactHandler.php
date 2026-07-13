@@ -8,6 +8,7 @@ use App\Directory\Domain\Organization\Contact;
 use App\Directory\Domain\Organization\ContactId;
 use App\Directory\Domain\Organization\OrganizationId;
 use App\Directory\Domain\Organization\OrganizationRepository;
+use App\Shared\Application\Clock;
 use App\Shared\Application\Command\CommandHandler;
 use App\Shared\Application\Event\EventBus;
 use App\Shared\Domain\ValueObject\EmailAddress;
@@ -18,6 +19,7 @@ final class AddContactHandler implements CommandHandler
     public function __construct(
         private readonly OrganizationRepository $organizations,
         private readonly EventBus $eventBus,
+        private readonly Clock $clock,
     ) {
     }
 
@@ -35,7 +37,7 @@ final class AddContactHandler implements CommandHandler
                 $command->linkedinUrl,
                 null !== $command->preferredLanguage ? LanguageCode::fromString($command->preferredLanguage) : null,
             ),
-            new \DateTimeImmutable(),
+            $this->clock->now(),
         );
 
         $this->organizations->save($organization);

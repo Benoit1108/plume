@@ -5,6 +5,9 @@
                   https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
     <!-- Agrégat Répertoire : contacts en JSON (chargé/sauvé en bloc). Domaine pur. -->
     <entity name="App\Directory\Domain\Organization\Organization" table="organization">
+        <indexes>
+            <index name="idx_organization_tenant" columns="tenant_id"/>
+        </indexes>
         <id name="id" type="organization_id" column="id">
             <generator strategy="NONE"/>
         </id>
@@ -13,10 +16,16 @@
         <field name="type" type="string" column="type" enum-type="App\Directory\Domain\Organization\OrganizationType"/>
         <field name="website" type="string" column="website" nullable="true"/>
         <field name="country" type="country_code" column="country" length="2" nullable="true"/>
-        <field name="workingLanguages" type="language_code_list" column="working_languages"/>
-        <field name="segments" type="segment_list" column="segments"/>
+        <field name="workingLanguages" type="language_code_list" column="working_languages">
+            <options><option name="jsonb">true</option></options>
+        </field>
+        <field name="segments" type="segment_list" column="segments">
+            <options><option name="jsonb">true</option></options>
+        </field>
         <field name="notes" type="text" column="notes" nullable="true"/>
         <field name="doNotContact" type="boolean" column="do_not_contact"/>
-        <field name="contacts" type="contact_collection" column="contacts"/>
+        <field name="contacts" type="contact_collection" column="contacts">
+            <options><option name="jsonb">true</option></options>
+        </field>
     </entity>
 </doctrine-mapping>

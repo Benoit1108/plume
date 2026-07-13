@@ -27,6 +27,13 @@ services:
     App\Shared\Application\Query\QueryBus: '@App\Shared\Infrastructure\Bus\MessengerQueryBus'
     App\Shared\Application\Event\EventBus: '@App\Shared\Infrastructure\Bus\MessengerEventBus'
 
+    # Ports techniques de la couche Application (horloge, identifiants).
+    App\Shared\Application\Clock: '@App\Shared\Infrastructure\Time\SystemClock'
+    App\Shared\Application\IdGenerator: '@App\Shared\Infrastructure\Uid\UuidV7IdGenerator'
+
     # Repositories : interface (Domain, hors conteneur) -> implémentation (Infrastructure).
     App\Prospecting\Domain\Lead\LeadRepository: '@App\Prospecting\Infrastructure\Persistence\Doctrine\DoctrineLeadRepository'
     App\Directory\Domain\Organization\OrganizationRepository: '@App\Directory\Infrastructure\Persistence\Doctrine\DoctrineOrganizationRepository'
+
+    # Read models (côté query du CQRS) : lecture SQL directe, scoping tenant fail-closed.
+    App\Directory\Application\ReadModel\OrganizationSearch: '@App\Directory\Infrastructure\ReadModel\DoctrineOrganizationSearch'

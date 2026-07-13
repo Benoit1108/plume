@@ -13,7 +13,7 @@ use App\Directory\Application\Command\RemoveContact\RemoveContact;
 use App\Directory\Application\Command\UpdateContact\UpdateContact;
 use App\Directory\Infrastructure\ApiResource\ContactResource;
 use App\Shared\Application\Command\CommandBus;
-use Symfony\Component\Uid\Uuid;
+use App\Shared\Application\IdGenerator;
 
 /**
  * Écriture des contacts (POST/PATCH/DELETE sous une organisation) -> CommandBus.
@@ -22,8 +22,10 @@ use Symfony\Component\Uid\Uuid;
  */
 final class ContactProcessor implements ProcessorInterface
 {
-    public function __construct(private readonly CommandBus $commandBus)
-    {
+    public function __construct(
+        private readonly CommandBus $commandBus,
+        private readonly IdGenerator $ids,
+    ) {
     }
 
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): ?ContactResource
@@ -37,7 +39,7 @@ final class ContactProcessor implements ProcessorInterface
         }
 
         if ($operation instanceof Post) {
-            $contactId = Uuid::v7()->toRfc4122();
+            $contactId = $this->ids->generate();
             $this->commandBus->dispatch(new AddContact(
                 $organizationId,
                 $contactId,

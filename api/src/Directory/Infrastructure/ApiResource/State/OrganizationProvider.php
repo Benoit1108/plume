@@ -6,20 +6,20 @@ namespace App\Directory\Infrastructure\ApiResource\State;
 
 use ApiPlatform\Metadata\CollectionOperationInterface;
 use ApiPlatform\Metadata\Operation;
+use ApiPlatform\State\Pagination\TraversablePaginator;
 use ApiPlatform\State\ProviderInterface;
 use App\Directory\Application\Query\GetOrganization\GetOrganization;
 use App\Directory\Application\Query\ListOrganizations\ListOrganizations;
-use App\Directory\Domain\Organization\Contact;
-use App\Directory\Domain\Organization\Organization;
+use App\Directory\Application\ReadModel\ContactView;
+use App\Directory\Application\ReadModel\OrganizationPage;
+use App\Directory\Application\ReadModel\OrganizationView;
 use App\Directory\Infrastructure\ApiResource\ContactResource;
 use App\Directory\Infrastructure\ApiResource\OrganizationResource;
 use App\Shared\Application\Query\QueryBus;
 use App\Shared\Domain\Exception\NotFound;
-use App\Shared\Domain\ValueObject\LanguageCode;
-use App\Shared\Domain\ValueObject\Segment;
 
 /**
- * Lecture (collection + item) : délègue au QueryBus, mappe le domaine vers les DTO.
+ * Lecture (collection paginée + item) : délègue au QueryBus, mappe les vues vers les DTO.
  *
  * @implements ProviderInterface<OrganizationResource>
  */
@@ -32,14 +32,23 @@ final class OrganizationProvider implements ProviderInterface
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
         if ($operation instanceof CollectionOperationInterface) {
+            /** @var array<string, mixed> $filters */
             $filters = \is_array($context['filters'] ?? null) ? $context['filters'] : [];
-            $type = isset($filters['type']) && \is_string($filters['type']) ? $filters['type'] : null;
-            $search = isset($filters['q']) && \is_string($filters['q']) ? $filters['q'] : null;
 
-            /** @var Organization[] $organizations */
-            $organizations = $this->queryBus->ask(new ListOrganizations($type, $search));
+            /** @var OrganizationPage $page */
+            $page = $this->queryBus->ask(new ListOrganizations(
+                type: $this->stringFilter($filters, 'type'),
+                search: $this->stringFilter($filters, 'q'),
+                page: $this->intFilter($filters, 'page', 1),
+                itemsPerPage: $this->intFilter($filters, 'itemsPerPage', 30),
+            ));
 
-            return array_map(static fn (Organization $o): OrganizationResource => self::toResource($o), $organizations);
+            return new TraversablePaginator(
+                new \ArrayIterator(array_map(static fn (OrganizationView $view): OrganizationResource => self::toResource($view), $page->items)),
+                $page->page,
+                $page->itemsPerPage,
+                $page->total,
+            );
         }
 
         $id = $uriVariables['id'] ?? null;
@@ -48,7 +57,7 @@ final class OrganizationProvider implements ProviderInterface
         }
 
         try {
-            /** @var Organization $organization */
+            /** @var OrganizationView $organization */
             $organization = $this->queryBus->ask(new GetOrganization($id));
         } catch (NotFound) {
             return null;
@@ -57,35 +66,54 @@ final class OrganizationProvider implements ProviderInterface
         return self::toResource($organization);
     }
 
-    public static function toResource(Organization $organization): OrganizationResource
+    public static function toResource(OrganizationView $view): OrganizationResource
     {
         $resource = new OrganizationResource();
-        $resource->id = $organization->id()->toString();
-        $resource->name = $organization->name();
-        $resource->type = $organization->type()->value;
-        $resource->website = $organization->website();
-        $resource->country = $organization->country()?->toString();
-        $resource->workingLanguages = array_map(static fn (LanguageCode $l): string => $l->toString(), $organization->workingLanguages());
-        $resource->segments = array_map(static fn (Segment $s): string => $s->value, $organization->segments());
-        $resource->notes = $organization->notes();
-        $resource->doNotContact = $organization->doNotContact();
-        $resource->contacts = array_map(static fn (Contact $c): ContactResource => self::toContactResource($c), $organization->contacts());
+        $resource->id = $view->id;
+        $resource->name = $view->name;
+        $resource->type = $view->type;
+        $resource->website = $view->website;
+        $resource->country = $view->country;
+        $resource->workingLanguages = $view->workingLanguages;
+        $resource->segments = $view->segments;
+        $resource->notes = $view->notes;
+        $resource->doNotContact = $view->doNotContact;
+        $resource->contacts = array_map(static fn (ContactView $contact): ContactResource => self::toContactResource($contact), $view->contacts);
 
         return $resource;
     }
 
-    public static function toContactResource(Contact $contact): ContactResource
+    public static function toContactResource(ContactView $view): ContactResource
     {
         $resource = new ContactResource();
-        $resource->id = $contact->id()->toString();
-        $resource->fullName = $contact->fullName();
-        $resource->role = $contact->role();
-        $resource->email = $contact->email()?->toString();
-        $resource->phone = $contact->phone();
-        $resource->linkedinUrl = $contact->linkedinUrl();
-        $resource->preferredLanguage = $contact->preferredLanguage()?->toString();
-        $resource->doNotContact = $contact->doNotContact();
+        $resource->id = $view->id;
+        $resource->fullName = $view->fullName;
+        $resource->role = $view->role;
+        $resource->email = $view->email;
+        $resource->phone = $view->phone;
+        $resource->linkedinUrl = $view->linkedinUrl;
+        $resource->preferredLanguage = $view->preferredLanguage;
+        $resource->doNotContact = $view->doNotContact;
 
         return $resource;
+    }
+
+    /** @param array<string, mixed> $filters */
+    private function stringFilter(array $filters, string $key): ?string
+    {
+        $value = $filters[$key] ?? null;
+
+        return \is_string($value) && '' !== $value ? $value : null;
+    }
+
+    /** @param array<string, mixed> $filters */
+    private function intFilter(array $filters, string $key, int $default): int
+    {
+        $value = $filters[$key] ?? null;
+        if (\is_string($value) && ctype_digit($value)) {
+            return (int) $value;
+        }
+
+        return $default;
     }
 }

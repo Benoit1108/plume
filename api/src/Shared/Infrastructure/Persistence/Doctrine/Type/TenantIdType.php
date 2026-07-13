@@ -6,10 +6,10 @@ namespace App\Shared\Infrastructure\Persistence\Doctrine\Type;
 
 use App\Shared\Domain\ValueObject\TenantId;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Types\StringType;
+use Doctrine\DBAL\Types\GuidType;
 
-/** Type DBAL pour le VO TenantId (persisté en chaîne). */
-final class TenantIdType extends StringType
+/** Type DBAL pour le VO TenantId (colonne UUID en base). */
+final class TenantIdType extends GuidType
 {
     public const string NAME = 'tenant_id';
 

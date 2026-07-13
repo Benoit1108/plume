@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Directory\Infrastructure\Import;
+namespace App\Directory\Application\Import;
 
-/** Une ligne de CSV déjà nettoyée/normalisée, prête à devenir une commande. */
-final class ImportedRow
+/** Une ligne d'import déjà nettoyée/normalisée (produite par le parser CSV d'Infrastructure). */
+final class ImportedOrganizationRow
 {
     /**
      * @param string[] $languages codes ISO 639-1 validés

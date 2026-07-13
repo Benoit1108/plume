@@ -6,6 +6,9 @@
     <!-- Le Domaine reste pur : mapping de l'agrégat Lead décrit ici (hors src/ pour ne pas
          entrer en conflit avec le scan des resources API Platform). -->
     <entity name="App\Prospecting\Domain\Lead\Lead" table="lead">
+        <indexes>
+            <index name="idx_lead_tenant" columns="tenant_id"/>
+        </indexes>
         <id name="id" type="lead_id" column="id">
             <generator strategy="NONE"/>
         </id>
