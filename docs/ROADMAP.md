@@ -32,6 +32,8 @@ Fondations techniques.
 > *(Différé, hors périmètre M0)* Refresh token JWT (mapping gesdinet + attributs à régler).
 
 ### M1 — Cœur prospection 🔜 *(première version utilisable)*
+
+> 📐 Note de conception détaillée : [`docs/design/M1-conception.md`](design/M1-conception.md).
 - [ ] **Répertoire** : CRUD Organisation + Contact, tags, **import CSV**.
 - [ ] **Piste** : création, machine à états, kanban + liste.
 - [ ] **Interactions** : journal (projection) + saisie manuelle (note, appel).
