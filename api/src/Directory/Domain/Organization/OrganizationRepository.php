@@ -10,4 +10,11 @@ interface OrganizationRepository
 
     /** @throws \RuntimeException si l'organisation est introuvable */
     public function get(OrganizationId $id): Organization;
+
+    /**
+     * Liste (scoping tenant automatique via le filtre Doctrine) filtrée par type et/ou texte.
+     *
+     * @return Organization[]
+     */
+    public function findMatching(?OrganizationType $type, ?string $query): array;
 }

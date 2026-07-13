@@ -7,6 +7,7 @@ namespace App\Directory\Infrastructure\Persistence\Doctrine;
 use App\Directory\Domain\Organization\Organization;
 use App\Directory\Domain\Organization\OrganizationId;
 use App\Directory\Domain\Organization\OrganizationRepository;
+use App\Directory\Domain\Organization\OrganizationType;
 use Doctrine\ORM\EntityManagerInterface;
 
 final class DoctrineOrganizationRepository implements OrganizationRepository
@@ -23,7 +24,39 @@ final class DoctrineOrganizationRepository implements OrganizationRepository
 
     public function get(OrganizationId $id): Organization
     {
-        return $this->em->find(Organization::class, $id)
-            ?? throw new \RuntimeException(sprintf('Organization "%s" not found.', $id->toString()));
+        // Requête (et non find()) pour que le filtre tenant s'applique -> isolation sur GET/PATCH.
+        $organization = $this->em->createQueryBuilder()
+            ->select('o')
+            ->from(Organization::class, 'o')
+            ->where('o.id = :id')
+            ->setParameter('id', $id)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        if (!$organization instanceof Organization) {
+            throw new \RuntimeException(sprintf('Organization "%s" not found.', $id->toString()));
+        }
+
+        return $organization;
+    }
+
+    public function findMatching(?OrganizationType $type, ?string $query): array
+    {
+        $qb = $this->em->createQueryBuilder()
+            ->select('o')
+            ->from(Organization::class, 'o')
+            ->orderBy('o.name', 'ASC');
+
+        if (null !== $type) {
+            $qb->andWhere('o.type = :type')->setParameter('type', $type);
+        }
+        if (null !== $query && '' !== trim($query)) {
+            $qb->andWhere('LOWER(o.name) LIKE :q')->setParameter('q', '%'.strtolower(trim($query)).'%');
+        }
+
+        /** @var Organization[] $result */
+        $result = $qb->getQuery()->getResult();
+
+        return $result;
     }
 }

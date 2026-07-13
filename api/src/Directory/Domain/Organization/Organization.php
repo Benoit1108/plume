@@ -79,6 +79,30 @@ final class Organization extends AggregateRoot
         $this->name = self::guardName($name);
     }
 
+    /**
+     * Met à jour le profil (remplace les champs éditables — cohérent avec un PATCH fusionné).
+     *
+     * @param LanguageCode[] $workingLanguages
+     * @param Segment[]      $segments
+     */
+    public function updateProfile(
+        string $name,
+        OrganizationType $type,
+        ?string $website,
+        ?CountryCode $country,
+        array $workingLanguages,
+        array $segments,
+        ?string $notes,
+    ): void {
+        $this->name = self::guardName($name);
+        $this->type = $type;
+        $this->website = $website;
+        $this->country = $country;
+        $this->workingLanguages = array_values($workingLanguages);
+        $this->segments = array_values($segments);
+        $this->notes = $notes;
+    }
+
     public function addContact(Contact $contact, \DateTimeImmutable $now): void
     {
         $email = $contact->email();
