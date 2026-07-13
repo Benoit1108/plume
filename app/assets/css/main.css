@@ -15,19 +15,19 @@
   --font-serif: "Fraunces Variable", ui-serif, Georgia, serif;
   --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
-  /* Marque « Encre violette » : on surcharge la palette Tailwind `violet` avec nos hexes,
-     et Nuxt UI mappe primary -> violet (cf. plume-design en mémoire). */
-  --color-violet-50: #F4F1FB;
-  --color-violet-100: #E9E3F7;
-  --color-violet-200: #D6CAF0;
-  --color-violet-300: #BBA8E6;
-  --color-violet-400: #9B87D9; /* accent sombre */
-  --color-violet-500: #7C5FD0;
-  --color-violet-600: #6E56C7; /* accent clair */
-  --color-violet-700: #5B44B0; /* lien clair */
-  --color-violet-800: #4A3890;
-  --color-violet-900: #3E3175;
-  --color-violet-950: #271E4D;
+  /* Palette de marque « plume » (violet — cf. plume-design en mémoire).
+     app.config mappe primary -> plume ; Nuxt UI génère --ui-color-primary-* depuis ces valeurs. */
+  --color-plume-50: #F4F1FB;
+  --color-plume-100: #E9E3F7;
+  --color-plume-200: #D6CAF0;
+  --color-plume-300: #BBA8E6;
+  --color-plume-400: #9B87D9; /* accent sombre */
+  --color-plume-500: #7C5FD0;
+  --color-plume-600: #6E56C7; /* accent clair */
+  --color-plume-700: #5B44B0; /* lien clair */
+  --color-plume-800: #4A3890;
+  --color-plume-900: #3E3175;
+  --color-plume-950: #271E4D;
 }
 
 /* Fonds « atelier » exacts (cf. maquette validée) — surcouche des neutres Nuxt UI. */
