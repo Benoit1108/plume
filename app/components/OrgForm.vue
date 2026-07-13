@@ -1,15 +1,6 @@
 <script setup lang="ts">
-import type { OrganizationInput, OrganizationType } from '~/types/directory'
-
-interface OrgFormModel {
-  name: string
-  type: OrganizationType
-  website: string
-  country: string
-  workingLanguages: string
-  segments: string[]
-  notes: string
-}
+import type { OrganizationInput } from '~/types/directory'
+import type { OrgFormModel } from '~/utils/organization-form'
 
 const props = defineProps<{
   initial?: OrgFormModel
@@ -39,15 +30,7 @@ function toggleSegment(segment: string, checked: boolean): void {
 }
 
 function onSubmit(): void {
-  emit('submit', {
-    name: form.name.trim(),
-    type: form.type,
-    website: form.website.trim() || null,
-    country: form.country.trim().toUpperCase() || null,
-    workingLanguages: form.workingLanguages.split(/[\s,]+/).map(s => s.trim().toLowerCase()).filter(Boolean),
-    segments: form.segments,
-    notes: form.notes.trim() || null,
-  })
+  emit('submit', toOrganizationInput(form))
 }
 </script>
 
