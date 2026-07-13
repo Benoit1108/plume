@@ -4,18 +4,15 @@ declare(strict_types=1);
 
 namespace App\Prospecting\Domain\Lead\Event;
 
-use App\Shared\Domain\DomainEvent;
+use App\Shared\Domain\AbstractDomainEvent;
 
-final class LeadContacted implements DomainEvent
+final class LeadContacted extends AbstractDomainEvent
 {
     public function __construct(
+        public readonly string $tenantId,
         public readonly string $leadId,
-        private readonly \DateTimeImmutable $occurredOn,
+        \DateTimeImmutable $occurredOn,
     ) {
-    }
-
-    public function occurredOn(): \DateTimeImmutable
-    {
-        return $this->occurredOn;
+        parent::__construct($occurredOn);
     }
 }

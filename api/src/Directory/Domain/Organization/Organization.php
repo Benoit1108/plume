@@ -77,7 +77,7 @@ final class Organization extends AggregateRoot
             $notes,
             false,
         );
-        $organization->recordEvent(new OrganizationCreated($id->toString(), $now));
+        $organization->recordEvent(new OrganizationCreated($tenantId->toString(), $id->toString(), $now));
 
         return $organization;
     }
@@ -105,7 +105,7 @@ final class Organization extends AggregateRoot
         $this->workingLanguages = array_values($workingLanguages);
         $this->segments = array_values($segments);
         $this->notes = $notes;
-        $this->recordEvent(new OrganizationProfileUpdated($this->id->toString(), $now));
+        $this->recordEvent(new OrganizationProfileUpdated($this->tenantId->toString(), $this->id->toString(), $now));
     }
 
     public function addContact(Contact $contact, \DateTimeImmutable $now): void
@@ -116,7 +116,7 @@ final class Organization extends AggregateRoot
         }
 
         $this->contacts[] = $contact;
-        $this->recordEvent(new ContactAdded($this->id->toString(), $contact->id()->toString(), $now));
+        $this->recordEvent(new ContactAdded($this->tenantId->toString(), $this->id->toString(), $contact->id()->toString(), $now));
     }
 
     public function updateContact(
@@ -145,7 +145,7 @@ final class Organization extends AggregateRoot
             static fn (Contact $contact): Contact => $contact->id()->equals($contactId) ? $replacement : $contact,
             $this->contacts,
         );
-        $this->recordEvent(new ContactUpdated($this->id->toString(), $contactId->toString(), $now));
+        $this->recordEvent(new ContactUpdated($this->tenantId->toString(), $this->id->toString(), $contactId->toString(), $now));
     }
 
     public function removeContact(ContactId $contactId, \DateTimeImmutable $now): void
@@ -155,7 +155,7 @@ final class Organization extends AggregateRoot
         $this->contacts = array_values(
             array_filter($this->contacts, static fn (Contact $contact): bool => !$contact->id()->equals($contactId)),
         );
-        $this->recordEvent(new ContactRemoved($this->id->toString(), $contactId->toString(), $now));
+        $this->recordEvent(new ContactRemoved($this->tenantId->toString(), $this->id->toString(), $contactId->toString(), $now));
     }
 
     /**
@@ -172,7 +172,7 @@ final class Organization extends AggregateRoot
         foreach ($this->contacts as $contact) {
             $contact->markDoNotContact();
         }
-        $this->recordEvent(new OrganizationDoNotContactMarked($this->id->toString(), $now));
+        $this->recordEvent(new OrganizationDoNotContactMarked($this->tenantId->toString(), $this->id->toString(), $now));
     }
 
     /** Réautorise le démarchage (correction ou consentement retrouvé) — tracé par event. */
@@ -186,7 +186,7 @@ final class Organization extends AggregateRoot
         foreach ($this->contacts as $contact) {
             $contact->allowContact();
         }
-        $this->recordEvent(new OrganizationDoNotContactCleared($this->id->toString(), $now));
+        $this->recordEvent(new OrganizationDoNotContactCleared($this->tenantId->toString(), $this->id->toString(), $now));
     }
 
     private function contactWithId(ContactId $contactId): Contact

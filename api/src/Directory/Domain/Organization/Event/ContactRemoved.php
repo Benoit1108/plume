@@ -4,19 +4,16 @@ declare(strict_types=1);
 
 namespace App\Directory\Domain\Organization\Event;
 
-use App\Shared\Domain\DomainEvent;
+use App\Shared\Domain\AbstractDomainEvent;
 
-final class ContactRemoved implements DomainEvent
+final class ContactRemoved extends AbstractDomainEvent
 {
     public function __construct(
+        public readonly string $tenantId,
         public readonly string $organizationId,
         public readonly string $contactId,
-        private readonly \DateTimeImmutable $occurredOn,
+        \DateTimeImmutable $occurredOn,
     ) {
-    }
-
-    public function occurredOn(): \DateTimeImmutable
-    {
-        return $this->occurredOn;
+        parent::__construct($occurredOn);
     }
 }

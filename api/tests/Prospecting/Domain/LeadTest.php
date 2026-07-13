@@ -6,69 +6,223 @@ namespace App\Tests\Prospecting\Domain;
 
 use App\Prospecting\Domain\Lead\Event\LeadContacted;
 use App\Prospecting\Domain\Lead\Event\LeadCreated;
+use App\Prospecting\Domain\Lead\Event\LeadLost;
+use App\Prospecting\Domain\Lead\Event\LeadMovedToSampleTest;
+use App\Prospecting\Domain\Lead\Event\LeadPaused;
+use App\Prospecting\Domain\Lead\Event\LeadResumed;
+use App\Prospecting\Domain\Lead\Event\LeadWon;
+use App\Prospecting\Domain\Lead\Event\NoteAdded;
+use App\Prospecting\Domain\Lead\Event\ReplyReceived;
 use App\Prospecting\Domain\Lead\Exception\IllegalStatusTransition;
 use App\Prospecting\Domain\Lead\Lead;
 use App\Prospecting\Domain\Lead\LeadId;
+use App\Prospecting\Domain\Lead\LeadSource;
 use App\Prospecting\Domain\Lead\PipelineStatus;
+use App\Prospecting\Domain\Lead\Priority;
+use App\Shared\Domain\Exception\InvalidValue;
+use App\Shared\Domain\ValueObject\LanguagePair;
 use App\Shared\Domain\ValueObject\Segment;
 use App\Shared\Domain\ValueObject\TenantId;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Test de domaine pur : aucune base de données, aucun conteneur Symfony.
- * C'est un objectif de conception (cf. CLAUDE.md), pas un accident.
+ * La machine à états est testée exhaustivement (chemins légaux ET illégaux).
  */
 final class LeadTest extends TestCase
 {
+    private \DateTimeImmutable $now;
+
+    protected function setUp(): void
+    {
+        $this->now = new \DateTimeImmutable('2026-07-13 10:00:00');
+    }
+
     private function aLead(): Lead
     {
         return Lead::create(
             LeadId::fromString('11111111-1111-1111-1111-111111111111'),
             TenantId::fromString('tenant-1'),
             'org-1',
+            'contact-1',
+            LanguagePair::fromString('en>fr'),
+            LeadSource::DIRECT,
+            Priority::HIGH,
             Segment::PUBLISHING,
-            new \DateTimeImmutable('2026-07-11 10:00:00'),
+            $this->now,
         );
     }
 
-    public function testCreationStartsInToContactAndRecordsEvent(): void
+    /** Amène une piste dans le statut voulu par des transitions légales. */
+    private function aLeadIn(PipelineStatus $status): Lead
+    {
+        $lead = $this->aLead();
+        if (PipelineStatus::FOLLOWED_UP === $status) {
+            self::fail('FOLLOWED_UP arrive en M1.3 (relances).');
+        }
+        if (\in_array($status, [PipelineStatus::CONTACTED, PipelineStatus::IN_DISCUSSION, PipelineStatus::SAMPLE_TEST, PipelineStatus::WON], true)) {
+            $lead->contact($this->now);
+        }
+        if (\in_array($status, [PipelineStatus::IN_DISCUSSION, PipelineStatus::SAMPLE_TEST, PipelineStatus::WON], true)) {
+            $lead->recordReply($this->now);
+        }
+        if (PipelineStatus::SAMPLE_TEST === $status) {
+            $lead->moveToSampleTest($this->now);
+        }
+        if (PipelineStatus::WON === $status) {
+            $lead->markWon($this->now);
+        }
+        if (PipelineStatus::LOST === $status) {
+            $lead->markLost($this->now);
+        }
+        if (PipelineStatus::PAUSED === $status) {
+            $lead->pause($this->now);
+        }
+        $lead->pullDomainEvents();
+
+        return $lead;
+    }
+
+    public function testCreationStartsInToContactWithEnrichedEvent(): void
     {
         $lead = $this->aLead();
 
         self::assertSame(PipelineStatus::TO_CONTACT, $lead->status());
+        self::assertSame('en>fr', $lead->languagePair()->toString());
+        self::assertSame(LeadSource::DIRECT, $lead->source());
+        self::assertSame(Priority::HIGH, $lead->priority());
+        self::assertSame('contact-1', $lead->contactId());
+        self::assertEquals($this->now, $lead->createdAt());
 
         $events = $lead->pullDomainEvents();
         self::assertCount(1, $events);
-        self::assertInstanceOf(LeadCreated::class, $events[0]);
+        $event = $events[0];
+        self::assertInstanceOf(LeadCreated::class, $event);
+        self::assertSame('tenant-1', $event->tenantId);
+        self::assertSame('org-1', $event->organizationId);
+        self::assertMatchesRegularExpression('/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$/', $event->eventId());
     }
 
-    public function testContactMovesToContactedAndRecordsEvent(): void
+    public function testHappyPathToWon(): void
     {
         $lead = $this->aLead();
-        $lead->pullDomainEvents(); // vide l'événement de création
+        $lead->pullDomainEvents();
 
-        $lead->contact(new \DateTimeImmutable('2026-07-11 11:00:00'));
+        $lead->contact($this->now);
+        self::assertEquals($this->now, $lead->lastContactedAt());
 
-        self::assertSame(PipelineStatus::CONTACTED, $lead->status());
+        $lead->recordReply($this->now->modify('+1 day'));
+        self::assertEquals($this->now->modify('+1 day'), $lead->lastReplyAt());
 
-        $events = $lead->pullDomainEvents();
-        self::assertCount(1, $events);
-        self::assertInstanceOf(LeadContacted::class, $events[0]);
+        $lead->moveToSampleTest($this->now->modify('+2 days'));
+        $lead->markWon($this->now->modify('+10 days'));
+
+        self::assertSame(PipelineStatus::WON, $lead->status());
+        self::assertSame(
+            [LeadContacted::class, ReplyReceived::class, LeadMovedToSampleTest::class, LeadWon::class],
+            array_map(get_class(...), $lead->pullDomainEvents()),
+        );
     }
 
-    public function testCannotContactAnAlreadyContactedLead(): void
+    public function testLostFromAnyActiveStatus(): void
     {
-        $lead = $this->aLead();
-        $lead->contact(new \DateTimeImmutable('2026-07-11 11:00:00'));
+        foreach ([PipelineStatus::TO_CONTACT, PipelineStatus::CONTACTED, PipelineStatus::IN_DISCUSSION, PipelineStatus::SAMPLE_TEST] as $status) {
+            $lead = $this->aLeadIn($status);
+            $lead->markLost($this->now);
+            self::assertSame(PipelineStatus::LOST, $lead->status(), sprintf('LOST depuis %s', $status->value));
+            self::assertInstanceOf(LeadLost::class, $lead->pullDomainEvents()[0]);
+        }
+    }
 
+    public function testTerminalStatusesRefuseEverything(): void
+    {
+        foreach ([PipelineStatus::WON, PipelineStatus::LOST] as $terminal) {
+            $lead = $this->aLeadIn($terminal);
+            try {
+                $lead->contact($this->now);
+                self::fail(sprintf('contact() devrait être refusé depuis %s', $terminal->value));
+            } catch (IllegalStatusTransition) {
+                self::assertSame($terminal, $lead->status());
+            }
+        }
+    }
+
+    public function testIllegalTransitionsAreRefused(): void
+    {
+        // Réponse sans contact préalable.
+        $lead = $this->aLead();
+        try {
+            $lead->recordReply($this->now);
+            self::fail('recordReply depuis TO_CONTACT devrait être refusé');
+        } catch (IllegalStatusTransition) {
+        }
+
+        // Test/échantillon sans discussion.
+        $lead = $this->aLeadIn(PipelineStatus::CONTACTED);
+        try {
+            $lead->moveToSampleTest($this->now);
+            self::fail('moveToSampleTest depuis CONTACTED devrait être refusé');
+        } catch (IllegalStatusTransition) {
+        }
+
+        // Gagner sans discussion.
+        $lead = $this->aLeadIn(PipelineStatus::CONTACTED);
+        try {
+            $lead->markWon($this->now);
+            self::fail('markWon depuis CONTACTED devrait être refusé');
+        } catch (IllegalStatusTransition) {
+        }
+
+        // Pause pendant un test/échantillon (phase courte non interruptible).
+        $lead = $this->aLeadIn(PipelineStatus::SAMPLE_TEST);
         $this->expectException(IllegalStatusTransition::class);
-        $lead->contact(new \DateTimeImmutable('2026-07-11 12:00:00'));
+        $lead->pause($this->now);
     }
 
-    public function testWonAndLostAreTerminal(): void
+    public function testPauseThenResumeRestoresPreviousStatus(): void
     {
-        self::assertTrue(PipelineStatus::WON->isTerminal());
-        self::assertTrue(PipelineStatus::LOST->isTerminal());
-        self::assertSame([], PipelineStatus::WON->allowedTransitions());
+        $lead = $this->aLeadIn(PipelineStatus::IN_DISCUSSION);
+
+        $lead->pause($this->now);
+        self::assertSame(PipelineStatus::PAUSED, $lead->status());
+
+        $lead->resume($this->now);
+        self::assertSame(PipelineStatus::IN_DISCUSSION, $lead->status());
+        self::assertNull($lead->statusBeforePause());
+
+        $events = $lead->pullDomainEvents();
+        self::assertInstanceOf(LeadPaused::class, $events[0]);
+        self::assertSame('IN_DISCUSSION', $events[0]->pausedFrom);
+        self::assertInstanceOf(LeadResumed::class, $events[1]);
+        self::assertSame('IN_DISCUSSION', $events[1]->resumedTo);
+    }
+
+    public function testNoteIsCarriedByTheEventOnly(): void
+    {
+        $lead = $this->aLead();
+        $lead->pullDomainEvents();
+
+        $lead->addNote('  Rappeler après le salon du livre.  ', $this->now);
+
+        $events = $lead->pullDomainEvents();
+        self::assertInstanceOf(NoteAdded::class, $events[0]);
+        self::assertSame('Rappeler après le salon du livre.', $events[0]->text);
+    }
+
+    public function testEmptyNoteIsRejected(): void
+    {
+        $lead = $this->aLead();
+
+        $this->expectException(InvalidValue::class);
+        $lead->addNote('   ', $this->now);
+    }
+
+    public function testNotesAreAllowedInTerminalStatuses(): void
+    {
+        $lead = $this->aLeadIn(PipelineStatus::LOST);
+
+        $lead->addNote('Perdue : budget gelé — retenter en 2027.', $this->now);
+
+        self::assertCount(1, $lead->pullDomainEvents());
     }
 }
