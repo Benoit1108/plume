@@ -1,6 +1,4 @@
-| RelancePlanifiée | `FollowUpScheduled` (dueAt, auto) |
-| RelanceFaite | `FollowUpSent` (l'envoi réel arrive en M2) |
-| RelanceAnnulée | `FollowUpCancelled` (reason) |# Glossaire — langage ubiquitaire
+# Glossaire — langage ubiquitaire
 
 Le vocabulaire métier ci-dessous est **contractuel** et reste en **français** (langue de l'utilisatrice et du métier) : UI, échanges, documentation. Le **code** (classes, méthodes, events) est en **anglais**, via la table de correspondance ci-dessous qui fait le pont sans trahir l'*ubiquitous language*. Voir [ADR-0010](architecture/decisions/0010-langue-de-nommage.md).
 
