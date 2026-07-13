@@ -20,9 +20,9 @@ final class CsvOrganizationParserTest extends TestCase
     public function testParsesHeadersAndNormalizesValues(): void
     {
         $csv = <<<CSV
-        nom,type,site,pays,langues,segments,notes
-        Actes Sud,Éditeur,https://actes-sud.fr,France,en fr,Édition;Technique,à relancer
-        CSV;
+            nom,type,site,pays,langues,segments,notes
+            Actes Sud,Éditeur,https://actes-sud.fr,France,en fr,Édition;Technique,à relancer
+            CSV;
 
         $result = $this->parser->parse($csv);
 
