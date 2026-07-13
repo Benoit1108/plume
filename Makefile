@@ -8,13 +8,16 @@ PHP := $(DC) run --rm --no-deps --user $(UID):$(GID) -e HOME=/tmp -e COMPOSER_HO
 # Variante avec dépendances (DB up) pour les migrations.
 PHP_DB := $(DC) run --rm --user $(UID):$(GID) -e HOME=/tmp -e COMPOSER_HOME=/tmp/composer php
 
-.PHONY: help up down build install lock jwt-keys migrate test phpstan deptrac cs cs-fix audit schema-validate openapi front-install front-lint front-typecheck front-test
+.PHONY: help up up-full down build install lock jwt-keys migrate test phpstan deptrac cs cs-fix audit schema-validate openapi front-install front-lint front-typecheck front-test
 
 help: ## Affiche cette aide
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS=":.*?## "}; {printf "  \033[36m%-14s\033[0m %s\n", $$1, $$2}'
 
-up: ## Démarre la stack locale
+up: ## Démarre la stack de dev (DB + API) — front à lancer sur l'hôte (npm run dev)
 	$(DC) up -d
+
+up-full: ## Démarre TOUT (DB, API, worker, scheduler, front en conteneur)
+	$(DC) --profile full up -d
 
 down: ## Arrête la stack
 	$(DC) down

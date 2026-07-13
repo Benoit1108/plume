@@ -37,7 +37,9 @@ services:
         condition: service_healthy
 
   # Consommateur des domain events (bus asynchrone + outbox relay)
+  # Profil "full" : pas nécessaire pour le dev front/domaine.
   worker:
+    profiles: ["full"]
     build:
       context: ./api
     command: ["php", "bin/console", "messenger:consume", "async", "-vv", "--time-limit=3600"]
@@ -56,6 +58,7 @@ services:
 
   # Symfony Scheduler (relances dues, recalculs périodiques)
   scheduler:
+    profiles: ["full"]
     build:
       context: ./api
     command: ["php", "bin/console", "messenger:consume", "scheduler_default", "-vv"]
@@ -73,6 +76,9 @@ services:
     restart: unless-stopped
 
   app:
+    # Profil "full" seulement : en dev, on lance le front sur l'hôte (npm run dev)
+    # pour éviter un second serveur Nuxt/watcher redondant.
+    profiles: ["full"]
     image: node:24-alpine
     working_dir: /app
     user: "1000:1000"   # évite les fichiers root-owned dans app/ (node_modules, .nuxt)
