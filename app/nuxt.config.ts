@@ -9,6 +9,12 @@ export default defineNuxtConfig({
 
   css: ['~/assets/css/main.css'],
 
+  // Thème sombre par défaut (clair disponible via bascule).
+  colorMode: {
+    preference: 'dark',
+    fallback: 'dark',
+  },
+
   i18n: {
     defaultLocale: 'fr',
     strategy: 'no_prefix',

@@ -14,6 +14,9 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
+    "@fontsource-variable/fraunces": "^5.2.9",
+    "@fontsource/ibm-plex-mono": "^5.2.7",
+    "@fontsource/ibm-plex-sans": "^5.2.8",
     "@nuxt/ui": "latest",
     "@nuxtjs/i18n": "latest",
     "@pinia/nuxt": "latest",

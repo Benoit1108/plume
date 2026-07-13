@@ -1,19 +1,45 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
 
-/*
- * Design system de Plume — Tailwind v4 est configuré en CSS-first (bloc @theme),
- * pas de tailwind.config.js. C'est ici qu'on possède les tokens :
- *   - palette de marque (couleurs), typographie, radius, échelle d'espacement.
- * Les alias sémantiques (primary/neutral) se règlent dans app.config.ts.
- *
- * Exemple (à remplacer par l'identité visuelle définitive) :
- *
- * @theme {
- *   --font-sans: "Inter", system-ui, sans-serif;
- *   --radius-md: 0.5rem;
- *   // --color-brand-500: #10b981;  puis primary: 'brand' dans app.config.ts
- * }
- *
- * Overrides de composants Nuxt UI et styles sombres/clairs additionnels ci-dessous.
- */
+/* Polices auto-hébergées (fontsource) */
+@import "@fontsource-variable/fraunces";
+@import "@fontsource/ibm-plex-sans/400.css";
+@import "@fontsource/ibm-plex-sans/500.css";
+@import "@fontsource/ibm-plex-sans/600.css";
+@import "@fontsource/ibm-plex-mono/400.css";
+@import "@fontsource/ibm-plex-mono/500.css";
+
+@theme {
+  /* Typographie — Fraunces (titres/marque), IBM Plex Sans (UI), IBM Plex Mono (données) */
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Fraunces Variable", ui-serif, Georgia, serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* Couleur primaire « plume » (violet — cf. plume-design en mémoire) */
+  --color-plume-50: #F4F1FB;
+  --color-plume-100: #E9E3F7;
+  --color-plume-200: #D6CAF0;
+  --color-plume-300: #BBA8E6;
+  --color-plume-400: #9B87D9; /* accent sombre */
+  --color-plume-500: #7C5FD0;
+  --color-plume-600: #6E56C7; /* accent clair */
+  --color-plume-700: #5B44B0; /* lien clair */
+  --color-plume-800: #4A3890;
+  --color-plume-900: #3E3175;
+  --color-plume-950: #271E4D;
+}
+
+/* Fonds « atelier » exacts (cf. maquette validée) — surcouche des neutres Nuxt UI. */
+:root {
+  --ui-bg: #F6F4F2;
+  --ui-bg-muted: #F0EDEA;
+  --ui-bg-elevated: #FFFFFF;
+}
+.dark {
+  --ui-bg: #232027;
+  --ui-bg-muted: #2C2834;
+  --ui-bg-elevated: #2C2834;
+}
+
+/* Titres en serif éditoriale */
+h1, h2, h3, .font-display { font-family: var(--font-serif); }
