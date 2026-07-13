@@ -8,11 +8,10 @@ withDefaults(defineProps<{ size?: number }>(), { size: 24 })
     :style="{ fontSize: `${size}px` }"
   >
     <svg
-      :width="size * 0.86"
-      :height="size * 0.86"
       viewBox="0 0 24 24"
       fill="none"
       class="text-primary"
+      style="width: 0.9em; height: 0.9em"
       aria-hidden="true"
     >
       <path d="M20 4C11 6 6 12 5 20l2-1c1-6 5-11 13-13Z" fill="currentColor" />

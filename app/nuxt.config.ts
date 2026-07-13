@@ -10,9 +10,11 @@ export default defineNuxtConfig({
   css: ['~/assets/css/main.css'],
 
   // Thème sombre par défaut (clair disponible via bascule).
+  // classSuffix:'' -> la classe appliquée est `dark` (attendue par Tailwind/Nuxt UI).
   colorMode: {
     preference: 'dark',
     fallback: 'dark',
+    classSuffix: '',
   },
 
   i18n: {
