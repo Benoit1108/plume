@@ -32,8 +32,23 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      // URL de l'API Symfony (surchargeable par NUXT_PUBLIC_API_BASE).
-      apiBase: 'https://localhost:8443',
+      // Vide = même origine : en dev, le proxy Nitro (nitro.devProxy) relaie /api vers l'API
+      // (évite le certificat auto-signé côté navigateur + le CORS). En prod : URL de l'API.
+      apiBase: '',
+    },
+  },
+
+  // Dev : /api -> API Symfony (côté serveur Nuxt, ignore le cert auto-signé FrankenPHP).
+  // Cible surchargeable (ex. dans Docker : https://php/api).
+  $development: {
+    nitro: {
+      devProxy: {
+        '/api': {
+          target: process.env.NUXT_DEV_API_TARGET || 'https://localhost:8443/api',
+          changeOrigin: true,
+          secure: false,
+        },
+      },
     },
   },
 
