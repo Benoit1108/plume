@@ -32,7 +32,7 @@ function onSubmit(): void {
 
 <template>
   <form class="flex flex-col gap-3" @submit.prevent="onSubmit">
-    <div class="grid grid-cols-2 gap-3">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
       <div class="flex flex-col gap-1.5">
         <label class="text-sm font-medium">Nom complet</label>
         <UInput v-model="form.fullName" required class="w-full" />

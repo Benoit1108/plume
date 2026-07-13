@@ -52,58 +52,87 @@ const selectClass = 'text-sm rounded-md border border-default bg-default text-de
       <UInput v-model="q" icon="i-lucide-search" placeholder="Rechercher une organisation…" class="flex-1 min-w-48" />
     </div>
 
-    <div class="mt-4 overflow-x-auto border border-default rounded-xl bg-elevated/40">
-      <table class="w-full text-sm min-w-[640px]">
-        <thead>
-          <tr class="text-left text-[11px] uppercase tracking-wider text-dimmed">
-            <th class="px-4 py-3 font-semibold border-b border-default">Organisation</th>
-            <th class="px-4 py-3 font-semibold border-b border-default">Segments</th>
-            <th class="px-4 py-3 font-semibold border-b border-default">Langues</th>
-            <th class="px-4 py-3 font-semibold border-b border-default">Contacts</th>
-            <th class="px-4 py-3 font-semibold border-b border-default" />
-          </tr>
-        </thead>
-        <tbody>
-          <tr
-            v-for="org in organizations"
-            :key="org.id"
-            class="hover:bg-elevated cursor-pointer"
-            @click="navigateTo(`/organizations/${org.id}`)"
-          >
-            <td class="px-4 py-3 border-b border-default">
-              <div class="font-semibold">{{ org.name }}</div>
-              <div class="text-xs text-dimmed">{{ typeLabels[org.type] ?? org.type }}</div>
-            </td>
-            <td class="px-4 py-3 border-b border-default">
-              <div class="flex gap-1.5 flex-wrap">
+    <div class="mt-4">
+      <div v-if="status === 'pending'" class="py-12 text-center text-dimmed">Chargement…</div>
+
+      <div v-else-if="!organizations.length" class="py-12 text-center text-muted border border-default rounded-xl">
+        Aucune organisation. Créez votre première cible.
+      </div>
+
+      <template v-else>
+        <!-- Desktop : tableau -->
+        <div class="hidden sm:block overflow-x-auto border border-default rounded-xl bg-elevated/40">
+          <table class="w-full text-sm min-w-[640px]">
+            <thead>
+              <tr class="text-left text-[11px] uppercase tracking-wider text-dimmed">
+                <th class="px-4 py-3 font-semibold border-b border-default">Organisation</th>
+                <th class="px-4 py-3 font-semibold border-b border-default">Segments</th>
+                <th class="px-4 py-3 font-semibold border-b border-default">Langues</th>
+                <th class="px-4 py-3 font-semibold border-b border-default">Contacts</th>
+                <th class="px-4 py-3 font-semibold border-b border-default" />
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-for="org in organizations"
+                :key="org.id"
+                class="hover:bg-elevated cursor-pointer"
+                @click="navigateTo(`/organizations/${org.id}`)"
+              >
+                <td class="px-4 py-3 border-b border-default">
+                  <div class="font-semibold">{{ org.name }}</div>
+                  <div class="text-xs text-dimmed">{{ typeLabels[org.type] ?? org.type }}</div>
+                </td>
+                <td class="px-4 py-3 border-b border-default">
+                  <div class="flex gap-1.5 flex-wrap">
+                    <UBadge v-for="s in org.segments" :key="s" color="neutral" variant="soft" size="sm">
+                      {{ segmentLabels[s] ?? s }}
+                    </UBadge>
+                  </div>
+                </td>
+                <td class="px-4 py-3 border-b border-default">
+                  <div class="flex gap-1 flex-wrap">
+                    <LangStamp v-for="l in org.workingLanguages" :key="l" :code="l" />
+                  </div>
+                </td>
+                <td class="px-4 py-3 border-b border-default font-mono text-muted tabular-nums">
+                  {{ org.contacts?.length ?? 0 }}
+                </td>
+                <td class="px-4 py-3 border-b border-default text-right">
+                  <UIcon v-if="org.doNotContact" name="i-lucide-flag" class="text-error" />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Mobile : cartes -->
+        <ul class="sm:hidden flex flex-col gap-3">
+          <li v-for="org in organizations" :key="org.id">
+            <button
+              type="button"
+              class="w-full text-left border border-default rounded-xl p-4 bg-elevated/40 flex flex-col gap-2"
+              @click="navigateTo(`/organizations/${org.id}`)"
+            >
+              <div class="flex items-center gap-2">
+                <span class="font-semibold">{{ org.name }}</span>
+                <UIcon v-if="org.doNotContact" name="i-lucide-flag" class="text-error ml-auto shrink-0" />
+              </div>
+              <div class="text-xs text-dimmed">
+                {{ typeLabels[org.type] ?? org.type }} · {{ org.contacts?.length ?? 0 }} contact(s)
+              </div>
+              <div v-if="org.segments.length" class="flex gap-1.5 flex-wrap">
                 <UBadge v-for="s in org.segments" :key="s" color="neutral" variant="soft" size="sm">
                   {{ segmentLabels[s] ?? s }}
                 </UBadge>
               </div>
-            </td>
-            <td class="px-4 py-3 border-b border-default">
-              <div class="flex gap-1 flex-wrap">
+              <div v-if="org.workingLanguages.length" class="flex gap-1 flex-wrap">
                 <LangStamp v-for="l in org.workingLanguages" :key="l" :code="l" />
               </div>
-            </td>
-            <td class="px-4 py-3 border-b border-default font-mono text-muted tabular-nums">
-              {{ org.contacts?.length ?? 0 }}
-            </td>
-            <td class="px-4 py-3 border-b border-default text-right">
-              <UIcon v-if="org.doNotContact" name="i-lucide-flag" class="text-error" />
-            </td>
-          </tr>
-
-          <tr v-if="status !== 'pending' && !organizations.length">
-            <td colspan="5" class="px-4 py-12 text-center text-muted">
-              Aucune organisation. Créez votre première cible.
-            </td>
-          </tr>
-          <tr v-else-if="status === 'pending'">
-            <td colspan="5" class="px-4 py-12 text-center text-dimmed">Chargement…</td>
-          </tr>
-        </tbody>
-      </table>
+            </button>
+          </li>
+        </ul>
+      </template>
     </div>
   </UContainer>
 </template>

@@ -108,7 +108,7 @@ async function deleteContact(contactId: string): Promise<void> {
     <div v-else-if="!org" class="text-muted py-12">Organisation introuvable.</div>
 
     <template v-else>
-      <div v-if="!editing" class="flex items-start gap-4">
+      <div v-if="!editing" class="flex flex-col sm:flex-row sm:items-start gap-4">
         <div class="min-w-0">
           <div class="flex items-center gap-2 flex-wrap">
             <h1 class="font-serif text-3xl font-semibold">{{ org.name }}</h1>
@@ -137,7 +137,7 @@ async function deleteContact(contactId: string): Promise<void> {
           <p v-if="org.notes" class="mt-4 text-sm text-muted whitespace-pre-line">{{ org.notes }}</p>
         </div>
 
-        <div class="ml-auto flex gap-2 shrink-0">
+        <div class="flex gap-2 shrink-0 flex-wrap sm:ml-auto">
           <UButton color="neutral" variant="outline" size="sm" @click="toggleDoNotContact">
             {{ org.doNotContact ? 'Réautoriser' : 'Ne pas contacter' }}
           </UButton>
