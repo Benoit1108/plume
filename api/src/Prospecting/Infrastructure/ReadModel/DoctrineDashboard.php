@@ -14,6 +14,7 @@ use App\Prospecting\Domain\Lead\PipelineStatus;
 use App\Shared\Application\Clock;
 use App\Shared\Domain\ValueObject\Segment;
 use App\Shared\Infrastructure\Doctrine\Tenancy\TenantContext;
+use App\Shared\Infrastructure\Persistence\Doctrine\HydratesRows;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 
@@ -25,6 +26,8 @@ use Doctrine\DBAL\Connection;
  */
 final class DoctrineDashboard implements Dashboard
 {
+    use HydratesRows;
+
     private const OUTREACH_TYPES = ['contacted', 'followed_up'];
     private const WEEKS_SHOWN = 8;
 
@@ -38,8 +41,7 @@ final class DoctrineDashboard implements Dashboard
 
     public function view(): DashboardView
     {
-        $tenant = $this->tenantContext->get()
-            ?? throw new \LogicException('Dashboard queried without tenant in context — refusing to run an unscoped query.');
+        $tenant = $this->tenantContext->require();
         $tenantId = $tenant->toString();
 
         $profile = $this->profile->current();
@@ -193,13 +195,5 @@ final class DoctrineDashboard implements Dashboard
         }
 
         return $ordered;
-    }
-
-    /** @param array<string, mixed> $row */
-    private function int(array $row, string $key): int
-    {
-        $value = $row[$key] ?? null;
-
-        return is_numeric($value) ? (int) $value : 0;
     }
 }

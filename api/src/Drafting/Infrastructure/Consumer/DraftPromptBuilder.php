@@ -7,6 +7,7 @@ namespace App\Drafting\Infrastructure\Consumer;
 use App\Drafting\Application\DraftPrompt;
 use App\Drafting\Application\LeadContext;
 use App\Drafting\Domain\Draft\Event\DraftRequested;
+use App\Shared\Infrastructure\Persistence\Doctrine\HydratesRows;
 use Doctrine\DBAL\Connection;
 
 /**
@@ -16,6 +17,8 @@ use Doctrine\DBAL\Connection;
  */
 final class DraftPromptBuilder
 {
+    use HydratesRows;
+
     public function __construct(private readonly Connection $connection)
     {
     }
@@ -27,13 +30,13 @@ final class DraftPromptBuilder
             ['tenant' => $event->tenantId],
         );
 
-        $template = null;
+        $template = [];
         if (null !== $event->templateId) {
             // Gabarit supprimé entre-temps : on dégrade vers le squelette par défaut.
             $template = $this->connection->fetchAssociative(
                 'SELECT subject, body FROM template WHERE tenant_id = :tenant AND id = :id',
                 ['tenant' => $event->tenantId, 'id' => $event->templateId],
-            ) ?: null;
+            ) ?: [];
         }
 
         return new DraftPrompt(
@@ -44,19 +47,11 @@ final class DraftPromptBuilder
             organizationName: $context->organizationName,
             segment: $context->segment,
             contactName: $context->contactName,
-            bio: $this->text($profile ?: null, 'bio'),
-            specialties: $this->text($profile ?: null, 'specialties'),
-            signature: $this->text($profile ?: null, 'signature'),
-            templateSubject: $this->text($template, 'subject'),
-            templateBody: $this->text($template, 'body'),
+            bio: $this->blankToNull($profile ?: [], 'bio'),
+            specialties: $this->blankToNull($profile ?: [], 'specialties'),
+            signature: $this->blankToNull($profile ?: [], 'signature'),
+            templateSubject: $this->blankToNull($template, 'subject'),
+            templateBody: $this->blankToNull($template, 'body'),
         );
-    }
-
-    /** @param array<string, mixed>|null $row */
-    private function text(?array $row, string $key): ?string
-    {
-        $value = $row[$key] ?? null;
-
-        return \is_string($value) && '' !== trim($value) ? $value : null;
     }
 }

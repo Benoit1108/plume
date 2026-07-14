@@ -9,6 +9,7 @@ use App\Shared\Application\Command\Command;
 final class CompleteDraft implements Command
 {
     public function __construct(
+        public readonly string $tenantId,
         public readonly string $draftId,
         public readonly ?string $subject,
         public readonly string $body,

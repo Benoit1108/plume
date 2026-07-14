@@ -12,6 +12,7 @@ use App\Drafting\Domain\Draft\Event\DraftEdited;
 use App\Drafting\Domain\Draft\Event\DraftGenerated;
 use App\Drafting\Domain\Draft\Event\DraftRequested;
 use App\Drafting\Domain\Draft\Exception\DraftNotEditable;
+use App\Drafting\Domain\Draft\Exception\DraftNotGenerating;
 use App\Shared\Domain\Exception\InvalidValue;
 use App\Shared\Domain\ValueObject\LanguageCode;
 use App\Shared\Domain\ValueObject\TenantId;
@@ -98,6 +99,43 @@ final class DraftTest extends TestCase
 
         $this->expectException(DraftNotEditable::class);
         $draft->regenerate($this->now);
+    }
+
+    public function testRedeliveredCompletionNeverOverwritesAReviewedDraft(): void
+    {
+        // Messenger livre at-least-once : la seconde livraison arrive sur un READY.
+        $draft = $this->aDraft();
+        $draft->complete('Objet', 'Première génération.', $this->now);
+        $draft->edit('Objet relu', 'Corps relu par une humaine.', $this->now);
+
+        try {
+            $draft->complete('Objet', 'Seconde génération (redélivrance).', $this->now);
+            self::fail('Expected DraftNotGenerating.');
+        } catch (DraftNotGenerating) {
+        }
+
+        self::assertSame('Corps relu par une humaine.', $draft->body());
+        self::assertSame(DraftStatus::READY, $draft->status());
+    }
+
+    public function testLateFailureNeverDowngradesAReadyDraft(): void
+    {
+        $draft = $this->aDraft();
+        $draft->complete(null, 'Corps.', $this->now);
+
+        $this->expectException(DraftNotGenerating::class);
+        $draft->fail('generation_failed', $this->now);
+    }
+
+    public function testRegenerateReopensTheGenerationCycle(): void
+    {
+        $draft = $this->aDraft();
+        $draft->complete(null, 'Corps.', $this->now);
+        $draft->regenerate($this->now);
+
+        // Après regenerate, un nouveau complete est légitime.
+        $draft->complete(null, 'Nouveau corps.', $this->now);
+        self::assertSame('Nouveau corps.', $draft->body());
     }
 
     public function testEmptyGeneratedBodyIsRejected(): void

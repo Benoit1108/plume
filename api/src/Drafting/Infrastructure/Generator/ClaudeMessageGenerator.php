@@ -111,7 +111,9 @@ final class ClaudeMessageGenerator implements MessageGenerator
         if (1 === preg_match('/^(?:SUBJECT|OBJET)\s*:\s*(.+?)\R+(.*)$/su', $text, $matches)) {
             $body = trim($matches[2]);
             if ('' !== $body) {
-                return new GeneratedMessage(trim($matches[1]), $body);
+                // Colonne subject VARCHAR(255) : un sujet hors gabarit ne doit pas
+                // faire échouer la persistance (et donc partir en retry).
+                return new GeneratedMessage(mb_substr(trim($matches[1]), 0, 255), $body);
             }
         }
 

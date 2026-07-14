@@ -6,6 +6,7 @@ namespace App\Drafting\Application\Command\FailDraft;
 
 use App\Drafting\Domain\Draft\DraftId;
 use App\Drafting\Domain\Draft\DraftRepository;
+use App\Drafting\Domain\Draft\Exception\DraftNotFound;
 use App\Shared\Application\Clock;
 use App\Shared\Application\Command\CommandHandler;
 use App\Shared\Application\Event\EventBus;
@@ -22,6 +23,11 @@ final class FailDraftHandler implements CommandHandler
     public function __invoke(FailDraft $command): void
     {
         $draft = $this->drafts->get(DraftId::fromString($command->draftId));
+        // Ceinture-bretelles worker (filtre tenant inactif hors HTTP) : le tenant
+        // de la commande doit être celui du brouillon — sinon, introuvable.
+        if ($draft->tenantId()->toString() !== $command->tenantId) {
+            throw DraftNotFound::withId($draft->id());
+        }
         $draft->fail($command->reason, $this->clock->now());
         $this->drafts->save($draft);
         $this->eventBus->publish(...$draft->pullDomainEvents());

@@ -51,8 +51,9 @@ test: ## Lance PHPUnit (unitaires + fonctionnels — crée/migre la base de test
 phpstan: ## Analyse statique (niveau max)
 	$(PHP) vendor/bin/phpstan analyse --memory-limit=1G
 
-deptrac: ## Vérifie les frontières DDD (couches)
+deptrac: ## Vérifie les frontières DDD (couches + contextes)
 	$(PHP) vendor/bin/deptrac analyse --no-progress
+	$(PHP) vendor/bin/deptrac analyse --no-progress --config-file=deptrac-contexts.yaml
 
 cs: ## Vérifie le style (dry-run)
 	$(PHP) vendor/bin/php-cs-fixer fix --dry-run --diff

@@ -23,4 +23,15 @@ final class TenantContext
     {
         return $this->tenantId;
     }
+
+    /**
+     * FAIL-CLOSED : à utiliser par tout lecteur/écrivain SQL direct — jamais de
+     * requête non scopée par accident. Hors HTTP (worker, CLI), le tenant doit
+     * venir de la commande ou de l'event, pas d'ici.
+     */
+    public function require(): TenantId
+    {
+        return $this->tenantId
+            ?? throw new \LogicException('No tenant in context — refusing to run an unscoped operation.');
+    }
 }

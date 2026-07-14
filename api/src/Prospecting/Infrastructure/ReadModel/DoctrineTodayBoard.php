@@ -34,8 +34,7 @@ final class DoctrineTodayBoard implements TodayBoard
 
     public function view(): TodayView
     {
-        $tenant = $this->tenantContext->get()
-            ?? throw new \LogicException('Today board queried without tenant in context — refusing to run an unscoped query.');
+        $tenant = $this->tenantContext->require();
         $tenantId = $tenant->toString();
 
         $profile = $this->profile->current();

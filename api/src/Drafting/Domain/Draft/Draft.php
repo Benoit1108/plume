@@ -10,6 +10,7 @@ use App\Drafting\Domain\Draft\Event\DraftFailed;
 use App\Drafting\Domain\Draft\Event\DraftGenerated;
 use App\Drafting\Domain\Draft\Event\DraftRequested;
 use App\Drafting\Domain\Draft\Exception\DraftNotEditable;
+use App\Drafting\Domain\Draft\Exception\DraftNotGenerating;
 use App\Shared\Domain\AggregateRoot;
 use App\Shared\Domain\Exception\InvalidValue;
 use App\Shared\Domain\ValueObject\LanguageCode;
@@ -84,6 +85,11 @@ final class Draft extends AggregateRoot
     /** Le générateur a répondu : le brouillon devient éditable. */
     public function complete(?string $subject, string $body, \DateTimeImmutable $now): void
     {
+        // Garde d'état : Messenger livre at-least-once — une redélivrance ne doit
+        // ni écraser un brouillon déjà relu, ni dupliquer l'entrée du journal.
+        if (DraftStatus::GENERATING !== $this->status) {
+            throw DraftNotGenerating::inStatus($this->status);
+        }
         if ('' === trim($body)) {
             throw InvalidValue::because('A generated draft cannot be empty.');
         }
@@ -99,6 +105,10 @@ final class Draft extends AggregateRoot
     /** Échec de génération : raison AFFICHABLE (jamais un message interne). */
     public function fail(string $reason, \DateTimeImmutable $now): void
     {
+        // Même garde : un échec retardataire ne rétrograde jamais un brouillon READY.
+        if (DraftStatus::GENERATING !== $this->status) {
+            throw DraftNotGenerating::inStatus($this->status);
+        }
         $this->status = DraftStatus::FAILED;
         $this->failureReason = $reason;
         $this->updatedAt = $now;

@@ -6,6 +6,7 @@ namespace App\Prospecting\Infrastructure\Gateway;
 
 use App\Prospecting\Application\OrganizationGateway;
 use App\Shared\Infrastructure\Doctrine\Tenancy\TenantContext;
+use App\Shared\Infrastructure\Persistence\Doctrine\HydratesRows;
 use Doctrine\DBAL\Connection;
 
 /**
@@ -14,6 +15,8 @@ use Doctrine\DBAL\Connection;
  */
 final class DirectoryOrganizationGateway implements OrganizationGateway
 {
+    use HydratesRows;
+
     public function __construct(
         private readonly Connection $connection,
         private readonly TenantContext $tenantContext,
@@ -54,17 +57,11 @@ final class DirectoryOrganizationGateway implements OrganizationGateway
     /** @return array<string, mixed>|false */
     private function fetchRow(string $organizationId): array|false
     {
-        $tenant = $this->tenantContext->get()
-            ?? throw new \LogicException('Organization gateway queried without tenant in context — refusing to run an unscoped query.');
+        $tenant = $this->tenantContext->require();
 
         return $this->connection->fetchAssociative(
             'SELECT do_not_contact, contacts FROM organization WHERE tenant_id = :tenant AND id = :id',
             ['tenant' => $tenant->toString(), 'id' => $organizationId],
         );
-    }
-
-    private function bool(mixed $value): bool
-    {
-        return true === $value || 't' === $value || '1' === $value || 1 === $value;
     }
 }

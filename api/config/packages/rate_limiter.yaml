@@ -6,3 +6,10 @@ framework:
             policy: sliding_window
             limit: 10
             interval: '15 minutes'
+        # Génération IA (drafts) : chaque appel peut coûter de l'argent (API Anthropic)
+        # et occuper le worker ~30 s. 30 générations / heure par tenant : large pour un
+        # usage réel, borne la facture et protège les projections des autres tenants.
+        drafting_generation:
+            policy: sliding_window
+            limit: 30
+            interval: '1 hour'

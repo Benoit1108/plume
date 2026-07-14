@@ -80,11 +80,6 @@ final class DoctrineLeadSearch implements LeadSearch
 
     private function requireTenant(): string
     {
-        $tenant = $this->tenantContext->get();
-        if (null === $tenant) {
-            throw new \LogicException('Lead read model queried without tenant in context — refusing to run an unscoped query.');
-        }
-
-        return $tenant->toString();
+        return $this->tenantContext->require()->toString();
     }
 }

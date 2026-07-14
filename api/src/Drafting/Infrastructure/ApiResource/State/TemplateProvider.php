@@ -35,7 +35,7 @@ final class TemplateProvider implements ProviderInterface
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
         if ($operation instanceof CollectionOperationInterface) {
-            $tenant = $this->tenantContext->get() ?? throw new \LogicException('No tenant in context.');
+            $tenant = $this->tenantContext->require();
             $this->commandBus->dispatch(new SeedDefaultTemplates($tenant->toString()));
 
             /** @var TemplateView[] $views */

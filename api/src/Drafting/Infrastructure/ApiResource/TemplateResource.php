@@ -63,7 +63,9 @@ final class TemplateResource
     #[Groups(['template:read', 'template:write'])]
     public ?string $subject = null;
 
+    /** Borné : le gabarit part intégralement dans le prompt de génération. */
     #[Assert\NotBlank]
+    #[Assert\Length(max: 20000)]
     #[Groups(['template:read', 'template:write'])]
     public string $body = '';
 }

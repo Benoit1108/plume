@@ -6,6 +6,7 @@ namespace App\Drafting\Infrastructure\Gateway;
 
 use App\Drafting\Application\LeadContext;
 use App\Drafting\Application\LeadGateway;
+use App\Shared\Infrastructure\Persistence\Doctrine\HydratesRows;
 use Doctrine\DBAL\Connection;
 
 /**
@@ -15,6 +16,8 @@ use Doctrine\DBAL\Connection;
  */
 final class DoctrineLeadGateway implements LeadGateway
 {
+    use HydratesRows;
+
     public function __construct(private readonly Connection $connection)
     {
     }
@@ -55,18 +58,5 @@ final class DoctrineLeadGateway implements LeadGateway
             contactName: $contactName,
             contactAllowed: !$this->bool($row['do_not_contact'] ?? true) && !$contactBlocked,
         );
-    }
-
-    /** @param array<string, mixed> $row */
-    private function str(array $row, string $key): string
-    {
-        $value = $row[$key] ?? null;
-
-        return \is_string($value) ? $value : '';
-    }
-
-    private function bool(mixed $value): bool
-    {
-        return true === $value || 't' === $value || '1' === $value || 1 === $value;
     }
 }

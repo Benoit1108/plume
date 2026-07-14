@@ -1,0 +1,36 @@
+# Frontières INTER-CONTEXTES (complète deptrac.yaml qui vérifie les couches).
+# Règle CLAUDE.md outillée : le cœur d'un contexte (Domain + Application) ne
+# dépend que de lui-même et du noyau partagé — jamais d'un autre contexte.
+# L'Infrastructure reste hors périmètre ici : les adaptateurs (gateways SQL,
+# projections cross-contexte par event, Links API Platform) y sont légitimes
+# et déjà contraints par les couches.
+deptrac:
+  paths:
+    - ./src
+  layers:
+    - name: DirectoryCore
+      collectors:
+        - type: classNameRegex
+          value: '#^App\\Directory\\(Domain|Application)\\#'
+    - name: ProspectingCore
+      collectors:
+        - type: classNameRegex
+          value: '#^App\\Prospecting\\(Domain|Application)\\#'
+    - name: DraftingCore
+      collectors:
+        - type: classNameRegex
+          value: '#^App\\Drafting\\(Domain|Application)\\#'
+    - name: AccountCore
+      collectors:
+        - type: classNameRegex
+          value: '#^App\\Account\\(Domain|Application)\\#'
+    - name: SharedKernel
+      collectors:
+        - type: classNameRegex
+          value: '#^App\\Shared\\(Domain|Application)\\#'
+  ruleset:
+    DirectoryCore: [SharedKernel]
+    ProspectingCore: [SharedKernel]
+    DraftingCore: [SharedKernel]
+    AccountCore: [SharedKernel]
+    SharedKernel: ~

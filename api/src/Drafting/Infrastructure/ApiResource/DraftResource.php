@@ -79,6 +79,8 @@ final class DraftResource
     #[Groups(['draft:read', 'draft:create'])]
     public string $targetLanguage = '';
 
+    #[Assert\Length(max: 36)]
+    #[Assert\Regex(pattern: '/^[0-9a-fA-F-]{36}$/', message: 'Identifiant de modèle invalide.')]
     #[Groups(['draft:read', 'draft:create'])]
     public ?string $templateId = null;
 
@@ -86,6 +88,8 @@ final class DraftResource
     #[Groups(['draft:read', 'draft:edit'])]
     public ?string $subject = null;
 
+    /** Borné : le corps est stocké en TEXT et peut repartir dans un prompt. */
+    #[Assert\Length(max: 20000)]
     #[Groups(['draft:read', 'draft:edit'])]
     public string $body = '';
 

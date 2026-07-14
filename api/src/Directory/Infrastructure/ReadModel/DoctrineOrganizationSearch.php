@@ -11,6 +11,7 @@ use App\Directory\Application\ReadModel\OrganizationView;
 use App\Directory\Domain\Organization\Exception\OrganizationNotFound;
 use App\Directory\Domain\Organization\OrganizationId;
 use App\Shared\Infrastructure\Doctrine\Tenancy\TenantContext;
+use App\Shared\Infrastructure\Persistence\Doctrine\HydratesRows;
 use Doctrine\DBAL\Connection;
 
 /**
@@ -20,6 +21,8 @@ use Doctrine\DBAL\Connection;
  */
 final class DoctrineOrganizationSearch implements OrganizationSearch
 {
+    use HydratesRows;
+
     private const COLUMNS = 'id, name, type, website, country, working_languages, segments, notes, do_not_contact, contacts';
 
     public function __construct(
@@ -87,12 +90,7 @@ final class DoctrineOrganizationSearch implements OrganizationSearch
 
     private function requireTenant(): string
     {
-        $tenant = $this->tenantContext->get();
-        if (null === $tenant) {
-            throw new \LogicException('Organization read model queried without tenant in context — refusing to run an unscoped query.');
-        }
-
-        return $tenant->toString();
+        return $this->tenantContext->require()->toString();
     }
 
     /** @param array<string, mixed> $row */
@@ -107,7 +105,7 @@ final class DoctrineOrganizationSearch implements OrganizationSearch
             array_values(array_filter($this->jsonList($row, 'working_languages'), is_string(...))),
             array_values(array_filter($this->jsonList($row, 'segments'), is_string(...))),
             $this->strOrNull($row, 'notes'),
-            $this->bool($row, 'do_not_contact'),
+            $this->bool($row['do_not_contact'] ?? false),
             $this->contacts($row),
         );
     }
@@ -153,30 +151,5 @@ final class DoctrineOrganizationSearch implements OrganizationSearch
         $decoded = json_decode($raw, true);
 
         return \is_array($decoded) ? array_values($decoded) : [];
-    }
-
-    /** @param array<string, mixed> $row */
-    private function str(array $row, string $key): string
-    {
-        $value = $row[$key] ?? null;
-
-        return \is_string($value) ? $value : '';
-    }
-
-    /** @param array<string, mixed> $row */
-    private function strOrNull(array $row, string $key): ?string
-    {
-        $value = $row[$key] ?? null;
-
-        return \is_string($value) && '' !== $value ? $value : null;
-    }
-
-    /** @param array<string, mixed> $row */
-    private function bool(array $row, string $key): bool
-    {
-        // pdo_pgsql peut retourner bool natif ou 't'/'f'/'1' selon la config.
-        $value = $row[$key] ?? false;
-
-        return true === $value || 't' === $value || '1' === $value || 1 === $value;
     }
 }

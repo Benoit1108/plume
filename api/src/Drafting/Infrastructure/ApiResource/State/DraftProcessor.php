@@ -47,7 +47,7 @@ final class DraftProcessor implements ProcessorInterface
 
         if ($operation instanceof Post && isset($uriVariables['leadId'])) {
             // POST /leads/{leadId}/drafts : demande de génération (asynchrone).
-            $tenant = $this->tenantContext->get() ?? throw new \LogicException('No tenant in context.');
+            $tenant = $this->tenantContext->require();
             $id = $this->ids->generate();
             $this->commandBus->dispatch(new GenerateDraft(
                 $id,

@@ -20,8 +20,7 @@ final class DoctrineLeadTimeline implements LeadTimeline
 
     public function forLead(string $leadId): array
     {
-        $tenant = $this->tenantContext->get()
-            ?? throw new \LogicException('Lead timeline queried without tenant in context — refusing to run an unscoped query.');
+        $tenant = $this->tenantContext->require();
 
         $rows = $this->connection->fetchAllAssociative(
             'SELECT id, type, payload, occurred_on FROM interaction

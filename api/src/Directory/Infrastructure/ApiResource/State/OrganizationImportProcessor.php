@@ -29,7 +29,7 @@ final class OrganizationImportProcessor implements ProcessorInterface
 
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): OrganizationImportResource
     {
-        $tenant = $this->tenantContext->get() ?? throw new \LogicException('No tenant in context.');
+        $tenant = $this->tenantContext->require();
 
         try {
             $parsed = $this->parser->parse($data->content, $data->delimiter);

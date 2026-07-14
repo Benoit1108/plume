@@ -32,7 +32,7 @@ final class LeadWriteProcessor implements ProcessorInterface
 
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): LeadResource
     {
-        $tenant = $this->tenantContext->get() ?? throw new \LogicException('No tenant in context.');
+        $tenant = $this->tenantContext->require();
 
         $id = $this->ids->generate();
         $this->commandBus->dispatch(new CreateLead(

@@ -9,11 +9,14 @@ use App\Drafting\Application\ReadModel\DraftView;
 use App\Drafting\Domain\Draft\DraftId;
 use App\Drafting\Domain\Draft\Exception\DraftNotFound;
 use App\Shared\Infrastructure\Doctrine\Tenancy\TenantContext;
+use App\Shared\Infrastructure\Persistence\Doctrine\HydratesRows;
 use Doctrine\DBAL\Connection;
 
 /** Lecture des brouillons (SQL direct, FAIL-CLOSED tenant — ADR-0013). */
 final class DoctrineDraftSearch implements DraftSearch
 {
+    use HydratesRows;
+
     private const string SELECT = 'SELECT id, lead_id, type, target_language, template_id,
         subject, body, status, failure_reason, created_at, updated_at FROM draft';
 
@@ -64,26 +67,9 @@ final class DoctrineDraftSearch implements DraftSearch
         );
     }
 
-    /** @param array<string, mixed> $row */
-    private function str(array $row, string $key): string
-    {
-        $value = $row[$key] ?? null;
-
-        return \is_string($value) ? $value : '';
-    }
-
-    /** @param array<string, mixed> $row */
-    private function strOrNull(array $row, string $key): ?string
-    {
-        $value = $row[$key] ?? null;
-
-        return \is_string($value) && '' !== $value ? $value : null;
-    }
-
     private function tenant(): string
     {
-        $tenant = $this->tenantContext->get()
-            ?? throw new \LogicException('Draft search queried without tenant in context — refusing to run an unscoped query.');
+        $tenant = $this->tenantContext->require();
 
         return $tenant->toString();
     }

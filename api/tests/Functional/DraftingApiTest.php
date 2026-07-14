@@ -324,5 +324,17 @@ final class DraftingApiTest extends ApiTestCase
 
         $client->request('GET', sprintf('/api/v1/templates/%s', $idsA[0]), ['auth_bearer' => $tokenB]);
         self::assertResponseStatusCodeSame(404);
+
+        // ÉCRITURES cross-tenant : refusées aussi (pas seulement la lecture).
+        $this->patch($client, $tokenB, sprintf('/api/v1/drafts/%s', $draft['id']), ['body' => 'piraté']);
+        self::assertResponseStatusCodeSame(404);
+        $client->request('DELETE', sprintf('/api/v1/drafts/%s', $draft['id']), ['auth_bearer' => $tokenB]);
+        self::assertResponseStatusCodeSame(404);
+        $this->patch($client, $tokenB, sprintf('/api/v1/templates/%s', $idsA[0]), ['name' => 'piraté']);
+        self::assertResponseStatusCodeSame(404);
+
+        // Rien n'a bougé côté tenant A.
+        $intact = $client->request('GET', sprintf('/api/v1/drafts/%s', $draft['id']), ['auth_bearer' => $tokenA])->toArray();
+        self::assertNotSame('piraté', $intact['body'] ?? null);
     }
 }

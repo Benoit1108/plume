@@ -57,7 +57,7 @@ final class TemplateProcessor implements ProcessorInterface
                 $data->body,
             ));
         } else {
-            $tenant = $this->tenantContext->get() ?? throw new \LogicException('No tenant in context.');
+            $tenant = $this->tenantContext->require();
             $id = $this->ids->generate();
             $this->commandBus->dispatch(new CreateTemplate(
                 $id,

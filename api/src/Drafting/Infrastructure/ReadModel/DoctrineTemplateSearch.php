@@ -9,11 +9,14 @@ use App\Drafting\Application\ReadModel\TemplateView;
 use App\Drafting\Domain\Template\Exception\TemplateNotFound;
 use App\Drafting\Domain\Template\TemplateId;
 use App\Shared\Infrastructure\Doctrine\Tenancy\TenantContext;
+use App\Shared\Infrastructure\Persistence\Doctrine\HydratesRows;
 use Doctrine\DBAL\Connection;
 
 /** Lecture des gabarits (SQL direct, FAIL-CLOSED tenant — ADR-0013). */
 final class DoctrineTemplateSearch implements TemplateSearch
 {
+    use HydratesRows;
+
     private const string SELECT = 'SELECT id, name, type, segment, language, subject, body FROM template';
 
     public function __construct(
@@ -54,23 +57,14 @@ final class DoctrineTemplateSearch implements TemplateSearch
             type: $this->str($row, 'type'),
             segment: $this->str($row, 'segment'),
             language: $this->str($row, 'language'),
-            subject: \is_string($row['subject'] ?? null) && '' !== $row['subject'] ? $row['subject'] : null,
+            subject: $this->strOrNull($row, 'subject'),
             body: $this->str($row, 'body'),
         );
     }
 
-    /** @param array<string, mixed> $row */
-    private function str(array $row, string $key): string
-    {
-        $value = $row[$key] ?? null;
-
-        return \is_string($value) ? $value : '';
-    }
-
     private function tenant(): string
     {
-        $tenant = $this->tenantContext->get()
-            ?? throw new \LogicException('Template search queried without tenant in context — refusing to run an unscoped query.');
+        $tenant = $this->tenantContext->require();
 
         return $tenant->toString();
     }

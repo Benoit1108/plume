@@ -6,10 +6,13 @@ namespace App\Prospecting\Infrastructure\ReadModel;
 
 use App\Prospecting\Application\ReadModel\LeadView;
 use App\Prospecting\Domain\Lead\PipelineStatus;
+use App\Shared\Infrastructure\Persistence\Doctrine\HydratesRows;
 
 /** Hydratation ligne SQL → LeadView, partagée par les read models du pipeline. */
 final class LeadViewMapper
 {
+    use HydratesRows;
+
     public const COLUMNS = 'l.id, l.organization_id, l.contact_id, l.language_pair, l.source, l.priority, l.segment, l.status, l.created_at, l.last_contacted_at, l.last_reply_at, l.next_follow_up_at, l.next_follow_up_label, o.name AS organization_name';
     public const FROM = 'FROM lead l LEFT JOIN organization o ON o.id = l.organization_id AND o.tenant_id = l.tenant_id';
 
@@ -67,29 +70,5 @@ final class LeadViewMapper
         }
 
         return array_values(array_unique($actions));
-    }
-
-    /** @param array<string, mixed> $row */
-    private function str(array $row, string $key): string
-    {
-        $value = $row[$key] ?? null;
-
-        return \is_string($value) ? $value : '';
-    }
-
-    /** @param array<string, mixed> $row */
-    private function strOrNull(array $row, string $key): ?string
-    {
-        $value = $row[$key] ?? null;
-
-        return \is_string($value) && '' !== $value ? $value : null;
-    }
-
-    /** @param array<string, mixed> $row */
-    private function date(array $row, string $key): ?\DateTimeImmutable
-    {
-        $value = $row[$key] ?? null;
-
-        return \is_string($value) && '' !== $value ? new \DateTimeImmutable($value) : null;
     }
 }
