@@ -33,4 +33,16 @@ describe('useToday / useProfile', () => {
     expect(options.body.weeklyGoal).toBe(8)
     expect(options.headers['Content-Type']).toBe('application/merge-patch+json')
   })
+
+  it('profile.update patch la présentation complète (bio, spécialités, signature)', async () => {
+    apiMock.mockResolvedValue({ weeklyGoal: 5, timezone: 'Europe/Paris', bio: 'Bio.' })
+
+    await useProfile().update({ weeklyGoal: 5, bio: 'Bio.', specialties: null, signature: 'Marie' })
+
+    const [path, options] = apiMock.mock.calls[0] as [string, { method: string, body: Record<string, unknown>, headers: Record<string, string> }]
+    expect(path).toBe('/api/v1/profile')
+    expect(options.method).toBe('PATCH')
+    expect(options.headers['Content-Type']).toBe('application/merge-patch+json')
+    expect(options.body).toEqual({ weeklyGoal: 5, bio: 'Bio.', specialties: null, signature: 'Marie' })
+  })
 })

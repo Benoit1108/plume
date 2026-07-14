@@ -5,7 +5,6 @@ const { t, locale } = useI18n()
 const { pairLabel, priorityLabel } = useLeadLabels()
 const todayApi = useToday()
 const leadsApi = useLeads()
-const profileApi = useProfile()
 const toast = useToast()
 
 const { data: board, refresh, status } = await useAsyncData<Today | null>(
@@ -19,32 +18,6 @@ const progress = computed(() => {
   if (!board.value) return 0
   return Math.min(100, Math.round((board.value.weeklyDone / Math.max(1, board.value.weeklyTarget)) * 100))
 })
-
-// Objectif éditable (modale).
-const editingGoal = ref(false)
-const goalDraft = ref(5)
-const savingGoal = ref(false)
-
-function openGoalEditor(): void {
-  goalDraft.value = board.value?.weeklyTarget ?? 5
-  editingGoal.value = true
-}
-
-async function saveGoal(): Promise<void> {
-  savingGoal.value = true
-  try {
-    await profileApi.updateWeeklyGoal(goalDraft.value)
-    editingGoal.value = false
-    await refresh()
-    toast.add({ title: t('directory.toasts.updated'), color: 'success' })
-  }
-  catch {
-    toast.add({ title: t('common.error'), color: 'error' })
-  }
-  finally {
-    savingGoal.value = false
-  }
-}
 
 // Actions rapides.
 const actingOn = ref<string | null>(null)
@@ -100,7 +73,7 @@ function isOverdue(lead: Lead): boolean {
             color="neutral"
             icon="i-lucide-pencil"
             :aria-label="t('today.goal.edit')"
-            @click="openGoalEditor"
+            to="/settings"
           />
         </div>
         <UProgress :model-value="progress" class="mt-3" :aria-label="t('today.goal.title')" />
@@ -176,21 +149,6 @@ function isOverdue(lead: Lead): boolean {
           </li>
         </ul>
       </section>
-
-      <!-- Modale objectif -->
-      <UModal v-model:open="editingGoal" :title="t('today.goal.edit')" :description="t('today.goal.hint')">
-        <template #body>
-          <UFormField :label="t('today.goal.goalLabel')">
-            <UInput v-model.number="goalDraft" type="number" min="1" max="99" class="w-full" />
-          </UFormField>
-        </template>
-        <template #footer>
-          <div class="flex gap-2 justify-end w-full">
-            <UButton color="neutral" variant="ghost" @click="() => { editingGoal = false }">{{ t('actions.cancel') }}</UButton>
-            <UButton :loading="savingGoal" @click="saveGoal">{{ t('actions.save') }}</UButton>
-          </div>
-        </template>
-      </UModal>
     </template>
   </UContainer>
 </template>

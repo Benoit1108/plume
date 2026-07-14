@@ -31,6 +31,7 @@ export type InteractionType =
   | 'created' | 'contacted' | 'reply' | 'sample_test' | 'won' | 'lost'
   | 'paused' | 'resumed' | 'note'
   | 'follow_up_scheduled' | 'followed_up' | 'follow_up_cancelled'
+  | 'draft_generated'
 
 export interface Interaction {
   id: string
@@ -50,4 +51,7 @@ export interface Today {
 export interface Profile {
   weeklyGoal: number
   timezone: string
+  bio?: string | null
+  specialties?: string | null
+  signature?: string | null
 }

@@ -82,6 +82,20 @@ Le vocabulaire métier ci-dessous est **contractuel** et reste en **français** 
 | Démarchage interdit (RGPD) | `OrganizationNotContactable` — vérifié via le port `OrganizationGateway` |
 | Journal d'interactions | table `interaction` (projection append-only des events, idempotente par `event_id`) |
 
+### Rédaction assistée — `Draft` / `Template` (M1.4)
+| Métier (FR) | Code (EN) |
+|---|---|
+| Brouillon (agrégat) | `Draft` : type, langue cible, sujet?, corps, statut `GENERATING` \| `READY` \| `FAILED` — **draft-first**, jamais d'envoi en M1 |
+| Type de message | `DraftType` : `APPLICATION_EMAIL` (candidature), `COVER_LETTER` (lettre de motivation), `FOLLOW_UP_EMAIL` (relance) |
+| Modèle / gabarit (agrégat) | `Template` : nom, type, segment, langue, variables `{{contact}}` `{{organisation}}` `{{langues}}` `{{bio}}` `{{specialites}}` `{{signature}}` — 3 seedés à la première utilisation |
+| Port de génération | `MessageGenerator` — adaptateurs `CannedMessageGenerator` (défaut sans clé, coût zéro) / `ClaudeMessageGenerator` (ACL Anthropic, env `ANTHROPIC_API_KEY` + `DRAFTING_MODEL`) |
+| Matière du prompt | `DraftPrompt` (profil + cible + piste + gabarit) assemblé par `DraftPromptBuilder` (worker, tenant explicite) |
+| Frontière vers la Piste | port `LeadGateway` (tenant **explicite** : utilisable depuis le worker) |
+| Génération interdite (RGPD) | `DraftingNotAllowed` (409) — re-vérifiée par le worker (`FailDraft` code `contact_not_allowed`) |
+| Édition hors READY | `DraftNotEditable` (409) |
+| Raison d'échec affichable | code stable (`generation_failed`, `lead_unavailable`, `contact_not_allowed`) traduit côté front (`drafts.failures.*`) |
+| Présentation du profil | `Profile.changePresentation()` : `bio`, `specialties`, `signature` (Account, M1.4) |
+
 ### Prospection — Relance (`FollowUp`, M1.3)
 | Métier (FR) | Code (EN) |
 |---|---|

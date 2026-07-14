@@ -20,7 +20,8 @@
     "today": "Today",
     "leads": "Leads",
     "directory": "Directory",
-    "templates": "Templates"
+    "templates": "Templates",
+    "settings": "Settings"
   },
   "actions": {
     "save": "Save",
@@ -193,7 +194,8 @@
       "note": "Note",
       "follow_up_scheduled": "Follow-up scheduled",
       "followed_up": "Follow-up done",
-      "follow_up_cancelled": "Follow-up cancelled"
+      "follow_up_cancelled": "Follow-up cancelled",
+      "draft_generated": "Draft generated"
     },
     "new": {
       "title": "New lead",
@@ -245,6 +247,102 @@
       "edit": "Edit goal",
       "goalLabel": "Outreach actions per week",
       "hint": "One action = a contact or a follow-up done."
+    }
+  },
+  "drafts": {
+    "title": "Drafts",
+    "generate": "Generate a message",
+    "empty": "No draft for this lead yet. Generate a first message — you will always review it before sending.",
+    "generating": "Generating…",
+    "draftFirst": "Always review before sending — nothing is sent from here.",
+    "types": {
+      "APPLICATION_EMAIL": "Application email",
+      "COVER_LETTER": "Cover letter",
+      "FOLLOW_UP_EMAIL": "Follow-up email"
+    },
+    "statuses": {
+      "GENERATING": "Generating",
+      "READY": "Ready to review",
+      "FAILED": "Failed"
+    },
+    "failures": {
+      "generation_failed": "Generation failed. Try again with “Regenerate”.",
+      "lead_unavailable": "This lead is no longer available.",
+      "contact_not_allowed": "This organization asked not to be contacted."
+    },
+    "modal": {
+      "title": "Generate a draft",
+      "description": "Personalized from your profile and the target; always reviewed before sending.",
+      "typeLabel": "Message type",
+      "languageLabel": "Message language",
+      "languageHint": "The prospect’s language, not the interface language.",
+      "templateLabel": "Template (optional)",
+      "noTemplate": "No template",
+      "submit": "Generate"
+    },
+    "editor": {
+      "title": "Review draft",
+      "subjectLabel": "Subject",
+      "bodyLabel": "Message",
+      "copy": "Copy",
+      "regenerate": "Regenerate",
+      "confirmRegenerateTitle": "Regenerate this draft?",
+      "confirmRegenerateBody": "The current content (including your edits) will be replaced.",
+      "confirmDeleteTitle": "Delete this draft?",
+      "confirmDeleteBody": "The draft will be permanently deleted."
+    },
+    "toasts": {
+      "requested": "Generation started",
+      "saved": "Draft saved",
+      "copied": "Copied to clipboard",
+      "copyFailed": "Could not copy — select the text manually.",
+      "deleted": "Draft deleted"
+    }
+  },
+  "templates": {
+    "eyebrow": "Assisted drafting",
+    "title": "Templates",
+    "intro": "Reusable canvases for generation. Variables:",
+    "new": "New template",
+    "empty": "No template. Create one or reload the page to restore the starter templates.",
+    "form": {
+      "createTitle": "New template",
+      "editTitle": "Edit template",
+      "nameLabel": "Name",
+      "typeLabel": "Message type",
+      "segmentLabel": "Segment",
+      "languageLabel": "Language",
+      "subjectLabel": "Subject (optional)",
+      "bodyLabel": "Body"
+    },
+    "confirmDeleteTitle": "Delete “{name}”?",
+    "confirmDeleteBody": "The template will be permanently deleted. Already generated drafts are kept.",
+    "toasts": {
+      "created": "Template created",
+      "updated": "Template saved",
+      "deleted": "Template deleted"
+    }
+  },
+  "settings": {
+    "eyebrow": "Profile",
+    "title": "Settings",
+    "goal": {
+      "title": "Weekly goal",
+      "label": "Prospecting actions per week",
+      "hint": "One action = one contact or one follow-up done."
+    },
+    "presentation": {
+      "title": "Presentation",
+      "intro": "The raw material of generated drafts — the more precise, the better the writing.",
+      "bioLabel": "Bio",
+      "bioHint": "Who you are, in a few sentences (background, language pairs).",
+      "specialtiesLabel": "Specialties",
+      "specialtiesHint": "Fields and genres (children’s publishing, subtitling, technical…).",
+      "signatureLabel": "Signature",
+      "signatureHint": "As it will appear at the bottom of your messages."
+    },
+    "toasts": {
+      "saved": "Settings saved"
     }
   }
 }

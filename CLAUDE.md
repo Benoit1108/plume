@@ -79,5 +79,7 @@ Créer un utilisateur local : `docker compose exec php php bin/console app:user:
 
 ## État actuel
 
-**M0 (fondations) et M1.1 (Répertoire : API + écrans + import CSV) livrés**, revue de santé
-appliquée (`docs/reviews/`). Prochaine étape : **M1.2 — pipeline Lead** (voir `docs/ROADMAP.md`).
+**M0 (fondations), M1.1 (Répertoire), M1.2 (pipeline Piste), M1.3 (relances & « Aujourd'hui »)
+et M1.4 (rédaction assistée — contexte `Drafting`, canned par défaut / Claude par env) livrés**,
+revue de santé appliquée (`docs/reviews/`). Prochaine étape : **M1.5 — tableau de bord**, puis
+**revue de santé fin M1** (voir `docs/ROADMAP.md`).

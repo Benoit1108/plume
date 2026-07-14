@@ -20,7 +20,8 @@
     "today": "Aujourd'hui",
     "leads": "Pistes",
     "directory": "Répertoire",
-    "templates": "Modèles"
+    "templates": "Modèles",
+    "settings": "Réglages"
   },
   "actions": {
     "save": "Enregistrer",
@@ -193,7 +194,8 @@
       "note": "Note",
       "follow_up_scheduled": "Relance planifiée",
       "followed_up": "Relance faite",
-      "follow_up_cancelled": "Relance annulée"
+      "follow_up_cancelled": "Relance annulée",
+      "draft_generated": "Brouillon généré"
     },
     "new": {
       "title": "Nouvelle piste",
@@ -245,6 +247,102 @@
       "edit": "Modifier l'objectif",
       "goalLabel": "Actes de démarchage par semaine",
       "hint": "Un acte = un contact ou une relance faite."
+    }
+  },
+  "drafts": {
+    "title": "Brouillons",
+    "generate": "Générer un message",
+    "empty": "Aucun brouillon pour cette piste. Générez un premier message : il restera à relire avant tout envoi.",
+    "generating": "Génération en cours…",
+    "draftFirst": "Toujours relire avant d’envoyer — rien ne part d’ici.",
+    "types": {
+      "APPLICATION_EMAIL": "Mail de candidature",
+      "COVER_LETTER": "Lettre de motivation",
+      "FOLLOW_UP_EMAIL": "Mail de relance"
+    },
+    "statuses": {
+      "GENERATING": "En cours de génération",
+      "READY": "Prêt à relire",
+      "FAILED": "Échec"
+    },
+    "failures": {
+      "generation_failed": "La génération a échoué. Réessayez avec « Régénérer ».",
+      "lead_unavailable": "La piste n’est plus disponible.",
+      "contact_not_allowed": "Cette organisation a demandé à ne plus être contactée."
+    },
+    "modal": {
+      "title": "Générer un brouillon",
+      "description": "Personnalisé à partir de votre profil et de la cible ; toujours relu avant envoi.",
+      "typeLabel": "Type de message",
+      "languageLabel": "Langue du message",
+      "languageHint": "La langue du prospect, pas celle de l’interface.",
+      "templateLabel": "Modèle (optionnel)",
+      "noTemplate": "Sans modèle",
+      "submit": "Générer"
+    },
+    "editor": {
+      "title": "Relire le brouillon",
+      "subjectLabel": "Objet",
+      "bodyLabel": "Message",
+      "copy": "Copier",
+      "regenerate": "Régénérer",
+      "confirmRegenerateTitle": "Régénérer ce brouillon ?",
+      "confirmRegenerateBody": "Le contenu actuel (y compris vos modifications) sera remplacé.",
+      "confirmDeleteTitle": "Supprimer ce brouillon ?",
+      "confirmDeleteBody": "Le brouillon sera définitivement supprimé."
+    },
+    "toasts": {
+      "requested": "Génération lancée",
+      "saved": "Brouillon enregistré",
+      "copied": "Copié dans le presse-papier",
+      "copyFailed": "Impossible de copier — sélectionnez le texte manuellement.",
+      "deleted": "Brouillon supprimé"
+    }
+  },
+  "templates": {
+    "eyebrow": "Rédaction assistée",
+    "title": "Modèles",
+    "intro": "Canevas réutilisables pour la génération. Variables :",
+    "new": "Nouveau modèle",
+    "empty": "Aucun modèle. Créez-en un ou rechargez la page pour retrouver les modèles de départ.",
+    "form": {
+      "createTitle": "Nouveau modèle",
+      "editTitle": "Modifier le modèle",
+      "nameLabel": "Nom",
+      "typeLabel": "Type de message",
+      "segmentLabel": "Segment",
+      "languageLabel": "Langue",
+      "subjectLabel": "Objet (optionnel)",
+      "bodyLabel": "Corps"
+    },
+    "confirmDeleteTitle": "Supprimer « {name} » ?",
+    "confirmDeleteBody": "Le modèle sera définitivement supprimé. Les brouillons déjà générés sont conservés.",
+    "toasts": {
+      "created": "Modèle créé",
+      "updated": "Modèle enregistré",
+      "deleted": "Modèle supprimé"
+    }
+  },
+  "settings": {
+    "eyebrow": "Profil",
+    "title": "Réglages",
+    "goal": {
+      "title": "Objectif hebdomadaire",
+      "label": "Actes de démarchage par semaine",
+      "hint": "Un acte = un contact ou une relance faite."
+    },
+    "presentation": {
+      "title": "Présentation",
+      "intro": "La matière première des brouillons générés — plus c’est précis, meilleure est la plume.",
+      "bioLabel": "Bio",
+      "bioHint": "Qui vous êtes, en quelques phrases (parcours, paires de langues).",
+      "specialtiesLabel": "Spécialités",
+      "specialtiesHint": "Domaines et genres (édition jeunesse, sous-titrage, technique…).",
+      "signatureLabel": "Signature",
+      "signatureHint": "Telle qu’elle apparaîtra en bas de vos messages."
+    },
+    "toasts": {
+      "saved": "Réglages enregistrés"
     }
   }
 }

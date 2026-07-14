@@ -9,7 +9,8 @@ const nav = computed((): { label: string, to: string | null }[] => [
   { label: t('nav.today'), to: '/today' },
   { label: t('nav.leads'), to: '/leads' },
   { label: t('nav.directory'), to: '/organizations' },
-  { label: t('nav.templates'), to: null },
+  { label: t('nav.templates'), to: '/templates' },
+  { label: t('nav.settings'), to: '/settings' },
 ])
 </script>
 

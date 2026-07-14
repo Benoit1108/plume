@@ -50,8 +50,13 @@ Fondations techniques.
       **écran « Aujourd'hui »** (accueil : relances dues + à contacter + actions rapides),
       objectif hebdo + **série** calculés sur le journal, profil (Account) naissant,
       API cas d'usage relances + /today + /profile. *(Le journal était déjà M1.2.)*
-- [ ] **M1.4 — Rédaction assistée** : génération mail + lettre (FR/EN/ES), ton par segment,
-      réécriture, Modèles.
+- [x] **M1.4 — Rédaction assistée** ✅ : contexte `Drafting` (agrégats `Draft` + `Template`),
+      port `MessageGenerator` (canned gratuit par défaut, Claude par env — ACL), génération
+      **asynchrone** (worker, GENERATING → READY/FAILED, garde RGPD re-vérifiée), profil
+      étendu (bio/spécialités/signature), section Brouillons sur la fiche piste (éditeur,
+      **Copier**, régénérer, supprimer), page Modèles (3 gabarits seedés + CRUD), page
+      Réglages, journal `draft_generated`. *Reportés : réécriture itérative type chat (V2),
+      envoi réel (M2), tarifs dans le profil (futur).*
 - [ ] **M1.5 — Tableau de bord** : à contacter, relances dues, taux de réponse, conversion.
 
 ### M2 — Passerelle email 🔜
