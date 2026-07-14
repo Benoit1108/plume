@@ -380,5 +380,33 @@
       "won": "Won",
       "rate": "Rate"
     }
+  },
+  "mailbox": {
+    "title": "Email mailbox",
+    "intro": "Connect your mailbox to send drafts and catch replies — revocable anytime, tokens encrypted.",
+    "connectGmail": "Connect Gmail",
+    "reconnect": "Reconnect",
+    "revoke": "Disconnect",
+    "connectedSince": "connected since {date}",
+    "statuses": {
+      "CONNECTED": "Connected",
+      "ERROR": "Error",
+      "REVOKED": "Disconnected"
+    },
+    "failures": {
+      "sync_failed": "Sync failed — reconnect the mailbox.",
+      "token_expired": "Authorization expired — reconnect the mailbox."
+    },
+    "confirmRevokeTitle": "Disconnect the mailbox?",
+    "confirmRevokeBody": "The Google consent is revoked and tokens are erased. Messages already sent stay in your mailbox.",
+    "callback": {
+      "connecting": "Connecting your mailbox…",
+      "failed": "Connection failed (authorization denied or expired). Try again from Settings.",
+      "backToSettings": "Back to settings"
+    },
+    "toasts": {
+      "connected": "Mailbox connected",
+      "revoked": "Mailbox disconnected"
+    }
   }
 }

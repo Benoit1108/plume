@@ -20,3 +20,4 @@ Ne pas contredire un ADR accepté sans en écrire un nouveau qui le remplace (st
 | [0013](0013-read-models-v1.md) | Read models V1 : SQL direct fail-closed, seul le journal est projeté | Accepté |
 | [0014](0014-integration-ia.md) | Intégration IA : ACL Claude, canned par défaut, coûts bornés, RGPD sous-traitant | Accepté |
 | [0015](0015-import-csv.md) | Import CSV : bornes, dédoublonnage par nom, rapport | Accepté |
+| [0016](0016-chiffrement-tokens-oauth.md) | Chiffrement des tokens OAuth au repos (sodium, clé dédiée, fail-fast prod) | Accepté |

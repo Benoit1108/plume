@@ -128,8 +128,9 @@ réponse) et d'isolation tenant sur toutes les nouvelles surfaces (acquis à mai
       + Bearer conservé pour l'outillage, `/me` pour l'identité, même-origine en prod via le
       proxy Nitro) + garde anti-XSS outillée (`vue/no-v-html: error`) — la sanitisation des
       contenus entrants s'appliquera à leur arrivée (M2.3).
-- [ ] Boîte connectée/déconnectée depuis les Réglages, tokens chiffrés (ADR-0016), statut
-      d'erreur visible et récupérable.
+- [x] Boîte connectée/déconnectée depuis les Réglages, tokens chiffrés (ADR-0016 écrit),
+      statut d'erreur visible et récupérable (reconnexion en un clic), state OAuth anti-CSRF
+      lié au tenant, connecteur factice par défaut (dev/CI/E2E sans compte réel).
 - [ ] Envoi d'un brouillon relu depuis la vraie adresse (garde RGPD double, garde d'état
       anti-redélivrance, code d'échec affichable), journal `email_sent`, piste avancée (D3).
 - [ ] Réponses captées par threading → `recordReply()` **idempotent**, relance annulée,

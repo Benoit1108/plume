@@ -2,6 +2,11 @@ parameters:
     # Rédaction assistée : clé absente => générateur local (canned), coût zéro.
     env(ANTHROPIC_API_KEY): ''
     env(DRAFTING_MODEL): 'claude-sonnet-5'
+    # Passerelle email : sans GOOGLE_CLIENT_ID => connecteur factice (coût zéro).
+    env(GOOGLE_CLIENT_ID): ''
+    env(GOOGLE_CLIENT_SECRET): ''
+    env(GOOGLE_REDIRECT_URI): 'http://localhost:3000/oauth/gmail/callback'
+    env(MAILBOX_ENCRYPTION_KEY): ''
     drafting.anthropic_api_key: '%env(string:ANTHROPIC_API_KEY)%'
     drafting.model: '%env(string:DRAFTING_MODEL)%'
 
@@ -59,6 +64,32 @@ services:
     App\Drafting\Application\ReadModel\DraftSearch: '@App\Drafting\Infrastructure\ReadModel\DoctrineDraftSearch'
     App\Drafting\Application\ReadModel\TemplateSearch: '@App\Drafting\Infrastructure\ReadModel\DoctrineTemplateSearch'
     App\Drafting\Application\LeadGateway: '@App\Drafting\Infrastructure\Gateway\DoctrineLeadGateway'
+
+    # Contexte Mailbox (passerelle email, M2).
+    App\Mailbox\Domain\Mailbox\MailboxRepository: '@App\Mailbox\Infrastructure\Persistence\Doctrine\DoctrineMailboxRepository'
+    App\Mailbox\Application\ReadModel\MailboxSettings: '@App\Mailbox\Infrastructure\ReadModel\DoctrineMailboxSettings'
+    App\Mailbox\Application\TokenCipher: '@App\Mailbox\Infrastructure\Crypto\SodiumTokenCipher'
+    App\Mailbox\Infrastructure\Crypto\SodiumTokenCipher:
+        arguments:
+            $encodedKey: '%env(string:MAILBOX_ENCRYPTION_KEY)%'
+            $appSecret: '%env(string:APP_SECRET)%'
+            $environment: '%kernel.environment%'
+    App\Mailbox\Infrastructure\OAuth\OAuthStateCodec:
+        arguments:
+            $appSecret: '%env(string:APP_SECRET)%'
+    # Port MailboxConnector : sélection par env (GOOGLE_CLIENT_ID présent => Gmail, sinon factice).
+    App\Mailbox\Application\MailboxConnector: '@App\Mailbox\Infrastructure\OAuth\MailboxConnectorSelector'
+    App\Mailbox\Infrastructure\OAuth\MailboxConnectorSelector:
+        arguments:
+            $clientId: '%env(string:GOOGLE_CLIENT_ID)%'
+    App\Mailbox\Infrastructure\OAuth\GmailConnector:
+        arguments:
+            $clientId: '%env(string:GOOGLE_CLIENT_ID)%'
+            $clientSecret: '%env(string:GOOGLE_CLIENT_SECRET)%'
+            $redirectUri: '%env(string:GOOGLE_REDIRECT_URI)%'
+    App\Mailbox\Infrastructure\OAuth\FakeMailboxConnector:
+        arguments:
+            $redirectUri: '%env(string:GOOGLE_REDIRECT_URI)%'
 
     # Port MessageGenerator : sélection par env (clé présente => Claude, sinon canned).
     App\Drafting\Application\MessageGenerator: '@App\Drafting\Infrastructure\Generator\MessageGeneratorSelector'

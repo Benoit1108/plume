@@ -380,5 +380,33 @@
       "won": "Gagnées",
       "rate": "Taux"
     }
+  },
+  "mailbox": {
+    "title": "Boîte email",
+    "intro": "Connectez votre boîte pour envoyer vos brouillons et capter les réponses — révocable à tout moment, jetons chiffrés.",
+    "connectGmail": "Connecter Gmail",
+    "reconnect": "Reconnecter",
+    "revoke": "Déconnecter",
+    "connectedSince": "connectée depuis le {date}",
+    "statuses": {
+      "CONNECTED": "Connectée",
+      "ERROR": "Erreur",
+      "REVOKED": "Déconnectée"
+    },
+    "failures": {
+      "sync_failed": "La synchronisation a échoué — reconnectez la boîte.",
+      "token_expired": "L’autorisation a expiré — reconnectez la boîte."
+    },
+    "confirmRevokeTitle": "Déconnecter la boîte ?",
+    "confirmRevokeBody": "Le consentement Google est révoqué et les jetons effacés. Vos messages déjà envoyés restent dans votre boîte.",
+    "callback": {
+      "connecting": "Connexion de votre boîte…",
+      "failed": "La connexion a échoué (autorisation refusée ou expirée). Réessayez depuis les Réglages.",
+      "backToSettings": "Retour aux réglages"
+    },
+    "toasts": {
+      "connected": "Boîte connectée",
+      "revoked": "Boîte déconnectée"
+    }
   }
 }

@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import type { Profile } from '~/types/leads'
+import type { Mailbox } from '~/types/mailbox'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const profileApi = useProfile()
+const mailboxApi = useMailbox()
 const toast = useToast()
 
 const { data: profile, refresh, status } = await useAsyncData<Profile | null>(
@@ -24,6 +26,43 @@ watch(profile, (value) => {
   specialties.value = value.specialties ?? ''
   signature.value = value.signature ?? ''
 }, { immediate: true })
+
+// ----- Boîte email (M2.1) -----
+const { data: mailbox, refresh: refreshMailbox, status: mailboxStatus } = await useAsyncData<Mailbox | null>(
+  'mailbox',
+  () => mailboxApi.get(),
+  { server: false, default: () => null },
+)
+const mailboxLoading = computed(() => mailboxStatus.value === 'idle' || mailboxStatus.value === 'pending')
+const connecting = ref(false)
+const confirmRevoke = ref(false)
+
+async function connectMailbox(): Promise<void> {
+  connecting.value = true
+  try {
+    // Redirection plein écran vers le consentement (retour : /oauth/gmail/callback).
+    window.location.href = await mailboxApi.startOAuth()
+  }
+  catch {
+    toast.add({ title: t('common.error'), color: 'error' })
+    connecting.value = false
+  }
+}
+
+async function revokeMailbox(): Promise<void> {
+  try {
+    await mailboxApi.revoke()
+    await refreshMailbox()
+    toast.add({ title: t('mailbox.toasts.revoked'), color: 'success' })
+  }
+  catch (error) {
+    toast.add({ title: errorToastTitle(t, error), color: 'error' })
+  }
+}
+
+function formatDate(iso: string): string {
+  return new Date(iso).toLocaleDateString(locale.value, { day: 'numeric', month: 'short', year: 'numeric' })
+}
 
 const saving = ref(false)
 /** v-model.number émet '' quand le champ est vidé : on n'envoie jamais un PATCH invalide. */
@@ -87,5 +126,67 @@ async function save(): Promise<void> {
         <UButton type="submit" :loading="saving" :disabled="!goalValid">{{ t('actions.save') }}</UButton>
       </div>
     </form>
+
+    <!-- Boîte email connectée (M2.1) — hors du form profil : cycle de vie séparé. -->
+    <section class="mt-8 border border-default rounded-xl p-4 bg-elevated/40">
+      <div class="flex items-center gap-2 flex-wrap">
+        <p class="text-sm font-semibold">{{ t('mailbox.title') }}</p>
+        <UBadge
+          v-if="mailbox"
+          :color="mailbox.status === 'CONNECTED' ? 'success' : mailbox.status === 'ERROR' ? 'error' : 'neutral'"
+          variant="soft"
+          size="sm"
+        >
+          {{ t(`mailbox.statuses.${mailbox.status}`) }}
+        </UBadge>
+      </div>
+      <p class="text-xs text-muted mt-1">{{ t('mailbox.intro') }}</p>
+
+      <div v-if="mailboxLoading" class="mt-3 text-sm text-dimmed">{{ t('common.loading') }}</div>
+
+      <template v-else-if="mailbox && mailbox.status !== 'REVOKED'">
+        <div class="mt-3 flex items-center gap-3 flex-wrap text-sm">
+          <UIcon name="i-lucide-mail-check" class="text-primary shrink-0" aria-hidden="true" />
+          <span class="font-medium">{{ mailbox.emailAddress }}</span>
+          <span v-if="mailbox.connectedAt" class="text-xs text-dimmed">
+            {{ t('mailbox.connectedSince', { date: formatDate(mailbox.connectedAt) }) }}
+          </span>
+        </div>
+        <UAlert
+          v-if="mailbox.status === 'ERROR'"
+          class="mt-3"
+          color="error"
+          variant="soft"
+          icon="i-lucide-alert-triangle"
+          :title="t(`mailbox.failures.${mailbox.failureReason ?? 'sync_failed'}`, t('mailbox.failures.sync_failed'))"
+        >
+          <template #actions>
+            <UButton size="xs" variant="soft" color="error" :loading="connecting" @click="connectMailbox">
+              {{ t('mailbox.reconnect') }}
+            </UButton>
+          </template>
+        </UAlert>
+        <div class="mt-3 flex justify-end">
+          <UButton size="xs" variant="ghost" color="error" icon="i-lucide-unlink" @click="() => { confirmRevoke = true }">
+            {{ t('mailbox.revoke') }}
+          </UButton>
+        </div>
+      </template>
+
+      <div v-else class="mt-3">
+        <UButton icon="i-lucide-mail-plus" :loading="connecting" @click="connectMailbox">
+          {{ t('mailbox.connectGmail') }}
+        </UButton>
+      </div>
+
+      <ConfirmDialog
+        v-model:open="confirmRevoke"
+        :title="t('mailbox.confirmRevokeTitle')"
+        :description="t('mailbox.confirmRevokeBody')"
+        :confirm-label="t('mailbox.revoke')"
+        danger
+        @confirm="revokeMailbox"
+      />
+    </section>
   </UContainer>
 </template>

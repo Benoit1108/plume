@@ -15,6 +15,9 @@ doctrine:
             follow_up_collection: App\Prospecting\Infrastructure\Persistence\Doctrine\Type\FollowUpCollectionType
             draft_id: App\Drafting\Infrastructure\Persistence\Doctrine\Type\DraftIdType
             template_id: App\Drafting\Infrastructure\Persistence\Doctrine\Type\TemplateIdType
+            mailbox_id: App\Mailbox\Infrastructure\Persistence\Doctrine\Type\MailboxIdType
+            encrypted_token: App\Mailbox\Infrastructure\Persistence\Doctrine\Type\EncryptedTokenType
+            email_address: App\Shared\Infrastructure\Persistence\Doctrine\Type\EmailAddressType
     orm:
         validate_xml_mapping: true
         naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
@@ -47,6 +50,11 @@ doctrine:
                 is_bundle: false
                 dir: '%kernel.project_dir%/config/doctrine/drafting-template'
                 prefix: 'App\Drafting\Domain\Template'
+            Mailbox:
+                type: xml
+                is_bundle: false
+                dir: '%kernel.project_dir%/config/doctrine/mailbox'
+                prefix: 'App\Mailbox\Domain\Mailbox'
             AccountProfile:
                 type: xml
                 is_bundle: false

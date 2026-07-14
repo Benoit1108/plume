@@ -2170,6 +2170,248 @@
                 }
             }
         },
+        "/api/v1/mailbox": {
+            "get": {
+                "operationId": "api_mailbox_get",
+                "tags": [
+                    "Mailbox"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Mailbox resource",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Mailbox.jsonld-mailbox.read"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Mailbox-mailbox.read"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Retrieves a Mailbox resource.",
+                "description": "Retrieves a Mailbox resource.",
+                "parameters": []
+            },
+            "delete": {
+                "operationId": "api_mailbox_delete",
+                "tags": [
+                    "Mailbox"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Mailbox resource deleted"
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "D\u00e9connecter la bo\u00eete (r\u00e9voque le consentement, efface les tokens)",
+                "description": "D\u00e9connecter la bo\u00eete (r\u00e9voque le consentement, efface les tokens)",
+                "parameters": []
+            }
+        },
+        "/api/v1/mailbox/connect": {
+            "post": {
+                "operationId": "mailbox_connect",
+                "tags": [
+                    "Mailbox"
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Mailbox resource created",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Mailbox.jsonld-mailbox.read"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Mailbox-mailbox.read"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Finaliser la connexion (code OAuth + state anti-CSRF)",
+                "description": "Finaliser la connexion (code OAuth + state anti-CSRF)",
+                "parameters": [],
+                "requestBody": {
+                    "description": "The new Mailbox resource",
+                    "content": {
+                        "application/ld+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Mailbox-mailbox.connect"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Mailbox-mailbox.connect"
+                            }
+                        }
+                    },
+                    "required": true
+                }
+            }
+        },
+        "/api/v1/mailbox/oauth/start": {
+            "post": {
+                "operationId": "mailbox_oauth_start",
+                "tags": [
+                    "Mailbox"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Mailbox resource created",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Mailbox.jsonld-mailbox.read"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Mailbox-mailbox.read"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "D\u00e9marrer le consentement OAuth (renvoie l'URL d'autorisation)",
+                "description": "D\u00e9marrer le consentement OAuth (renvoie l'URL d'autorisation)",
+                "parameters": []
+            }
+        },
         "/api/v1/organizations": {
             "get": {
                 "operationId": "api_organizations_get_collection",
@@ -5283,6 +5525,121 @@
                 ],
                 "description": "Note manuelle sur une piste \u2014 vers\u00e9e au journal d'interactions (via event)."
             },
+            "Mailbox-mailbox.connect": {
+                "type": "object",
+                "description": "La bo\u00eete email connect\u00e9e du tenant (une seule en V1 \u2014 D6).\nLe flux OAuth : POST /mailbox/oauth/start \u2192 URL de consentement \u2192\nle navigateur revient sur le front avec code+state \u2192 POST /mailbox/connect.\nJamais un token dans une r\u00e9ponse.",
+                "properties": {
+                    "code": {
+                        "maxLength": 512,
+                        "default": "",
+                        "type": "string"
+                    },
+                    "state": {
+                        "maxLength": 512,
+                        "default": "",
+                        "type": "string"
+                    }
+                }
+            },
+            "Mailbox-mailbox.read": {
+                "type": "object",
+                "description": "La bo\u00eete email connect\u00e9e du tenant (une seule en V1 \u2014 D6).\nLe flux OAuth : POST /mailbox/oauth/start \u2192 URL de consentement \u2192\nle navigateur revient sur le front avec code+state \u2192 POST /mailbox/connect.\nJamais un token dans une r\u00e9ponse.",
+                "properties": {
+                    "id": {
+                        "default": "mailbox",
+                        "type": "string"
+                    },
+                    "provider": {
+                        "default": "",
+                        "type": "string"
+                    },
+                    "emailAddress": {
+                        "default": "",
+                        "type": "string"
+                    },
+                    "status": {
+                        "default": "",
+                        "type": "string"
+                    },
+                    "failureReason": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "connectedAt": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "lastSyncAt": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "authorizationUrl": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                }
+            },
+            "Mailbox.jsonld-mailbox.read": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/HydraItemBaseSchema"
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "default": "mailbox",
+                                "type": "string"
+                            },
+                            "provider": {
+                                "default": "",
+                                "type": "string"
+                            },
+                            "emailAddress": {
+                                "default": "",
+                                "type": "string"
+                            },
+                            "status": {
+                                "default": "",
+                                "type": "string"
+                            },
+                            "failureReason": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "connectedAt": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "lastSyncAt": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "authorizationUrl": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            }
+                        }
+                    }
+                ],
+                "description": "La bo\u00eete email connect\u00e9e du tenant (une seule en V1 \u2014 D6).\nLe flux OAuth : POST /mailbox/oauth/start \u2192 URL de consentement \u2192\nle navigateur revient sur le front avec code+state \u2192 POST /mailbox/connect.\nJamais un token dans une r\u00e9ponse."
+            },
             "Organization-org.read": {
                 "type": "object",
                 "description": "Resource API (DTO) du R\u00e9pertoire \u2014 jamais l'agr\u00e9gat/entit\u00e9 Doctrine.",
@@ -6131,6 +6488,10 @@
         {
             "name": "Template",
             "description": "Mod\u00e8le (gabarit) de message : canevas r\u00e9utilisable par type/segment/langue,\navec variables ({{contact}}, {{organisation}}, {{langues}}, {{bio}},\n{{specialites}}, {{signature}}). 3 gabarits seed\u00e9s \u00e0 la premi\u00e8re utilisation."
+        },
+        {
+            "name": "Mailbox",
+            "description": "La bo\u00eete email connect\u00e9e du tenant (une seule en V1 \u2014 D6).\nLe flux OAuth : POST /mailbox/oauth/start \u2192 URL de consentement \u2192\nle navigateur revient sur le front avec code+state \u2192 POST /mailbox/connect.\nJamais un token dans une r\u00e9ponse."
         },
         {
             "name": "Dashboard",

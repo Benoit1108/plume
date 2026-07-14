@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+                  https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+    <!-- Boîte connectée (Passerelle email). Domaine pur, mapping hors src/.
+         Index UNIQUE tenant : invariant « une boîte par tenant » V1 (levable, D6). -->
+    <entity name="App\Mailbox\Domain\Mailbox\ConnectedMailbox" table="connected_mailbox">
+        <unique-constraints>
+            <unique-constraint name="uniq_mailbox_tenant" columns="tenant_id"/>
+        </unique-constraints>
+        <id name="id" type="mailbox_id" column="id">
+            <generator strategy="NONE"/>
+        </id>
+        <field name="tenantId" type="tenant_id" column="tenant_id"/>
+        <field name="provider" type="string" column="provider" enum-type="App\Mailbox\Domain\Mailbox\MailProviderName"/>
+        <field name="emailAddress" type="email_address" column="email_address"/>
+        <field name="accessToken" type="encrypted_token" column="access_token" nullable="true"/>
+        <field name="refreshToken" type="encrypted_token" column="refresh_token" nullable="true"/>
+        <field name="status" type="string" column="status" enum-type="App\Mailbox\Domain\Mailbox\MailboxStatus"/>
+        <field name="failureReason" type="string" column="failure_reason" nullable="true"/>
+        <field name="connectedAt" type="datetime_immutable" column="connected_at"/>
+        <field name="lastSyncAt" type="datetime_immutable" column="last_sync_at" nullable="true"/>
+        <field name="syncCursor" type="string" column="sync_cursor" nullable="true"/>
+    </entity>
+</doctrine-mapping>

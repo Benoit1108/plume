@@ -203,6 +203,16 @@ Le vocabulaire métier ci-dessous est **contractuel** et reste en **français** 
 | **Envoi**                 | Émission d'un message depuis la boîte de la Traductrice. |
 | **Réponse**               | Message entrant rattaché à une Piste via `Message-ID` / `References`. |
 
+### Passerelle email — `ConnectedMailbox` (M2.1)
+| Métier (FR) | Code (EN) |
+|---|---|
+| Compte email connecté (agrégat) | `ConnectedMailbox` : `MailboxId` propre, provider `GMAIL` \| `OUTLOOK`, statut `CONNECTED` \| `ERROR` \| `REVOKED` — une par tenant (invariant V1 levable, D6) |
+| Jeton chiffré | `EncryptedToken` (VO) — chiffrement sodium au repos, ADR-0016 ; effacé à la révocation |
+| Chiffreur de jetons | port `TokenCipher` → `SodiumTokenCipher` (clé `MAILBOX_ENCRYPTION_KEY`) |
+| Connecteur OAuth | port `MailboxConnector` → `GmailConnector` (ACL Google) / `FakeMailboxConnector` (défaut sans `GOOGLE_CLIENT_ID` — dev/CI/E2E) |
+| State anti-CSRF | `OAuthStateCodec` (HMAC, lié au tenant, TTL 10 min, sans stockage serveur) |
+| Échec de connexion | `MailboxConnectionFailed` → 422 propre ; boîte non opérationnelle : `MailboxNotOperational` (409) |
+
 ## Contexte Sourcing (V2/M3)
 
 | Terme             | Définition |
