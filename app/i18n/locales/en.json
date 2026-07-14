@@ -248,7 +248,8 @@
       "title": "Weekly goal",
       "streak": "no streak | {count} week in a row | {count} weeks in a row",
       "edit": "Edit goal"
-    }
+    },
+    "writeFollowUp": "Write the follow-up"
   },
   "drafts": {
     "title": "Drafts",

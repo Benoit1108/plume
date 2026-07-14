@@ -49,7 +49,11 @@ final class GmailMailSender implements MailSender
         try {
             $payload = $this->httpClient->request('POST', self::SEND_ENDPOINT, [
                 'headers' => ['Authorization' => 'Bearer '.$accessToken],
-                'json' => ['raw' => rtrim(strtr(base64_encode($raw), '+/', '-_'), '=')],
+                'json' => array_filter([
+                    'raw' => rtrim(strtr(base64_encode($raw), '+/', '-_'), '='),
+                    // Relance : Gmail rattache le message au fil d'origine.
+                    'threadId' => $mail->threadKey,
+                ], static fn (?string $v): bool => null !== $v),
                 'timeout' => 30,
             ])->toArray();
         } catch (ExceptionInterface $e) {

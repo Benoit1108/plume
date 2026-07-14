@@ -38,4 +38,16 @@ final class DoctrineOpenThreads implements OpenThreads
 
         return $threads;
     }
+
+    public function latestForLead(string $tenantId, string $leadId): ?string
+    {
+        $key = $this->connection->fetchOne(
+            "SELECT thread_key FROM outbound_message
+             WHERE tenant_id = :tenant AND lead_id = :lead AND status = 'SENT' AND thread_key IS NOT NULL
+             ORDER BY sent_at DESC LIMIT 1",
+            ['tenant' => $tenantId, 'lead' => $leadId],
+        );
+
+        return \is_string($key) && '' !== $key ? $key : null;
+    }
 }

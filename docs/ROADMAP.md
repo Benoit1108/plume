@@ -72,10 +72,9 @@ Fondations techniques.
 - [x] Cookies tokens **httpOnly** ✅ *(M2.0, 2026-07-14 : posés/rotés/effacés par l'API,
       `/me`, même-origine via proxy Nitro, `vue/no-v-html` bloquant)*.
 - [x] `recordReply()` **idempotent** ✅ *(M2.3 — les relèves répétées sont des no-op)*.
-- [ ] **Dettes actées en revue fin M1 à solder ici** :
-      stratégie de rétention/effacement du journal `interaction` (texte des notes),
-      interpolation locale de `{{contact}}` (ne plus transmettre le nom du contact à
-      Anthropic — cf. ADR-0014).
+- [x] Interpolation locale de `{{contact}}` ✅ *(M2.4 — le nom du contact ne part plus chez
+      Anthropic, ADR-0014 soldé)* ; rétention du journal **tranchée et tracée** *(ADR-0017 :
+      le journal suit la vie de la piste ; pas de rétention temporelle en V1)*.
 - [ ] **Tableau de bord enrichi** *(reports actés M1.5)* : délais moyens de première réponse
       (pertinents une fois les réponses captées automatiquement), valeur estimée des pistes
       (`estimatedValue`, différé depuis M1.2), filtres de période, export.

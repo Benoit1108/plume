@@ -15,6 +15,7 @@ final class FakeMailSender implements MailSender
 {
     public function send(string $refreshTokenPlain, string $fromEmail, OutgoingMail $mail): string
     {
-        return 'fake-thread-'.substr(hash('sha256', $mail->toEmail.'|'.$mail->body), 0, 16);
+        // Une relance reste dans son fil ; un premier envoi en ouvre un.
+        return $mail->threadKey ?? 'fake-thread-'.substr(hash('sha256', $mail->toEmail.'|'.$mail->body), 0, 16);
     }
 }

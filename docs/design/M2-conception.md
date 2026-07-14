@@ -138,8 +138,11 @@ réponse) et d'isolation tenant sur toutes les nouvelles surfaces (acquis à mai
 - [x] Réponses captées par threading → `recordReply()` **idempotent** (dette soldée),
       relance annulée, aperçu TEXTE borné en timeline (snippet provider, jamais de HTML),
       relève Scheduler 5 min + geste manuel, ADR-0017 écrit.
-- [ ] Relance envoyée dans le fil d'origine depuis « Aujourd'hui » et la fiche.
-- [ ] Dettes ADR-0014 soldées : interpolation locale `{{contact}}`, rétention du journal tracée.
+- [x] Relance envoyée **dans le fil d'origine** (threadId Gmail) ; « Rédiger la relance »
+      depuis « Aujourd'hui » ouvre le générateur pré-réglé (draft-first jusqu'au bout).
+- [x] Dettes soldées : interpolation locale `{{contact}}` (ADR-0014), rétention du journal
+      tranchée (ADR-0017). *Reste M2 : connecteur Outlook (promis D1) — dernier morceau avant
+      la DoD complète et la revue de santé fin M2.*
 - [ ] Pyramide complète (adaptateurs sur réponses enregistrées, FakeMailProvider en E2E,
       idempotence + isolation tenant), CI verte, openapi/glossaire/ROADMAP à jour.
 - [ ] **Revue de santé fin M2** (process acté).

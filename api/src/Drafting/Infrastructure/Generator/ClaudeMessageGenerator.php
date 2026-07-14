@@ -61,7 +61,18 @@ final class ClaudeMessageGenerator implements MessageGenerator
             throw GenerationFailed::because('Anthropic API returned an empty message.');
         }
 
-        return $this->parse($text);
+        return $this->interpolateContact($this->parse($text), $prompt);
+    }
+
+    /** Interpolation LOCALE du destinataire : la PII reste chez nous. */
+    private function interpolateContact(GeneratedMessage $message, DraftPrompt $prompt): GeneratedMessage
+    {
+        $contact = $prompt->contactName ?? ('fr' === $prompt->targetLanguage ? 'Madame, Monsieur' : 'Madam or Sir');
+
+        return new GeneratedMessage(
+            null === $message->subject ? null : str_replace('{{contact}}', $contact, $message->subject),
+            str_replace('{{contact}}', $contact, $message->body),
+        );
     }
 
     private function systemPrompt(DraftPrompt $prompt): string
@@ -70,6 +81,10 @@ final class ClaudeMessageGenerator implements MessageGenerator
         $format = 'COVER_LETTER' === $prompt->type
             ? 'Output ONLY the letter body, no subject line, no commentary.'
             : "Output format, nothing else:\nSUBJECT: <subject line>\n<blank line>\n<email body>";
+        // RGPD (ADR-0014, dette soldée M2.4) : le NOM du contact ne part jamais
+        // chez le sous-traitant — le modèle écrit le littéral {{contact}},
+        // interpolé LOCALEMENT après génération.
+        $format .= ' Address the recipient with the literal placeholder {{contact}} (it will be replaced locally).';
 
         return 'You write prospecting messages on behalf of a freelance translator contacting publishers, '
             ."audiovisual studios and agencies. Write in {$language}. Professional, warm, concise (under 180 words), "
@@ -84,9 +99,6 @@ final class ClaudeMessageGenerator implements MessageGenerator
             'Target organization: '.$prompt->organizationName.' (segment: '.$prompt->segment.')',
             'Pipeline status: '.$prompt->leadStatus,
         ];
-        if (null !== $prompt->contactName) {
-            $lines[] = 'Contact person: '.$prompt->contactName;
-        }
         if (null !== $prompt->bio) {
             $lines[] = 'Translator bio: '.$prompt->bio;
         }

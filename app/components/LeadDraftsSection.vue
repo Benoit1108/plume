@@ -129,6 +129,17 @@ onUnmounted(() => {
   if (draftPollTimer) clearTimeout(draftPollTimer)
 })
 
+// « Rédiger la relance » depuis Aujourd'hui : générateur pré-ouvert en relance
+// (draft-first : la relance se relit comme le reste avant de partir dans le fil).
+const route = useRoute()
+onMounted(() => {
+  if (route.query.draft === 'follow-up' && props.canGenerate) {
+    void openGenerator().then(() => {
+      genType.value = 'FOLLOW_UP_EMAIL'
+    })
+  }
+})
+
 // ----- Éditeur (relecture humaine : sujet + corps, Copier, Régénérer, Supprimer) -----
 const editingDraft = ref<Draft | null>(null)
 const editSubject = ref('')

@@ -36,8 +36,9 @@ commande **et re-vérifiée par le worker** avant tout appel.
 ⚠️ Le nom du contact est une donnée personnelle d'un tiers transmise à un sous-traitant
 (Anthropic, API Messages — pas d'entraînement sur les données API par défaut). Assumé en V1
 (base légale : intérêt légitime B2B, cohérent avec la conception RGPD du produit) ;
-**piste tracée pour M2** : interpoler `{{contact}}` localement après génération pour ne plus
-transmettre le nom. Avant l'ouverture SaaS (V2) : registre de traitement + DPA (cf. ROADMAP).
+~~piste tracée pour M2~~ **Soldé (M2.4, 2026-07-14)** : le nom du contact **ne part plus**
+chez Anthropic — le modèle écrit le littéral `{{contact}}`, interpolé LOCALEMENT dans l'ACL
+après génération. Avant l'ouverture SaaS (V2) : registre de traitement + DPA (cf. ROADMAP).
 
 ## Conséquences
 

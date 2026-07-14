@@ -9,4 +9,7 @@ interface OpenThreads
 {
     /** @return array<string, string> threadKey => leadId */
     public function forTenant(string $tenantId): array;
+
+    /** Le fil du DERNIER envoi abouti de la piste (une relance repart dedans). */
+    public function latestForLead(string $tenantId, string $leadId): ?string;
 }

@@ -26,3 +26,10 @@
 - ✅ Zéro infrastructure publique ; testable de bout en bout avec le fetcher factice.
 - ⚠️ Latence ≤ 5 min (acceptable pour du démarchage) ; N appels `threads.get` par relève
   (petit N : seuls les fils en attente) — curseur `history.list` si le volume montait.
+
+---
+
+> **Rétention du journal `interaction` (tranché en M2.4)** : le journal suit la vie de la
+> PISTE — quand la suppression de piste/organisation existera, ses interactions partiront
+> avec elle (mêmes transactions). Pas de rétention temporelle en V1 mono-utilisatrice ;
+> à réévaluer au registre de traitement (ouverture SaaS, V2).

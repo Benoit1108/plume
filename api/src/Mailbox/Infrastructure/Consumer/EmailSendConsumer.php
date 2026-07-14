@@ -10,6 +10,7 @@ use App\Mailbox\Application\DraftGateway;
 use App\Mailbox\Application\Exception\MailSendFailed;
 use App\Mailbox\Application\Exception\TokenCipherFailure;
 use App\Mailbox\Application\MailSender;
+use App\Mailbox\Application\OpenThreads;
 use App\Mailbox\Application\OutgoingMail;
 use App\Mailbox\Application\RecipientResolver;
 use App\Mailbox\Application\TokenCipher;
@@ -40,6 +41,7 @@ final class EmailSendConsumer
         private readonly MailboxRepository $mailboxes,
         private readonly DraftGateway $drafts,
         private readonly RecipientResolver $recipients,
+        private readonly OpenThreads $threads,
         private readonly TokenCipher $cipher,
         private readonly MailSender $sender,
         private readonly CommandBus $commandBus,
@@ -72,11 +74,16 @@ final class EmailSendConsumer
             return;
         }
 
+        // Une relance repart DANS le fil d'origine (M2.4) ; un premier envoi en ouvre un.
+        $originThread = 'FOLLOW_UP_EMAIL' === $draft->type
+            ? $this->threads->latestForLead($event->tenantId, $event->leadId)
+            : null;
+
         try {
             $threadKey = $this->sender->send(
                 $this->cipher->decrypt($refresh->ciphertext()),
                 $mailbox->emailAddress()->toString(),
-                new OutgoingMail($recipient->email, $recipient->name, $draft->subject, $draft->body),
+                new OutgoingMail($recipient->email, $recipient->name, $draft->subject, $draft->body, $originThread),
             );
         } catch (MailSendFailed|TokenCipherFailure $e) {
             $this->logger->error('Email send failed.', [

@@ -10,6 +10,7 @@ use App\Mailbox\Application\DraftContext;
 use App\Mailbox\Application\DraftGateway;
 use App\Mailbox\Application\Exception\MailSendFailed;
 use App\Mailbox\Application\MailSender;
+use App\Mailbox\Application\OpenThreads;
 use App\Mailbox\Application\OutgoingMail;
 use App\Mailbox\Application\Recipient;
 use App\Mailbox\Application\RecipientResolver;
@@ -87,10 +88,23 @@ final class EmailSendConsumerTest extends TestCase
             }
         };
 
+        $threads = new class implements OpenThreads {
+            public function forTenant(string $tenantId): array
+            {
+                return [];
+            }
+
+            public function latestForLead(string $tenantId, string $leadId): ?string
+            {
+                return 'lead-1' === $leadId ? 'thread-origine' : null;
+            }
+        };
+
         return new EmailSendConsumer(
             $this->mailboxes,
             $drafts,
             $recipients,
+            $threads,
             new FakeTokenCipher(),
             $sender,
             new HandlerMapCommandBus([MarkEmailSent::class => $record, MarkEmailFailed::class => $record]),
@@ -137,6 +151,22 @@ final class EmailSendConsumerTest extends TestCase
         self::assertInstanceOf(MarkEmailSent::class, $command);
         self::assertSame('thread-9', $command->threadKey);
         self::assertSame(self::TENANT, $command->tenantId);
+    }
+
+    public function testFollowUpIsSentInsideTheOriginThread(): void
+    {
+        $this->connectMailbox();
+        $this->draft = new DraftContext('lead-1', 'FOLLOW_UP_EMAIL', 'Re : candidature', 'Je relance.', 'READY');
+        $captured = null;
+        $consumer = $this->consumer(self::sender(function (string $r, string $f, OutgoingMail $mail) use (&$captured): string {
+            $captured = $mail->threadKey;
+
+            return $mail->threadKey ?? 'nouveau-fil';
+        }));
+
+        $consumer->onEmailSendRequested($this->event());
+
+        self::assertSame('thread-origine', $captured); // M2.4 : la relance vit DANS le fil
     }
 
     public function testNoOperationalMailboxFailsWithStableCode(): void

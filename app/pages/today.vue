@@ -111,6 +111,14 @@ function isOverdue(lead: Lead): boolean {
             </div>
             <UButton
               size="sm"
+              variant="outline"
+              icon="i-lucide-feather"
+              :to="`/leads/${lead.id}?draft=follow-up`"
+            >
+              {{ t('today.writeFollowUp') }}
+            </UButton>
+            <UButton
+              size="sm"
               icon="i-lucide-send"
               :loading="actingOn === lead.id"
               @click="() => quickAction(lead, 'follow-up')"

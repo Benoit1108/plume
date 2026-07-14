@@ -248,7 +248,8 @@
       "title": "Objectif hebdo",
       "streak": "aucune série | {count} semaine de suite | {count} semaines de suite",
       "edit": "Modifier l'objectif"
-    }
+    },
+    "writeFollowUp": "Rédiger la relance"
   },
   "drafts": {
     "title": "Brouillons",
