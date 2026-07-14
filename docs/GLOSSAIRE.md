@@ -82,6 +82,16 @@ Le vocabulaire métier ci-dessous est **contractuel** et reste en **français** 
 | Démarchage interdit (RGPD) | `OrganizationNotContactable` — vérifié via le port `OrganizationGateway` |
 | Journal d'interactions | table `interaction` (projection append-only des events, idempotente par `event_id`) |
 
+### Prospection — Tableau de bord (`Dashboard`, M1.5)
+| Métier (FR) | Code (EN) |
+|---|---|
+| Tableau de bord | `Dashboard` (port) / `DashboardView` — slice 100 % lecture, aucune projection dédiée |
+| Taux de réponse | pistes avec ≥ 1 réponse / pistes contactées — comptes **par piste** sur le journal (`lead_id` distinct) |
+| Conversion | gagnées / **décidées** (gagnées + perdues) — l'UI affiche toujours les comptes en clair |
+| Activité hebdomadaire | `WeekActivity[]` : 8 semaines ISO au fuseau du profil, objectif courant en référence |
+| Répartition du pipeline | `PipelineSlice[]` (ordre du kanban) |
+| Résultats par segment | `SegmentStats[]` : contactées / réponses / gagnées |
+
 ### Rédaction assistée — `Draft` / `Template` (M1.4)
 | Métier (FR) | Code (EN) |
 |---|---|

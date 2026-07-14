@@ -7,6 +7,7 @@ defineEmits<{ navigate: [] }>()
 
 const nav = computed((): { label: string, to: string | null }[] => [
   { label: t('nav.today'), to: '/today' },
+  { label: t('nav.dashboard'), to: '/dashboard' },
   { label: t('nav.leads'), to: '/leads' },
   { label: t('nav.directory'), to: '/organizations' },
   { label: t('nav.templates'), to: '/templates' },

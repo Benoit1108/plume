@@ -21,7 +21,8 @@
     "leads": "Leads",
     "directory": "Directory",
     "templates": "Templates",
-    "settings": "Settings"
+    "settings": "Settings",
+    "dashboard": "Dashboard"
   },
   "actions": {
     "save": "Save",
@@ -343,6 +344,40 @@
     },
     "toasts": {
       "saved": "Settings saved"
+    }
+  },
+  "dashboard": {
+    "eyebrow": "Insights",
+    "title": "Dashboard",
+    "empty": "Numbers show up with your first leads — create a lead and contact it.",
+    "kpis": {
+      "responseRate": "Response rate",
+      "responseRateDetail": "{replied} / {contacted} contacted leads",
+      "conversion": "Conversion",
+      "conversionDetail": "{won} won / {decided} decided | {won} won / {decided} decided | {won} won / {decided} decided",
+      "noneDecided": "no decided lead yet",
+      "noneContacted": "no contacted lead yet",
+      "outreachThisMonth": "Actions this month",
+      "outreachHint": "contacts + follow-ups",
+      "activeLeads": "Active leads"
+    },
+    "pipeline": {
+      "title": "Pipeline",
+      "total": "{count} lead | {count} lead | {count} leads"
+    },
+    "weekly": {
+      "title": "Activity — last 8 weeks",
+      "goalLine": "Goal: {goal} actions / week",
+      "weekOf": "Week of {date}",
+      "acts": "{count} action | {count} action | {count} actions"
+    },
+    "segments": {
+      "title": "By segment",
+      "segment": "Segment",
+      "contacted": "Contacted",
+      "replied": "Replies",
+      "won": "Won",
+      "rate": "Rate"
     }
   }
 }

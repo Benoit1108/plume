@@ -57,7 +57,11 @@ Fondations techniques.
       **Copier**, régénérer, supprimer), page Modèles (3 gabarits seedés + CRUD), page
       Réglages, journal `draft_generated`. *Reportés : réécriture itérative type chat (V2),
       envoi réel (M2), tarifs dans le profil (futur).*
-- [ ] **M1.5 — Tableau de bord** : à contacter, relances dues, taux de réponse, conversion.
+- [x] **M1.5 — Tableau de bord** ✅ : slice 100 % lecture (`Dashboard` read model DBAL
+      fail-closed) — taux de réponse et conversion (gagnées/décidées) calculés **par piste
+      sur le journal**, répartition du pipeline, activité des 8 dernières semaines vs
+      objectif, résultats par segment ; page `/dashboard` (graphes maison accessibles).
+      *Reportés → M2 : délais de réponse, valeur estimée, filtres de période, export.*
 
 ### M2 — Passerelle email 🔜
 - [ ] Connexion OAuth **Gmail + Outlook**, tokens chiffrés.
@@ -65,6 +69,9 @@ Fondations techniques.
 - [ ] Threading `Message-ID`/`References` → captation des **réponses** → `Piste.enregistrerReponse()`.
 - [ ] Gestion **opt-out** (RGPD). *Pas de tracking d'ouverture.*
 - [ ] Relances contextualisées (reprennent l'historique de la Piste).
+- [ ] **Tableau de bord enrichi** *(reports actés M1.5)* : délais moyens de première réponse
+      (pertinents une fois les réponses captées automatiquement), valeur estimée des pistes
+      (`estimatedValue`, différé depuis M1.2), filtres de période, export.
 
 ### M3 — Ingestion 🔜
 - [ ] **Parsers** par source (Strategy) : alertes ProZ, LinkedIn, TranslatorsCafe ; RSS.

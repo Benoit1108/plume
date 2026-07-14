@@ -21,7 +21,8 @@
     "leads": "Pistes",
     "directory": "Répertoire",
     "templates": "Modèles",
-    "settings": "Réglages"
+    "settings": "Réglages",
+    "dashboard": "Tableau de bord"
   },
   "actions": {
     "save": "Enregistrer",
@@ -343,6 +344,40 @@
     },
     "toasts": {
       "saved": "Réglages enregistrés"
+    }
+  },
+  "dashboard": {
+    "eyebrow": "Pilotage",
+    "title": "Tableau de bord",
+    "empty": "Les chiffres arrivent avec les premières pistes — créez une piste et contactez-la.",
+    "kpis": {
+      "responseRate": "Taux de réponse",
+      "responseRateDetail": "{replied} / {contacted} pistes contactées",
+      "conversion": "Conversion",
+      "conversionDetail": "{won} gagnée / {decided} décidées | {won} gagnée / {decided} décidées | {won} gagnées / {decided} décidées",
+      "noneDecided": "aucune piste décidée",
+      "noneContacted": "aucune piste contactée",
+      "outreachThisMonth": "Actes ce mois-ci",
+      "outreachHint": "contacts + relances",
+      "activeLeads": "Pistes actives"
+    },
+    "pipeline": {
+      "title": "Pipeline",
+      "total": "{count} piste | {count} piste | {count} pistes"
+    },
+    "weekly": {
+      "title": "Activité — 8 dernières semaines",
+      "goalLine": "Objectif : {goal} actes / semaine",
+      "weekOf": "Semaine du {date}",
+      "acts": "{count} acte | {count} acte | {count} actes"
+    },
+    "segments": {
+      "title": "Par segment",
+      "segment": "Segment",
+      "contacted": "Contactées",
+      "replied": "Réponses",
+      "won": "Gagnées",
+      "rate": "Taux"
     }
   }
 }
