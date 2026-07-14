@@ -5447,6 +5447,27 @@
                     "timezone": {
                         "default": "Europe/Paris",
                         "type": "string"
+                    },
+                    "bio": {
+                        "maxLength": 2000,
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "specialties": {
+                        "maxLength": 1000,
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "signature": {
+                        "maxLength": 500,
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     }
                 }
             },
@@ -5459,6 +5480,27 @@
                         "maximum": 99,
                         "default": 5,
                         "type": "integer"
+                    },
+                    "bio": {
+                        "maxLength": 2000,
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "specialties": {
+                        "maxLength": 1000,
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "signature": {
+                        "maxLength": 500,
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     }
                 }
             },
@@ -5483,6 +5525,27 @@
                             "timezone": {
                                 "default": "Europe/Paris",
                                 "type": "string"
+                            },
+                            "bio": {
+                                "maxLength": 2000,
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "specialties": {
+                                "maxLength": 1000,
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "signature": {
+                                "maxLength": 500,
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
                             }
                         }
                     }
