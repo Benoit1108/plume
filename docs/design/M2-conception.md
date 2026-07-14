@@ -131,8 +131,10 @@ réponse) et d'isolation tenant sur toutes les nouvelles surfaces (acquis à mai
 - [x] Boîte connectée/déconnectée depuis les Réglages, tokens chiffrés (ADR-0016 écrit),
       statut d'erreur visible et récupérable (reconnexion en un clic), state OAuth anti-CSRF
       lié au tenant, connecteur factice par défaut (dev/CI/E2E sans compte réel).
-- [ ] Envoi d'un brouillon relu depuis la vraie adresse (garde RGPD double, garde d'état
-      anti-redélivrance, code d'échec affichable), journal `email_sent`, piste avancée (D3).
+- [x] Envoi d'un brouillon relu depuis la vraie adresse (garde RGPD double — commande ET
+      worker —, garde d'état anti-redélivrance, codes d'échec i18n, rate limiting 20/h/tenant),
+      journal `email_sent`/`email_send_failed`, piste avancée (D3 : politique idempotente qui
+      réactive le tenant depuis l'event — le pattern worker acté en M1.2 est désormais outillé).
 - [ ] Réponses captées par threading → `recordReply()` **idempotent**, relance annulée,
       aperçu sanitisé en timeline.
 - [ ] Relance envoyée dans le fil d'origine depuis « Aujourd'hui » et la fiche.

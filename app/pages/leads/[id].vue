@@ -110,6 +110,8 @@ const timelineIcon: Record<Interaction['type'], string> = {
   followed_up: 'i-lucide-alarm-clock-check',
   follow_up_cancelled: 'i-lucide-alarm-clock-off',
   draft_generated: 'i-lucide-feather',
+  email_sent: 'i-lucide-mail-check',
+  email_send_failed: 'i-lucide-mail-x',
 }
 
 // ----- Relance (bloc « Prochaine relance ») -----
@@ -272,6 +274,9 @@ const canScheduleFollowUp = computed(() =>
               <div class="text-sm font-medium">{{ timelineLabel(interaction) }}</div>
               <p v-if="interaction.type === 'note' && typeof interaction.payload.text === 'string'" class="text-sm text-muted whitespace-pre-line">
                 {{ interaction.payload.text }}
+              </p>
+              <p v-else-if="interaction.type === 'email_send_failed' && typeof interaction.payload.reason === 'string'" class="text-sm text-error">
+                {{ t(`mailbox.failures.${interaction.payload.reason}`, t('mailbox.failures.send_failed')) }}
               </p>
             </div>
             <time class="ml-auto text-xs text-dimmed shrink-0 tabular-nums" :datetime="interaction.occurredOn">

@@ -52,6 +52,17 @@ describe('useDrafts', () => {
     expect(removeOptions.method).toBe('DELETE')
   })
 
+  it('send poste l\'envoi asynchrone du brouillon', async () => {
+    apiMock.mockResolvedValueOnce({ id: 'out-1', status: 'SENDING' })
+
+    const receipt = await useDrafts().send('d1')
+
+    expect(receipt.status).toBe('SENDING')
+    const [path, options] = apiMock.mock.calls[0] as [string, { method: string }]
+    expect(path).toBe('/api/v1/drafts/d1/send')
+    expect(options.method).toBe('POST')
+  })
+
   it('templates : liste (seed côté API) et CRUD complet', async () => {
     apiMock.mockResolvedValueOnce({ member: [{ id: 't1', name: 'Candidature édition (FR)' }] })
     const drafts = useDrafts()

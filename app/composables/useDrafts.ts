@@ -25,6 +25,9 @@ export function useDrafts() {
       api<Draft>(`/api/v1/drafts/${id}/regenerate`, { method: 'POST', body: {}, headers: ldWrite }),
     remove: (id: string) =>
       api<unknown>(`/api/v1/drafts/${id}`, { method: 'DELETE' }),
+    /** Envoi asynchrone (boîte connectée requise) : la réponse est l'accusé SENDING. */
+    send: (id: string) =>
+      api<{ id: string, status: string }>(`/api/v1/drafts/${id}/send`, { method: 'POST', body: {}, headers: ldWrite }),
 
     async templates(): Promise<Template[]> {
       const res = await api<JsonLdCollection<Template>>('/api/v1/templates', { headers: ld })

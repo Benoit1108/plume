@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Draft, DraftType, Template } from '~/types/drafting'
+import type { Mailbox } from '~/types/mailbox'
 
 const props = defineProps<{
   leadId: string
@@ -22,6 +23,15 @@ const { data: drafts, refresh: refreshDrafts } = await useAsyncData<Draft[]>(
   () => draftsApi.forLead(props.leadId),
   { server: false, default: () => [] },
 )
+
+// La boîte connectée conditionne le bouton Envoyer (clé partagée avec les Réglages).
+const mailboxApi = useMailbox()
+const { data: mailbox } = await useAsyncData<Mailbox | null>(
+  'mailbox',
+  () => mailboxApi.get(),
+  { server: false, default: () => null },
+)
+const canSend = computed(() => mailbox.value?.status === 'CONNECTED')
 
 // ----- Génération (modale) -----
 const generateOpen = ref(false)
@@ -197,6 +207,28 @@ async function deleteDraft(): Promise<void> {
   }
   catch (error) {
     toast.add({ title: errorToastTitle(t, error), color: 'error' })
+  }
+}
+
+// ----- Envoi (M2.2, draft-first : confirmation avec récap) -----
+const confirmSend = ref(false)
+const sending = ref(false)
+
+async function sendDraft(): Promise<void> {
+  if (!editingDraft.value) return
+  sending.value = true
+  try {
+    await draftsApi.send(editingDraft.value.id)
+    confirmSend.value = false
+    editingDraft.value = null
+    emit('activity')
+    toast.add({ title: t('drafts.toasts.sendRequested'), color: 'success' })
+  }
+  catch (error) {
+    toast.add({ title: errorToastTitle(t, error), color: 'error' })
+  }
+  finally {
+    sending.value = false
   }
 }
 
@@ -380,6 +412,14 @@ function formatDate(iso: string): string {
               {{ t('drafts.editor.copy') }}
             </UButton>
             <UButton
+              v-if="editingDraft.status === 'READY' && canSend"
+              icon="i-lucide-send"
+              :loading="sending"
+              @click="() => { confirmSend = true }"
+            >
+              {{ t('drafts.editor.send') }}
+            </UButton>
+            <UButton
               v-if="editingDraft.status === 'READY'"
               :loading="savingDraft"
               :disabled="!editBody.trim()"
@@ -392,6 +432,13 @@ function formatDate(iso: string): string {
       </template>
     </USlideover>
 
+    <ConfirmDialog
+      v-model:open="confirmSend"
+      :title="t('drafts.editor.confirmSendTitle')"
+      :description="t('drafts.editor.confirmSendBody', { mailbox: mailbox?.emailAddress ?? '' })"
+      :confirm-label="t('drafts.editor.send')"
+      @confirm="sendDraft"
+    />
     <ConfirmDialog
       v-model:open="confirmRegenerate"
       :title="t('drafts.editor.confirmRegenerateTitle')"

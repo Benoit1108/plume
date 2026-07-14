@@ -32,6 +32,7 @@ export type InteractionType =
   | 'paused' | 'resumed' | 'note'
   | 'follow_up_scheduled' | 'followed_up' | 'follow_up_cancelled'
   | 'draft_generated'
+  | 'email_sent' | 'email_send_failed'
 
 export interface Interaction {
   id: string

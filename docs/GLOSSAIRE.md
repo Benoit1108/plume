@@ -213,6 +213,17 @@ Le vocabulaire métier ci-dessous est **contractuel** et reste en **français** 
 | State anti-CSRF | `OAuthStateCodec` (HMAC, lié au tenant, TTL 10 min, sans stockage serveur) |
 | Échec de connexion | `MailboxConnectionFailed` → 422 propre ; boîte non opérationnelle : `MailboxNotOperational` (409) |
 
+### Passerelle email — `OutboundMessage` (M2.2)
+| Métier (FR) | Code (EN) |
+|---|---|
+| Envoi (agrégat) | `OutboundMessage` : `SENDING` \| `SENT` \| `FAILED`, `threadKey` (fil provider, capte les réponses en M2.3), gardes d'état anti-redélivrance |
+| Port d'envoi | `MailSender` → `GmailMailSender` (access token frais minté à chaque envoi) / `FakeMailSender` (défaut sans `GOOGLE_CLIENT_ID`) |
+| Destinataire | port `RecipientResolver` : contact désigné de la piste, sinon premier contact avec email — RGPD organisation ET contact |
+| Frontière vers le brouillon | port `DraftGateway` (tenant explicite, worker-safe) |
+| Envoi fait avancer la piste (D3) | politique `AdvanceLeadOnEmailSent` (Prospecting) : candidature → `contact()`, relance → `recordFollowUp()` — conflits absorbés (idempotente) ; **réactive le tenant depuis l'event** (worker) |
+| Codes d'échec | `mailbox_unavailable`, `recipient_unavailable`, `contact_not_allowed`, `send_failed` (i18n `mailbox.failures.*`) |
+| Journal | types `email_sent` / `email_send_failed` |
+
 ## Contexte Sourcing (V2/M3)
 
 | Terme             | Définition |

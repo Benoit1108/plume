@@ -3020,6 +3020,90 @@
                 }
             }
         },
+        "/api/v1/drafts/{id}/send": {
+            "post": {
+                "operationId": "api_drafts_idsend_post",
+                "tags": [
+                    "SendDraft"
+                ],
+                "responses": {
+                    "202": {
+                        "description": "SendDraft resource created",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SendDraft.jsonld-send.read"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SendDraft-send.read"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Envoyer le brouillon (asynchrone, bo\u00eete connect\u00e9e requise)",
+                "description": "Envoyer le brouillon (asynchrone, bo\u00eete connect\u00e9e requise)",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "DraftResource identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            }
+        },
         "/api/v1/templates": {
             "get": {
                 "operationId": "api_templates_get_collection",
@@ -6146,6 +6230,45 @@
                 ],
                 "description": "Profil de la traductrice (singleton par tenant) \u2014 M1.3 : objectif hebdo,\nM1.4 : pr\u00e9sentation (bio, sp\u00e9cialit\u00e9s, signature) pour la r\u00e9daction assist\u00e9e."
             },
+            "SendDraft-send.read": {
+                "type": "object",
+                "description": "Envoi d'un brouillon relu (draft-first : READY uniquement). Asynchrone :\nla r\u00e9ponse est l'ACCUS\u00c9 (SENDING) ; le journal de la piste raconte la suite\n(email_sent / email_send_failed).",
+                "properties": {
+                    "id": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "status": {
+                        "default": "SENDING",
+                        "type": "string"
+                    }
+                }
+            },
+            "SendDraft.jsonld-send.read": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/HydraItemBaseSchema"
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "status": {
+                                "default": "SENDING",
+                                "type": "string"
+                            }
+                        }
+                    }
+                ],
+                "description": "Envoi d'un brouillon relu (draft-first : READY uniquement). Asynchrone :\nla r\u00e9ponse est l'ACCUS\u00c9 (SENDING) ; le journal de la piste raconte la suite\n(email_sent / email_send_failed)."
+            },
             "Template-template.read": {
                 "type": "object",
                 "description": "Mod\u00e8le (gabarit) de message : canevas r\u00e9utilisable par type/segment/langue,\navec variables ({{contact}}, {{organisation}}, {{langues}}, {{bio}},\n{{specialites}}, {{signature}}). 3 gabarits seed\u00e9s \u00e0 la premi\u00e8re utilisation.",
@@ -6492,6 +6615,10 @@
         {
             "name": "Mailbox",
             "description": "La bo\u00eete email connect\u00e9e du tenant (une seule en V1 \u2014 D6).\nLe flux OAuth : POST /mailbox/oauth/start \u2192 URL de consentement \u2192\nle navigateur revient sur le front avec code+state \u2192 POST /mailbox/connect.\nJamais un token dans une r\u00e9ponse."
+        },
+        {
+            "name": "SendDraft",
+            "description": "Envoi d'un brouillon relu (draft-first : READY uniquement). Asynchrone :\nla r\u00e9ponse est l'ACCUS\u00c9 (SENDING) ; le journal de la piste raconte la suite\n(email_sent / email_send_failed)."
         },
         {
             "name": "Dashboard",

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+                  https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+    <!-- Envoi (Passerelle email). Domaine pur, mapping hors src/. -->
+    <entity name="App\Mailbox\Domain\Outbound\OutboundMessage" table="outbound_message">
+        <indexes>
+            <index name="idx_outbound_tenant_lead" columns="tenant_id,lead_id"/>
+            <index name="idx_outbound_thread" columns="tenant_id,thread_key"/>
+        </indexes>
+        <id name="id" type="outbound_message_id" column="id">
+            <generator strategy="NONE"/>
+        </id>
+        <field name="tenantId" type="tenant_id" column="tenant_id"/>
+        <field name="leadId" type="string" column="lead_id"/>
+        <field name="draftId" type="string" column="draft_id"/>
+        <field name="draftType" type="string" column="draft_type" length="32"/>
+        <field name="recipient" type="email_address" column="recipient"/>
+        <field name="threadKey" type="string" column="thread_key" nullable="true"/>
+        <field name="status" type="string" column="status" enum-type="App\Mailbox\Domain\Outbound\OutboundStatus"/>
+        <field name="failureReason" type="string" column="failure_reason" nullable="true"/>
+        <field name="requestedAt" type="datetime_immutable" column="requested_at"/>
+        <field name="sentAt" type="datetime_immutable" column="sent_at" nullable="true"/>
+    </entity>
+</doctrine-mapping>

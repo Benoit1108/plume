@@ -91,6 +91,19 @@ services:
         arguments:
             $redirectUri: '%env(string:GOOGLE_REDIRECT_URI)%'
 
+    App\Mailbox\Domain\Outbound\OutboundMessageRepository: '@App\Mailbox\Infrastructure\Persistence\Doctrine\DoctrineOutboundMessageRepository'
+    App\Mailbox\Application\DraftGateway: '@App\Mailbox\Infrastructure\Gateway\DoctrineDraftGateway'
+    App\Mailbox\Application\RecipientResolver: '@App\Mailbox\Infrastructure\Gateway\DoctrineRecipientResolver'
+    # Port MailSender : sélection par env (GOOGLE_CLIENT_ID présent => Gmail, sinon factice).
+    App\Mailbox\Application\MailSender: '@App\Mailbox\Infrastructure\Sender\MailSenderSelector'
+    App\Mailbox\Infrastructure\Sender\MailSenderSelector:
+        arguments:
+            $clientId: '%env(string:GOOGLE_CLIENT_ID)%'
+    App\Mailbox\Infrastructure\Sender\GmailMailSender:
+        arguments:
+            $clientId: '%env(string:GOOGLE_CLIENT_ID)%'
+            $clientSecret: '%env(string:GOOGLE_CLIENT_SECRET)%'
+
     # Port MessageGenerator : sélection par env (clé présente => Claude, sinon canned).
     App\Drafting\Application\MessageGenerator: '@App\Drafting\Infrastructure\Generator\MessageGeneratorSelector'
     App\Drafting\Infrastructure\Generator\MessageGeneratorSelector:

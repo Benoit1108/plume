@@ -13,3 +13,9 @@ framework:
             policy: sliding_window
             limit: 30
             interval: '1 hour'
+        # Envoi d'emails : coûte de la RÉPUTATION (délivrabilité) — 20 envois / heure
+        # par tenant, large pour un démarchage humain, borne les emballements.
+        mailbox_send:
+            policy: sliding_window
+            limit: 20
+            interval: '1 hour'

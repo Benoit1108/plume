@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Prospecting\Infrastructure\Projection;
 
 use App\Drafting\Domain\Draft\Event\DraftGenerated;
+use App\Mailbox\Domain\Outbound\Event\EmailSendFailed;
+use App\Mailbox\Domain\Outbound\Event\EmailSent;
 use App\Prospecting\Domain\Lead\Event\FollowUpCancelled;
 use App\Prospecting\Domain\Lead\Event\FollowUpScheduled;
 use App\Prospecting\Domain\Lead\Event\FollowUpSent;
@@ -112,6 +114,19 @@ final class InteractionProjector
     public function onDraftGenerated(DraftGenerated $event): void
     {
         $this->record($event, $event->tenantId, $event->leadId, 'draft_generated', ['draftType' => $event->type]);
+    }
+
+    /** Events du contexte Mailbox — l'envoi réel entre dans l'histoire de la piste. */
+    #[AsMessageHandler(bus: 'event.bus')]
+    public function onEmailSent(EmailSent $event): void
+    {
+        $this->record($event, $event->tenantId, $event->leadId, 'email_sent', ['draftType' => $event->draftType]);
+    }
+
+    #[AsMessageHandler(bus: 'event.bus')]
+    public function onEmailSendFailed(EmailSendFailed $event): void
+    {
+        $this->record($event, $event->tenantId, $event->leadId, 'email_send_failed', ['reason' => $event->reason]);
     }
 
     /** @param array<string, mixed> $payload */

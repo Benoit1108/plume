@@ -197,7 +197,9 @@
       "follow_up_scheduled": "Follow-up scheduled",
       "followed_up": "Follow-up done",
       "follow_up_cancelled": "Follow-up cancelled",
-      "draft_generated": "Draft generated"
+      "draft_generated": "Draft generated",
+      "email_sent": "Email sent",
+      "email_send_failed": "Email send failed"
     },
     "new": {
       "title": "New lead",
@@ -289,14 +291,18 @@
       "confirmDeleteTitle": "Delete this draft?",
       "confirmDeleteBody": "The draft will be permanently deleted.",
       "copySubject": "Copy the subject",
-      "copyBody": "Copy the message"
+      "copyBody": "Copy the message",
+      "send": "Send",
+      "confirmSendTitle": "Send this message?",
+      "confirmSendBody": "The reviewed message goes to the lead’s contact, from {mailbox}. Sending advances the lead (contact or follow-up done)."
     },
     "toasts": {
       "requested": "Generation started",
       "saved": "Draft saved",
       "copied": "Copied to clipboard",
       "copyFailed": "Could not copy — select the text manually.",
-      "deleted": "Draft deleted"
+      "deleted": "Draft deleted",
+      "sendRequested": "Send started — the lead’s journal will confirm."
     },
     "stillGenerating": "Generation is taking longer than expected.",
     "refresh": "Refresh"
@@ -395,7 +401,11 @@
     },
     "failures": {
       "sync_failed": "Sync failed — reconnect the mailbox.",
-      "token_expired": "Authorization expired — reconnect the mailbox."
+      "token_expired": "Authorization expired — reconnect the mailbox.",
+      "send_failed": "Send failed — retry or check the mailbox in Settings.",
+      "mailbox_unavailable": "Mailbox unavailable — reconnect it in Settings.",
+      "recipient_unavailable": "No recipient found on the lead.",
+      "contact_not_allowed": "This organization asked not to be contacted."
     },
     "confirmRevokeTitle": "Disconnect the mailbox?",
     "confirmRevokeBody": "The Google consent is revoked and tokens are erased. Messages already sent stay in your mailbox.",

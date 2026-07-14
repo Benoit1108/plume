@@ -16,6 +16,7 @@ doctrine:
             draft_id: App\Drafting\Infrastructure\Persistence\Doctrine\Type\DraftIdType
             template_id: App\Drafting\Infrastructure\Persistence\Doctrine\Type\TemplateIdType
             mailbox_id: App\Mailbox\Infrastructure\Persistence\Doctrine\Type\MailboxIdType
+            outbound_message_id: App\Mailbox\Infrastructure\Persistence\Doctrine\Type\OutboundMessageIdType
             encrypted_token: App\Mailbox\Infrastructure\Persistence\Doctrine\Type\EncryptedTokenType
             email_address: App\Shared\Infrastructure\Persistence\Doctrine\Type\EmailAddressType
     orm:
@@ -55,6 +56,11 @@ doctrine:
                 is_bundle: false
                 dir: '%kernel.project_dir%/config/doctrine/mailbox'
                 prefix: 'App\Mailbox\Domain\Mailbox'
+            MailboxOutbound:
+                type: xml
+                is_bundle: false
+                dir: '%kernel.project_dir%/config/doctrine/mailbox-outbound'
+                prefix: 'App\Mailbox\Domain\Outbound'
             AccountProfile:
                 type: xml
                 is_bundle: false

@@ -197,7 +197,9 @@
       "follow_up_scheduled": "Relance planifiée",
       "followed_up": "Relance faite",
       "follow_up_cancelled": "Relance annulée",
-      "draft_generated": "Brouillon généré"
+      "draft_generated": "Brouillon généré",
+      "email_sent": "Email envoyé",
+      "email_send_failed": "Envoi de l’email échoué"
     },
     "new": {
       "title": "Nouvelle piste",
@@ -289,14 +291,18 @@
       "confirmDeleteTitle": "Supprimer ce brouillon ?",
       "confirmDeleteBody": "Le brouillon sera définitivement supprimé.",
       "copySubject": "Copier l'objet",
-      "copyBody": "Copier le message"
+      "copyBody": "Copier le message",
+      "send": "Envoyer",
+      "confirmSendTitle": "Envoyer ce message ?",
+      "confirmSendBody": "Le message relu part au contact de la piste, depuis {mailbox}. L’envoi fait avancer la piste (contact ou relance faite)."
     },
     "toasts": {
       "requested": "Génération lancée",
       "saved": "Brouillon enregistré",
       "copied": "Copié dans le presse-papier",
       "copyFailed": "Impossible de copier — sélectionnez le texte manuellement.",
-      "deleted": "Brouillon supprimé"
+      "deleted": "Brouillon supprimé",
+      "sendRequested": "Envoi lancé — le journal de la piste confirmera."
     },
     "stillGenerating": "La génération prend plus de temps que prévu.",
     "refresh": "Actualiser"
@@ -395,7 +401,11 @@
     },
     "failures": {
       "sync_failed": "La synchronisation a échoué — reconnectez la boîte.",
-      "token_expired": "L’autorisation a expiré — reconnectez la boîte."
+      "token_expired": "L’autorisation a expiré — reconnectez la boîte.",
+      "send_failed": "L’envoi a échoué — réessayez ou vérifiez la boîte dans les Réglages.",
+      "mailbox_unavailable": "Boîte indisponible — reconnectez-la dans les Réglages.",
+      "recipient_unavailable": "Destinataire introuvable sur la piste.",
+      "contact_not_allowed": "Cette organisation a demandé à ne plus être contactée."
     },
     "confirmRevokeTitle": "Déconnecter la boîte ?",
     "confirmRevokeBody": "Le consentement Google est révoqué et les jetons effacés. Vos messages déjà envoyés restent dans votre boîte.",

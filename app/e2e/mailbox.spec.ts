@@ -8,8 +8,16 @@ test('boîte email : connexion OAuth (factice) depuis les réglages, état, déc
   await page.goto('/settings')
   await waitForHydration(page)
 
-  // Déconnectée (ou jamais connectée) : le bouton Connecter Gmail est là.
+  // État initial agnostique (tenant e2e partagé) : si une boîte est déjà
+  // connectée par un autre parcours, on la déconnecte d'abord.
   const connectButton = page.getByRole('button', { name: /connecter gmail|connect gmail/i })
+  const connectedBadge = page.getByText(/^connectée$|^connected$/i)
+  await expect(connectButton.or(connectedBadge).first()).toBeVisible()
+  if (await connectedBadge.isVisible()) {
+    await page.getByRole('button', { name: /déconnecter|disconnect/i }).click()
+    await page.getByRole('button', { name: /^déconnecter$|^disconnect$/i }).last().click()
+    await expect(page.getByText(/boîte déconnectée|mailbox disconnected/i).first()).toBeVisible()
+  }
   await expect(connectButton).toBeVisible()
 
   // Le consentement factice redirige immédiatement vers notre callback → connectée.
