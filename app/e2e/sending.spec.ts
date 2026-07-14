@@ -39,6 +39,8 @@ test('envoi : boîte connectée → brouillon relu → Envoyer → journal + pis
   await waitForHydration(page)
   await page.getByRole('button', { name: /créer|create/i }).click()
   await page.waitForURL(/\/leads\/[0-9a-f-]+$/)
+  const capturedLeadUrl = page.url()
+  const leadUrl = (): string => capturedLeadUrl
 
   // Brouillon canned → READY → Envoyer (confirmation draft-first).
   await page.getByRole('button', { name: /générer un message|generate a message/i }).click()
@@ -56,6 +58,21 @@ test('envoi : boîte connectée → brouillon relu → Envoyer → journal + pis
     await waitForHydration(page)
     await expect(page.getByText(/email envoyé|email sent/i).first()).toBeVisible()
     await expect(page.getByText(/contact établi|contact made/i).first()).toBeVisible()
+  }).toPass({ timeout: 25_000 })
+
+  // M2.3 — la boucle se ferme : relève manuelle → réponse captée (fetcher factice)
+  // → piste en discussion, aperçu au journal.
+  await page.goto('/settings')
+  await waitForHydration(page)
+  await page.getByRole('button', { name: /relever les réponses|fetch replies/i }).click()
+  await expect(page.getByText(/relève effectuée|fetch done/i).first()).toBeVisible()
+
+  await expect(async () => {
+    await page.goto(leadUrl())
+    await waitForHydration(page)
+    await expect(page.getByText(/réponse reçue|reply received/i).first()).toBeVisible()
+    await expect(page.getByText(/pouvez-vous nous envoyer vos références/i).first()).toBeVisible()
+    await expect(page.getByText(/en discussion|in discussion/i).first()).toBeVisible()
   }).toPass({ timeout: 25_000 })
 
   expect(errors).toEqual([])

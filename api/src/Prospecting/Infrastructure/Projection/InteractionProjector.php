@@ -51,7 +51,7 @@ final class InteractionProjector
     #[AsMessageHandler(bus: 'event.bus')]
     public function onReplyReceived(ReplyReceived $event): void
     {
-        $this->record($event, $event->tenantId, $event->leadId, 'reply');
+        $this->record($event, $event->tenantId, $event->leadId, 'reply', null !== $event->preview ? ['preview' => $event->preview] : []);
     }
 
     #[AsMessageHandler(bus: 'event.bus')]

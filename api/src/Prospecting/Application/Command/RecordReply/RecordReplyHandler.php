@@ -22,7 +22,7 @@ final class RecordReplyHandler implements CommandHandler
     public function __invoke(RecordReply $command): void
     {
         $lead = $this->leads->get(LeadId::fromString($command->leadId));
-        $lead->recordReply($this->clock->now());
+        $lead->recordReply($this->clock->now(), $command->preview);
         $this->leads->save($lead);
         $this->eventBus->publish(...$lead->pullDomainEvents());
     }

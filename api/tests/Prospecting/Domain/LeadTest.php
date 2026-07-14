@@ -279,6 +279,31 @@ final class LeadTest extends TestCase
         self::assertSame('REPLY', $events[1]->reason);
     }
 
+    public function testRecordReplyIsIdempotent(): void
+    {
+        // Dette revue fin M1 soldée (M2.3) : les réponses captées automatiquement
+        // arrivent en double — une piste en discussion absorbe sans bruit.
+        $lead = $this->aLeadIn(PipelineStatus::CONTACTED);
+        $lead->recordReply($this->now, 'Merci, envoyez vos références.');
+        $lead->pullDomainEvents();
+
+        $lead->recordReply($this->now, 'Relève suivante — même fil.');
+
+        self::assertSame(PipelineStatus::IN_DISCUSSION, $lead->status());
+        self::assertSame([], $lead->pullDomainEvents()); // no-op : aucun event
+    }
+
+    public function testReplyPreviewTravelsInTheEvent(): void
+    {
+        $lead = $this->aLeadIn(PipelineStatus::CONTACTED);
+
+        $lead->recordReply($this->now, 'Merci pour votre message.');
+
+        $events = $lead->pullDomainEvents();
+        $reply = array_values(array_filter($events, static fn (object $e): bool => $e instanceof ReplyReceived))[0];
+        self::assertSame('Merci pour votre message.', $reply->preview);
+    }
+
     public function testTerminalAndPauseCancelPendingFollowUp(): void
     {
         $lead = $this->aLeadIn(PipelineStatus::CONTACTED);

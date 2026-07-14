@@ -104,11 +104,19 @@ final class Lead extends AggregateRoot
     }
 
     /** Réponse entrante : la discussion s'ouvre, la relance en attente est annulée. */
-    public function recordReply(\DateTimeImmutable $now): void
+    /**
+     * IDEMPOTENT (dette revue fin M1, soldée en M2.3) : les réponses captées
+     * automatiquement peuvent arriver plusieurs fois — une piste déjà en
+     * discussion n'a plus rien à faire d'une réponse de plus (no-op, sans event).
+     */
+    public function recordReply(\DateTimeImmutable $now, ?string $preview = null): void
     {
+        if (PipelineStatus::IN_DISCUSSION === $this->status) {
+            return;
+        }
         $this->transitionTo(PipelineStatus::IN_DISCUSSION);
         $this->lastReplyAt = $now;
-        $this->recordEvent(new ReplyReceived($this->tenantId->toString(), $this->id->toString(), $now));
+        $this->recordEvent(new ReplyReceived($this->tenantId->toString(), $this->id->toString(), $preview, $now));
         $this->cancelPendingFollowUp(FollowUpCancelReason::REPLY, $now);
     }
 

@@ -135,8 +135,9 @@ réponse) et d'isolation tenant sur toutes les nouvelles surfaces (acquis à mai
       worker —, garde d'état anti-redélivrance, codes d'échec i18n, rate limiting 20/h/tenant),
       journal `email_sent`/`email_send_failed`, piste avancée (D3 : politique idempotente qui
       réactive le tenant depuis l'event — le pattern worker acté en M1.2 est désormais outillé).
-- [ ] Réponses captées par threading → `recordReply()` **idempotent**, relance annulée,
-      aperçu sanitisé en timeline.
+- [x] Réponses captées par threading → `recordReply()` **idempotent** (dette soldée),
+      relance annulée, aperçu TEXTE borné en timeline (snippet provider, jamais de HTML),
+      relève Scheduler 5 min + geste manuel, ADR-0017 écrit.
 - [ ] Relance envoyée dans le fil d'origine depuis « Aujourd'hui » et la fiche.
 - [ ] Dettes ADR-0014 soldées : interpolation locale `{{contact}}`, rétention du journal tracée.
 - [ ] Pyramide complète (adaptateurs sur réponses enregistrées, FakeMailProvider en E2E,

@@ -9,6 +9,7 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Post;
+use App\Mailbox\Infrastructure\ApiResource\State\FetchRepliesProcessor;
 use App\Mailbox\Infrastructure\ApiResource\State\MailboxConnectProcessor;
 use App\Mailbox\Infrastructure\ApiResource\State\MailboxProvider;
 use App\Mailbox\Infrastructure\ApiResource\State\MailboxRevokeProcessor;
@@ -41,6 +42,15 @@ use Symfony\Component\Validator\Constraints as Assert;
             denormalizationContext: ['groups' => ['mailbox:connect']],
             processor: MailboxConnectProcessor::class,
             openapi: new \ApiPlatform\OpenApi\Model\Operation(summary: 'Finaliser la connexion (code OAuth + state anti-CSRF)'),
+        ),
+        new Post(
+            uriTemplate: '/mailbox/fetch-replies',
+            name: 'mailbox_fetch_replies',
+            input: false,
+            status: 200,
+            provider: MailboxProvider::class,
+            processor: FetchRepliesProcessor::class,
+            openapi: new \ApiPlatform\OpenApi\Model\Operation(summary: 'Relever les réponses maintenant (le Scheduler le fait toutes les 5 min)'),
         ),
         new Delete(
             uriTemplate: '/mailbox',

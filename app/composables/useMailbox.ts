@@ -17,6 +17,8 @@ export function useMailbox() {
     /** Finalise la connexion au retour du consentement (code + state anti-CSRF). */
     connect: (code: string, state: string) =>
       api<Mailbox>('/api/v1/mailbox/connect', { method: 'POST', body: { code, state }, headers: ldWrite }),
+    /** Relève immédiate (le Scheduler le fait toutes les 5 min). */
+    fetchReplies: () => api<Mailbox>('/api/v1/mailbox/fetch-replies', { method: 'POST', body: {}, headers: ldWrite }),
     revoke: () => api<unknown>('/api/v1/mailbox', { method: 'DELETE' }),
   }
 }

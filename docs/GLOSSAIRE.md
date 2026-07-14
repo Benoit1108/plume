@@ -222,7 +222,9 @@ Le vocabulaire métier ci-dessous est **contractuel** et reste en **français** 
 | Frontière vers le brouillon | port `DraftGateway` (tenant explicite, worker-safe) |
 | Envoi fait avancer la piste (D3) | politique `AdvanceLeadOnEmailSent` (Prospecting) : candidature → `contact()`, relance → `recordFollowUp()` — conflits absorbés (idempotente) ; **réactive le tenant depuis l'event** (worker) |
 | Codes d'échec | `mailbox_unavailable`, `recipient_unavailable`, `contact_not_allowed`, `send_failed` (i18n `mailbox.failures.*`) |
-| Journal | types `email_sent` / `email_send_failed` |
+| Journal | types `email_sent` / `email_send_failed` ; `reply` porte l'aperçu (`payload.preview`) |
+| Réponse captée | event `ReplyCaptured` (Mailbox → politique Prospection `RecordReplyOnReplyCaptured`) |
+| Relève | port `ReplyFetcher` (`GmailReplyFetcher` snippet texte borné / `FakeReplyFetcher`) + `OpenThreads` ; Scheduler 5 min + geste manuel (ADR-0017) |
 
 ## Contexte Sourcing (V2/M3)
 

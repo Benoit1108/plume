@@ -8,7 +8,9 @@ use App\Shared\Application\Command\Command;
 
 final class RecordReply implements Command
 {
-    public function __construct(public readonly string $leadId)
-    {
+    public function __construct(
+        public readonly string $leadId,
+        public readonly ?string $preview = null,
+    ) {
     }
 }

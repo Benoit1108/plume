@@ -94,6 +94,16 @@ services:
     App\Mailbox\Domain\Outbound\OutboundMessageRepository: '@App\Mailbox\Infrastructure\Persistence\Doctrine\DoctrineOutboundMessageRepository'
     App\Mailbox\Application\DraftGateway: '@App\Mailbox\Infrastructure\Gateway\DoctrineDraftGateway'
     App\Mailbox\Application\RecipientResolver: '@App\Mailbox\Infrastructure\Gateway\DoctrineRecipientResolver'
+    App\Mailbox\Application\OpenThreads: '@App\Mailbox\Infrastructure\ReadModel\DoctrineOpenThreads'
+    App\Mailbox\Application\ReplyFetcher: '@App\Mailbox\Infrastructure\Fetcher\ReplyFetcherSelector'
+    App\Mailbox\Infrastructure\Fetcher\ReplyFetcherSelector:
+        arguments:
+            $clientId: '%env(string:GOOGLE_CLIENT_ID)%'
+    App\Mailbox\Infrastructure\Fetcher\GmailReplyFetcher:
+        arguments:
+            $clientId: '%env(string:GOOGLE_CLIENT_ID)%'
+            $clientSecret: '%env(string:GOOGLE_CLIENT_SECRET)%'
+
     # Port MailSender : sélection par env (GOOGLE_CLIENT_ID présent => Gmail, sinon factice).
     App\Mailbox\Application\MailSender: '@App\Mailbox\Infrastructure\Sender\MailSenderSelector'
     App\Mailbox\Infrastructure\Sender\MailSenderSelector:

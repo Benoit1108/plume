@@ -275,6 +275,9 @@ const canScheduleFollowUp = computed(() =>
               <p v-if="interaction.type === 'note' && typeof interaction.payload.text === 'string'" class="text-sm text-muted whitespace-pre-line">
                 {{ interaction.payload.text }}
               </p>
+              <p v-else-if="interaction.type === 'reply' && typeof interaction.payload.preview === 'string'" class="text-sm text-muted italic line-clamp-3">
+                « {{ interaction.payload.preview }} »
+              </p>
               <p v-else-if="interaction.type === 'email_send_failed' && typeof interaction.payload.reason === 'string'" class="text-sm text-error">
                 {{ t(`mailbox.failures.${interaction.payload.reason}`, t('mailbox.failures.send_failed')) }}
               </p>

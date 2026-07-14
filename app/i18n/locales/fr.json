@@ -416,7 +416,10 @@
     },
     "toasts": {
       "connected": "Boîte connectée",
-      "revoked": "Boîte déconnectée"
-    }
+      "revoked": "Boîte déconnectée",
+      "fetched": "Relève effectuée — le journal des pistes est à jour."
+    },
+    "fetchNow": "Relever les réponses",
+    "lastSync": "dernière relève : {date}"
   }
 }

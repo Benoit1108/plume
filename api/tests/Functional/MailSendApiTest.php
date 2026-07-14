@@ -204,6 +204,45 @@ final class MailSendApiTest extends ApiTestCase
         self::assertResponseStatusCodeSame(409);
     }
 
+    public function testFetchRepliesClosesTheLoop(): void
+    {
+        // M2.3 : envoi → relève (factice) → réponse captée → piste EN DISCUSSION,
+        // relance annulée, aperçu au journal — et la relève est IDEMPOTENTE.
+        $this->createUser('a@plume.test');
+        $client = static::createClient();
+        $token = $this->tokenFor($client, 'a@plume.test');
+        $this->connectMailbox($client, $token);
+        ['leadId' => $leadId, 'draftId' => $draftId] = $this->aReadyDraft($client, $token);
+        $this->post($client, $token, sprintf('/api/v1/drafts/%s/send', $draftId));
+        self::assertResponseStatusCodeSame(202);
+
+        $this->post($client, $token, '/api/v1/mailbox/fetch-replies');
+        self::assertResponseIsSuccessful();
+
+        $lead = $client->request('GET', sprintf('/api/v1/leads/%s', $leadId), ['auth_bearer' => $token])->toArray();
+        self::assertSame('IN_DISCUSSION', $lead['status']);
+        self::assertNull($lead['nextFollowUpAt'] ?? null); // relance de cadence annulée
+
+        $types = $this->timelineTypes($client, $token, $leadId);
+        self::assertContains('reply', $types);
+        $timeline = $client->request('GET', sprintf('/api/v1/leads/%s/interactions', $leadId), ['auth_bearer' => $token])->toArray();
+        /** @var list<array{type: string, payload: array<string, mixed>}> $members */
+        $members = $timeline['member'] ?? [];
+        $reply = array_values(array_filter($members, static fn (array $i): bool => 'reply' === $i['type']))[0] ?? null;
+        self::assertIsArray($reply);
+        $preview = $reply['payload']['preview'] ?? null;
+        self::assertIsString($preview);
+        self::assertStringContainsString('références', $preview);
+
+        // Seconde relève : plus de fil ouvert (piste en discussion) → aucun doublon.
+        $this->post($client, $token, '/api/v1/mailbox/fetch-replies');
+        $typesAfter = $this->timelineTypes($client, $token, $leadId);
+        self::assertSame(
+            \count(array_filter($types, static fn (string $t): bool => 'reply' === $t)),
+            \count(array_filter($typesAfter, static fn (string $t): bool => 'reply' === $t)),
+        );
+    }
+
     public function testSendIsTenantIsolated(): void
     {
         $this->createUser('a@plume.test');

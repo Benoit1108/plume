@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App;
 
+use App\Mailbox\Infrastructure\Scheduler\FetchAllRepliesTick;
 use Symfony\Component\Console\Messenger\RunCommandMessage;
 use Symfony\Component\Scheduler\Attribute\AsSchedule;
 use Symfony\Component\Scheduler\RecurringMessage;
@@ -26,6 +27,9 @@ class Schedule implements ScheduleProviderInterface
             ->processOnlyLastMissedRun(true) // mais seulement la dernière occurrence
 
             // Purge quotidienne des refresh tokens expirés (la table grossit sinon).
-            ->add(RecurringMessage::every('1 day', new RunCommandMessage('gesdinet:jwt:clear')));
+            ->add(RecurringMessage::every('1 day', new RunCommandMessage('gesdinet:jwt:clear')))
+
+            // Relève des réponses (D2 : polling — push réévalué à l'hébergement prod, ADR-0017).
+            ->add(RecurringMessage::every('5 minutes', new FetchAllRepliesTick()));
     }
 }

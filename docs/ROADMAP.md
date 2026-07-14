@@ -71,8 +71,8 @@ Fondations techniques.
 - [ ] Relances contextualisées (reprennent l'historique de la Piste).
 - [x] Cookies tokens **httpOnly** ✅ *(M2.0, 2026-07-14 : posés/rotés/effacés par l'API,
       `/me`, même-origine via proxy Nitro, `vue/no-v-html` bloquant)*.
-- [ ] **Dettes actées en revue fin M1 à solder ici** : `recordReply()` idempotent (les
-      réponses entrantes automatiques ne doivent pas 409 sur une piste déjà en discussion),
+- [x] `recordReply()` **idempotent** ✅ *(M2.3 — les relèves répétées sont des no-op)*.
+- [ ] **Dettes actées en revue fin M1 à solder ici** :
       stratégie de rétention/effacement du journal `interaction` (texte des notes),
       interpolation locale de `{{contact}}` (ne plus transmettre le nom du contact à
       Anthropic — cf. ADR-0014).

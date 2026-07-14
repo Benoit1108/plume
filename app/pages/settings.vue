@@ -49,6 +49,23 @@ async function connectMailbox(): Promise<void> {
   }
 }
 
+const fetchingReplies = ref(false)
+
+async function fetchRepliesNow(): Promise<void> {
+  fetchingReplies.value = true
+  try {
+    await mailboxApi.fetchReplies()
+    await refreshMailbox()
+    toast.add({ title: t('mailbox.toasts.fetched'), color: 'success' })
+  }
+  catch (error) {
+    toast.add({ title: errorToastTitle(t, error), color: 'error' })
+  }
+  finally {
+    fetchingReplies.value = false
+  }
+}
+
 async function revokeMailbox(): Promise<void> {
   try {
     await mailboxApi.revoke()
@@ -166,10 +183,24 @@ async function save(): Promise<void> {
             </UButton>
           </template>
         </UAlert>
-        <div class="mt-3 flex justify-end">
-          <UButton size="xs" variant="ghost" color="error" icon="i-lucide-unlink" @click="() => { confirmRevoke = true }">
-            {{ t('mailbox.revoke') }}
-          </UButton>
+        <div class="mt-3 flex items-center gap-2 flex-wrap">
+          <span v-if="mailbox.lastSyncAt" class="text-xs text-dimmed">
+            {{ t('mailbox.lastSync', { date: formatDate(mailbox.lastSyncAt) }) }}
+          </span>
+          <div class="ml-auto flex gap-2">
+            <UButton
+              size="xs"
+              variant="outline"
+              icon="i-lucide-refresh-cw"
+              :loading="fetchingReplies"
+              @click="fetchRepliesNow"
+            >
+              {{ t('mailbox.fetchNow') }}
+            </UButton>
+            <UButton size="xs" variant="ghost" color="error" icon="i-lucide-unlink" @click="() => { confirmRevoke = true }">
+              {{ t('mailbox.revoke') }}
+            </UButton>
+          </div>
         </div>
       </template>
 

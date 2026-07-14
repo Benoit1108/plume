@@ -28,6 +28,16 @@ describe('useMailbox', () => {
     expect(options.method).toBe('POST')
   })
 
+  it('fetchReplies déclenche la relève immédiate', async () => {
+    apiMock.mockResolvedValueOnce({ status: 'CONNECTED' })
+
+    await useMailbox().fetchReplies()
+
+    const [path, options] = apiMock.mock.calls[0] as [string, { method: string }]
+    expect(path).toBe('/api/v1/mailbox/fetch-replies')
+    expect(options.method).toBe('POST')
+  })
+
   it('connect poste code + state, revoke supprime', async () => {
     apiMock.mockResolvedValue({ status: 'CONNECTED' })
     const mailbox = useMailbox()
