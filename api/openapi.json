@@ -5558,7 +5558,7 @@
                         "type": "string"
                     },
                     "status": {
-                        "default": "",
+                        "default": "NONE",
                         "type": "string"
                     },
                     "failureReason": {
@@ -5608,7 +5608,7 @@
                                 "type": "string"
                             },
                             "status": {
-                                "default": "",
+                                "default": "NONE",
                                 "type": "string"
                             },
                             "failureReason": {

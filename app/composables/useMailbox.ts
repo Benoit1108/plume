@@ -7,17 +7,8 @@ export function useMailbox() {
   const ldWrite = { 'Content-Type': 'application/ld+json' }
 
   return {
-    /** null = aucune boîte connectée (404 de l'API). */
-    async get(): Promise<Mailbox | null> {
-      try {
-        return await api<Mailbox>('/api/v1/mailbox', { headers: ld })
-      }
-      catch (error) {
-        const status = (error as { response?: { status?: number } })?.response?.status
-        if (status === 404) return null
-        throw error
-      }
-    },
+    /** Singleton : toujours 200 — `status: 'NONE'` tant que rien n'est connecté. */
+    get: () => api<Mailbox>('/api/v1/mailbox', { headers: ld }),
     /** Démarre le consentement : renvoie l'URL où envoyer le navigateur. */
     async startOAuth(): Promise<string> {
       const res = await api<{ authorizationUrl: string }>('/api/v1/mailbox/oauth/start', { method: 'POST', body: {}, headers: ldWrite })

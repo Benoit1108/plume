@@ -1,4 +1,4 @@
-export type MailboxStatus = 'CONNECTED' | 'ERROR' | 'REVOKED'
+export type MailboxStatus = 'NONE' | 'CONNECTED' | 'ERROR' | 'REVOKED'
 
 /** La boîte email connectée du tenant (une seule en V1) — jamais de token ici. */
 export interface Mailbox {

@@ -5,24 +5,18 @@ vi.stubGlobal('useApi', () => apiMock)
 
 const { useMailbox } = await import('../composables/useMailbox')
 
-function http404(): Error {
-  return Object.assign(new Error('404'), { response: { status: 404 } })
-}
-
 describe('useMailbox', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
 
-  it('get : null quand aucune boîte (404), la boîte sinon, les autres erreurs remontent', async () => {
-    apiMock.mockRejectedValueOnce(http404())
-    await expect(useMailbox().get()).resolves.toBeNull()
+  it('get lit la ressource singleton (statut NONE quand rien n\'est connecté)', async () => {
+    apiMock.mockResolvedValueOnce({ status: 'NONE', emailAddress: '' })
+    await expect(useMailbox().get()).resolves.toMatchObject({ status: 'NONE' })
 
     apiMock.mockResolvedValueOnce({ provider: 'GMAIL', status: 'CONNECTED', emailAddress: 'm@gmail.example' })
     await expect(useMailbox().get()).resolves.toMatchObject({ status: 'CONNECTED' })
-
-    apiMock.mockRejectedValueOnce(Object.assign(new Error('500'), { response: { status: 500 } }))
-    await expect(useMailbox().get()).rejects.toThrow('500')
+    expect((apiMock.mock.calls[0] as [string])[0]).toBe('/api/v1/mailbox')
   })
 
   it('startOAuth renvoie l\'URL de consentement', async () => {

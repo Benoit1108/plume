@@ -95,9 +95,9 @@ final class MailboxApiTest extends ApiTestCase
         $client = static::createClient();
         $token = $this->tokenFor($client, 'a@plume.test');
 
-        // Pas de boîte : 404.
-        $client->request('GET', '/api/v1/mailbox', ['auth_bearer' => $token]);
-        self::assertResponseStatusCodeSame(404);
+        // Pas de boîte : 200 avec statut NONE (singleton — jamais de 404 bruyant).
+        $none = $client->request('GET', '/api/v1/mailbox', ['auth_bearer' => $token])->toArray();
+        self::assertSame('NONE', $none['status']);
 
         // start → state → connect (le connecteur factice accepte le code).
         $state = $this->startOAuth($client, $token);
@@ -164,9 +164,10 @@ final class MailboxApiTest extends ApiTestCase
         $state = $this->startOAuth($client, $tokenA);
         $this->connect($client, $tokenA, $state);
 
-        // B ne voit pas la boîte de A.
-        $client->request('GET', '/api/v1/mailbox', ['auth_bearer' => $tokenB]);
-        self::assertResponseStatusCodeSame(404);
+        // B ne voit pas la boîte de A (statut NONE, aucune fuite d'adresse).
+        $viewB = $client->request('GET', '/api/v1/mailbox', ['auth_bearer' => $tokenB])->toArray();
+        self::assertSame('NONE', $viewB['status']);
+        self::assertSame('', $viewB['emailAddress']);
         // B ne peut pas la révoquer non plus.
         $client->request('DELETE', '/api/v1/mailbox', ['auth_bearer' => $tokenB]);
         self::assertResponseStatusCodeSame(404);

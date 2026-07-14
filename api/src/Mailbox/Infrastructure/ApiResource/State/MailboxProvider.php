@@ -12,8 +12,9 @@ use App\Mailbox\Infrastructure\ApiResource\MailboxResource;
 use App\Shared\Application\Query\QueryBus;
 
 /**
- * GET /mailbox — 404 tant qu'aucune boîte n'est connectée (le front l'interprète
- * comme « proposer la connexion »).
+ * GET /mailbox — ressource singleton : répond TOUJOURS 200, avec `status: NONE`
+ * tant qu'aucune boîte n'est connectée. (Un 404 ici ferait cracher un
+ * console.error navigateur à chaque visite des Réglages — garde E2E.).
  *
  * @implements ProviderInterface<MailboxResource>
  */
@@ -23,12 +24,12 @@ final class MailboxProvider implements ProviderInterface
     {
     }
 
-    public function provide(Operation $operation, array $uriVariables = [], array $context = []): ?MailboxResource
+    public function provide(Operation $operation, array $uriVariables = [], array $context = []): MailboxResource
     {
         /** @var MailboxView|null $view */
         $view = $this->queryBus->ask(new GetMailbox());
 
-        return null === $view ? null : self::toResource($view);
+        return null === $view ? new MailboxResource() : self::toResource($view);
     }
 
     public static function toResource(MailboxView $view): MailboxResource

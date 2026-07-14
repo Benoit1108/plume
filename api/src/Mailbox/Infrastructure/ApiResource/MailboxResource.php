@@ -63,8 +63,9 @@ final class MailboxResource
     #[Groups(['mailbox:read'])]
     public string $emailAddress = '';
 
+    /** NONE = aucune boîte connectée (la ressource singleton répond toujours 200). */
     #[Groups(['mailbox:read'])]
-    public string $status = '';
+    public string $status = 'NONE';
 
     /** Code de raison (i18n côté front), jamais un message interne. */
     #[Groups(['mailbox:read'])]

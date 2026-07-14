@@ -144,7 +144,7 @@ async function save(): Promise<void> {
 
       <div v-if="mailboxLoading" class="mt-3 text-sm text-dimmed">{{ t('common.loading') }}</div>
 
-      <template v-else-if="mailbox && mailbox.status !== 'REVOKED'">
+      <template v-else-if="mailbox && (mailbox.status === 'CONNECTED' || mailbox.status === 'ERROR')">
         <div class="mt-3 flex items-center gap-3 flex-wrap text-sm">
           <UIcon name="i-lucide-mail-check" class="text-primary shrink-0" aria-hidden="true" />
           <span class="font-medium">{{ mailbox.emailAddress }}</span>
