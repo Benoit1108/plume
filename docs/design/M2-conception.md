@@ -124,7 +124,10 @@ réponse) et d'isolation tenant sur toutes les nouvelles surfaces (acquis à mai
 
 ## 9. Definition of Done — M2
 
-- [ ] M2.0 : cookies httpOnly + sanitisation des contenus entrants (dette fin M1 soldée).
+- [x] M2.0 : cookies httpOnly (tokens posés/rafraîchis/effacés par l'API, extracteur cookie
+      + Bearer conservé pour l'outillage, `/me` pour l'identité, même-origine en prod via le
+      proxy Nitro) + garde anti-XSS outillée (`vue/no-v-html: error`) — la sanitisation des
+      contenus entrants s'appliquera à leur arrivée (M2.3).
 - [ ] Boîte connectée/déconnectée depuis les Réglages, tokens chiffrés (ADR-0016), statut
       d'erreur visible et récupérable.
 - [ ] Envoi d'un brouillon relu depuis la vraie adresse (garde RGPD double, garde d'état

@@ -4,3 +4,27 @@ lexik_jwt_authentication:
     pass_phrase: '%env(JWT_PASSPHRASE)%'
     token_ttl: 900          # access token : 15 min
     # Le tenant_id sera ajouté aux claims via un listener sur JWTCreatedEvent (Account).
+
+    # M2.0 — le token vit en cookie httpOnly (le navigateur ne peut plus l'exfiltrer
+    # par XSS) ET reste acceptable en Authorization: Bearer (tests, outillage).
+    # `remove_token_from_body_when_cookies_used` (défaut true) : le corps de la
+    # réponse de login n'expose plus le token — sinon un XSS lirait la réponse
+    # d'un refresh et le httpOnly ne servirait à rien.
+    set_cookies:
+        plume_jwt:
+            samesite: lax
+            path: /
+            secure: true      # localhost est traité comme origine sûre par les navigateurs
+            httpOnly: true
+    token_extractors:
+        authorization_header:
+            enabled: true
+        cookie:
+            enabled: true
+            name: plume_jwt
+
+# En test, les fonctionnels lisent le token dans le corps (auth_bearer partout) :
+# on garde le corps SANS toucher au mécanisme cookie (lui aussi testé).
+when@test:
+    lexik_jwt_authentication:
+        remove_token_from_body_when_cookies_used: false

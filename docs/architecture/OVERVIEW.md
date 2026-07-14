@@ -75,7 +75,7 @@ Les domain events sont persistés dans **la même transaction** que l'agrégat, 
 ## Frontend
 
 - **Nuxt 4** (Vue 3, TypeScript), **Pinia**, SPA authentifiée (ADR-0009 amendé).
-- Auth **JWT access + refresh** ; refresh en cookie httpOnly, rotation des tokens.
+- Auth **JWT access + refresh**, les DEUX en cookies **httpOnly** posés/rotés/effacés par l'API (M2.0) — le JS ne voit jamais un token ; Bearer accepté en parallèle (outillage/tests) ; rotation single_use, révocation au logout.
 - Vues clés : kanban pipeline, « à faire aujourd'hui », fiche Piste (timeline), éditeur de brouillon, tableau de bord.
 
 ## Sécurité (synthèse)

@@ -3,9 +3,9 @@ import type { NitroFetchOptions, NitroFetchRequest } from 'nitropack'
 export type ApiOptions = NitroFetchOptions<NitroFetchRequest>
 
 /**
- * Client HTTP authentifié vers l'API Symfony.
- * Ajoute le Bearer token et tente UN refresh automatique sur 401
- * (mutualisé dans le store : les 401 concurrents partagent le même refresh).
+ * Client HTTP authentifié vers l'API Symfony. L'auth voyage en cookies
+ * httpOnly même-origine (M2.0) : rien à ajouter aux requêtes. Sur 401,
+ * UN refresh automatique (mutualisé dans le store) puis une relance.
  */
 export function useApi() {
   const base = useRuntimeConfig().public.apiBase
@@ -18,7 +18,6 @@ export function useApi() {
         ...options,
         headers: {
           Accept: 'application/ld+json',
-          ...(auth.token ? { Authorization: `Bearer ${auth.token}` } : {}),
           ...(options.headers as Record<string, string> | undefined ?? {}),
         },
       })

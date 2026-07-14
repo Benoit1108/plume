@@ -6,7 +6,7 @@ import { defineConfig, devices } from '@playwright/test'
  * mismatches d'hydratation, erreurs console au runtime.
  *
  * Par défaut, lance le BUILD DE PRODUCTION (déterministe — pas de réoptimisation
- * Vite à froid) qui appelle l'API directement (NUXT_PUBLIC_API_BASE), certificat
+ * Vite à froid) ; le serveur Nitro relaie /api vers l'API (même-origine), certificat
  * auto-signé ignoré par le navigateur de test. En local, si un serveur tourne
  * déjà sur :3000 (dev avec proxy /api), il est réutilisé tel quel.
  *
@@ -37,7 +37,10 @@ export default defineConfig({
     timeout: 300_000,
     env: {
       PORT: '3000',
-      NUXT_PUBLIC_API_BASE: process.env.E2E_API_BASE ?? 'https://localhost:8443',
+      // Même-origine (cookies httpOnly) : le serveur Nitro du build relaie /api.
+      NUXT_API_PROXY_TARGET: process.env.E2E_API_BASE ?? 'https://localhost:8443',
+      // Certificat auto-signé FrankenPHP : toléré par le PROXY de test uniquement.
+      NODE_TLS_REJECT_UNAUTHORIZED: '0',
     },
   },
 })

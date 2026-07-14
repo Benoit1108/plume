@@ -69,9 +69,10 @@ Fondations techniques.
 - [ ] Threading `Message-ID`/`References` → captation des **réponses** → `Piste.enregistrerReponse()`.
 - [ ] Gestion **opt-out** (RGPD). *Pas de tracking d'ouverture.*
 - [ ] Relances contextualisées (reprennent l'historique de la Piste).
+- [x] Cookies tokens **httpOnly** ✅ *(M2.0, 2026-07-14 : posés/rotés/effacés par l'API,
+      `/me`, même-origine via proxy Nitro, `vue/no-v-html` bloquant)*.
 - [ ] **Dettes actées en revue fin M1 à solder ici** : `recordReply()` idempotent (les
       réponses entrantes automatiques ne doivent pas 409 sur une piste déjà en discussion),
-      cookies tokens httpOnly (les contenus d'emails entrants = surface XSS réelle),
       stratégie de rétention/effacement du journal `interaction` (texte des notes),
       interpolation locale de `{{contact}}` (ne plus transmettre le nom du contact à
       Anthropic — cf. ADR-0014).

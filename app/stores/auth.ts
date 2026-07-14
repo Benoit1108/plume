@@ -1,44 +1,38 @@
 import { defineStore } from 'pinia'
 
-interface TokenPair { token: string, refresh_token: string }
-
 const THIRTY_DAYS = 60 * 60 * 24 * 30
 
-/** Extrait un claim string du payload JWT (sans vérification — usage affichage uniquement). */
-function jwtClaim(token: string, claim: string): string | null {
-  try {
-    const payload = token.split('.')[1] ?? ''
-    const decoded: unknown = JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')))
-    const value = (decoded as Record<string, unknown>)[claim]
-    return typeof value === 'string' ? value : null
-  }
-  catch {
-    return null
-  }
-}
-
 /**
- * Authentification JWT (access + refresh, rotation single_use côté serveur).
- * Tokens persistés en cookies `secure` ; l'email est lu dans le JWT (pas de cookie dédié).
- * Durcissement possible plus tard : refresh en cookie httpOnly côté serveur.
+ * Authentification par cookies httpOnly (M2.0) : les tokens ne transitent plus
+ * par du JS — l'API les pose, les rafraîchit (rotation single_use) et les
+ * efface elle-même, en même origine via le proxy /api. Le front ne garde qu'un
+ * témoin NON SENSIBLE : l'email affiché, qui sert aussi d'indice « probablement
+ * connecté » pour la garde de route. L'autorité reste l'API : 401 → logout.
  */
 export const useAuthStore = defineStore('auth', () => {
-  const base = useRuntimeConfig().public.apiBase
-  const cookieOptions = { default: () => null, sameSite: 'lax', secure: true, maxAge: THIRTY_DAYS } as const
-  const token = useCookie<string | null>('plume_token', cookieOptions)
-  const refreshToken = useCookie<string | null>('plume_refresh', cookieOptions)
+  const email = useCookie<string | null>('plume_email', {
+    default: () => null,
+    sameSite: 'lax',
+    secure: true,
+    maxAge: THIRTY_DAYS,
+  })
 
-  const isAuthenticated = computed(() => Boolean(token.value))
-  const email = computed(() => (token.value ? jwtClaim(token.value, 'username') : null))
+  // Migration M2.0 : purge des anciens cookies de tokens lisibles par JS.
+  const legacyToken = useCookie<string | null>('plume_token')
+  const legacyRefresh = useCookie<string | null>('plume_refresh')
+  if (legacyToken.value) legacyToken.value = null
+  if (legacyRefresh.value) legacyRefresh.value = null
+
+  const isAuthenticated = computed(() => Boolean(email.value))
 
   async function login(mail: string, password: string): Promise<void> {
-    const res = await $fetch<TokenPair>('/api/v1/login_check', {
-      baseURL: base,
+    await $fetch('/api/v1/login_check', {
       method: 'POST',
       body: { email: mail, password },
     })
-    token.value = res.token
-    refreshToken.value = res.refresh_token
+    // Les cookies httpOnly sont posés par la réponse ; on demande à l'API qui on est.
+    const me = await $fetch<{ email: string }>('/api/v1/me')
+    email.value = me.email
   }
 
   // Mutex : plusieurs 401 simultanés partagent LE même refresh (indispensable
@@ -53,15 +47,9 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function doRefresh(): Promise<boolean> {
-    if (!refreshToken.value) return false
     try {
-      const res = await $fetch<TokenPair>('/api/v1/token/refresh', {
-        baseURL: base,
-        method: 'POST',
-        body: new URLSearchParams({ refresh_token: refreshToken.value }),
-      })
-      token.value = res.token
-      refreshToken.value = res.refresh_token
+      // Le refresh token voyage dans son cookie httpOnly (path /api/v1/token).
+      await $fetch('/api/v1/token/refresh', { method: 'POST', body: {} })
       return true
     }
     catch {
@@ -70,20 +58,13 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   function logout(): void {
-    // Révocation côté serveur (fire-and-forget) : le refresh token ne survit pas au logout.
-    const currentRefresh = refreshToken.value
-    if (currentRefresh) {
-      void $fetch('/api/v1/token/invalidate', {
-        baseURL: base,
-        method: 'POST',
-        body: { refresh_token: currentRefresh },
-      }).catch(() => { /* déjà expiré/révoqué : rien à faire */ })
-    }
+    // Révocation + effacement des cookies PAR l'API (fire-and-forget).
+    void $fetch('/api/v1/token/invalidate', { method: 'POST', body: {} })
+      .catch(() => { /* déjà expiré/révoqué : rien à faire */ })
 
-    token.value = null
-    refreshToken.value = null
+    email.value = null
     void navigateTo('/login')
   }
 
-  return { token, refreshToken, email, isAuthenticated, login, tryRefresh, logout }
+  return { email, isAuthenticated, login, tryRefresh, logout }
 })

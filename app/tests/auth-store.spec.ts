@@ -17,75 +17,81 @@ vi.stubGlobal('useCookie', (name: string) => {
 
 const { useAuthStore } = await import('../stores/auth')
 
-/** JWT factice (non signé) portant un claim username. */
-function fakeJwt(username: string): string {
-  const payload = btoa(JSON.stringify({ username })).replace(/\+/g, '-').replace(/\//g, '_')
-  return `header.${payload}.sig`
-}
-
-describe('auth store', () => {
+describe('auth store (cookies httpOnly — M2.0)', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     cookies.clear()
     setActivePinia(createPinia())
   })
 
-  it('login stocke la paire de tokens et expose l\'email depuis le JWT', async () => {
-    fetchMock.mockResolvedValueOnce({ token: fakeJwt('marie@plume.fr'), refresh_token: 'r1' })
+  it('login authentifie puis apprend son identité via /me — aucun token ne touche le JS', async () => {
+    fetchMock.mockResolvedValueOnce(undefined) // login_check : cookies posés par la réponse
+    fetchMock.mockResolvedValueOnce({ email: 'marie@plume.fr' }) // /me
     const auth = useAuthStore()
 
     await auth.login('marie@plume.fr', 'secret')
 
     expect(auth.isAuthenticated).toBe(true)
-    expect(auth.refreshToken).toBe('r1')
     expect(auth.email).toBe('marie@plume.fr')
+    const paths = fetchMock.mock.calls.map(call => call[0] as string)
+    expect(paths).toEqual(['/api/v1/login_check', '/api/v1/me'])
+    // Rien qui ressemble à un token stocké côté JS (le legacy est lu pour être purgé, jamais écrit).
+    expect(cookies.get('plume_token')?.value ?? null).toBeNull()
+    expect(cookies.get('plume_refresh')?.value ?? null).toBeNull()
+    expect(cookies.get('plume_email')?.value).toBe('marie@plume.fr')
   })
 
-  it('tryRefresh applique la rotation (nouveau refresh token stocké)', async () => {
-    fetchMock.mockResolvedValueOnce({ token: fakeJwt('a@b.fr'), refresh_token: 'r2' })
-    const auth = useAuthStore()
-    auth.refreshToken = 'r1'
+  it('purge les anciens cookies de tokens lisibles (migration M2.0)', () => {
+    const legacy = ref<string | null>('vieux-jwt')
+    cookies.set('plume_token', legacy)
+    useAuthStore()
 
-    await expect(auth.tryRefresh()).resolves.toBe(true)
-    expect(auth.refreshToken).toBe('r2')
+    expect(legacy.value).toBeNull()
   })
 
-  it('mutualise les refresh concurrents (un seul appel réseau)', async () => {
-    let release!: (value: { token: string, refresh_token: string }) => void
+  it('tryRefresh mutualise les appels concurrents (rotation single_use)', async () => {
+    let resolveRefresh: (value: unknown) => void = () => {}
     fetchMock.mockReturnValueOnce(new Promise((resolve) => {
-      release = resolve
+      resolveRefresh = resolve
     }))
     const auth = useAuthStore()
-    auth.refreshToken = 'r1'
 
     const first = auth.tryRefresh()
     const second = auth.tryRefresh()
-    release({ token: fakeJwt('a@b.fr'), refresh_token: 'r2' })
+    resolveRefresh(undefined)
 
-    await expect(Promise.all([first, second])).resolves.toEqual([true, true])
-    expect(fetchMock).toHaveBeenCalledTimes(1)
+    await expect(first).resolves.toBe(true)
+    await expect(second).resolves.toBe(true)
+    expect(fetchMock).toHaveBeenCalledTimes(1) // UN seul POST /token/refresh
+    expect((fetchMock.mock.calls[0] as [string])[0]).toBe('/api/v1/token/refresh')
   })
 
-  it('tryRefresh sans refresh token répond false sans appel réseau', async () => {
+  it('tryRefresh rend false quand le serveur refuse (session vraiment morte)', async () => {
+    fetchMock.mockRejectedValueOnce(new Error('401'))
     const auth = useAuthStore()
 
     await expect(auth.tryRefresh()).resolves.toBe(false)
-    expect(fetchMock).not.toHaveBeenCalled()
   })
 
-  it('logout révoque le refresh token côté serveur et purge les cookies', async () => {
+  it('logout révoque côté serveur, oublie l\'email et route vers /login', async () => {
     fetchMock.mockResolvedValueOnce(undefined)
     const auth = useAuthStore()
-    auth.token = fakeJwt('a@b.fr')
-    auth.refreshToken = 'r1'
+    cookies.get('plume_email')!.value = 'marie@plume.fr'
 
     auth.logout()
 
-    expect(auth.token).toBeNull()
-    expect(auth.refreshToken).toBeNull()
-    const [path, options] = fetchMock.mock.calls[0] as [string, { body: { refresh_token: string } }]
-    expect(path).toBe('/api/v1/token/invalidate')
-    expect(options.body.refresh_token).toBe('r1')
+    expect((fetchMock.mock.calls[0] as [string])[0]).toBe('/api/v1/token/invalidate')
+    expect(auth.email).toBeNull()
+    expect(auth.isAuthenticated).toBe(false)
+    expect(navigateToMock).toHaveBeenCalledWith('/login')
+  })
+
+  it('logout reste silencieux si la révocation échoue (token déjà mort)', async () => {
+    fetchMock.mockRejectedValueOnce(new Error('réseau'))
+    const auth = useAuthStore()
+
+    expect(() => auth.logout()).not.toThrow()
+    await Promise.resolve() // le rejet est absorbé en arrière-plan
     expect(navigateToMock).toHaveBeenCalledWith('/login')
   })
 })

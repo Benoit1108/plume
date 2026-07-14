@@ -49,6 +49,19 @@ export default defineNuxtConfig({
     },
   },
 
+  // Prod (et build E2E) : même besoin de même-origine que le dev — les cookies
+  // httpOnly SameSite=Lax ne voyagent qu'en première partie. Le serveur Nitro
+  // relaie /api vers l'API (cible fixée AU BUILD via NUXT_API_PROXY_TARGET).
+  $production: {
+    nitro: {
+      routeRules: {
+        '/api/**': {
+          proxy: `${process.env.NUXT_API_PROXY_TARGET ?? 'https://localhost:8443'}/api/**`,
+        },
+      },
+    },
+  },
+
   // Dev : /api -> API Symfony (côté serveur Nuxt, ignore le cert auto-signé FrankenPHP).
   // Cible surchargeable (ex. dans Docker : https://php/api).
   $development: {
