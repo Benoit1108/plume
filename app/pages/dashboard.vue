@@ -16,20 +16,8 @@ const loading = computed(() => status.value === 'idle' || status.value === 'pend
 
 const percentFormat = computed(() => new Intl.NumberFormat(locale.value, { style: 'percent', maximumFractionDigits: 0 }))
 
-// Taux de réponse = pistes avec réponse / pistes contactées (par piste, journal).
-const responseRate = computed(() => {
-  if (!board.value || board.value.contacted === 0) return null
-  return board.value.replied / board.value.contacted
-})
-
-// Conversion = gagnées / décidées (gagnées + perdues) — décision M1.5 n°1.
-const decided = computed(() => (board.value ? board.value.won + board.value.lost : 0))
-const conversion = computed(() => {
-  if (!board.value || decided.value === 0) return null
-  return board.value.won / decided.value
-})
-
-const totalLeads = computed(() => board.value?.pipeline.reduce((sum, slice) => sum + slice.count, 0) ?? 0)
+// Calculs testés à part (décisions M1.5 n°1 et 2 : conversion = gagnées/décidées, taux par piste).
+const { decided, conversion, responseRate, totalLeads, barHeightPercent, goalLinePercent, segmentRatio } = useDashboardMetrics(board)
 
 /** Teintes par statut — mêmes familles que les badges du kanban. */
 const STATUS_TINTS: Record<LeadStatus, string> = {
@@ -43,28 +31,13 @@ const STATUS_TINTS: Record<LeadStatus, string> = {
   LOST: 'bg-error-400',
 }
 
-// Barres hebdo : hauteurs relatives au max (actes ou objectif, pour que la ligne se voie).
-const weeklyMax = computed(() => {
-  if (!board.value) return 1
-  return Math.max(board.value.weeklyTarget, ...board.value.weeklyActivity.map(week => week.acts), 1)
-})
-
-function barHeight(acts: number): string {
-  return `${Math.round((acts / weeklyMax.value) * 100)}%`
-}
-
-const goalLineBottom = computed(() => {
-  if (!board.value) return '0%'
-  return `${Math.round((board.value.weeklyTarget / weeklyMax.value) * 100)}%`
-})
-
 function weekLabel(weekStart: string): string {
   return new Date(`${weekStart}T00:00:00`).toLocaleDateString(locale.value, { day: 'numeric', month: 'short' })
 }
 
 function segmentRate(contacted: number, replied: number): string {
-  if (contacted === 0) return '—'
-  return percentFormat.value.format(replied / contacted)
+  const ratio = segmentRatio(contacted, replied)
+  return ratio === null ? '—' : percentFormat.value.format(ratio)
 }
 
 const hasActivity = computed(() =>
@@ -109,7 +82,7 @@ const hasActivity = computed(() =>
             <p class="text-xs text-muted mt-1">
               {{ decided === 0
                 ? t('dashboard.kpis.noneDecided')
-                : t('dashboard.kpis.conversionDetail', { won: board.won, decided }, board.won) }}
+                : t('dashboard.kpis.conversionDetail', { won: board.won, decided }) }}
             </p>
           </div>
           <div class="border border-default rounded-xl p-4 bg-elevated/40">
@@ -157,7 +130,7 @@ const hasActivity = computed(() =>
           <div class="mt-4 relative">
             <!-- Zone des barres = h-24 en haut de chaque colonne : l'overlay s'y superpose. -->
             <div class="absolute inset-x-0 top-0 h-24 pointer-events-none" aria-hidden="true">
-              <div class="absolute inset-x-0 border-t border-dashed border-primary/60" :style="{ bottom: goalLineBottom }" />
+              <div class="absolute inset-x-0 border-t border-dashed border-primary/60" :style="{ bottom: `${goalLinePercent}%` }" />
             </div>
             <ol class="grid grid-cols-8 gap-2 items-end">
               <li v-for="week in board.weeklyActivity" :key="week.weekStart" class="flex flex-col items-center gap-1">
@@ -165,7 +138,7 @@ const hasActivity = computed(() =>
                   <div
                     class="w-full rounded-t-sm min-h-0.5"
                     :class="week.acts >= board.weeklyTarget ? 'bg-primary' : 'bg-primary/35'"
-                    :style="{ height: barHeight(week.acts) }"
+                    :style="{ height: `${barHeightPercent(week.acts)}%` }"
                     role="img"
                     :aria-label="`${t('dashboard.weekly.weekOf', { date: weekLabel(week.weekStart) })} : ${t('dashboard.weekly.acts', { count: week.acts }, week.acts)}`"
                   />

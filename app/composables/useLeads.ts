@@ -1,9 +1,6 @@
 import type { Interaction, Lead, LeadAction, LeadInput } from '~/types/leads'
+import type { JsonLdCollection } from '~/types/api'
 
-interface JsonLdCollection<T> {
-  'member'?: T[]
-  'hydra:member'?: T[]
-}
 
 /** Client de l'API Pipeline (via useApi : Bearer + proxy /api en dev). */
 export function useLeads() {

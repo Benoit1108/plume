@@ -26,6 +26,8 @@ watch(profile, (value) => {
 }, { immediate: true })
 
 const saving = ref(false)
+/** v-model.number émet '' quand le champ est vidé : on n'envoie jamais un PATCH invalide. */
+const goalValid = computed(() => Number.isInteger(weeklyGoal.value) && weeklyGoal.value >= 1 && weeklyGoal.value <= 99)
 
 async function save(): Promise<void> {
   saving.value = true
@@ -82,7 +84,7 @@ async function save(): Promise<void> {
       </section>
 
       <div class="flex justify-end">
-        <UButton type="submit" :loading="saving">{{ t('actions.save') }}</UButton>
+        <UButton type="submit" :loading="saving" :disabled="!goalValid">{{ t('actions.save') }}</UButton>
       </div>
     </form>
   </UContainer>

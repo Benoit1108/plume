@@ -64,7 +64,7 @@ function isOverdue(lead: Lead): boolean {
           <p class="text-sm font-semibold">{{ t('today.goal.title') }}</p>
           <span class="font-mono tabular-nums text-sm text-muted">{{ board.weeklyDone }} / {{ board.weeklyTarget }}</span>
           <UBadge v-if="board.streak > 0" color="warning" variant="soft" size="sm">
-            🔥 {{ t('today.goal.streak', { count: board.streak }, board.streak) }}
+            <span aria-hidden="true">🔥</span> {{ t('today.goal.streak', { count: board.streak }, board.streak) }}
           </UBadge>
           <UButton
             class="ml-auto"

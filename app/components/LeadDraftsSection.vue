@@ -1,0 +1,411 @@
+<script setup lang="ts">
+import type { Draft, DraftType, Template } from '~/types/drafting'
+
+const props = defineProps<{
+  leadId: string
+  /** Paire de la piste (ex. « en>fr ») : la langue par défaut du message est celle du prospect. */
+  languagePair: string
+  /** Génération proposée uniquement sur une piste encore travaillable. */
+  canGenerate: boolean
+}>()
+
+/** La génération alimente le journal : le parent rafraîchit sa timeline. */
+const emit = defineEmits<{ activity: [] }>()
+
+const { t, locale } = useI18n()
+const draftsApi = useDrafts()
+const draftLabels = useDraftLabels()
+const toast = useToast()
+
+const { data: drafts, refresh: refreshDrafts } = await useAsyncData<Draft[]>(
+  `lead-${props.leadId}-drafts`,
+  () => draftsApi.forLead(props.leadId),
+  { server: false, default: () => [] },
+)
+
+// ----- Génération (modale) -----
+const generateOpen = ref(false)
+const genType = ref<DraftType>('APPLICATION_EMAIL')
+const genLanguage = ref('fr')
+const genTemplateId = ref('NONE')
+const generating = ref(false)
+const templates = ref<Template[]>([])
+
+const languageOptions = computed(() => {
+  const fromPair = props.languagePair.split('>').map(code => code.trim()).filter(code => code.length === 2)
+  return [...new Set([...fromPair.reverse(), 'fr', 'en', 'es'])]
+    .map(value => ({ value, label: value.toUpperCase() }))
+})
+
+const templateOptions = computed(() => [
+  { value: 'NONE', label: t('drafts.modal.noTemplate') },
+  ...templates.value
+    .filter(template => template.type === genType.value)
+    .map(template => ({ value: template.id, label: template.name })),
+])
+
+async function openGenerator(): Promise<void> {
+  genType.value = 'APPLICATION_EMAIL'
+  genLanguage.value = props.languagePair.split('>')[1]?.trim() ?? 'fr'
+  genTemplateId.value = 'NONE'
+  generateOpen.value = true
+  try {
+    templates.value = await draftsApi.templates()
+  }
+  catch {
+    templates.value = []
+  }
+}
+
+async function submitGenerate(): Promise<void> {
+  generating.value = true
+  try {
+    await draftsApi.generate(props.leadId, {
+      type: genType.value,
+      targetLanguage: genLanguage.value,
+      templateId: genTemplateId.value === 'NONE' ? null : genTemplateId.value,
+    })
+    generateOpen.value = false
+    await refreshDrafts()
+    startPolling()
+    emit('activity')
+    toast.add({ title: t('drafts.toasts.requested'), color: 'success' })
+  }
+  catch (error) {
+    toast.add({ title: errorToastTitle(t, error), color: 'error' })
+  }
+  finally {
+    generating.value = false
+  }
+}
+
+// ----- Rattrapage asynchrone (le worker génère) -----
+const MAX_POLL_ATTEMPTS = 8
+let draftPollTimer: ReturnType<typeof setTimeout> | null = null
+/** Vrai quand le rattrapage a abandonné alors qu'une génération court toujours. */
+const pollExhausted = ref(false)
+
+const hasGenerating = computed(() => drafts.value.some(draft => draft.status === 'GENERATING'))
+
+function startPolling(attempt = 0): void {
+  pollExhausted.value = false
+  if (attempt >= MAX_POLL_ATTEMPTS) {
+    // On le DIT au lieu d'abandonner en silence : bouton « Actualiser » visible.
+    pollExhausted.value = hasGenerating.value
+    return
+  }
+  if (draftPollTimer) clearTimeout(draftPollTimer)
+  draftPollTimer = setTimeout(() => {
+    void refreshDrafts().then(() => {
+      syncEditorWithList()
+      if (hasGenerating.value) {
+        startPolling(attempt + 1)
+      }
+      else {
+        emit('activity')
+      }
+    })
+  }, 1500)
+}
+
+async function manualRefresh(): Promise<void> {
+  await refreshDrafts()
+  syncEditorWithList()
+  if (hasGenerating.value) startPolling()
+  else emit('activity')
+}
+
+onUnmounted(() => {
+  if (draftPollTimer) clearTimeout(draftPollTimer)
+})
+
+// ----- Éditeur (relecture humaine : sujet + corps, Copier, Régénérer, Supprimer) -----
+const editingDraft = ref<Draft | null>(null)
+const editSubject = ref('')
+const editBody = ref('')
+const savingDraft = ref(false)
+const confirmRegenerate = ref(false)
+const confirmDeleteDraft = ref(false)
+
+function openDraft(draft: Draft): void {
+  editingDraft.value = draft
+  editSubject.value = draft.subject ?? ''
+  editBody.value = draft.body
+  if (draft.status === 'GENERATING') startPolling()
+}
+
+/** Après un refresh, réaligne l'éditeur ouvert sur l'état serveur (READY/FAILED). */
+function syncEditorWithList(): void {
+  if (!editingDraft.value) return
+  const fresh = drafts.value.find(draft => draft.id === editingDraft.value?.id)
+  if (fresh && fresh.updatedAt !== editingDraft.value.updatedAt) {
+    openDraft(fresh)
+  }
+  else if (fresh) {
+    editingDraft.value = fresh
+  }
+}
+
+async function saveDraft(): Promise<void> {
+  if (!editingDraft.value) return
+  savingDraft.value = true
+  try {
+    await draftsApi.edit(editingDraft.value.id, { subject: editSubject.value.trim() || null, body: editBody.value })
+    await refreshDrafts()
+    syncEditorWithList()
+    toast.add({ title: t('drafts.toasts.saved'), color: 'success' })
+  }
+  catch (error) {
+    toast.add({ title: errorToastTitle(t, error), color: 'error' })
+  }
+  finally {
+    savingDraft.value = false
+  }
+}
+
+async function copyText(text: string): Promise<void> {
+  try {
+    await navigator.clipboard.writeText(text)
+    toast.add({ title: t('drafts.toasts.copied'), color: 'success' })
+  }
+  catch {
+    toast.add({ title: t('drafts.toasts.copyFailed'), color: 'error' })
+  }
+}
+
+async function regenerateDraft(): Promise<void> {
+  if (!editingDraft.value) return
+  try {
+    await draftsApi.regenerate(editingDraft.value.id)
+    await refreshDrafts()
+    syncEditorWithList()
+    startPolling()
+    emit('activity')
+  }
+  catch (error) {
+    toast.add({ title: errorToastTitle(t, error), color: 'error' })
+  }
+}
+
+async function deleteDraft(): Promise<void> {
+  if (!editingDraft.value) return
+  try {
+    await draftsApi.remove(editingDraft.value.id)
+    editingDraft.value = null
+    await refreshDrafts()
+    toast.add({ title: t('drafts.toasts.deleted'), color: 'success' })
+  }
+  catch (error) {
+    toast.add({ title: errorToastTitle(t, error), color: 'error' })
+  }
+}
+
+const editorOpen = computed({
+  get: () => editingDraft.value !== null,
+  set: (open: boolean) => {
+    if (!open) editingDraft.value = null
+  },
+})
+
+function formatDate(iso: string): string {
+  return new Date(iso).toLocaleDateString(locale.value, { day: 'numeric', month: 'short', year: 'numeric' })
+}
+</script>
+
+<template>
+  <section class="mt-10">
+    <div class="flex items-center gap-3 flex-wrap">
+      <p class="text-[11px] uppercase tracking-widest text-dimmed font-semibold">{{ t('drafts.title') }}</p>
+      <UButton
+        v-if="canGenerate"
+        class="ml-auto"
+        size="xs"
+        variant="outline"
+        icon="i-lucide-feather"
+        @click="openGenerator"
+      >
+        {{ t('drafts.generate') }}
+      </UButton>
+    </div>
+
+    <!-- Le rattrapage a abandonné : on le dit et on rend la main. -->
+    <UAlert
+      v-if="pollExhausted"
+      class="mt-3"
+      color="warning"
+      variant="soft"
+      icon="i-lucide-hourglass"
+      :title="t('drafts.stillGenerating')"
+    >
+      <template #actions>
+        <UButton size="xs" variant="soft" color="warning" icon="i-lucide-refresh-cw" @click="manualRefresh">
+          {{ t('drafts.refresh') }}
+        </UButton>
+      </template>
+    </UAlert>
+
+    <ul v-if="drafts.length" class="mt-3 border border-default rounded-xl divide-y divide-[var(--ui-border)]">
+      <li v-for="draft in drafts" :key="draft.id">
+        <button
+          type="button"
+          class="w-full p-3 flex items-center gap-3 text-left hover:bg-elevated/60 rounded-xl"
+          @click="() => openDraft(draft)"
+        >
+          <UIcon
+            :name="draft.status === 'GENERATING' ? 'i-lucide-loader-circle' : 'i-lucide-feather'"
+            :class="['shrink-0', draft.status === 'GENERATING' ? 'animate-spin text-warning' : 'text-primary']"
+            aria-hidden="true"
+          />
+          <div class="min-w-0 flex-1">
+            <div class="text-sm font-medium flex items-center gap-2 flex-wrap">
+              {{ draftLabels.typeLabel(draft.type) }}
+              <span class="text-xs text-dimmed font-mono uppercase">{{ draft.targetLanguage }}</span>
+              <UBadge :color="draftLabels.statusColor(draft.status)" variant="soft" size="sm">
+                {{ draftLabels.statusLabel(draft.status) }}
+              </UBadge>
+            </div>
+            <p v-if="draft.status === 'READY' && draft.subject" class="text-xs text-muted truncate mt-0.5">{{ draft.subject }}</p>
+            <p v-else-if="draft.status === 'FAILED' && draft.failureReason" class="text-xs text-error mt-0.5">
+              {{ draftLabels.failureLabel(draft.failureReason) }}
+            </p>
+          </div>
+          <time class="text-xs text-dimmed shrink-0 tabular-nums" :datetime="draft.updatedAt">
+            {{ formatDate(draft.updatedAt) }}
+          </time>
+        </button>
+      </li>
+    </ul>
+    <p v-else class="mt-3 p-4 text-sm text-muted border border-default rounded-xl">
+      {{ t('drafts.empty') }}
+    </p>
+
+    <!-- Modale « Générer un brouillon » -->
+    <UModal v-model:open="generateOpen" :title="t('drafts.modal.title')" :description="t('drafts.modal.description')">
+      <template #body>
+        <div class="flex flex-col gap-4">
+          <UFormField :label="t('drafts.modal.typeLabel')" required>
+            <USelect v-model="genType" :items="draftLabels.typeOptions.value" class="w-full" />
+          </UFormField>
+          <UFormField :label="t('drafts.modal.languageLabel')" :hint="t('drafts.modal.languageHint')" required>
+            <USelect v-model="genLanguage" :items="languageOptions" class="w-full" />
+          </UFormField>
+          <UFormField :label="t('drafts.modal.templateLabel')">
+            <USelect v-model="genTemplateId" :items="templateOptions" class="w-full" />
+          </UFormField>
+        </div>
+      </template>
+      <template #footer>
+        <div class="flex gap-2 justify-end w-full">
+          <UButton color="neutral" variant="ghost" @click="() => { generateOpen = false }">{{ t('actions.cancel') }}</UButton>
+          <UButton :loading="generating" icon="i-lucide-feather" @click="submitGenerate">
+            {{ t('drafts.modal.submit') }}
+          </UButton>
+        </div>
+      </template>
+    </UModal>
+
+    <!-- Éditeur de brouillon (relecture humaine) -->
+    <USlideover v-model:open="editorOpen" :title="editingDraft ? draftLabels.typeLabel(editingDraft.type) : ''">
+      <template #body>
+        <div v-if="editingDraft" class="flex flex-col gap-4">
+          <div class="flex items-center gap-2 flex-wrap">
+            <UBadge :color="draftLabels.statusColor(editingDraft.status)" variant="soft" size="sm">
+              {{ draftLabels.statusLabel(editingDraft.status) }}
+            </UBadge>
+            <span class="text-xs text-dimmed font-mono uppercase">{{ editingDraft.targetLanguage }}</span>
+            <span class="text-xs text-dimmed">{{ t('drafts.draftFirst') }}</span>
+          </div>
+
+          <div v-if="editingDraft.status === 'GENERATING'" class="py-12 text-center text-muted text-sm">
+            <UIcon name="i-lucide-loader-circle" class="animate-spin text-warning" aria-hidden="true" />
+            <p class="mt-2">{{ t('drafts.generating') }}</p>
+            <UButton v-if="pollExhausted" class="mt-3" size="xs" variant="soft" icon="i-lucide-refresh-cw" @click="manualRefresh">
+              {{ t('drafts.refresh') }}
+            </UButton>
+          </div>
+
+          <UAlert
+            v-else-if="editingDraft.status === 'FAILED'"
+            color="error"
+            variant="soft"
+            icon="i-lucide-alert-triangle"
+            :title="draftLabels.failureLabel(editingDraft.failureReason ?? 'generation_failed')"
+          />
+
+          <template v-else>
+            <UFormField v-if="editingDraft.type !== 'COVER_LETTER' || editSubject" :label="t('drafts.editor.subjectLabel')">
+              <div class="flex gap-2">
+                <UInput v-model="editSubject" class="flex-1" />
+                <UButton
+                  variant="ghost"
+                  color="neutral"
+                  icon="i-lucide-copy"
+                  :aria-label="t('drafts.editor.copySubject')"
+                  :disabled="!editSubject"
+                  @click="() => copyText(editSubject)"
+                />
+              </div>
+            </UFormField>
+            <UFormField :label="t('drafts.editor.bodyLabel')">
+              <UTextarea v-model="editBody" :rows="14" autoresize class="w-full font-mono text-sm" />
+            </UFormField>
+          </template>
+        </div>
+      </template>
+      <template #footer>
+        <div v-if="editingDraft" class="flex gap-2 w-full flex-wrap">
+          <UButton
+            color="neutral"
+            variant="outline"
+            icon="i-lucide-trash-2"
+            :aria-label="t('actions.delete')"
+            @click="() => { confirmDeleteDraft = true }"
+          />
+          <UButton
+            variant="outline"
+            icon="i-lucide-refresh-cw"
+            :disabled="editingDraft.status === 'GENERATING'"
+            @click="() => { confirmRegenerate = true }"
+          >
+            {{ t('drafts.editor.regenerate') }}
+          </UButton>
+          <div class="ml-auto flex gap-2">
+            <UButton
+              v-if="editingDraft.status === 'READY'"
+              variant="soft"
+              icon="i-lucide-copy"
+              :aria-label="t('drafts.editor.copyBody')"
+              @click="() => copyText(editBody)"
+            >
+              {{ t('drafts.editor.copy') }}
+            </UButton>
+            <UButton
+              v-if="editingDraft.status === 'READY'"
+              :loading="savingDraft"
+              :disabled="!editBody.trim()"
+              @click="saveDraft"
+            >
+              {{ t('actions.save') }}
+            </UButton>
+          </div>
+        </div>
+      </template>
+    </USlideover>
+
+    <ConfirmDialog
+      v-model:open="confirmRegenerate"
+      :title="t('drafts.editor.confirmRegenerateTitle')"
+      :description="t('drafts.editor.confirmRegenerateBody')"
+      :confirm-label="t('drafts.editor.regenerate')"
+      @confirm="regenerateDraft"
+    />
+    <ConfirmDialog
+      v-model:open="confirmDeleteDraft"
+      :title="t('drafts.editor.confirmDeleteTitle')"
+      :description="t('drafts.editor.confirmDeleteBody')"
+      :confirm-label="t('actions.delete')"
+      danger
+      @confirm="deleteDraft"
+    />
+  </section>
+</template>

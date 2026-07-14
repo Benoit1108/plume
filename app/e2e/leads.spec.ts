@@ -1,37 +1,5 @@
-import type { Page } from '@playwright/test'
 import { expect, test } from '@playwright/test'
-
-const E2E_EMAIL = 'e2e@plume.test'
-const E2E_PASSWORD = 'e2e-secret-123'
-
-function watchConsole(page: Page): string[] {
-  const errors: string[] = []
-  page.on('console', (message) => {
-    if (message.type() === 'error') errors.push(`console.error: ${message.text()}`)
-    if (message.type() === 'warning' && message.text().includes('Hydration')) {
-      errors.push(`hydration: ${message.text()}`)
-    }
-  })
-  page.on('pageerror', error => errors.push(`pageerror: ${error.message}`))
-  return errors
-}
-
-async function waitForHydration(page: Page): Promise<void> {
-  await page.waitForFunction(() => {
-    const root = document.querySelector('#__nuxt')
-    return root !== null && '__vue_app__' in root
-  })
-}
-
-async function login(page: Page): Promise<void> {
-  await page.goto('/login')
-  await waitForHydration(page)
-  await page.getByRole('textbox').first().fill(E2E_EMAIL)
-  await page.locator('input[type="password"]').fill(E2E_PASSWORD)
-  await page.getByRole('button', { name: /se connecter|sign in/i }).click()
-  // Depuis M1.3, l'accueil est « Aujourd'hui ».
-  await page.waitForURL('**/today')
-}
+import { login, waitForHydration, watchConsole } from './helpers'
 
 test('parcours pipeline : organisation → piste → contact → réponse → gagnée, journal projeté', async ({ page }) => {
   const errors = watchConsole(page)

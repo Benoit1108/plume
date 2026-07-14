@@ -15,7 +15,10 @@ import { defineConfig, devices } from '@playwright/test'
  */
 export default defineConfig({
   testDir: './e2e',
-  fullyParallel: false, // petit volume ; évite les courses sur le même compte e2e
+  // Tous les tests partagent LE MÊME tenant e2e : il faut sérialiser entre
+  // fichiers aussi (fullyParallel:false ne sérialise qu'au sein d'un fichier).
+  fullyParallel: false,
+  workers: 1,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? 'github' : 'list',

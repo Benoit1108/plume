@@ -35,7 +35,8 @@
   },
   "common": {
     "loading": "Loading…",
-    "error": "Something went wrong. Try again."
+    "error": "Something went wrong. Try again.",
+    "conflict": "This action conflicts with the current state — the page may have just changed."
   },
   "directory": {
     "eyebrow": "Studio · targets",
@@ -239,15 +240,12 @@
     "empty": "Nothing due today — a good time to add targets to the Directory.",
     "followUpsDue": "Follow-ups due",
     "toContact": "To contact",
-    "open": "Open",
     "dueOn": "Due {date}",
     "overdueSince": "Overdue ({date})",
     "goal": {
       "title": "Weekly goal",
       "streak": "no streak | {count} week in a row | {count} weeks in a row",
-      "edit": "Edit goal",
-      "goalLabel": "Outreach actions per week",
-      "hint": "One action = a contact or a follow-up done."
+      "edit": "Edit goal"
     }
   },
   "drafts": {
@@ -282,7 +280,6 @@
       "submit": "Generate"
     },
     "editor": {
-      "title": "Review draft",
       "subjectLabel": "Subject",
       "bodyLabel": "Message",
       "copy": "Copy",
@@ -290,7 +287,9 @@
       "confirmRegenerateTitle": "Regenerate this draft?",
       "confirmRegenerateBody": "The current content (including your edits) will be replaced.",
       "confirmDeleteTitle": "Delete this draft?",
-      "confirmDeleteBody": "The draft will be permanently deleted."
+      "confirmDeleteBody": "The draft will be permanently deleted.",
+      "copySubject": "Copy the subject",
+      "copyBody": "Copy the message"
     },
     "toasts": {
       "requested": "Generation started",
@@ -298,7 +297,9 @@
       "copied": "Copied to clipboard",
       "copyFailed": "Could not copy — select the text manually.",
       "deleted": "Draft deleted"
-    }
+    },
+    "stillGenerating": "Generation is taking longer than expected.",
+    "refresh": "Refresh"
   },
   "templates": {
     "eyebrow": "Assisted drafting",
@@ -354,7 +355,7 @@
       "responseRate": "Response rate",
       "responseRateDetail": "{replied} / {contacted} contacted leads",
       "conversion": "Conversion",
-      "conversionDetail": "{won} won / {decided} decided | {won} won / {decided} decided | {won} won / {decided} decided",
+      "conversionDetail": "{won} won / {decided} decided",
       "noneDecided": "no decided lead yet",
       "noneContacted": "no contacted lead yet",
       "outreachThisMonth": "Actions this month",

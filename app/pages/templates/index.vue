@@ -70,8 +70,8 @@ async function submit(): Promise<void> {
     formOpen.value = false
     await refresh()
   }
-  catch {
-    toast.add({ title: t('common.error'), color: 'error' })
+  catch (error) {
+    toast.add({ title: errorToastTitle(t, error), color: 'error' })
   }
   finally {
     saving.value = false

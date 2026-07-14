@@ -1,36 +1,5 @@
-import type { Page } from '@playwright/test'
 import { expect, test } from '@playwright/test'
-
-const E2E_EMAIL = 'e2e@plume.test'
-const E2E_PASSWORD = 'e2e-secret-123'
-
-function watchConsole(page: Page): string[] {
-  const errors: string[] = []
-  page.on('console', (message) => {
-    if (message.type() === 'error') errors.push(`console.error: ${message.text()}`)
-    if (message.type() === 'warning' && message.text().includes('Hydration')) {
-      errors.push(`hydration: ${message.text()}`)
-    }
-  })
-  page.on('pageerror', error => errors.push(`pageerror: ${error.message}`))
-  return errors
-}
-
-async function waitForHydration(page: Page): Promise<void> {
-  await page.waitForFunction(() => {
-    const root = document.querySelector('#__nuxt')
-    return root !== null && '__vue_app__' in root
-  })
-}
-
-async function login(page: Page): Promise<void> {
-  await page.goto('/login')
-  await waitForHydration(page)
-  await page.getByRole('textbox').first().fill(E2E_EMAIL)
-  await page.locator('input[type="password"]').fill(E2E_PASSWORD)
-  await page.getByRole('button', { name: /se connecter|sign in/i }).click()
-  await page.waitForURL('**/today')
-}
+import { createLeadViaUi, login, waitForHydration, watchConsole } from './helpers'
 
 test('rédaction assistée : réglages profil → génération canned → relecture → copie → suppression', async ({ page, context }) => {
   const errors = watchConsole(page)
@@ -47,17 +16,7 @@ test('rédaction assistée : réglages profil → génération canned → relect
   await page.getByRole('button', { name: /enregistrer|save/i }).click()
   await expect(page.getByText(/réglages enregistrés|settings saved/i).first()).toBeVisible()
 
-  // Organisation + piste cibles.
-  await page.goto('/organizations/new')
-  await waitForHydration(page)
-  await page.getByRole('textbox').first().fill(orgName)
-  await page.getByRole('button', { name: /créer|create/i }).click()
-  await page.waitForURL(/\/organizations\/[0-9a-f-]+$/)
-  await page.getByRole('link', { name: /créer une piste|create a lead/i }).click()
-  await page.waitForURL(/\/leads\/new/)
-  await waitForHydration(page)
-  await page.getByRole('button', { name: /créer|create/i }).click()
-  await page.waitForURL(/\/leads\/[0-9a-f-]+$/)
+  await createLeadViaUi(page, orgName)
 
   // Générer un brouillon (adaptateur canned : déterministe, gratuit).
   await page.getByRole('button', { name: /générer un message|generate a message/i }).click()
@@ -81,8 +40,7 @@ test('rédaction assistée : réglages profil → génération canned → relect
   await expect(page.getByText(/brouillon enregistré|draft saved/i).first()).toBeVisible()
 
   // Copier : le presse-papier reçoit le corps (pont vers le webmail en M1).
-  // (.last() : l'icône près de l'objet porte le même libellé accessible.)
-  await page.getByRole('button', { name: /^copier$|^copy$/i }).last().click()
+  await page.getByRole('button', { name: /copier le message|copy the message/i }).click()
   await expect(page.getByText(/copié dans le presse-papier|copied to clipboard/i).first()).toBeVisible()
   const clipboard = await page.evaluate(() => navigator.clipboard.readText())
   expect(clipboard).toContain('Corps relu et corrigé')

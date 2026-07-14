@@ -35,7 +35,8 @@
   },
   "common": {
     "loading": "Chargement…",
-    "error": "Une erreur est survenue. Réessaie."
+    "error": "Une erreur est survenue. Réessaie.",
+    "conflict": "Action impossible dans l'état actuel — la page vient peut-être de changer."
   },
   "directory": {
     "eyebrow": "Atelier · cibles",
@@ -239,15 +240,12 @@
     "empty": "Rien à faire aujourd'hui — profite-en pour ajouter des cibles au Répertoire.",
     "followUpsDue": "Relances dues",
     "toContact": "À contacter",
-    "open": "Ouvrir",
     "dueOn": "Échéance {date}",
     "overdueSince": "En retard ({date})",
     "goal": {
       "title": "Objectif hebdo",
       "streak": "aucune série | {count} semaine de suite | {count} semaines de suite",
-      "edit": "Modifier l'objectif",
-      "goalLabel": "Actes de démarchage par semaine",
-      "hint": "Un acte = un contact ou une relance faite."
+      "edit": "Modifier l'objectif"
     }
   },
   "drafts": {
@@ -282,7 +280,6 @@
       "submit": "Générer"
     },
     "editor": {
-      "title": "Relire le brouillon",
       "subjectLabel": "Objet",
       "bodyLabel": "Message",
       "copy": "Copier",
@@ -290,7 +287,9 @@
       "confirmRegenerateTitle": "Régénérer ce brouillon ?",
       "confirmRegenerateBody": "Le contenu actuel (y compris vos modifications) sera remplacé.",
       "confirmDeleteTitle": "Supprimer ce brouillon ?",
-      "confirmDeleteBody": "Le brouillon sera définitivement supprimé."
+      "confirmDeleteBody": "Le brouillon sera définitivement supprimé.",
+      "copySubject": "Copier l'objet",
+      "copyBody": "Copier le message"
     },
     "toasts": {
       "requested": "Génération lancée",
@@ -298,7 +297,9 @@
       "copied": "Copié dans le presse-papier",
       "copyFailed": "Impossible de copier — sélectionnez le texte manuellement.",
       "deleted": "Brouillon supprimé"
-    }
+    },
+    "stillGenerating": "La génération prend plus de temps que prévu.",
+    "refresh": "Actualiser"
   },
   "templates": {
     "eyebrow": "Rédaction assistée",
@@ -354,7 +355,7 @@
       "responseRate": "Taux de réponse",
       "responseRateDetail": "{replied} / {contacted} pistes contactées",
       "conversion": "Conversion",
-      "conversionDetail": "{won} gagnée / {decided} décidées | {won} gagnée / {decided} décidées | {won} gagnées / {decided} décidées",
+      "conversionDetail": "{won} gagnée(s) / {decided} décidée(s)",
       "noneDecided": "aucune piste décidée",
       "noneContacted": "aucune piste contactée",
       "outreachThisMonth": "Actes ce mois-ci",

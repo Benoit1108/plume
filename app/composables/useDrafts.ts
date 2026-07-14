@@ -1,9 +1,6 @@
 import type { Draft, DraftType, Template, TemplateInput } from '~/types/drafting'
+import type { JsonLdCollection } from '~/types/api'
 
-interface JsonLdCollection<T> {
-  'member'?: T[]
-  'hydra:member'?: T[]
-}
 
 /** Client de l'API Rédaction assistée (brouillons + gabarits). */
 export function useDrafts() {
