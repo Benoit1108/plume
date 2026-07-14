@@ -30,6 +30,9 @@ final class ProfileProvider implements ProviderInterface
         $resource = new ProfileResource();
         $resource->weeklyGoal = $view->weeklyGoal;
         $resource->timezone = $view->timezone;
+        $resource->bio = $view->bio;
+        $resource->specialties = $view->specialties;
+        $resource->signature = $view->signature;
 
         return $resource;
     }

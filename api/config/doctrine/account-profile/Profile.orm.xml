@@ -10,5 +10,8 @@
         </id>
         <field name="weeklyGoal" type="integer" column="weekly_goal"/>
         <field name="timezone" type="string" column="timezone" length="64"/>
+        <field name="bio" type="text" column="bio" nullable="true"/>
+        <field name="specialties" type="text" column="specialties" nullable="true"/>
+        <field name="signature" type="text" column="signature" nullable="true"/>
     </entity>
 </doctrine-mapping>

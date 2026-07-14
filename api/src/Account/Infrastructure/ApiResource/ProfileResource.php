@@ -13,7 +13,10 @@ use App\Account\Infrastructure\ApiResource\State\ProfileProvider;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/** Profil de la traductrice (singleton par tenant) — M1.3 : objectif hebdo. */
+/**
+ * Profil de la traductrice (singleton par tenant) — M1.3 : objectif hebdo,
+ * M1.4 : présentation (bio, spécialités, signature) pour la rédaction assistée.
+ */
 #[ApiResource(
     shortName: 'Profile',
     normalizationContext: ['groups' => ['profile:read']],
@@ -36,4 +39,17 @@ final class ProfileResource
 
     #[Groups(['profile:read'])]
     public string $timezone = 'Europe/Paris';
+
+    /** Présentation courte, matière première des brouillons générés. */
+    #[Assert\Length(max: 2000)]
+    #[Groups(['profile:read', 'profile:write'])]
+    public ?string $bio = null;
+
+    #[Assert\Length(max: 1000)]
+    #[Groups(['profile:read', 'profile:write'])]
+    public ?string $specialties = null;
+
+    #[Assert\Length(max: 500)]
+    #[Groups(['profile:read', 'profile:write'])]
+    public ?string $signature = null;
 }

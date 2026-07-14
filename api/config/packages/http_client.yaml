@@ -1,0 +1,6 @@
+framework:
+    http_client:
+        default_options:
+            # Bornes globales : aucun appel sortant ne doit bloquer un worker indéfiniment.
+            timeout: 30
+            max_duration: 60

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+                  https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+    <!-- Brouillon (Rédaction assistée). Domaine pur, mapping hors src/. -->
+    <entity name="App\Drafting\Domain\Draft\Draft" table="draft">
+        <indexes>
+            <index name="idx_draft_tenant_lead" columns="tenant_id,lead_id"/>
+        </indexes>
+        <id name="id" type="draft_id" column="id">
+            <generator strategy="NONE"/>
+        </id>
+        <field name="tenantId" type="tenant_id" column="tenant_id"/>
+        <field name="leadId" type="string" column="lead_id"/>
+        <field name="type" type="string" column="type" enum-type="App\Drafting\Domain\Draft\DraftType"/>
+        <field name="targetLanguage" type="language_code" column="target_language" length="2"/>
+        <field name="templateId" type="string" column="template_id" nullable="true"/>
+        <field name="subject" type="string" column="subject" nullable="true"/>
+        <field name="body" type="text" column="body"/>
+        <field name="status" type="string" column="status" enum-type="App\Drafting\Domain\Draft\DraftStatus"/>
+        <field name="failureReason" type="string" column="failure_reason" nullable="true"/>
+        <field name="createdAt" type="datetime_immutable" column="created_at"/>
+        <field name="updatedAt" type="datetime_immutable" column="updated_at"/>
+    </entity>
+</doctrine-mapping>

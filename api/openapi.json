@@ -300,6 +300,489 @@
                 }
             }
         },
+        "/api/v1/drafts/{id}": {
+            "get": {
+                "operationId": "api_drafts_id_get",
+                "tags": [
+                    "Draft"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Draft resource",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Draft.jsonld-draft.read"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Draft-draft.read"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Retrieves a Draft resource.",
+                "description": "Retrieves a Draft resource.",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Draft identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            },
+            "delete": {
+                "operationId": "api_drafts_id_delete",
+                "tags": [
+                    "Draft"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Draft resource deleted"
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Removes the Draft resource.",
+                "description": "Removes the Draft resource.",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Draft identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            },
+            "patch": {
+                "operationId": "api_drafts_id_patch",
+                "tags": [
+                    "Draft"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Draft resource updated",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Draft.jsonld-draft.read"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Draft-draft.read"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "\u00c9diter le brouillon (READY uniquement)",
+                "description": "\u00c9diter le brouillon (READY uniquement)",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Draft identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ],
+                "requestBody": {
+                    "description": "The updated Draft resource",
+                    "content": {
+                        "application/merge-patch+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Draft-draft.edit.jsonMergePatch"
+                            }
+                        }
+                    },
+                    "required": true
+                }
+            }
+        },
+        "/api/v1/drafts/{id}/regenerate": {
+            "post": {
+                "operationId": "draft_regenerate",
+                "tags": [
+                    "Draft"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Draft resource created",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Draft.jsonld-draft.read"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Draft-draft.read"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Relancer la g\u00e9n\u00e9ration",
+                "description": "Relancer la g\u00e9n\u00e9ration",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Draft identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            }
+        },
+        "/api/v1/leads/{leadId}/drafts": {
+            "get": {
+                "operationId": "api_leads_leadIddrafts_get_collection",
+                "tags": [
+                    "Draft"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Draft collection",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "type": "object",
+                                    "description": "Draft.jsonld-draft.read collection.",
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/HydraCollectionBaseSchema"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "required": [
+                                                "member"
+                                            ],
+                                            "properties": {
+                                                "member": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/Draft.jsonld-draft.read"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Draft-draft.read"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "Retrieves the collection of Draft resources.",
+                "description": "Retrieves the collection of Draft resources.",
+                "parameters": [
+                    {
+                        "name": "leadId",
+                        "in": "path",
+                        "description": "LeadResource identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "The collection page number",
+                        "required": false,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 1
+                        },
+                        "style": "form",
+                        "explode": true
+                    }
+                ]
+            },
+            "post": {
+                "operationId": "api_leads_leadIddrafts_post",
+                "tags": [
+                    "Draft"
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Draft resource created",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Draft.jsonld-draft.read"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Draft-draft.read"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "G\u00e9n\u00e9rer un brouillon (asynchrone)",
+                "description": "G\u00e9n\u00e9rer un brouillon (asynchrone)",
+                "parameters": [
+                    {
+                        "name": "leadId",
+                        "in": "path",
+                        "description": "LeadResource identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ],
+                "requestBody": {
+                    "description": "The new Draft resource",
+                    "content": {
+                        "application/ld+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Draft-draft.create"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Draft-draft.create"
+                            }
+                        }
+                    },
+                    "required": true
+                }
+            }
+        },
         "/api/v1/leads/{leadId}/interactions": {
             "get": {
                 "operationId": "api_leads_leadIdinteractions_get_collection",
@@ -2246,6 +2729,380 @@
                 }
             }
         },
+        "/api/v1/templates": {
+            "get": {
+                "operationId": "api_templates_get_collection",
+                "tags": [
+                    "Template"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Template collection",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "type": "object",
+                                    "description": "Template.jsonld-template.read collection.",
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/HydraCollectionBaseSchema"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "required": [
+                                                "member"
+                                            ],
+                                            "properties": {
+                                                "member": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/Template.jsonld-template.read"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Template-template.read"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "Retrieves the collection of Template resources.",
+                "description": "Retrieves the collection of Template resources.",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "The collection page number",
+                        "required": false,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 1
+                        },
+                        "style": "form",
+                        "explode": true
+                    }
+                ]
+            },
+            "post": {
+                "operationId": "api_templates_post",
+                "tags": [
+                    "Template"
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Template resource created",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Template.jsonld-template.read"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Template-template.read"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Creates a Template resource.",
+                "description": "Creates a Template resource.",
+                "parameters": [],
+                "requestBody": {
+                    "description": "The new Template resource",
+                    "content": {
+                        "application/ld+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Template-template.write"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Template-template.write"
+                            }
+                        }
+                    },
+                    "required": true
+                }
+            }
+        },
+        "/api/v1/templates/{id}": {
+            "get": {
+                "operationId": "api_templates_id_get",
+                "tags": [
+                    "Template"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Template resource",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Template.jsonld-template.read"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Template-template.read"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Retrieves a Template resource.",
+                "description": "Retrieves a Template resource.",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Template identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            },
+            "delete": {
+                "operationId": "api_templates_id_delete",
+                "tags": [
+                    "Template"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Template resource deleted"
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Removes the Template resource.",
+                "description": "Removes the Template resource.",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Template identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            },
+            "patch": {
+                "operationId": "api_templates_id_patch",
+                "tags": [
+                    "Template"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Template resource updated",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Template.jsonld-template.read"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Template-template.read"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Updates the Template resource.",
+                "description": "Updates the Template resource.",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Template identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ],
+                "requestBody": {
+                    "description": "The updated Template resource",
+                    "content": {
+                        "application/merge-patch+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Template-template.write.jsonMergePatch"
+                            }
+                        }
+                    },
+                    "required": true
+                }
+            }
+        },
         "/api/v1/today": {
             "get": {
                 "operationId": "api_today_get",
@@ -2831,6 +3688,206 @@
                     }
                 ],
                 "description": "DTO d'un contact : imbriqu\u00e9 (org:read) + sous-endpoints sous une organisation."
+            },
+            "Draft-draft.create": {
+                "type": "object",
+                "description": "Brouillon g\u00e9n\u00e9r\u00e9 (R\u00e9daction assist\u00e9e) \u2014 DRAFT-FIRST : relu, \u00e9dit\u00e9, copi\u00e9,\njamais envoy\u00e9 depuis ce contexte (M2). G\u00e9n\u00e9ration asynchrone : le POST rend\nun brouillon GENERATING, le worker le fait passer READY ou FAILED.",
+                "required": [
+                    "type",
+                    "targetLanguage"
+                ],
+                "properties": {
+                    "type": {
+                        "enum": [
+                            "APPLICATION_EMAIL",
+                            "COVER_LETTER",
+                            "FOLLOW_UP_EMAIL"
+                        ],
+                        "default": "APPLICATION_EMAIL",
+                        "type": "string"
+                    },
+                    "targetLanguage": {
+                        "pattern": "^([a-zA-Z]{2})$",
+                        "default": "",
+                        "type": "string"
+                    },
+                    "templateId": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                }
+            },
+            "Draft-draft.edit.jsonMergePatch": {
+                "type": "object",
+                "description": "Brouillon g\u00e9n\u00e9r\u00e9 (R\u00e9daction assist\u00e9e) \u2014 DRAFT-FIRST : relu, \u00e9dit\u00e9, copi\u00e9,\njamais envoy\u00e9 depuis ce contexte (M2). G\u00e9n\u00e9ration asynchrone : le POST rend\nun brouillon GENERATING, le worker le fait passer READY ou FAILED.",
+                "properties": {
+                    "subject": {
+                        "maxLength": 255,
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "body": {
+                        "default": "",
+                        "type": "string"
+                    }
+                }
+            },
+            "Draft-draft.read": {
+                "type": "object",
+                "description": "Brouillon g\u00e9n\u00e9r\u00e9 (R\u00e9daction assist\u00e9e) \u2014 DRAFT-FIRST : relu, \u00e9dit\u00e9, copi\u00e9,\njamais envoy\u00e9 depuis ce contexte (M2). G\u00e9n\u00e9ration asynchrone : le POST rend\nun brouillon GENERATING, le worker le fait passer READY ou FAILED.",
+                "properties": {
+                    "id": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "leadId": {
+                        "default": "",
+                        "type": "string"
+                    },
+                    "type": {
+                        "enum": [
+                            "APPLICATION_EMAIL",
+                            "COVER_LETTER",
+                            "FOLLOW_UP_EMAIL"
+                        ],
+                        "default": "APPLICATION_EMAIL",
+                        "type": "string"
+                    },
+                    "targetLanguage": {
+                        "pattern": "^([a-zA-Z]{2})$",
+                        "default": "",
+                        "type": "string"
+                    },
+                    "templateId": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "subject": {
+                        "maxLength": 255,
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "body": {
+                        "default": "",
+                        "type": "string"
+                    },
+                    "status": {
+                        "default": "GENERATING",
+                        "type": "string"
+                    },
+                    "failureReason": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "createdAt": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "updatedAt": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                },
+                "required": [
+                    "type",
+                    "targetLanguage"
+                ]
+            },
+            "Draft.jsonld-draft.read": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/HydraItemBaseSchema"
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "leadId": {
+                                "default": "",
+                                "type": "string"
+                            },
+                            "type": {
+                                "enum": [
+                                    "APPLICATION_EMAIL",
+                                    "COVER_LETTER",
+                                    "FOLLOW_UP_EMAIL"
+                                ],
+                                "default": "APPLICATION_EMAIL",
+                                "type": "string"
+                            },
+                            "targetLanguage": {
+                                "pattern": "^([a-zA-Z]{2})$",
+                                "default": "",
+                                "type": "string"
+                            },
+                            "templateId": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "subject": {
+                                "maxLength": 255,
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "body": {
+                                "default": "",
+                                "type": "string"
+                            },
+                            "status": {
+                                "default": "GENERATING",
+                                "type": "string"
+                            },
+                            "failureReason": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "createdAt": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "updatedAt": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            }
+                        },
+                        "required": [
+                            "type",
+                            "targetLanguage"
+                        ]
+                    }
+                ],
+                "description": "Brouillon g\u00e9n\u00e9r\u00e9 (R\u00e9daction assist\u00e9e) \u2014 DRAFT-FIRST : relu, \u00e9dit\u00e9, copi\u00e9,\njamais envoy\u00e9 depuis ce contexte (M2). G\u00e9n\u00e9ration asynchrone : le POST rend\nun brouillon GENERATING, le worker le fait passer READY ou FAILED."
             },
             "Error": {
                 "type": "object",
@@ -4375,7 +5432,7 @@
             },
             "Profile-profile.read": {
                 "type": "object",
-                "description": "Profil de la traductrice (singleton par tenant) \u2014 M1.3 : objectif hebdo.",
+                "description": "Profil de la traductrice (singleton par tenant) \u2014 M1.3 : objectif hebdo,\nM1.4 : pr\u00e9sentation (bio, sp\u00e9cialit\u00e9s, signature) pour la r\u00e9daction assist\u00e9e.",
                 "properties": {
                     "id": {
                         "default": "me",
@@ -4395,7 +5452,7 @@
             },
             "Profile-profile.write.jsonMergePatch": {
                 "type": "object",
-                "description": "Profil de la traductrice (singleton par tenant) \u2014 M1.3 : objectif hebdo.",
+                "description": "Profil de la traductrice (singleton par tenant) \u2014 M1.3 : objectif hebdo,\nM1.4 : pr\u00e9sentation (bio, sp\u00e9cialit\u00e9s, signature) pour la r\u00e9daction assist\u00e9e.",
                 "properties": {
                     "weeklyGoal": {
                         "minimum": 1,
@@ -4430,7 +5487,231 @@
                         }
                     }
                 ],
-                "description": "Profil de la traductrice (singleton par tenant) \u2014 M1.3 : objectif hebdo."
+                "description": "Profil de la traductrice (singleton par tenant) \u2014 M1.3 : objectif hebdo,\nM1.4 : pr\u00e9sentation (bio, sp\u00e9cialit\u00e9s, signature) pour la r\u00e9daction assist\u00e9e."
+            },
+            "Template-template.read": {
+                "type": "object",
+                "description": "Mod\u00e8le (gabarit) de message : canevas r\u00e9utilisable par type/segment/langue,\navec variables ({{contact}}, {{organisation}}, {{langues}}, {{bio}},\n{{specialites}}, {{signature}}). 3 gabarits seed\u00e9s \u00e0 la premi\u00e8re utilisation.",
+                "properties": {
+                    "id": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "name": {
+                        "maxLength": 255,
+                        "default": "",
+                        "type": "string"
+                    },
+                    "type": {
+                        "enum": [
+                            "APPLICATION_EMAIL",
+                            "COVER_LETTER",
+                            "FOLLOW_UP_EMAIL"
+                        ],
+                        "default": "APPLICATION_EMAIL",
+                        "type": "string"
+                    },
+                    "segment": {
+                        "enum": [
+                            "PUBLISHING",
+                            "AUDIOVISUAL",
+                            "TECHNICAL",
+                            "OTHER"
+                        ],
+                        "default": "PUBLISHING",
+                        "type": "string"
+                    },
+                    "language": {
+                        "pattern": "^([a-zA-Z]{2})$",
+                        "default": "fr",
+                        "type": "string"
+                    },
+                    "subject": {
+                        "maxLength": 255,
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "body": {
+                        "default": "",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "name",
+                    "type",
+                    "segment",
+                    "language",
+                    "body"
+                ]
+            },
+            "Template-template.write": {
+                "type": "object",
+                "description": "Mod\u00e8le (gabarit) de message : canevas r\u00e9utilisable par type/segment/langue,\navec variables ({{contact}}, {{organisation}}, {{langues}}, {{bio}},\n{{specialites}}, {{signature}}). 3 gabarits seed\u00e9s \u00e0 la premi\u00e8re utilisation.",
+                "required": [
+                    "name",
+                    "type",
+                    "segment",
+                    "language",
+                    "body"
+                ],
+                "properties": {
+                    "name": {
+                        "maxLength": 255,
+                        "default": "",
+                        "type": "string"
+                    },
+                    "type": {
+                        "enum": [
+                            "APPLICATION_EMAIL",
+                            "COVER_LETTER",
+                            "FOLLOW_UP_EMAIL"
+                        ],
+                        "default": "APPLICATION_EMAIL",
+                        "type": "string"
+                    },
+                    "segment": {
+                        "enum": [
+                            "PUBLISHING",
+                            "AUDIOVISUAL",
+                            "TECHNICAL",
+                            "OTHER"
+                        ],
+                        "default": "PUBLISHING",
+                        "type": "string"
+                    },
+                    "language": {
+                        "pattern": "^([a-zA-Z]{2})$",
+                        "default": "fr",
+                        "type": "string"
+                    },
+                    "subject": {
+                        "maxLength": 255,
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "body": {
+                        "default": "",
+                        "type": "string"
+                    }
+                }
+            },
+            "Template-template.write.jsonMergePatch": {
+                "type": "object",
+                "description": "Mod\u00e8le (gabarit) de message : canevas r\u00e9utilisable par type/segment/langue,\navec variables ({{contact}}, {{organisation}}, {{langues}}, {{bio}},\n{{specialites}}, {{signature}}). 3 gabarits seed\u00e9s \u00e0 la premi\u00e8re utilisation.",
+                "properties": {
+                    "name": {
+                        "maxLength": 255,
+                        "default": "",
+                        "type": "string"
+                    },
+                    "type": {
+                        "enum": [
+                            "APPLICATION_EMAIL",
+                            "COVER_LETTER",
+                            "FOLLOW_UP_EMAIL"
+                        ],
+                        "default": "APPLICATION_EMAIL",
+                        "type": "string"
+                    },
+                    "segment": {
+                        "enum": [
+                            "PUBLISHING",
+                            "AUDIOVISUAL",
+                            "TECHNICAL",
+                            "OTHER"
+                        ],
+                        "default": "PUBLISHING",
+                        "type": "string"
+                    },
+                    "language": {
+                        "pattern": "^([a-zA-Z]{2})$",
+                        "default": "fr",
+                        "type": "string"
+                    },
+                    "subject": {
+                        "maxLength": 255,
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "body": {
+                        "default": "",
+                        "type": "string"
+                    }
+                }
+            },
+            "Template.jsonld-template.read": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/HydraItemBaseSchema"
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "name": {
+                                "maxLength": 255,
+                                "default": "",
+                                "type": "string"
+                            },
+                            "type": {
+                                "enum": [
+                                    "APPLICATION_EMAIL",
+                                    "COVER_LETTER",
+                                    "FOLLOW_UP_EMAIL"
+                                ],
+                                "default": "APPLICATION_EMAIL",
+                                "type": "string"
+                            },
+                            "segment": {
+                                "enum": [
+                                    "PUBLISHING",
+                                    "AUDIOVISUAL",
+                                    "TECHNICAL",
+                                    "OTHER"
+                                ],
+                                "default": "PUBLISHING",
+                                "type": "string"
+                            },
+                            "language": {
+                                "pattern": "^([a-zA-Z]{2})$",
+                                "default": "fr",
+                                "type": "string"
+                            },
+                            "subject": {
+                                "maxLength": 255,
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "body": {
+                                "default": "",
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "name",
+                            "type",
+                            "segment",
+                            "language",
+                            "body"
+                        ]
+                    }
+                ],
+                "description": "Mod\u00e8le (gabarit) de message : canevas r\u00e9utilisable par type/segment/langue,\navec variables ({{contact}}, {{organisation}}, {{langues}}, {{bio}},\n{{specialites}}, {{signature}}). 3 gabarits seed\u00e9s \u00e0 la premi\u00e8re utilisation."
             },
             "Today-today.read_lead.read": {
                 "type": "object",
@@ -4525,7 +5806,7 @@
     "tags": [
         {
             "name": "Profile",
-            "description": "Profil de la traductrice (singleton par tenant) \u2014 M1.3 : objectif hebdo."
+            "description": "Profil de la traductrice (singleton par tenant) \u2014 M1.3 : objectif hebdo,\nM1.4 : pr\u00e9sentation (bio, sp\u00e9cialit\u00e9s, signature) pour la r\u00e9daction assist\u00e9e."
         },
         {
             "name": "Contact",
@@ -4538,6 +5819,14 @@
         {
             "name": "Organization",
             "description": "Resource API (DTO) du R\u00e9pertoire \u2014 jamais l'agr\u00e9gat/entit\u00e9 Doctrine."
+        },
+        {
+            "name": "Draft",
+            "description": "Brouillon g\u00e9n\u00e9r\u00e9 (R\u00e9daction assist\u00e9e) \u2014 DRAFT-FIRST : relu, \u00e9dit\u00e9, copi\u00e9,\njamais envoy\u00e9 depuis ce contexte (M2). G\u00e9n\u00e9ration asynchrone : le POST rend\nun brouillon GENERATING, le worker le fait passer READY ou FAILED."
+        },
+        {
+            "name": "Template",
+            "description": "Mod\u00e8le (gabarit) de message : canevas r\u00e9utilisable par type/segment/langue,\navec variables ({{contact}}, {{organisation}}, {{langues}}, {{bio}},\n{{specialites}}, {{signature}}). 3 gabarits seed\u00e9s \u00e0 la premi\u00e8re utilisation."
         },
         {
             "name": "Interaction",

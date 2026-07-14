@@ -6,13 +6,14 @@ namespace App\Account\Infrastructure\ApiResource\State;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
-use App\Account\Application\Command\UpdateWeeklyGoal\UpdateWeeklyGoal;
+use App\Account\Application\Command\UpdateProfile\UpdateProfile;
 use App\Account\Infrastructure\ApiResource\ProfileResource;
 use App\Shared\Application\Command\CommandBus;
 use App\Shared\Infrastructure\Doctrine\Tenancy\TenantContext;
 
 /**
- * PATCH /profile → UpdateWeeklyGoal. Le tenant vient du contexte (JWT).
+ * PATCH /profile → UpdateProfile (merge-patch : le provider a chargé l'état
+ * courant, seuls les champs envoyés changent). Le tenant vient du JWT.
  *
  * @implements ProcessorInterface<ProfileResource, ProfileResource>
  */
@@ -28,7 +29,13 @@ final class ProfileProcessor implements ProcessorInterface
     {
         $tenant = $this->tenantContext->get() ?? throw new \LogicException('No tenant in context.');
 
-        $this->commandBus->dispatch(new UpdateWeeklyGoal($tenant->toString(), $data->weeklyGoal));
+        $this->commandBus->dispatch(new UpdateProfile(
+            $tenant->toString(),
+            $data->weeklyGoal,
+            $data->bio,
+            $data->specialties,
+            $data->signature,
+        ));
 
         return $data;
     }

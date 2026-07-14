@@ -1,4 +1,9 @@
 parameters:
+    # Rédaction assistée : clé absente => générateur local (canned), coût zéro.
+    env(ANTHROPIC_API_KEY): ''
+    env(DRAFTING_MODEL): 'claude-sonnet-5'
+    drafting.anthropic_api_key: '%env(string:ANTHROPIC_API_KEY)%'
+    drafting.model: '%env(string:DRAFTING_MODEL)%'
 
 services:
     _defaults:
@@ -46,3 +51,20 @@ services:
 
     # Frontière de contexte Prospection → Répertoire (port applicatif).
     App\Prospecting\Application\OrganizationGateway: '@App\Prospecting\Infrastructure\Gateway\DirectoryOrganizationGateway'
+
+    # Contexte Drafting (rédaction assistée).
+    App\Drafting\Domain\Draft\DraftRepository: '@App\Drafting\Infrastructure\Persistence\Doctrine\DoctrineDraftRepository'
+    App\Drafting\Domain\Template\TemplateRepository: '@App\Drafting\Infrastructure\Persistence\Doctrine\DoctrineTemplateRepository'
+    App\Drafting\Application\ReadModel\DraftSearch: '@App\Drafting\Infrastructure\ReadModel\DoctrineDraftSearch'
+    App\Drafting\Application\ReadModel\TemplateSearch: '@App\Drafting\Infrastructure\ReadModel\DoctrineTemplateSearch'
+    App\Drafting\Application\LeadGateway: '@App\Drafting\Infrastructure\Gateway\DoctrineLeadGateway'
+
+    # Port MessageGenerator : sélection par env (clé présente => Claude, sinon canned).
+    App\Drafting\Application\MessageGenerator: '@App\Drafting\Infrastructure\Generator\MessageGeneratorSelector'
+    App\Drafting\Infrastructure\Generator\MessageGeneratorSelector:
+        arguments:
+            $apiKey: '%drafting.anthropic_api_key%'
+    App\Drafting\Infrastructure\Generator\ClaudeMessageGenerator:
+        arguments:
+            $apiKey: '%drafting.anthropic_api_key%'
+            $model: '%drafting.model%'

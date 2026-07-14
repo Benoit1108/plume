@@ -5,6 +5,7 @@ doctrine:
         types:
             lead_id: App\Prospecting\Infrastructure\Persistence\Doctrine\Type\LeadIdType
             tenant_id: App\Shared\Infrastructure\Persistence\Doctrine\Type\TenantIdType
+            language_code: App\Shared\Infrastructure\Persistence\Doctrine\Type\LanguageCodeType
             organization_id: App\Directory\Infrastructure\Persistence\Doctrine\Type\OrganizationIdType
             country_code: App\Directory\Infrastructure\Persistence\Doctrine\Type\CountryCodeType
             language_code_list: App\Directory\Infrastructure\Persistence\Doctrine\Type\LanguageCodeListType
@@ -12,6 +13,8 @@ doctrine:
             contact_collection: App\Directory\Infrastructure\Persistence\Doctrine\Type\ContactCollectionType
             language_pair: App\Prospecting\Infrastructure\Persistence\Doctrine\Type\LanguagePairType
             follow_up_collection: App\Prospecting\Infrastructure\Persistence\Doctrine\Type\FollowUpCollectionType
+            draft_id: App\Drafting\Infrastructure\Persistence\Doctrine\Type\DraftIdType
+            template_id: App\Drafting\Infrastructure\Persistence\Doctrine\Type\TemplateIdType
     orm:
         validate_xml_mapping: true
         naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
@@ -34,6 +37,16 @@ doctrine:
                 is_bundle: false
                 dir: '%kernel.project_dir%/config/doctrine/directory'
                 prefix: 'App\Directory\Domain\Organization'
+            DraftingDraft:
+                type: xml
+                is_bundle: false
+                dir: '%kernel.project_dir%/config/doctrine/drafting-draft'
+                prefix: 'App\Drafting\Domain\Draft'
+            DraftingTemplate:
+                type: xml
+                is_bundle: false
+                dir: '%kernel.project_dir%/config/doctrine/drafting-template'
+                prefix: 'App\Drafting\Domain\Template'
             AccountProfile:
                 type: xml
                 is_bundle: false

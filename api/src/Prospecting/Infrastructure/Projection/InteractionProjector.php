@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Prospecting\Infrastructure\Projection;
 
+use App\Drafting\Domain\Draft\Event\DraftGenerated;
 use App\Prospecting\Domain\Lead\Event\FollowUpCancelled;
 use App\Prospecting\Domain\Lead\Event\FollowUpScheduled;
 use App\Prospecting\Domain\Lead\Event\FollowUpSent;
@@ -104,6 +105,13 @@ final class InteractionProjector
     public function onFollowUpCancelled(FollowUpCancelled $event): void
     {
         $this->record($event, $event->tenantId, $event->leadId, 'follow_up_cancelled', ['reason' => $event->reason]);
+    }
+
+    /** Event du contexte Drafting — le journal de la piste agrège tous les contextes. */
+    #[AsMessageHandler(bus: 'event.bus')]
+    public function onDraftGenerated(DraftGenerated $event): void
+    {
+        $this->record($event, $event->tenantId, $event->leadId, 'draft_generated', ['draftType' => $event->type]);
     }
 
     /** @param array<string, mixed> $payload */

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+                  https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+    <!-- Gabarit de message (Rédaction assistée). Domaine pur, mapping hors src/. -->
+    <entity name="App\Drafting\Domain\Template\Template" table="template">
+        <indexes>
+            <index name="idx_template_tenant" columns="tenant_id"/>
+        </indexes>
+        <id name="id" type="template_id" column="id">
+            <generator strategy="NONE"/>
+        </id>
+        <field name="tenantId" type="tenant_id" column="tenant_id"/>
+        <field name="name" type="string" column="name"/>
+        <field name="type" type="string" column="type" enum-type="App\Drafting\Domain\Draft\DraftType"/>
+        <field name="segment" type="string" column="segment" enum-type="App\Shared\Domain\ValueObject\Segment"/>
+        <field name="language" type="language_code" column="language" length="2"/>
+        <field name="subject" type="string" column="subject" nullable="true"/>
+        <field name="body" type="text" column="body"/>
+        <field name="createdAt" type="datetime_immutable" column="created_at"/>
+    </entity>
+</doctrine-mapping>
