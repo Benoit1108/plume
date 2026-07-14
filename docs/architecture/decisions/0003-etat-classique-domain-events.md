@@ -15,3 +15,12 @@ Le domaine est riche en événements (contact, relance, réponse, changement de 
 - ✅ Découplage propre cœur ↔ effets de bord.
 - ❌ Pas de « rejeu » complet ni de reconstruction d'état depuis un flux d'events (non requis).
 - ⚠️ L'outbox doit garantir zéro perte d'event entre commit et publication.
+
+---
+
+> **Amendé (2026-07-14, revue fin M1)** : les domain events servent aussi de **langage
+> publié entre contextes** — un contexte peut consommer, en Infrastructure, l'event d'un
+> autre contexte via le bus (ex. le journal `interaction` de Prospection consomme
+> `DraftGenerated` de Drafting). Les events sont « riches » (tenant + données) précisément
+> pour que le consommateur n'ait jamais à recharger l'agrégat émetteur. Le cœur des
+> contextes (Domain + Application) reste, lui, étanche (`deptrac-contexts.yaml`).

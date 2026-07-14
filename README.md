@@ -17,9 +17,15 @@ Un mini-CRM SaaS (multi-tenant dès l'architecture, mono-utilisatrice en V1) qui
 ## État du projet
 
 - **M0 — fondations** : livré (monorepo, Docker, CI durcie, auth JWT + refresh, tenancy).
-- **M1.1 — Répertoire** : livré (API Organisations + Contacts, import CSV, écrans responsives, i18n FR/EN) + **revue de santé appliquée** (`docs/reviews/`).
-- **M1.2 — Pipeline Lead** : livré (machine à états, kanban + fiche avec journal d'interactions projeté, garde RGPD, E2E Playwright).
-- **Prochaine étape : M1.3 — relances & régularité** (voir [`docs/ROADMAP.md`](docs/ROADMAP.md)).
+- **M1 — cœur prospection : livré au complet** —
+  **M1.1** Répertoire (API + import CSV + écrans), **M1.2** pipeline Lead (machine à
+  états, kanban, journal d'interactions projeté, garde RGPD), **M1.3** relances &
+  écran « Aujourd'hui » (cadence auto, objectif hebdo + série), **M1.4** rédaction
+  assistée (contexte Drafting, brouillons draft-first, gabarits, Claude par env /
+  générateur local par défaut), **M1.5** tableau de bord (taux de réponse,
+  conversion, activité hebdo, segments).
+- **Revues de santé** appliquées à chaque jalon (`docs/reviews/`), remédiation fin M1 incluse.
+- **Prochaine étape : M2 — passerelle email** (voir [`docs/ROADMAP.md`](docs/ROADMAP.md)).
 
 ## Stack
 
@@ -40,9 +46,11 @@ Un mini-CRM SaaS (multi-tenant dès l'architecture, mono-utilisatrice en V1) qui
 plume/
 ├─ api/              # application Symfony (backend)
 │  ├─ src/
-│  │  ├─ Prospecting/        # Core domain (pipeline Lead)
+│  │  ├─ Prospecting/        # Core domain (pipeline Lead, relances, journal, dashboard)
 │  │  ├─ Directory/          # Répertoire (organisations, contacts, import)
+│  │  ├─ Drafting/           # Rédaction assistée (brouillons, gabarits, ACL IA)
 │  │  ├─ Account/            # tenancy, auth, profil
+│  │  ├─ Mailbox/, Sourcing/ # à venir (M2 passerelle email, M3 ingestion)
 │  │  └─ Shared/             # VOs communs, bus CQRS, exceptions domaine, tenancy
 │  ├─ config/doctrine/       # mapping XML (le domaine reste pur)
 │  └─ tests/                 # domaine (pur) + application (in-memory) + fonctionnels (Postgres)
@@ -80,9 +88,38 @@ cd app && npm install && npm run dev
 # App   : http://localhost:3000
 ```
 
-Qualité (identiques à la CI) : `make test`, `make phpstan`, `make deptrac`, `make cs`,
-`make openapi` (contrat diff-vérifié), et côté front `npm run lint / type-check / test:coverage`.
-`make hooks` installe le hook git pre-commit.
+Qualité (identiques à la CI) : `make test`, `make phpstan`, `make deptrac` (couches **et**
+frontières de contextes), `make cs`, `make openapi` (contrat diff-vérifié — à régénérer
+**après** un `cache:clear` si des propriétés d'API ont changé), et côté front
+`npm run lint / type-check / test:coverage`. `make hooks` installe le hook git pre-commit.
+
+### Tests E2E (Playwright)
+
+La suite `app/e2e/` pilote un **build de production** du front contre l'API réelle :
+
+```bash
+# Prérequis : stack up (Postgres + php + worker) + utilisateur e2e dédié (tenant isolé)
+docker compose exec php php bin/console app:user:create e2e@plume.test   # mot de passe : e2e-secret-123
+docker compose stop app        # le conteneur front dev et le build E2E partagent .nuxt
+cd app && npx playwright test  # lance build + serveur + tests (workers sérialisés : tenant partagé)
+```
+
+Chaque test porte un garde-fou console/hydratation (toute erreur runtime fait échouer).
+En CI, le job `E2E (Playwright)` rejoue exactement ce parcours.
+
+### Activer la génération IA (Claude)
+
+Sans configuration, la rédaction assistée utilise un **générateur local déterministe**
+(gratuit — dev, tests, CI). Pour brancher l'API Anthropic :
+
+```bash
+# api/.env.local (jamais commité)
+ANTHROPIC_API_KEY=sk-ant-…       # la clé reste un secret d'environnement
+DRAFTING_MODEL=claude-sonnet-5   # surchargeable
+```
+
+Les demandes de génération sont plafonnées (30/h par tenant) et l'ADR-0014 documente
+les données transmises au sous-traitant. Voir [`docs/architecture/decisions/`](docs/architecture/decisions/).
 
 ## Licence
 

@@ -59,6 +59,9 @@ Les domain events sont persistés dans **la même transaction** que l'agrégat, 
 
 - Base **unique**, schéma **partagé**, discriminant **`tenant_id`** sur les tables tenant.
 - Isolation via **Doctrine `SQLFilter`** activé à chaque requête, `TenantId` extrait du token JWT.
+- Les **read models DBAL** (hors ORM, le SQLFilter ne s'y applique pas) portent un prédicat
+  tenant **explicite et fail-closed** (`TenantContext::require()`) — cf. ADR-0013. Dans le
+  worker (pas de contexte de requête), le tenant voyage **dans l'event/la commande**.
 - Le **domaine ignore la tenancy** : c'est une préoccupation d'infrastructure.
 - V1 : une seule Traductrice. Extraction schéma-par-tenant possible plus tard sans refonte du domaine.
 
@@ -71,7 +74,7 @@ Les domain events sont persistés dans **la même transaction** que l'agrégat, 
 
 ## Frontend
 
-- **Nuxt 3** (Vue 3, TypeScript), **Pinia**, SPA authentifiée.
+- **Nuxt 4** (Vue 3, TypeScript), **Pinia**, SPA authentifiée (ADR-0009 amendé).
 - Auth **JWT access + refresh** ; refresh en cookie httpOnly, rotation des tokens.
 - Vues clés : kanban pipeline, « à faire aujourd'hui », fiche Piste (timeline), éditeur de brouillon, tableau de bord.
 
@@ -79,7 +82,7 @@ Les domain events sont persistés dans **la même transaction** que l'agrégat, 
 
 - Tokens OAuth chiffrés au repos (libsodium) ; secrets via Vault Symfony.
 - Scopes OAuth minimaux (`gmail.send` + lecture d'un label dédié).
-- Rate limiting (login, génération IA), CSP, validation stricte des entrées.
+- Rate limiting effectif : login (throttling), endpoints token (par IP), **génération IA (30/h par tenant)** ; CSP ; validation stricte et bornée des entrées.
 
 ## Préoccupations transverses (jour-1)
 

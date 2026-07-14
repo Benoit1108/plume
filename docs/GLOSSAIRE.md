@@ -25,8 +25,8 @@ Le vocabulaire métier ci-dessous est **contractuel** et reste en **français** 
 | Interaction | `Interaction` |
 | Relance | `FollowUp` |
 | Cadence | `FollowUpCadence` |
-| Objectif hebdomadaire | `WeeklyGoal` |
-| Série | `Streak` |
+| Objectif hebdomadaire | `weeklyGoal` (champ du `Profile`) |
+| Série | `streak` (calculée sur le journal, pas une classe) |
 | Segment | `Segment` |
 | Organisation | `Organization` |
 | Contact | `Contact` |

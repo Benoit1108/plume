@@ -16,3 +16,7 @@ Ne pas contredire un ADR accepté sans en écrire un nouveau qui le remplace (st
 | [0009](0009-stack-runtime.md) | Stack technique & runtime local | Accepté |
 | [0010](0010-langue-de-nommage.md) | Langue de nommage : code EN, métier FR | Accepté |
 | [0011](0011-preoccupations-transverses.md) | Préoccupations transverses (i18n, thème, TZ, /v1…) | Accepté |
+| [0012](0012-collections-agregat-jsonb.md) | Collections d'agrégat en JSONB (contacts, relances) | Accepté |
+| [0013](0013-read-models-v1.md) | Read models V1 : SQL direct fail-closed, seul le journal est projeté | Accepté |
+| [0014](0014-integration-ia.md) | Intégration IA : ACL Claude, canned par défaut, coûts bornés, RGPD sous-traitant | Accepté |
+| [0015](0015-import-csv.md) | Import CSV : bornes, dédoublonnage par nom, rapport | Accepté |

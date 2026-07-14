@@ -1,6 +1,9 @@
 # Modèle de domaine
 
-Modélisation tactique DDD. Détaille le **cœur Prospection** ; survole les autres contextes (à approfondir à leur jalon).
+Modélisation tactique DDD. Détaille le **cœur Prospection** ; survole les autres contextes.
+Les noms sont ici **métier (FR)** ; les identifiants du code sont **EN** via la table de
+correspondance du [glossaire](../GLOSSAIRE.md) (contractuelle — ADR-0010).
+*Resynchronisé à la clôture de M1 (2026-07-14) : les events portent leurs noms réels.*
 
 ---
 
@@ -20,7 +23,7 @@ Piste (Aggregate Root)
 ├─ PaireDeLangue        (VO)
 ├─ Source               (VO)
 ├─ Priorite             (VO)
-├─ ValeurEstimee?       (VO: Tarif)
+├─ ValeurEstimee?       (VO: Tarif — **différée**, reportée en ROADMAP § M2)
 ├─ Statut               (VO: StatutPipeline)
 ├─ ProchaineAction?     (date + libellé — dénormalisé pour « à faire »)
 ├─ Relances[]           (Entités DANS l'agrégat)
@@ -31,13 +34,14 @@ Piste (Aggregate Root)
 
 | Méthode | Effet | Event(s) |
 |---------|-------|----------|
-| `contacter()` | marque la Piste contactée | `PisteContactee` |
-| `planifierRelance(date)` | ajoute une Relance | `RelancePlanifiee` |
-| `enregistrerReponse()` | **annule les relances en attente**, passe en `EN_DISCUSSION` | `ReponseRecue`, `StatutChange` |
-| `passerAuTest()` | → `TEST_ECHANTILLON` | `StatutChange` |
-| `marquerGagnee()` / `marquerPerdue()` | états terminaux | `PisteGagnee` / `PistePerdue` |
-| `mettreEnPause()` / `reprendre()` | met en veille / réactive | `StatutChange` |
-| `ajouterNote(texte)` | note manuelle | `NoteAjoutee` |
+| `contact()` | marque la Piste contactée + **planifie la relance de cadence** | `LeadContacted`, `FollowUpScheduled` |
+| `scheduleFollowUp(date)` | planifie/replanifie LA relance en attente | `FollowUpScheduled` |
+| `recordFollowUp()` | relance faite + planifie la suivante (cadence J+7/21/45) | `FollowUpSent`, `FollowUpScheduled` |
+| `recordReply()` | **annule la relance en attente**, passe en `EN_DISCUSSION` | `ReplyReceived`, `FollowUpCancelled` |
+| `moveToSampleTest()` | → `TEST_ECHANTILLON` | `LeadMovedToSampleTest` |
+| `win()` / `lose()` | états terminaux (annulent la relance en attente) | `LeadWon` / `LeadLost` (+ `FollowUpCancelled`) |
+| `pause()` / `resume()` | met en veille (statut mémorisé) / réactive | `LeadPaused` / `LeadResumed` |
+| `addNote(texte)` | note manuelle | `NoteAdded` |
 
 ### Machine à états (pipeline opinioné, figé en V1)
 
@@ -55,9 +59,9 @@ Piste (Aggregate Root)
 1. Seules les transitions du graphe sont permises (sinon exception domaine).
 2. Une réponse reçue **annule** toutes les relances en attente.
 3. États terminaux → aucune relance planifiable, aucune transition sortante (hors réouverture explicite).
-4. Pas deux relances actives à la même échéance.
+4. **Une seule relance en attente (`PENDING`) par piste** (remplacée, jamais empilée — décision M1.3).
 5. `TenantId` de la Piste = celui de l'Organisation/Contact référencés.
-6. `ValeurEstimee ≥ 0`.
+6. `ValeurEstimee ≥ 0` *(différée avec le champ — cf. ROADMAP § M2)*.
 
 ### Régularité (objectif & série)
 - **Cible** = configuration sur le Profil : `ObjectifHebdomadaire(nbContactsVises)`.
@@ -102,9 +106,16 @@ Consommateurs : journal d'Interactions, KPIs du tableau de bord, progression/sé
 - Invariants : email unique par organisation, tenant cohérent.
 - Dédoublonnage à l'ingestion (M3).
 
-### Rédaction assistée
-- Pas d'état : un **port** `GenerateurDeMessage` (ACL → Claude) + un agrégat **`Modele`** (CRUD templates).
-- La génération renvoie un **Brouillon** (transient) que la Piste peut stocker en « brouillon en cours ».
+### Rédaction assistée (contexte `Drafting`, livré M1.4 — cf. ADR-0014)
+- **`Brouillon` (`Draft`) est un agrégat persistant à états** : `GENERATING → READY | FAILED`,
+  avec gardes (édition sur `READY` uniquement ; un résultat de génération n'est accepté que
+  depuis `GENERATING` — l'asynchrone livre at-least-once). Référence la Piste par ID.
+- Agrégat **`Modele` (`Template`)** : gabarits par type/segment/langue avec variables,
+  3 seedés à la première utilisation.
+- **Port `MessageGenerator`** (l'ACL Claude et le générateur local vivent en Infrastructure) ;
+  génération **asynchrone** par le worker, garde RGPD re-vérifiée avant l'appel.
+- Le journal de la Piste s'enrichit de `draft_generated` (event `DraftGenerated` consommé
+  cross-contexte — ADR-0003 amendé).
 
 ### Passerelle email
 - Agrégat **`CompteEmailConnecte`** (provider, tokens OAuth **chiffrés**, statut).

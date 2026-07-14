@@ -34,7 +34,7 @@ Cœur métier = **pipeline de prospection + relances**. Voir `README.md` et `doc
 2. Écrire un **Command** + son **Handler** dans `Application/` (le handler publie les events).
 3. Implémenter le repository/adapter dans `Infrastructure/`.
 4. Lecture : vue + port dans `Application/ReadModel/`, implémentation SQL en Infrastructure.
-5. Exposer via **DTO + State Processor/Provider** (API Platform) avec contraintes Assert complètes ; régénérer `openapi.json` (`make openapi` — diff bloquant en CI).
+5. Exposer via **DTO + State Processor/Provider** (API Platform) avec contraintes Assert complètes **et bornées** (longueurs max — leçon M1.1/M1.4) ; régénérer `openapi.json` (`make openapi` — diff bloquant en CI). ⚠️ Après tout changement de propriétés d'une resource : `cache:clear` **avant** `make openapi` (métadonnées API Platform en cache = contrat obsolète).
 6. Tests : domaine (pur) → application (repo in-memory, `tests/Support/`) → fonctionnel (`ApiTestCase` + Postgres).
 7. Front Nuxt : composable/store + vue — **tout texte passe par i18n** (fr + en), toasts sur les mutations, confirmation avant action destructive.
 
@@ -51,16 +51,17 @@ Cœur métier = **pipeline de prospection + relances**. Voir `README.md` et `doc
 - Le domaine se teste **sans base de données** — c'est un objectif de conception, pas un accident.
 - Pas de fonctionnalité métier sans test de domaine correspondant ; pas de handler sans test d'application ; pas d'endpoint sans test fonctionnel (l'**isolation tenant** est couverte par `tests/Functional/`).
 - Front : seuils de coverage **bloquants** dans `vitest.config.ts` — ne pas les baisser pour faire passer un build.
+- **E2E Playwright** (`app/e2e/`, helpers partagés dans `e2e/helpers.ts`) : build de prod contre l'API réelle, user dédié `e2e@plume.test` (tenant isolé), **workers sérialisés** (tenant partagé entre fichiers), garde console/hydratation systématique. Lancement local : voir README § Tests E2E (stopper le conteneur `app` d'abord).
 
 ## Commandes
 
 ```bash
-make up             # stack dev minimale (Postgres + API https://localhost:8443)
+make up             # stack dev (Postgres + API https://localhost:8443 + worker — le journal en dépend)
 make migrate        # migrations Doctrine
 make jwt-keys       # génère les clés JWT locales (une fois)
 make test           # PHPUnit complet (crée/migre la base _test)
 make phpstan        # analyse statique niveau max
-make deptrac        # frontières DDD
+make deptrac        # frontières DDD (couches + contextes, 2 configs)
 make cs-fix         # PHP-CS-Fixer
 make openapi        # régénère api/openapi.json (obligatoire après tout changement d'API)
 make hooks          # installe le hook git pre-commit
@@ -79,7 +80,7 @@ Créer un utilisateur local : `docker compose exec php php bin/console app:user:
 
 ## État actuel
 
-**M1 complet : M0 (fondations), M1.1 (Répertoire), M1.2 (pipeline Piste), M1.3 (relances &
-« Aujourd'hui »), M1.4 (rédaction assistée — contexte `Drafting`) et M1.5 (tableau de bord)
-livrés** (voir `docs/ROADMAP.md`). En cours : **revue de santé fin M1** (`docs/reviews/`).
-Prochaine étape produit : **M2 — passerelle email**.
+**M1 complet et revue de santé fin M1 appliquée** (M0 fondations, M1.1 Répertoire,
+M1.2 pipeline Piste, M1.3 relances & « Aujourd'hui », M1.4 rédaction assistée — contexte
+`Drafting`, M1.5 tableau de bord ; remédiation en 3 lots, `docs/reviews/`).
+Prochaine étape : **M2 — passerelle email** (les dettes actées pour M2 sont listées en ROADMAP).

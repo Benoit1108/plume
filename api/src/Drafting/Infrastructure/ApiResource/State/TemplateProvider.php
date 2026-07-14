@@ -21,6 +21,12 @@ use App\Shared\Infrastructure\Doctrine\Tenancy\TenantContext;
  * Lecture des gabarits. La collection SEED les 3 gabarits par défaut à la
  * première utilisation (décision M1.4 n°6) — la commande est idempotente.
  *
+ * Entorse CQRS ASSUMÉE (revue fin M1) : écrire depuis un GET évite un hook de
+ * création de tenant qui n'existe pas encore. Le check count() est TOCTOU en
+ * théorie (deux premiers GET strictement concurrents → gabarits doublés) :
+ * accepté en V1 mono-utilisatrice ; à déplacer vers la création du tenant
+ * quand l'inscription publique arrivera (V2).
+ *
  * @implements ProviderInterface<TemplateResource>
  */
 final class TemplateProvider implements ProviderInterface

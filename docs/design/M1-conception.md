@@ -1,6 +1,6 @@
 # M1 — Note de conception (le cœur métier)
 
-> Statut : proposition à valider · Prérequis : M0 clôturé (socle DDD, auth multi-tenant, CQRS + outbox, persistance Doctrine, CI).
+> Statut : **livré au complet** (M1.1→M1.5, 2026-07-13/14 ; DoD §14 tenue, décisions §13 soldées) · Prérequis : M0 clôturé.
 > Langue : métier en français, code en anglais (cf. [ADR-0010](../architecture/decisions/0010-langue-de-nommage.md) et [glossaire](../GLOSSAIRE.md)).
 
 ## 1. Objectif & résultat attendu
@@ -128,20 +128,24 @@ Projections alimentées par des **handlers d'events async** (event.bus) ; idempo
 - **ADR-0014** — Intégration IA (Claude) : ACL, async, gestion coûts/erreurs/timeouts, pas de donnée sensible.
 - **ADR-0015** — Import CSV & dédoublonnage (format, règles de matching).
 
-## 13. Décisions ouvertes (à valider avant de coder)
+## 13. Décisions ouvertes — **soldées** (résolutions tracées à la clôture de M1)
 
-1. **Périmètre M1** : inclure la **Rédaction assistée (M1.4)** dans M1, ou la repousser en M1bis pour livrer d'abord Répertoire+Pipeline+Régularité ?
-2. **Kanban** : primitives Reka UI maison (contrôle total, plus de travail) vs une lib de kanban Vue compatible Nuxt UI/Tailwind ?
-3. **Read models** : dès M1, ne projeter que le **journal d'interactions** (le reste en queries directes) — OK ?
-4. **API** : ressources orientées cas d'usage (`/leads/{id}/contact`) — OK, ou CRUD + un champ « action » ?
-5. **Refresh token** : on le traite en préambule de M1 (login complet) ou on reste sur access-token seul pour l'instant ?
+1. **Périmètre M1** : Rédaction assistée **incluse** dans M1 (livrée en M1.4). ✔
+2. **Kanban** : colonnes + boutons de transition, **sans drag-and-drop** en V1 (micro-décision
+   M1.2 n°3 — le DnD reste un report tracé en ROADMAP). ✔
+3. **Read models** : **oui** — seul le journal `interaction` est projeté, tout le reste en
+   queries directes fail-closed (ADR-0013, confirmé jusqu'au tableau de bord M1.5). ✔
+4. **API** : **ressources orientées cas d'usage** (`/leads/{id}/contact|reply|…`) — 409 sur
+   transition interdite. ✔
+5. **Refresh token** : traité **avant M1** (rotation single_use + invalidation, durci en
+   revue M1.1). ✔
 
 ## 14. Definition of Done — M1
 
-- [ ] Se connecter (login) et rester authentifié (token).
-- [ ] Créer/importer Organisations & Contacts (scoping tenant vérifié).
-- [ ] Créer des Pistes, les faire transiter (kanban), voir la timeline.
-- [ ] Planifier des relances, voir « à faire aujourd'hui », suivre objectif hebdo + série.
-- [ ] Générer un brouillon de mail/lettre (FR/EN/ES) éditable.
-- [ ] Tableau de bord avec taux de réponse / conversion / volume.
-- [ ] Domaine testé, CI verte (phpstan max, deptrac, phpunit, front), OpenAPI à jour.
+- [x] Se connecter (login) et rester authentifié (token).
+- [x] Créer/importer Organisations & Contacts (scoping tenant vérifié).
+- [x] Créer des Pistes, les faire transiter (kanban), voir la timeline.
+- [x] Planifier des relances, voir « à faire aujourd'hui », suivre objectif hebdo + série.
+- [x] Générer un brouillon de mail/lettre (FR/EN/ES) éditable.
+- [x] Tableau de bord avec taux de réponse / conversion / volume.
+- [x] Domaine testé, CI verte (phpstan max, deptrac ×2, phpunit, front), OpenAPI à jour.

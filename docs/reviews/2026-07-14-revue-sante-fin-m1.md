@@ -115,3 +115,51 @@ front ≥ 9 (les 3 P1 front sont mécaniques), docs ≥ 9 (une passe d'une demi-
   (grep de tout l'historique).
 - Pyramide de tests disciplinée et assertions exigeantes ; i18n 285 clés strictement paritaires
   FR/EN ; a11y des graphes exemplaire ; garde console/hydratation sur chaque E2E.
+
+---
+
+## Post-scriptum — remédiation appliquée (2026-07-14, 3 lots)
+
+**Lot A — back critique** : P0 corrigé (gardes `GENERATING` sur `complete()`/`fail()`,
+`DraftNotGenerating` → 409, consumer qui absorbe NotFound/Conflict en no-op tracé) ;
+tenant explicite vérifié dans `CompleteDraft`/`FailDraft` ; **rate limiting génération
+30/h par tenant** ; bornes `body` ≤ 20 000 + `templateId` UUID + sujet généré tronqué à 255
+dans l'ACL ; **`deptrac-contexts.yaml`** (frontières inter-contextes outillées, 0 violation,
+exécuté par `make deptrac` et la CI) ; `TenantContext::require()` (17 sites normalisés) ;
+trait `HydratesRows` (l'hydratation dupliquée ×9 unifiée). **+20 tests** : consumer complet
+(codes d'échec, RGPD post-hoc, absorption redélivrance/suppression), ACL Claude
+(MockHttpClient : SUBJECT/OBJET, vide, HTTP 5xx, troncature), gardes d'état domaine,
+tenant mismatch, limiteur, **écritures cross-tenant**. → 144 tests back.
+
+**Lot B — front** : E2E sérialisés (`workers: 1`) + helpers partagés (`e2e/helpers.ts`,
+dérive de `today.spec` résorbée, sélecteurs Copier précis) ; `LeadDraftsSection` extrait
+(fiche piste 652 → 319 lignes) ; calculs du dashboard extraits dans `useDashboardMetrics`
+et testés (division par zéro, échelle des barres, ligne d'objectif) ; abandon du polling
+signalé (alerte + Actualiser) ; 409 métier distingués (`utils/apiError`, testé) ; timers
+nettoyés, `JsonLdCollection` unifié, clés mortes supprimées, labels Copier distincts (a11y),
+garde de saisie réglages, flamme décorative. → 49 tests front (97 %), 10 E2E verts sérialisés.
+
+**Lot C — docs/process** : README (état M1 complet, structure, **doc E2E locale**,
+**activation Claude**), DOMAIN-MODEL resynchronisé (Draft agrégat à états, events réels,
+invariant relance M1.3, `ValeurEstimee` différée), `api/src/README` à jour,
+**ADR-0014 Intégration IA** (ACL, canned par défaut, coûts bornés, **RGPD sous-traitant** —
+le nom du contact est assumé en V1 avec piste M2 d'interpolation locale) et **ADR-0015
+Import CSV** écrits, index ADR complété (0012→0015), ADR-0003 amendé (events = langage
+publié inter-contextes), note parapluie M1 soldée (décisions §13 résolues, DoD §14 cochée),
+statuts M1.2/M1.3 corrigés, OVERVIEW (Nuxt 4, fail-closed DBAL, rate limiting réel),
+CLAUDE.md (pièges openapi/worker, E2E), `npm audit` bloquant sur les deps runtime,
+entorse seed-via-GET tracée dans le code, dettes M2 listées en ROADMAP (reply idempotent,
+httpOnly, rétention journal, interpolation `{{contact}}`).
+
+### Notes après remédiation
+
+| Domaine | Avant | Après |
+|---|---|---|
+| Back (DDD/domaine/CQRS/tests) | 8,5 | **9,5** — P0 + les 4 P1 soldés, frontières outillées, flux asynchrone testé de bout en bout |
+| Sécurité | 8,5 | **9** — coûts bornés, bornes d'entrée, écritures cross-tenant testées ; restes M2 tracés (httpOnly, rétention journal) |
+| Front | 8 | **9** — les 5 P1 soldés ; reste assumé : pas de tests de composants (réévaluer si les pages regrossissent) |
+| Docs/process | 7 | **9,5** — plus un document de tête en retard, les 2 ADRs promis existent, les entorses sont écrites |
+
+**Objectif ≥ 9/10 partout : atteint.** Restes assumés et datés (tous tracés en ROADMAP § M2
+ou dans le code) : helpers fonctionnels de test dupliqués ×5 (back), events d'édition pauvres,
+`Template.updatedAt`, `Profile.timezone` figée, mot de passe e2e visible dans les logs CI.

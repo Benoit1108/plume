@@ -31,7 +31,7 @@ Fondations techniques.
 >
 > Refresh token JWT : ✅ fait (gesdinet 2.0, entité concrète + mapping XML, `/api/v1/token/refresh`).
 
-### M1 — Cœur prospection 🚧 *(première version utilisable)*
+### M1 — Cœur prospection ✅ (revue de santé fin M1 appliquée) *(première version utilisable)*
 
 > 📐 Note de conception détaillée : [`docs/design/M1-conception.md`](design/M1-conception.md)
 > (découpage M1.1 → M1.5). Revue de santé fin M1.1 : [`docs/reviews/`](reviews/).
@@ -69,6 +69,12 @@ Fondations techniques.
 - [ ] Threading `Message-ID`/`References` → captation des **réponses** → `Piste.enregistrerReponse()`.
 - [ ] Gestion **opt-out** (RGPD). *Pas de tracking d'ouverture.*
 - [ ] Relances contextualisées (reprennent l'historique de la Piste).
+- [ ] **Dettes actées en revue fin M1 à solder ici** : `recordReply()` idempotent (les
+      réponses entrantes automatiques ne doivent pas 409 sur une piste déjà en discussion),
+      cookies tokens httpOnly (les contenus d'emails entrants = surface XSS réelle),
+      stratégie de rétention/effacement du journal `interaction` (texte des notes),
+      interpolation locale de `{{contact}}` (ne plus transmettre le nom du contact à
+      Anthropic — cf. ADR-0014).
 - [ ] **Tableau de bord enrichi** *(reports actés M1.5)* : délais moyens de première réponse
       (pertinents une fois les réponses captées automatiquement), valeur estimée des pistes
       (`estimatedValue`, différé depuis M1.2), filtres de période, export.
