@@ -300,6 +300,55 @@
                 }
             }
         },
+        "/api/v1/dashboard": {
+            "get": {
+                "operationId": "api_dashboard_get",
+                "tags": [
+                    "Dashboard"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Dashboard resource",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Dashboard.jsonld-dashboard.read"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Dashboard-dashboard.read"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Retrieves a Dashboard resource.",
+                "description": "Retrieves a Dashboard resource.",
+                "parameters": []
+            }
+        },
         "/api/v1/drafts/{id}": {
             "get": {
                 "operationId": "api_drafts_id_get",
@@ -3689,6 +3738,185 @@
                 ],
                 "description": "DTO d'un contact : imbriqu\u00e9 (org:read) + sous-endpoints sous une organisation."
             },
+            "Dashboard-dashboard.read": {
+                "type": "object",
+                "description": "Le tableau de bord : taux (num\u00e9rateurs/d\u00e9nominateurs en clair), pipeline,\nactivit\u00e9 des 8 derni\u00e8res semaines, r\u00e9sultats par segment. Lecture seule.",
+                "properties": {
+                    "id": {
+                        "default": "dashboard",
+                        "type": "string"
+                    },
+                    "contacted": {
+                        "default": 0,
+                        "type": "integer"
+                    },
+                    "replied": {
+                        "default": 0,
+                        "type": "integer"
+                    },
+                    "won": {
+                        "default": 0,
+                        "type": "integer"
+                    },
+                    "lost": {
+                        "default": 0,
+                        "type": "integer"
+                    },
+                    "activeLeads": {
+                        "default": 0,
+                        "type": "integer"
+                    },
+                    "outreachThisMonth": {
+                        "default": 0,
+                        "type": "integer"
+                    },
+                    "weeklyTarget": {
+                        "default": 0,
+                        "type": "integer"
+                    },
+                    "pipeline": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "anyOf": [
+                                    {
+                                        "type": "integer"
+                                    },
+                                    {
+                                        "type": "string"
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "weeklyActivity": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "anyOf": [
+                                    {
+                                        "type": "integer"
+                                    },
+                                    {
+                                        "type": "string"
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "segments": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "anyOf": [
+                                    {
+                                        "type": "integer"
+                                    },
+                                    {
+                                        "type": "string"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            },
+            "Dashboard.jsonld-dashboard.read": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/HydraItemBaseSchema"
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "default": "dashboard",
+                                "type": "string"
+                            },
+                            "contacted": {
+                                "default": 0,
+                                "type": "integer"
+                            },
+                            "replied": {
+                                "default": 0,
+                                "type": "integer"
+                            },
+                            "won": {
+                                "default": 0,
+                                "type": "integer"
+                            },
+                            "lost": {
+                                "default": 0,
+                                "type": "integer"
+                            },
+                            "activeLeads": {
+                                "default": 0,
+                                "type": "integer"
+                            },
+                            "outreachThisMonth": {
+                                "default": 0,
+                                "type": "integer"
+                            },
+                            "weeklyTarget": {
+                                "default": 0,
+                                "type": "integer"
+                            },
+                            "pipeline": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "additionalProperties": {
+                                        "anyOf": [
+                                            {
+                                                "type": "integer"
+                                            },
+                                            {
+                                                "type": "string"
+                                            }
+                                        ]
+                                    }
+                                }
+                            },
+                            "weeklyActivity": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "additionalProperties": {
+                                        "anyOf": [
+                                            {
+                                                "type": "integer"
+                                            },
+                                            {
+                                                "type": "string"
+                                            }
+                                        ]
+                                    }
+                                }
+                            },
+                            "segments": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "additionalProperties": {
+                                        "anyOf": [
+                                            {
+                                                "type": "integer"
+                                            },
+                                            {
+                                                "type": "string"
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ],
+                "description": "Le tableau de bord : taux (num\u00e9rateurs/d\u00e9nominateurs en clair), pipeline,\nactivit\u00e9 des 8 derni\u00e8res semaines, r\u00e9sultats par segment. Lecture seule."
+            },
             "Draft-draft.create": {
                 "type": "object",
                 "description": "Brouillon g\u00e9n\u00e9r\u00e9 (R\u00e9daction assist\u00e9e) \u2014 DRAFT-FIRST : relu, \u00e9dit\u00e9, copi\u00e9,\njamais envoy\u00e9 depuis ce contexte (M2). G\u00e9n\u00e9ration asynchrone : le POST rend\nun brouillon GENERATING, le worker le fait passer READY ou FAILED.",
@@ -5890,6 +6118,10 @@
         {
             "name": "Template",
             "description": "Mod\u00e8le (gabarit) de message : canevas r\u00e9utilisable par type/segment/langue,\navec variables ({{contact}}, {{organisation}}, {{langues}}, {{bio}},\n{{specialites}}, {{signature}}). 3 gabarits seed\u00e9s \u00e0 la premi\u00e8re utilisation."
+        },
+        {
+            "name": "Dashboard",
+            "description": "Le tableau de bord : taux (num\u00e9rateurs/d\u00e9nominateurs en clair), pipeline,\nactivit\u00e9 des 8 derni\u00e8res semaines, r\u00e9sultats par segment. Lecture seule."
         },
         {
             "name": "Interaction",

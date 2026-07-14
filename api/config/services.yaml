@@ -45,6 +45,7 @@ services:
     App\Prospecting\Application\ReadModel\LeadSearch: '@App\Prospecting\Infrastructure\ReadModel\DoctrineLeadSearch'
     App\Prospecting\Application\ReadModel\LeadTimeline: '@App\Prospecting\Infrastructure\ReadModel\DoctrineLeadTimeline'
     App\Prospecting\Application\ReadModel\TodayBoard: '@App\Prospecting\Infrastructure\ReadModel\DoctrineTodayBoard'
+    App\Prospecting\Application\ReadModel\Dashboard: '@App\Prospecting\Infrastructure\ReadModel\DoctrineDashboard'
 
     App\Account\Domain\Profile\ProfileRepository: '@App\Account\Infrastructure\Persistence\Doctrine\DoctrineProfileRepository'
     App\Account\Application\ReadModel\ProfileSettings: '@App\Account\Infrastructure\ReadModel\DoctrineProfileSettings'
