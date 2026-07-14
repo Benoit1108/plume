@@ -6,6 +6,11 @@ parameters:
     env(GOOGLE_CLIENT_ID): ''
     env(GOOGLE_CLIENT_SECRET): ''
     env(GOOGLE_REDIRECT_URI): 'http://localhost:3000/oauth/gmail/callback'
+    env(MICROSOFT_CLIENT_ID): ''
+    env(MICROSOFT_CLIENT_SECRET): ''
+    env(MICROSOFT_REDIRECT_URI): 'http://localhost:3000/oauth/outlook/callback'
+    # Connecteur factice (dev/CI/E2E) : le callback retombe sur la route dynamique front.
+    env(MAILBOX_FAKE_REDIRECT_URI): 'http://localhost:3000/oauth/gmail/callback'
     env(MAILBOX_ENCRYPTION_KEY): ''
     drafting.anthropic_api_key: '%env(string:ANTHROPIC_API_KEY)%'
     drafting.model: '%env(string:DRAFTING_MODEL)%'
@@ -77,42 +82,58 @@ services:
     App\Mailbox\Infrastructure\OAuth\OAuthStateCodec:
         arguments:
             $appSecret: '%env(string:APP_SECRET)%'
-    # Port MailboxConnector : sélection par env (GOOGLE_CLIENT_ID présent => Gmail, sinon factice).
-    App\Mailbox\Application\MailboxConnector: '@App\Mailbox\Infrastructure\OAuth\MailboxConnectorSelector'
-    App\Mailbox\Infrastructure\OAuth\MailboxConnectorSelector:
+    # Registres par fournisseur (D1 : Gmail + Outlook ; factice sans identifiants).
+    App\Mailbox\Application\MailboxConnectorRegistry: '@App\Mailbox\Infrastructure\OAuth\ProviderMailboxConnectorRegistry'
+    App\Mailbox\Infrastructure\OAuth\ProviderMailboxConnectorRegistry:
         arguments:
-            $clientId: '%env(string:GOOGLE_CLIENT_ID)%'
+            $googleClientId: '%env(string:GOOGLE_CLIENT_ID)%'
+            $microsoftClientId: '%env(string:MICROSOFT_CLIENT_ID)%'
     App\Mailbox\Infrastructure\OAuth\GmailConnector:
         arguments:
             $clientId: '%env(string:GOOGLE_CLIENT_ID)%'
             $clientSecret: '%env(string:GOOGLE_CLIENT_SECRET)%'
             $redirectUri: '%env(string:GOOGLE_REDIRECT_URI)%'
+    App\Mailbox\Infrastructure\OAuth\OutlookConnector:
+        arguments:
+            $clientId: '%env(string:MICROSOFT_CLIENT_ID)%'
+            $clientSecret: '%env(string:MICROSOFT_CLIENT_SECRET)%'
+            $redirectUri: '%env(string:MICROSOFT_REDIRECT_URI)%'
     App\Mailbox\Infrastructure\OAuth\FakeMailboxConnector:
         arguments:
-            $redirectUri: '%env(string:GOOGLE_REDIRECT_URI)%'
+            $redirectUri: '%env(string:MAILBOX_FAKE_REDIRECT_URI)%'
 
     App\Mailbox\Domain\Outbound\OutboundMessageRepository: '@App\Mailbox\Infrastructure\Persistence\Doctrine\DoctrineOutboundMessageRepository'
     App\Mailbox\Application\DraftGateway: '@App\Mailbox\Infrastructure\Gateway\DoctrineDraftGateway'
     App\Mailbox\Application\RecipientResolver: '@App\Mailbox\Infrastructure\Gateway\DoctrineRecipientResolver'
     App\Mailbox\Application\OpenThreads: '@App\Mailbox\Infrastructure\ReadModel\DoctrineOpenThreads'
-    App\Mailbox\Application\ReplyFetcher: '@App\Mailbox\Infrastructure\Fetcher\ReplyFetcherSelector'
-    App\Mailbox\Infrastructure\Fetcher\ReplyFetcherSelector:
+    App\Mailbox\Application\ReplyFetcherRegistry: '@App\Mailbox\Infrastructure\Fetcher\ProviderReplyFetcherRegistry'
+    App\Mailbox\Infrastructure\Fetcher\ProviderReplyFetcherRegistry:
         arguments:
-            $clientId: '%env(string:GOOGLE_CLIENT_ID)%'
+            $googleClientId: '%env(string:GOOGLE_CLIENT_ID)%'
+            $microsoftClientId: '%env(string:MICROSOFT_CLIENT_ID)%'
     App\Mailbox\Infrastructure\Fetcher\GmailReplyFetcher:
         arguments:
             $clientId: '%env(string:GOOGLE_CLIENT_ID)%'
             $clientSecret: '%env(string:GOOGLE_CLIENT_SECRET)%'
-
-    # Port MailSender : sélection par env (GOOGLE_CLIENT_ID présent => Gmail, sinon factice).
-    App\Mailbox\Application\MailSender: '@App\Mailbox\Infrastructure\Sender\MailSenderSelector'
-    App\Mailbox\Infrastructure\Sender\MailSenderSelector:
+    App\Mailbox\Infrastructure\Fetcher\OutlookReplyFetcher:
         arguments:
-            $clientId: '%env(string:GOOGLE_CLIENT_ID)%'
+            $clientId: '%env(string:MICROSOFT_CLIENT_ID)%'
+            $clientSecret: '%env(string:MICROSOFT_CLIENT_SECRET)%'
+
+    # Registre d'expéditeurs par fournisseur.
+    App\Mailbox\Application\MailSenderRegistry: '@App\Mailbox\Infrastructure\Sender\ProviderMailSenderRegistry'
+    App\Mailbox\Infrastructure\Sender\ProviderMailSenderRegistry:
+        arguments:
+            $googleClientId: '%env(string:GOOGLE_CLIENT_ID)%'
+            $microsoftClientId: '%env(string:MICROSOFT_CLIENT_ID)%'
     App\Mailbox\Infrastructure\Sender\GmailMailSender:
         arguments:
             $clientId: '%env(string:GOOGLE_CLIENT_ID)%'
             $clientSecret: '%env(string:GOOGLE_CLIENT_SECRET)%'
+    App\Mailbox\Infrastructure\Sender\OutlookMailSender:
+        arguments:
+            $clientId: '%env(string:MICROSOFT_CLIENT_ID)%'
+            $clientSecret: '%env(string:MICROSOFT_CLIENT_SECRET)%'
 
     # Port MessageGenerator : sélection par env (clé présente => Claude, sinon canned).
     App\Drafting\Application\MessageGenerator: '@App\Drafting\Infrastructure\Generator\MessageGeneratorSelector'

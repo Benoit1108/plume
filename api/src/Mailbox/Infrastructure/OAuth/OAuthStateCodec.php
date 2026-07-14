@@ -7,9 +7,11 @@ namespace App\Mailbox\Infrastructure\OAuth;
 use App\Shared\Application\Clock;
 
 /**
- * State OAuth anti-CSRF, SANS stockage serveur : tenant + expiration, signés
- * HMAC avec le secret applicatif. Le callback vérifie que le state revient
- * intact, non expiré, et qu'il appartient bien AU TENANT connecté.
+ * State OAuth anti-CSRF, SANS stockage serveur : tenant + fournisseur +
+ * expiration, signés HMAC avec le secret applicatif. Le callback vérifie que
+ * le state revient intact, non expiré, appartient bien AU TENANT connecté, et
+ * en relit le fournisseur — le choix Gmail/Outlook voyage donc de manière
+ * infalsifiable (pas un paramètre de requête libre).
  */
 final class OAuthStateCodec
 {
@@ -21,10 +23,10 @@ final class OAuthStateCodec
     ) {
     }
 
-    public function issue(string $tenantId): string
+    public function issue(string $tenantId, string $provider): string
     {
         $expiresAt = $this->clock->now()->getTimestamp() + self::TTL_SECONDS;
-        $payload = $tenantId.'|'.$expiresAt.'|'.bin2hex(random_bytes(8));
+        $payload = $tenantId.'|'.$provider.'|'.$expiresAt.'|'.bin2hex(random_bytes(8));
         $signature = hash_hmac('sha256', $payload, $this->appSecret);
 
         return rtrim(strtr(base64_encode($payload.'|'.$signature), '+/', '-_'), '=');
@@ -32,19 +34,34 @@ final class OAuthStateCodec
 
     public function isValidFor(string $state, string $tenantId): bool
     {
+        $parts = $this->verifiedParts($state);
+
+        return null !== $parts && hash_equals($tenantId, $parts['tenant']);
+    }
+
+    /** Fournisseur porté par un state VALIDE (signé, non expiré) — null sinon. */
+    public function providerFrom(string $state): ?string
+    {
+        return $this->verifiedParts($state)['provider'] ?? null;
+    }
+
+    /** @return array{tenant: string, provider: string}|null */
+    private function verifiedParts(string $state): ?array
+    {
         $decoded = base64_decode(strtr($state, '-_', '+/'), true);
         if (false === $decoded) {
-            return false;
+            return null;
         }
         $parts = explode('|', $decoded);
-        if (4 !== \count($parts)) {
-            return false;
+        if (5 !== \count($parts)) {
+            return null;
         }
-        [$stateTenant, $expiresAt, $nonce, $signature] = $parts;
-        $expected = hash_hmac('sha256', $stateTenant.'|'.$expiresAt.'|'.$nonce, $this->appSecret);
+        [$tenant, $provider, $expiresAt, $nonce, $signature] = $parts;
+        $expected = hash_hmac('sha256', $tenant.'|'.$provider.'|'.$expiresAt.'|'.$nonce, $this->appSecret);
+        if (!hash_equals($expected, $signature) || (int) $expiresAt < $this->clock->now()->getTimestamp()) {
+            return null;
+        }
 
-        return hash_equals($expected, $signature)
-            && hash_equals($tenantId, $stateTenant)
-            && (int) $expiresAt >= $this->clock->now()->getTimestamp();
+        return ['tenant' => $tenant, 'provider' => $provider];
     }
 }

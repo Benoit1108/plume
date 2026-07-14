@@ -421,6 +421,7 @@
       "fetched": "Relève effectuée — le journal des pistes est à jour."
     },
     "fetchNow": "Relever les réponses",
-    "lastSync": "dernière relève : {date}"
+    "lastSync": "dernière relève : {date}",
+    "connectOutlook": "Connecter Outlook"
   }
 }

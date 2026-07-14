@@ -56,12 +56,12 @@ final class MailboxApiTest extends ApiTestCase
     }
 
     /** @return string le state extrait de l'URL d'autorisation */
-    private function startOAuth(Client $client, string $token): string
+    private function startOAuth(Client $client, string $token, string $provider = 'GMAIL'): string
     {
         $response = $client->request('POST', '/api/v1/mailbox/oauth/start', [
             'auth_bearer' => $token,
             'headers' => ['Content-Type' => 'application/ld+json'],
-            'json' => [],
+            'json' => ['provider' => $provider],
         ]);
         self::assertResponseIsSuccessful();
         $url = $response->toArray()['authorizationUrl'] ?? null;
@@ -125,6 +125,35 @@ final class MailboxApiTest extends ApiTestCase
         $after = $client->request('GET', '/api/v1/mailbox', ['auth_bearer' => $token])->toArray();
         self::assertSame('REVOKED', $after['status']);
         self::assertNull($connection->fetchOne('SELECT access_token FROM connected_mailbox LIMIT 1'));
+    }
+
+    public function testConnectOutlookViaStateProvider(): void
+    {
+        // D1 : Outlook aussi. Sans identifiants Microsoft, le connecteur factice
+        // prend le relais — mais la boîte enregistre bien le provider OUTLOOK.
+        $this->createUser('a@plume.test');
+        $client = static::createClient();
+        $token = $this->tokenFor($client, 'a@plume.test');
+
+        $state = $this->startOAuth($client, $token, 'OUTLOOK');
+        $mailbox = $this->connect($client, $token, $state);
+        self::assertResponseStatusCodeSame(201);
+        self::assertSame('OUTLOOK', $mailbox['provider']);
+        self::assertSame('CONNECTED', $mailbox['status']);
+    }
+
+    public function testUnknownProviderAtStartIsRejected(): void
+    {
+        $this->createUser('a@plume.test');
+        $client = static::createClient();
+        $token = $this->tokenFor($client, 'a@plume.test');
+
+        $client->request('POST', '/api/v1/mailbox/oauth/start', [
+            'auth_bearer' => $token,
+            'headers' => ['Content-Type' => 'application/ld+json'],
+            'json' => ['provider' => 'PIGEON'],
+        ]);
+        self::assertResponseStatusCodeSame(422);
     }
 
     public function testStateFromAnotherTenantIsRejected(): void

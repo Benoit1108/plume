@@ -15,3 +15,12 @@ Il faut envoyer les mails de démarchage, capter les réponses, et (M3) ingérer
 - ✅ Respect de la délivrabilité et du RGPD (pas de pixel espion).
 - ⚠️ Gestion OAuth (consentement, refresh, révocation) par provider.
 - 🔀 Adaptateur IMAP/SMTP générique possible en fallback ultérieur (non retenu en V1).
+
+---
+
+> **Livré (M2, 2026-07-14)** : Gmail (M2.1→M2.4) et **Outlook / Microsoft Graph** (M2.4)
+> derrière un même jeu de ports (`MailboxConnector`/`MailSender`/`ReplyFetcher`), sélectionnés
+> PAR FOURNISSEUR via des registres (le provider voyage signé dans le `state` OAuth). Envoi
+> depuis l'adresse réelle, threading (Gmail `threadId` / Graph `conversationId`), relève par
+> polling (ADR-0017), tokens chiffrés (ADR-0016), **aucun tracking d'ouverture** (tenu).
+> Adaptateur factice par fournisseur pour dev/CI/E2E sans compte réel.

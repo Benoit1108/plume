@@ -209,7 +209,8 @@ Le vocabulaire métier ci-dessous est **contractuel** et reste en **français** 
 | Compte email connecté (agrégat) | `ConnectedMailbox` : `MailboxId` propre, provider `GMAIL` \| `OUTLOOK`, statut `CONNECTED` \| `ERROR` \| `REVOKED` — une par tenant (invariant V1 levable, D6) |
 | Jeton chiffré | `EncryptedToken` (VO) — chiffrement sodium au repos, ADR-0016 ; effacé à la révocation |
 | Chiffreur de jetons | port `TokenCipher` → `SodiumTokenCipher` (clé `MAILBOX_ENCRYPTION_KEY`) |
-| Connecteur OAuth | port `MailboxConnector` → `GmailConnector` (ACL Google) / `FakeMailboxConnector` (défaut sans `GOOGLE_CLIENT_ID` — dev/CI/E2E) |
+| Connecteur OAuth | port `MailboxConnector` (via `MailboxConnectorRegistry`) → `GmailConnector` / `OutlookConnector` (ACL Google & Microsoft Graph) / `FakeMailboxConnector` (défaut sans identifiants) |
+| Fournisseur | routé PAR LA BOÎTE : registres `MailboxConnectorRegistry` / `MailSenderRegistry` / `ReplyFetcherRegistry` — le provider voyage signé dans le `state` OAuth |
 | State anti-CSRF | `OAuthStateCodec` (HMAC, lié au tenant, TTL 10 min, sans stockage serveur) |
 | Échec de connexion | `MailboxConnectionFailed` → 422 propre ; boîte non opérationnelle : `MailboxNotOperational` (409) |
 
@@ -217,14 +218,14 @@ Le vocabulaire métier ci-dessous est **contractuel** et reste en **français** 
 | Métier (FR) | Code (EN) |
 |---|---|
 | Envoi (agrégat) | `OutboundMessage` : `SENDING` \| `SENT` \| `FAILED`, `threadKey` (fil provider, capte les réponses en M2.3), gardes d'état anti-redélivrance |
-| Port d'envoi | `MailSender` → `GmailMailSender` (access token frais minté à chaque envoi) / `FakeMailSender` (défaut sans `GOOGLE_CLIENT_ID`) |
+| Port d'envoi | `MailSender` (via `MailSenderRegistry`) → `GmailMailSender` / `OutlookMailSender` (Graph : brouillon puis send) / `FakeMailSender` |
 | Destinataire | port `RecipientResolver` : contact désigné de la piste, sinon premier contact avec email — RGPD organisation ET contact |
 | Frontière vers le brouillon | port `DraftGateway` (tenant explicite, worker-safe) |
 | Envoi fait avancer la piste (D3) | politique `AdvanceLeadOnEmailSent` (Prospecting) : candidature → `contact()`, relance → `recordFollowUp()` — conflits absorbés (idempotente) ; **réactive le tenant depuis l'event** (worker) |
 | Codes d'échec | `mailbox_unavailable`, `recipient_unavailable`, `contact_not_allowed`, `send_failed` (i18n `mailbox.failures.*`) |
 | Journal | types `email_sent` / `email_send_failed` ; `reply` porte l'aperçu (`payload.preview`) |
 | Réponse captée | event `ReplyCaptured` (Mailbox → politique Prospection `RecordReplyOnReplyCaptured`) |
-| Relève | port `ReplyFetcher` (`GmailReplyFetcher` snippet texte borné / `FakeReplyFetcher`) + `OpenThreads` ; Scheduler 5 min + geste manuel (ADR-0017) |
+| Relève | port `ReplyFetcher` (via `ReplyFetcherRegistry`) → `GmailReplyFetcher` / `OutlookReplyFetcher` (bodyPreview) / `FakeReplyFetcher` + `OpenThreads` ; Scheduler 5 min + geste manuel (ADR-0017) |
 
 ## Contexte Sourcing (V2/M3)
 

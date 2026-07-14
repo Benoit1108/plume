@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Mailbox\Application\Command\RevokeMailbox;
 
 use App\Mailbox\Application\Exception\TokenCipherFailure;
-use App\Mailbox\Application\MailboxConnector;
+use App\Mailbox\Application\MailboxConnectorRegistry;
 use App\Mailbox\Application\TokenCipher;
 use App\Mailbox\Domain\Mailbox\Exception\MailboxNotFound;
 use App\Mailbox\Domain\Mailbox\MailboxRepository;
@@ -18,7 +18,7 @@ final class RevokeMailboxHandler implements CommandHandler
 {
     public function __construct(
         private readonly MailboxRepository $mailboxes,
-        private readonly MailboxConnector $connector,
+        private readonly MailboxConnectorRegistry $connectors,
         private readonly TokenCipher $cipher,
         private readonly EventBus $eventBus,
         private readonly Clock $clock,
@@ -35,7 +35,7 @@ final class RevokeMailboxHandler implements CommandHandler
         $refresh = $mailbox->refreshToken();
         if (null !== $refresh) {
             try {
-                $this->connector->revoke($this->cipher->decrypt($refresh->ciphertext()));
+                $this->connectors->connectorFor($mailbox->provider()->value)->revoke($this->cipher->decrypt($refresh->ciphertext()));
             } catch (TokenCipherFailure) {
                 // Clé changée/données corrompues : on efface quand même côté app.
             }

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Mailbox\Application\Command\ConnectMailbox;
 
 use App\Mailbox\Application\Exception\MailboxConnectionFailed;
-use App\Mailbox\Application\MailboxConnector;
+use App\Mailbox\Application\MailboxConnectorRegistry;
 use App\Mailbox\Application\TokenCipher;
 use App\Mailbox\Domain\Mailbox\ConnectedMailbox;
 use App\Mailbox\Domain\Mailbox\EncryptedToken;
@@ -23,7 +23,7 @@ final class ConnectMailboxHandler implements CommandHandler
 {
     public function __construct(
         private readonly MailboxRepository $mailboxes,
-        private readonly MailboxConnector $connector,
+        private readonly MailboxConnectorRegistry $connectors,
         private readonly TokenCipher $cipher,
         private readonly EventBus $eventBus,
         private readonly Clock $clock,
@@ -39,7 +39,7 @@ final class ConnectMailboxHandler implements CommandHandler
 
         // Le clair ne vit que sur cette pile : chiffré avant toute persistance.
         try {
-            $tokens = $this->connector->exchangeCode($command->code);
+            $tokens = $this->connectors->connectorFor($provider->value)->exchangeCode($command->code);
         } catch (MailboxConnectionFailed $e) {
             // Code expiré/refusé/panne : erreur MÉTIER propre (422), pas une 500.
             throw InvalidValue::because('OAuth connection failed — please retry.');

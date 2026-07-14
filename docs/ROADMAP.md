@@ -63,7 +63,7 @@ Fondations techniques.
       objectif, résultats par segment ; page `/dashboard` (graphes maison accessibles).
       *Reportés → M2 : délais de réponse, valeur estimée, filtres de période, export.*
 
-### M2 — Passerelle email 🔜
+### M2 — Passerelle email ✅ (Gmail + Outlook)
 - [ ] Connexion OAuth **Gmail + Outlook**, tokens chiffrés.
 - [ ] Envoi depuis la boîte de la Traductrice (signature), statut d'envoi.
 - [ ] Threading `Message-ID`/`References` → captation des **réponses** → `Piste.enregistrerReponse()`.

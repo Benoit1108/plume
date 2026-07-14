@@ -9,9 +9,9 @@ export function useMailbox() {
   return {
     /** Singleton : toujours 200 — `status: 'NONE'` tant que rien n'est connecté. */
     get: () => api<Mailbox>('/api/v1/mailbox', { headers: ld }),
-    /** Démarre le consentement : renvoie l'URL où envoyer le navigateur. */
-    async startOAuth(): Promise<string> {
-      const res = await api<{ authorizationUrl: string }>('/api/v1/mailbox/oauth/start', { method: 'POST', body: {}, headers: ldWrite })
+    /** Démarre le consentement (Gmail ou Outlook) : renvoie l'URL du fournisseur. */
+    async startOAuth(provider: 'GMAIL' | 'OUTLOOK'): Promise<string> {
+      const res = await api<{ authorizationUrl: string }>('/api/v1/mailbox/oauth/start', { method: 'POST', body: { provider }, headers: ldWrite })
       return res.authorizationUrl
     },
     /** Finalise la connexion au retour du consentement (code + state anti-CSRF). */

@@ -68,7 +68,7 @@ final class MailSendApiTest extends ApiTestCase
 
     private function connectMailbox(Client $client, string $token): void
     {
-        $url = $this->post($client, $token, '/api/v1/mailbox/oauth/start')->toArray()['authorizationUrl'];
+        $url = $this->post($client, $token, '/api/v1/mailbox/oauth/start', ['provider' => 'GMAIL'])->toArray()['authorizationUrl'];
         self::assertIsString($url);
         parse_str((string) parse_url($url, \PHP_URL_QUERY), $query);
         $state = $query['state'];

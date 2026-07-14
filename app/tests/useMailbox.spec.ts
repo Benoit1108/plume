@@ -19,13 +19,14 @@ describe('useMailbox', () => {
     expect((apiMock.mock.calls[0] as [string])[0]).toBe('/api/v1/mailbox')
   })
 
-  it('startOAuth renvoie l\'URL de consentement', async () => {
-    apiMock.mockResolvedValueOnce({ authorizationUrl: 'https://accounts.google.example/auth?state=s' })
+  it('startOAuth transmet le fournisseur et renvoie l\'URL de consentement', async () => {
+    apiMock.mockResolvedValueOnce({ authorizationUrl: 'https://login.microsoftonline.example/auth?state=s' })
 
-    await expect(useMailbox().startOAuth()).resolves.toContain('state=s')
-    const [path, options] = apiMock.mock.calls[0] as [string, { method: string }]
+    await expect(useMailbox().startOAuth('OUTLOOK')).resolves.toContain('state=s')
+    const [path, options] = apiMock.mock.calls[0] as [string, { method: string, body: { provider: string } }]
     expect(path).toBe('/api/v1/mailbox/oauth/start')
     expect(options.method).toBe('POST')
+    expect(options.body.provider).toBe('OUTLOOK')
   })
 
   it('fetchReplies déclenche la relève immédiate', async () => {

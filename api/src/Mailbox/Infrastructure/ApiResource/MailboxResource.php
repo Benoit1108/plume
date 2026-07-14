@@ -31,8 +31,8 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Post(
             uriTemplate: '/mailbox/oauth/start',
             name: 'mailbox_oauth_start',
-            input: false,
             status: 200,
+            denormalizationContext: ['groups' => ['mailbox:start']],
             processor: OAuthStartProcessor::class,
             openapi: new \ApiPlatform\OpenApi\Model\Operation(summary: "Démarrer le consentement OAuth (renvoie l'URL d'autorisation)"),
         ),
@@ -67,7 +67,8 @@ final class MailboxResource
     #[Groups(['mailbox:read'])]
     public string $id = 'mailbox';
 
-    #[Groups(['mailbox:read'])]
+    #[Assert\Choice(['GMAIL', 'OUTLOOK'], groups: ['mailbox_start'])]
+    #[Groups(['mailbox:read', 'mailbox:start'])]
     public string $provider = '';
 
     #[Groups(['mailbox:read'])]

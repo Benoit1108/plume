@@ -37,11 +37,11 @@ const mailboxLoading = computed(() => mailboxStatus.value === 'idle' || mailboxS
 const connecting = ref(false)
 const confirmRevoke = ref(false)
 
-async function connectMailbox(): Promise<void> {
+async function connectMailbox(provider: 'GMAIL' | 'OUTLOOK'): Promise<void> {
   connecting.value = true
   try {
-    // Redirection plein écran vers le consentement (retour : /oauth/gmail/callback).
-    window.location.href = await mailboxApi.startOAuth()
+    // Redirection plein écran vers le consentement du fournisseur.
+    window.location.href = await mailboxApi.startOAuth(provider)
   }
   catch {
     toast.add({ title: t('common.error'), color: 'error' })
@@ -178,7 +178,13 @@ async function save(): Promise<void> {
           :title="t(`mailbox.failures.${mailbox.failureReason ?? 'sync_failed'}`, t('mailbox.failures.sync_failed'))"
         >
           <template #actions>
-            <UButton size="xs" variant="soft" color="error" :loading="connecting" @click="connectMailbox">
+            <UButton
+              size="xs"
+              variant="soft"
+              color="error"
+              :loading="connecting"
+              @click="() => connectMailbox((mailbox?.provider as 'GMAIL' | 'OUTLOOK') ?? 'GMAIL')"
+            >
               {{ t('mailbox.reconnect') }}
             </UButton>
           </template>
@@ -204,9 +210,12 @@ async function save(): Promise<void> {
         </div>
       </template>
 
-      <div v-else class="mt-3">
-        <UButton icon="i-lucide-mail-plus" :loading="connecting" @click="connectMailbox">
+      <div v-else class="mt-3 flex gap-2 flex-wrap">
+        <UButton icon="i-lucide-mail-plus" :loading="connecting" @click="() => connectMailbox('GMAIL')">
           {{ t('mailbox.connectGmail') }}
+        </UButton>
+        <UButton variant="outline" icon="i-lucide-mail-plus" :loading="connecting" @click="() => connectMailbox('OUTLOOK')">
+          {{ t('mailbox.connectOutlook') }}
         </UButton>
       </div>
 

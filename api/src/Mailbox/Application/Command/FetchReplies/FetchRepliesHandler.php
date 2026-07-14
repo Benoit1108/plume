@@ -7,7 +7,7 @@ namespace App\Mailbox\Application\Command\FetchReplies;
 use App\Mailbox\Application\Exception\MailSendFailed;
 use App\Mailbox\Application\Exception\TokenCipherFailure;
 use App\Mailbox\Application\OpenThreads;
-use App\Mailbox\Application\ReplyFetcher;
+use App\Mailbox\Application\ReplyFetcherRegistry;
 use App\Mailbox\Application\TokenCipher;
 use App\Mailbox\Domain\Mailbox\MailboxRepository;
 use App\Mailbox\Domain\Mailbox\MailboxStatus;
@@ -28,7 +28,7 @@ final class FetchRepliesHandler implements CommandHandler
     public function __construct(
         private readonly MailboxRepository $mailboxes,
         private readonly OpenThreads $openThreads,
-        private readonly ReplyFetcher $fetcher,
+        private readonly ReplyFetcherRegistry $fetchers,
         private readonly TokenCipher $cipher,
         private readonly EventBus $eventBus,
         private readonly Clock $clock,
@@ -53,7 +53,7 @@ final class FetchRepliesHandler implements CommandHandler
         }
 
         try {
-            $replies = $this->fetcher->fetch($this->cipher->decrypt($refresh->ciphertext()), $mailbox->emailAddress()->toString(), $threads);
+            $replies = $this->fetchers->fetcherFor($mailbox->provider()->value)->fetch($this->cipher->decrypt($refresh->ciphertext()), $mailbox->emailAddress()->toString(), $threads);
         } catch (MailSendFailed|TokenCipherFailure) {
             $mailbox->markSyncFailed('sync_failed', $now);
             $this->mailboxes->save($mailbox);

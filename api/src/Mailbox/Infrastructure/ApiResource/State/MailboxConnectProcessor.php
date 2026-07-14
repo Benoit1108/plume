@@ -19,7 +19,8 @@ use App\Shared\Infrastructure\Doctrine\Tenancy\TenantContext;
 
 /**
  * POST /mailbox/connect {code, state} : vérifie le state (anti-CSRF, lié au
- * tenant du JWT) puis échange le code côté serveur. Gmail seul en V1 (D1).
+ * tenant du JWT) puis échange le code côté serveur. Le FOURNISSEUR est relu
+ * dans le state signé (Gmail ou Outlook, D1) — jamais depuis une entrée libre.
  *
  * @implements ProcessorInterface<MailboxResource, MailboxResource>
  */
@@ -41,11 +42,13 @@ final class MailboxConnectProcessor implements ProcessorInterface
         if (!$this->stateCodec->isValidFor($data->state, $tenant->toString())) {
             throw InvalidValue::because('Invalid or expired OAuth state.');
         }
+        $provider = $this->stateCodec->providerFrom($data->state)
+            ?? throw InvalidValue::because('OAuth state carries no provider.');
 
         $this->commandBus->dispatch(new ConnectMailbox(
             $this->ids->generate(),
             $tenant->toString(),
-            'GMAIL',
+            $provider,
             $data->code,
         ));
 

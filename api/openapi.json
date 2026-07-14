@@ -2480,7 +2480,23 @@
                 },
                 "summary": "D\u00e9marrer le consentement OAuth (renvoie l'URL d'autorisation)",
                 "description": "D\u00e9marrer le consentement OAuth (renvoie l'URL d'autorisation)",
-                "parameters": []
+                "parameters": [],
+                "requestBody": {
+                    "description": "The new Mailbox resource",
+                    "content": {
+                        "application/ld+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Mailbox-mailbox.start"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Mailbox-mailbox.start"
+                            }
+                        }
+                    },
+                    "required": true
+                }
             }
         },
         "/api/v1/organizations": {
@@ -5739,6 +5755,16 @@
                             "string",
                             "null"
                         ]
+                    }
+                }
+            },
+            "Mailbox-mailbox.start": {
+                "type": "object",
+                "description": "La bo\u00eete email connect\u00e9e du tenant (une seule en V1 \u2014 D6).\nLe flux OAuth : POST /mailbox/oauth/start \u2192 URL de consentement \u2192\nle navigateur revient sur le front avec code+state \u2192 POST /mailbox/connect.\nJamais un token dans une r\u00e9ponse.",
+                "properties": {
+                    "provider": {
+                        "default": "",
+                        "type": "string"
                     }
                 }
             },

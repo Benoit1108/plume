@@ -9,7 +9,7 @@ use App\Mailbox\Application\Command\MarkEmailSent\MarkEmailSent;
 use App\Mailbox\Application\DraftGateway;
 use App\Mailbox\Application\Exception\MailSendFailed;
 use App\Mailbox\Application\Exception\TokenCipherFailure;
-use App\Mailbox\Application\MailSender;
+use App\Mailbox\Application\MailSenderRegistry;
 use App\Mailbox\Application\OpenThreads;
 use App\Mailbox\Application\OutgoingMail;
 use App\Mailbox\Application\RecipientResolver;
@@ -43,7 +43,7 @@ final class EmailSendConsumer
         private readonly RecipientResolver $recipients,
         private readonly OpenThreads $threads,
         private readonly TokenCipher $cipher,
-        private readonly MailSender $sender,
+        private readonly MailSenderRegistry $senders,
         private readonly CommandBus $commandBus,
         private readonly LoggerInterface $logger,
     ) {
@@ -80,7 +80,7 @@ final class EmailSendConsumer
             : null;
 
         try {
-            $threadKey = $this->sender->send(
+            $threadKey = $this->senders->senderFor($mailbox->provider()->value)->send(
                 $this->cipher->decrypt($refresh->ciphertext()),
                 $mailbox->emailAddress()->toString(),
                 new OutgoingMail($recipient->email, $recipient->name, $draft->subject, $draft->body, $originThread),

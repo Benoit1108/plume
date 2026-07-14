@@ -141,8 +141,10 @@ réponse) et d'isolation tenant sur toutes les nouvelles surfaces (acquis à mai
 - [x] Relance envoyée **dans le fil d'origine** (threadId Gmail) ; « Rédiger la relance »
       depuis « Aujourd'hui » ouvre le générateur pré-réglé (draft-first jusqu'au bout).
 - [x] Dettes soldées : interpolation locale `{{contact}}` (ADR-0014), rétention du journal
-      tranchée (ADR-0017). *Reste M2 : connecteur Outlook (promis D1) — dernier morceau avant
-      la DoD complète et la revue de santé fin M2.*
-- [ ] Pyramide complète (adaptateurs sur réponses enregistrées, FakeMailProvider en E2E,
-      idempotence + isolation tenant), CI verte, openapi/glossaire/ROADMAP à jour.
-- [ ] **Revue de santé fin M2** (process acté).
+      tranchée (ADR-0017).
+- [x] **Outlook / Microsoft Graph** (D1) : connecteur, expéditeur, relève derrière les mêmes
+      ports, routés par fournisseur (registres) ; le provider voyage signé dans le `state`.
+- [x] Pyramide complète (adaptateurs Gmail/Outlook sur réponses enregistrées, connecteurs/
+      senders/fetchers factices en E2E, idempotence + isolation tenant), CI verte,
+      openapi/glossaire/ROADMAP à jour. **201 back / 55 front / 12 E2E.**
+- [ ] **Revue de santé fin M2** (process acté) — prochaine étape.

@@ -19,6 +19,7 @@ use App\Tests\Support\FakeTokenCipher;
 use App\Tests\Support\FixedClock;
 use App\Tests\Support\InMemoryMailboxRepository;
 use App\Tests\Support\RecordingEventBus;
+use App\Tests\Support\SingleMailboxConnectorRegistry;
 use PHPUnit\Framework\TestCase;
 
 final class ConnectMailboxHandlerTest extends TestCase
@@ -34,11 +35,11 @@ final class ConnectMailboxHandlerTest extends TestCase
     {
         $this->mailboxes = new InMemoryMailboxRepository();
         $this->eventBus = new RecordingEventBus();
-        $connector = new FakeMailboxConnector('http://localhost:3000/oauth/gmail/callback');
+        $connectors = new SingleMailboxConnectorRegistry(new FakeMailboxConnector('http://localhost:3000/oauth/gmail/callback'));
         $cipher = new FakeTokenCipher();
         $clock = new FixedClock(new \DateTimeImmutable('2026-07-14 15:00:00'));
-        $this->connect = new ConnectMailboxHandler($this->mailboxes, $connector, $cipher, $this->eventBus, $clock);
-        $this->revoke = new RevokeMailboxHandler($this->mailboxes, $connector, $cipher, $this->eventBus, $clock);
+        $this->connect = new ConnectMailboxHandler($this->mailboxes, $connectors, $cipher, $this->eventBus, $clock);
+        $this->revoke = new RevokeMailboxHandler($this->mailboxes, $connectors, $cipher, $this->eventBus, $clock);
     }
 
     public function testConnectStoresOnlyEncryptedTokens(): void

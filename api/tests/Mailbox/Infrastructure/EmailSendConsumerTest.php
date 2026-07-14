@@ -26,6 +26,7 @@ use App\Shared\Domain\ValueObject\TenantId;
 use App\Tests\Support\FakeTokenCipher;
 use App\Tests\Support\HandlerMapCommandBus;
 use App\Tests\Support\InMemoryMailboxRepository;
+use App\Tests\Support\SingleMailSenderRegistry;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 
@@ -106,7 +107,7 @@ final class EmailSendConsumerTest extends TestCase
             $recipients,
             $threads,
             new FakeTokenCipher(),
-            $sender,
+            new SingleMailSenderRegistry($sender),
             new HandlerMapCommandBus([MarkEmailSent::class => $record, MarkEmailFailed::class => $record]),
             new NullLogger(),
         );

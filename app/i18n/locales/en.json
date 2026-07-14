@@ -421,6 +421,7 @@
       "fetched": "Fetch done — lead journals are up to date."
     },
     "fetchNow": "Fetch replies",
-    "lastSync": "last sync: {date}"
+    "lastSync": "last sync: {date}",
+    "connectOutlook": "Connect Outlook"
   }
 }

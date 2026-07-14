@@ -80,7 +80,8 @@ Créer un utilisateur local : `docker compose exec php php bin/console app:user:
 
 ## État actuel
 
-**M1 complet et revue de santé fin M1 appliquée** (M0 fondations, M1.1 Répertoire,
-M1.2 pipeline Piste, M1.3 relances & « Aujourd'hui », M1.4 rédaction assistée — contexte
-`Drafting`, M1.5 tableau de bord ; remédiation en 3 lots, `docs/reviews/`).
-Prochaine étape : **M2 — passerelle email** (les dettes actées pour M2 sont listées en ROADMAP).
+**M1 complet (revue de santé fin M1 appliquée) et M2 — passerelle email — complet** :
+contexte `Mailbox` (OAuth **Gmail + Outlook** derrière des ports routés par fournisseur,
+tokens chiffrés ADR-0016, envoi asynchrone draft-first, captation des réponses par polling
+ADR-0017, relances dans le fil). Auth en cookies httpOnly (M2.0). Prochaine étape :
+**revue de santé fin M2** (process acté), puis M3 (ingestion d'annonces).
