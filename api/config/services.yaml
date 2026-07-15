@@ -113,10 +113,22 @@ services:
             $microsoftClientId: '%env(string:MICROSOFT_CLIENT_ID)%'
     App\Mailbox\Infrastructure\Fetcher\GmailReplyFetcher:
         arguments:
-            $clientId: '%env(string:GOOGLE_CLIENT_ID)%'
-            $clientSecret: '%env(string:GOOGLE_CLIENT_SECRET)%'
+            $tokenMinter: '@mailbox.google_token_minter'
     App\Mailbox\Infrastructure\Fetcher\OutlookReplyFetcher:
         arguments:
+            $tokenMinter: '@mailbox.microsoft_token_minter'
+
+    # Frappe d'access token OAuth, une instance par fournisseur (partagée sender+fetcher).
+    mailbox.google_token_minter:
+        class: App\Mailbox\Infrastructure\Token\OAuthAccessTokenMinter
+        arguments:
+            $tokenEndpoint: 'https://oauth2.googleapis.com/token'
+            $clientId: '%env(string:GOOGLE_CLIENT_ID)%'
+            $clientSecret: '%env(string:GOOGLE_CLIENT_SECRET)%'
+    mailbox.microsoft_token_minter:
+        class: App\Mailbox\Infrastructure\Token\OAuthAccessTokenMinter
+        arguments:
+            $tokenEndpoint: 'https://login.microsoftonline.com/common/oauth2/v2.0/token'
             $clientId: '%env(string:MICROSOFT_CLIENT_ID)%'
             $clientSecret: '%env(string:MICROSOFT_CLIENT_SECRET)%'
 
@@ -128,12 +140,10 @@ services:
             $microsoftClientId: '%env(string:MICROSOFT_CLIENT_ID)%'
     App\Mailbox\Infrastructure\Sender\GmailMailSender:
         arguments:
-            $clientId: '%env(string:GOOGLE_CLIENT_ID)%'
-            $clientSecret: '%env(string:GOOGLE_CLIENT_SECRET)%'
+            $tokenMinter: '@mailbox.google_token_minter'
     App\Mailbox\Infrastructure\Sender\OutlookMailSender:
         arguments:
-            $clientId: '%env(string:MICROSOFT_CLIENT_ID)%'
-            $clientSecret: '%env(string:MICROSOFT_CLIENT_SECRET)%'
+            $tokenMinter: '@mailbox.microsoft_token_minter'
 
     # Port MessageGenerator : sélection par env (clé présente => Claude, sinon canned).
     App\Drafting\Application\MessageGenerator: '@App\Drafting\Infrastructure\Generator\MessageGeneratorSelector'

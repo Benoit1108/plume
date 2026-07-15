@@ -19,6 +19,8 @@ use App\Mailbox\Domain\Mailbox\EncryptedToken;
 use App\Mailbox\Domain\Mailbox\MailboxId;
 use App\Mailbox\Domain\Mailbox\MailProviderName;
 use App\Mailbox\Domain\Outbound\Event\EmailSendRequested;
+use App\Mailbox\Domain\Outbound\OutboundMessage;
+use App\Mailbox\Domain\Outbound\OutboundMessageId;
 use App\Mailbox\Infrastructure\Consumer\EmailSendConsumer;
 use App\Shared\Application\Command\Command;
 use App\Shared\Domain\ValueObject\EmailAddress;
@@ -26,6 +28,7 @@ use App\Shared\Domain\ValueObject\TenantId;
 use App\Tests\Support\FakeTokenCipher;
 use App\Tests\Support\HandlerMapCommandBus;
 use App\Tests\Support\InMemoryMailboxRepository;
+use App\Tests\Support\InMemoryOutboundMessageRepository;
 use App\Tests\Support\SingleMailSenderRegistry;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
@@ -38,6 +41,7 @@ final class EmailSendConsumerTest extends TestCase
     /** @var Command[] */
     private array $dispatched = [];
     private InMemoryMailboxRepository $mailboxes;
+    private InMemoryOutboundMessageRepository $messages;
     private DraftContext $draft;
     private Recipient $recipient;
 
@@ -45,6 +49,17 @@ final class EmailSendConsumerTest extends TestCase
     {
         $this->dispatched = [];
         $this->mailboxes = new InMemoryMailboxRepository();
+        $this->messages = new InMemoryOutboundMessageRepository();
+        // Le consumer charge le message et exige SENDING (garde d'idempotence P0).
+        $this->messages->save(OutboundMessage::request(
+            OutboundMessageId::fromString('out-1'),
+            TenantId::fromString(self::TENANT),
+            'lead-1',
+            'draft-1',
+            'APPLICATION_EMAIL',
+            EmailAddress::fromString('jeanne@editions.example'),
+            new \DateTimeImmutable('2026-07-14 16:30:00'),
+        ));
         $this->draft = new DraftContext('lead-1', 'APPLICATION_EMAIL', 'Objet', 'Corps relu.', 'READY');
         $this->recipient = new Recipient('jeanne@editions.example', 'Jeanne', true);
     }
@@ -102,6 +117,7 @@ final class EmailSendConsumerTest extends TestCase
         };
 
         return new EmailSendConsumer(
+            $this->messages,
             $this->mailboxes,
             $drafts,
             $recipients,
@@ -168,6 +184,28 @@ final class EmailSendConsumerTest extends TestCase
         $consumer->onEmailSendRequested($this->event());
 
         self::assertSame('thread-origine', $captured); // M2.4 : la relance vit DANS le fil
+    }
+
+    public function testRedeliveryOfSettledMessageNeverSendsAgain(): void
+    {
+        // P0 revue fin M2 : la garde d'idempotence protège AVANT l'appel provider.
+        $this->connectMailbox();
+        // Le message est déjà réglé (SENT) — comme après une 1re livraison réussie.
+        $settled = $this->messages->get(OutboundMessageId::fromString('out-1'));
+        $settled->markSent('thread-x', new \DateTimeImmutable('2026-07-14 17:00:00'));
+        $settled->pullDomainEvents();
+        $this->messages->save($settled);
+
+        $sent = false;
+        $consumer = $this->consumer(self::sender(function () use (&$sent): string {
+            $sent = true;
+
+            return 'thread';
+        }));
+        $consumer->onEmailSendRequested($this->event());
+
+        self::assertFalse($sent, 'Un message déjà SENT ne doit JAMAIS être ré-expédié.');
+        self::assertSame([], $this->dispatched);
     }
 
     public function testNoOperationalMailboxFailsWithStableCode(): void

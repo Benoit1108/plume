@@ -8,6 +8,7 @@ use App\Mailbox\Domain\Outbound\Exception\OutboundMessageNotFound;
 use App\Mailbox\Domain\Outbound\OutboundMessage;
 use App\Mailbox\Domain\Outbound\OutboundMessageId;
 use App\Mailbox\Domain\Outbound\OutboundMessageRepository;
+use App\Mailbox\Domain\Outbound\OutboundStatus;
 use Doctrine\ORM\EntityManagerInterface;
 
 final class DoctrineOutboundMessageRepository implements OutboundMessageRepository
@@ -39,5 +40,22 @@ final class DoctrineOutboundMessageRepository implements OutboundMessageReposito
         }
 
         return $message;
+    }
+
+    public function existsActiveForDraft(string $tenantId, string $draftId): bool
+    {
+        $count = (int) $this->em->createQueryBuilder()
+            ->select('COUNT(m.id)')
+            ->from(OutboundMessage::class, 'm')
+            ->where('m.tenantId = :tenant')
+            ->andWhere('m.draftId = :draft')
+            ->andWhere('m.status != :failed')
+            ->setParameter('tenant', \App\Shared\Domain\ValueObject\TenantId::fromString($tenantId))
+            ->setParameter('draft', $draftId)
+            ->setParameter('failed', OutboundStatus::FAILED->value)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return $count > 0;
     }
 }

@@ -158,6 +158,22 @@ final class MailSendApiTest extends ApiTestCase
         self::assertContains('contacted', $types);
     }
 
+    public function testDoubleSendOfSameDraftIsRejected(): void
+    {
+        // P1 revue fin M2 : anti double envoi (double-clic / rejeu réseau).
+        $this->createUser('a@plume.test');
+        $client = static::createClient();
+        $token = $this->tokenFor($client, 'a@plume.test');
+        $this->connectMailbox($client, $token);
+        ['draftId' => $draftId] = $this->aReadyDraft($client, $token);
+
+        $this->post($client, $token, sprintf('/api/v1/drafts/%s/send', $draftId));
+        self::assertResponseStatusCodeSame(202);
+        // Second envoi du MÊME brouillon : refusé (un envoi non-FAILED existe déjà).
+        $this->post($client, $token, sprintf('/api/v1/drafts/%s/send', $draftId));
+        self::assertResponseStatusCodeSame(409);
+    }
+
     public function testSendWithoutMailboxIsConflict(): void
     {
         $this->createUser('a@plume.test');

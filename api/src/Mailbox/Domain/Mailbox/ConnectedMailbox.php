@@ -33,6 +33,8 @@ final class ConnectedMailbox extends AggregateRoot
         private ?string $failureReason,
         private readonly \DateTimeImmutable $connectedAt,
         private ?\DateTimeImmutable $lastSyncAt,
+        // Réservé à la relève incrémentale (curseur history.list Gmail / deltaLink
+        // Graph — ADR-0017) ; la V1 relit les fils ouverts, donc toujours null ici.
         private ?string $syncCursor,
     ) {
     }
@@ -95,6 +97,7 @@ final class ConnectedMailbox extends AggregateRoot
     /** @param string $reason code stable (i18n front) */
     public function markSyncFailed(string $reason, \DateTimeImmutable $now): void
     {
+        $this->guardOperational();
         $this->status = MailboxStatus::ERROR;
         $this->failureReason = $reason;
         $this->recordEvent(new MailboxSyncFailed($this->tenantId->toString(), $this->id->toString(), $reason, $now));

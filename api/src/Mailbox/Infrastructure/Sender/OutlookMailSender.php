@@ -7,6 +7,7 @@ namespace App\Mailbox\Infrastructure\Sender;
 use App\Mailbox\Application\Exception\MailSendFailed;
 use App\Mailbox\Application\MailSender;
 use App\Mailbox\Application\OutgoingMail;
+use App\Mailbox\Infrastructure\Token\AccessTokenMinter;
 use Symfony\Contracts\HttpClient\Exception\ExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
@@ -17,19 +18,17 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
  */
 final class OutlookMailSender implements MailSender
 {
-    private const string TOKEN_ENDPOINT = 'https://login.microsoftonline.com/common/oauth2/v2.0/token';
     private const string MESSAGES_ENDPOINT = 'https://graph.microsoft.com/v1.0/me/messages';
 
     public function __construct(
         private readonly HttpClientInterface $httpClient,
-        private readonly string $clientId,
-        private readonly string $clientSecret,
+        private readonly AccessTokenMinter $tokenMinter,
     ) {
     }
 
     public function send(string $refreshTokenPlain, string $fromEmail, OutgoingMail $mail): string
     {
-        $accessToken = $this->mintAccessToken($refreshTokenPlain);
+        $accessToken = $this->tokenMinter->mint($refreshTokenPlain);
         $auth = ['Authorization' => 'Bearer '.$accessToken];
 
         try {
@@ -76,29 +75,5 @@ final class OutlookMailSender implements MailSender
                 'name' => $mail->toName,
             ], static fn (?string $v): bool => null !== $v)]],
         ];
-    }
-
-    private function mintAccessToken(string $refreshTokenPlain): string
-    {
-        try {
-            $payload = $this->httpClient->request('POST', self::TOKEN_ENDPOINT, [
-                'body' => [
-                    'client_id' => $this->clientId,
-                    'client_secret' => $this->clientSecret,
-                    'refresh_token' => $refreshTokenPlain,
-                    'grant_type' => 'refresh_token',
-                ],
-                'timeout' => 15,
-            ])->toArray();
-        } catch (ExceptionInterface $e) {
-            throw MailSendFailed::because('Microsoft token refresh failed.', $e);
-        }
-
-        $accessToken = $payload['access_token'] ?? null;
-        if (!\is_string($accessToken) || '' === $accessToken) {
-            throw MailSendFailed::because('Microsoft token refresh returned no access token.');
-        }
-
-        return $accessToken;
     }
 }

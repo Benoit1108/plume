@@ -25,7 +25,10 @@ final class DoctrineLeadRepository implements LeadRepository
 
     public function get(LeadId $id): Lead
     {
-        // Requête (et non find()) pour que le filtre tenant s'applique -> isolation.
+        // Requête (et non find()) pour que le SQLFilter tenant s'applique EN HTTP.
+        // ⚠️ Hors HTTP (worker), le filtre est INACTIF : les commandes appelées en
+        // asynchrone (RecordReply/RecordFollowUp/ContactLead) portent un tenantId
+        // explicite vérifié par leur handler (fail-closed). Cf. revue fin M2.
         $lead = $this->em->createQueryBuilder()
             ->select('l')
             ->from(Lead::class, 'l')

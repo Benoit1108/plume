@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Mailbox\Infrastructure;
 
 use App\Mailbox\Infrastructure\Fetcher\GmailReplyFetcher;
+use App\Tests\Support\FakeAccessTokenMinter;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
@@ -27,13 +28,12 @@ final class GmailReplyFetcherTest extends TestCase
     public function testKeepsOnlyForeignMessagesAndDecodesSnippet(): void
     {
         $client = new MockHttpClient([
-            $this->json(['access_token' => 'fresh']),
             $this->json(['messages' => [
                 self::message('Mon propre message', 'Marie <marie@gmail.example>'),
                 self::message('Merci &amp; à bientôt', 'Jeanne <jeanne@editions.example>'),
             ]]),
         ]);
-        $fetcher = new GmailReplyFetcher($client, 'id', 'secret');
+        $fetcher = new GmailReplyFetcher($client, new FakeAccessTokenMinter());
 
         $replies = $fetcher->fetch('refresh', 'marie@gmail.example', ['thread-1' => 'lead-1']);
 
@@ -45,10 +45,9 @@ final class GmailReplyFetcherTest extends TestCase
     public function testThreadWithoutForeignMessageYieldsNothing(): void
     {
         $client = new MockHttpClient([
-            $this->json(['access_token' => 'fresh']),
             $this->json(['messages' => [self::message('Moi encore', 'marie@gmail.example')]]),
         ]);
-        $fetcher = new GmailReplyFetcher($client, 'id', 'secret');
+        $fetcher = new GmailReplyFetcher($client, new FakeAccessTokenMinter());
 
         self::assertSame([], $fetcher->fetch('refresh', 'marie@gmail.example', ['thread-1' => 'lead-1']));
     }
@@ -56,10 +55,9 @@ final class GmailReplyFetcherTest extends TestCase
     public function testDeletedThreadIsSkippedQuietly(): void
     {
         $client = new MockHttpClient([
-            $this->json(['access_token' => 'fresh']),
             new MockResponse('{"error":"notFound"}', ['http_code' => 404]),
         ]);
-        $fetcher = new GmailReplyFetcher($client, 'id', 'secret');
+        $fetcher = new GmailReplyFetcher($client, new FakeAccessTokenMinter());
 
         self::assertSame([], $fetcher->fetch('refresh', 'marie@gmail.example', ['thread-x' => 'lead-1']));
     }

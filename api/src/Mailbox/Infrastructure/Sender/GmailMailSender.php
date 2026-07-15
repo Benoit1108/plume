@@ -7,6 +7,7 @@ namespace App\Mailbox\Infrastructure\Sender;
 use App\Mailbox\Application\Exception\MailSendFailed;
 use App\Mailbox\Application\MailSender;
 use App\Mailbox\Application\OutgoingMail;
+use App\Mailbox\Infrastructure\Token\AccessTokenMinter;
 use Symfony\Contracts\HttpClient\Exception\ExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
@@ -17,19 +18,17 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
  */
 final class GmailMailSender implements MailSender
 {
-    private const string TOKEN_ENDPOINT = 'https://oauth2.googleapis.com/token';
     private const string SEND_ENDPOINT = 'https://gmail.googleapis.com/gmail/v1/users/me/messages/send';
 
     public function __construct(
         private readonly HttpClientInterface $httpClient,
-        private readonly string $clientId,
-        private readonly string $clientSecret,
+        private readonly AccessTokenMinter $tokenMinter,
     ) {
     }
 
     public function send(string $refreshTokenPlain, string $fromEmail, OutgoingMail $mail): string
     {
-        $accessToken = $this->mintAccessToken($refreshTokenPlain);
+        $accessToken = $this->tokenMinter->mint($refreshTokenPlain);
 
         $to = null !== $mail->toName
             ? sprintf('=?UTF-8?B?%s?= <%s>', base64_encode($mail->toName), $mail->toEmail)
@@ -66,29 +65,5 @@ final class GmailMailSender implements MailSender
         }
 
         return $threadId;
-    }
-
-    private function mintAccessToken(string $refreshTokenPlain): string
-    {
-        try {
-            $payload = $this->httpClient->request('POST', self::TOKEN_ENDPOINT, [
-                'body' => [
-                    'client_id' => $this->clientId,
-                    'client_secret' => $this->clientSecret,
-                    'refresh_token' => $refreshTokenPlain,
-                    'grant_type' => 'refresh_token',
-                ],
-                'timeout' => 15,
-            ])->toArray();
-        } catch (ExceptionInterface $e) {
-            throw MailSendFailed::because('Gmail token refresh failed.', $e);
-        }
-
-        $accessToken = $payload['access_token'] ?? null;
-        if (!\is_string($accessToken) || '' === $accessToken) {
-            throw MailSendFailed::because('Gmail token refresh returned no access token.');
-        }
-
-        return $accessToken;
     }
 }

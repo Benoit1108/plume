@@ -12,6 +12,7 @@ use App\Mailbox\Infrastructure\OAuth\FakeMailboxConnector;
 use App\Mailbox\Infrastructure\OAuth\GmailConnector;
 use App\Mailbox\Infrastructure\OAuth\OutlookConnector;
 use App\Mailbox\Infrastructure\OAuth\ProviderMailboxConnectorRegistry;
+use App\Tests\Support\FakeAccessTokenMinter;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpClient\MockHttpClient;
 
@@ -54,8 +55,8 @@ final class ProviderRegistryRoutingTest extends TestCase
         $http = new MockHttpClient();
         $registry = new ProviderReplyFetcherRegistry(
             new FakeReplyFetcher(),
-            new GmailReplyFetcher($http, '', ''),
-            new OutlookReplyFetcher($http, 'm-id', 'm-secret'),
+            new GmailReplyFetcher($http, new FakeAccessTokenMinter()),
+            new OutlookReplyFetcher($http, new FakeAccessTokenMinter()),
             googleClientId: '',
             microsoftClientId: 'm-id',
         );

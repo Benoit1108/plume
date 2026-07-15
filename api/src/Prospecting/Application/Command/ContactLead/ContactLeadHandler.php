@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Prospecting\Application\Command\ContactLead;
 
 use App\Prospecting\Application\OrganizationGateway;
+use App\Prospecting\Domain\Lead\Exception\LeadNotFound;
 use App\Prospecting\Domain\Lead\Exception\OrganizationNotContactable;
 use App\Prospecting\Domain\Lead\LeadId;
 use App\Prospecting\Domain\Lead\LeadRepository;
@@ -25,6 +26,11 @@ final class ContactLeadHandler implements CommandHandler
     public function __invoke(ContactLead $command): void
     {
         $lead = $this->leads->get(LeadId::fromString($command->leadId));
+        // Ceinture-bretelles worker (SQLFilter inactif hors HTTP) : si la commande
+        // porte un tenant, il DOIT être celui de la piste — sinon, introuvable.
+        if (null !== $command->tenantId && $lead->tenantId()->toString() !== $command->tenantId) {
+            throw LeadNotFound::withId($lead->id());
+        }
 
         // Garde RGPD : une organisation « ne pas contacter » ne se démarche pas,
         // même si la piste existait avant le marquage.

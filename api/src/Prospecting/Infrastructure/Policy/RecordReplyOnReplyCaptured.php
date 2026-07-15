@@ -34,7 +34,7 @@ final class RecordReplyOnReplyCaptured
         $this->tenantContext->set(TenantId::fromString($event->tenantId));
 
         try {
-            $this->commandBus->dispatch(new RecordReply($event->leadId, $event->preview));
+            $this->commandBus->dispatch(new RecordReply($event->leadId, $event->preview, $event->tenantId));
         } catch (Conflict|NotFound $e) {
             $this->logger->info('Captured reply not applied to lead.', [
                 'lead_id' => $event->leadId,

@@ -39,8 +39,8 @@ final class AdvanceLeadOnEmailSent
         $this->tenantContext->set(TenantId::fromString($event->tenantId));
 
         $command = 'FOLLOW_UP_EMAIL' === $event->draftType
-            ? new RecordFollowUp($event->leadId)
-            : new ContactLead($event->leadId);
+            ? new RecordFollowUp($event->leadId, $event->tenantId)
+            : new ContactLead($event->leadId, $event->tenantId);
 
         try {
             $this->commandBus->dispatch($command);

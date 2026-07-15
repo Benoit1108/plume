@@ -19,6 +19,9 @@ use App\Mailbox\Domain\Mailbox\MailboxStatus;
 use App\Mailbox\Domain\Outbound\Event\EmailSendRequested;
 use App\Mailbox\Domain\Outbound\Exception\OutboundMessageNotFound;
 use App\Mailbox\Domain\Outbound\Exception\OutboundMessageNotSending;
+use App\Mailbox\Domain\Outbound\OutboundMessageId;
+use App\Mailbox\Domain\Outbound\OutboundMessageRepository;
+use App\Mailbox\Domain\Outbound\OutboundStatus;
 use App\Shared\Application\Command\CommandBus;
 use App\Shared\Domain\ValueObject\TenantId;
 use Psr\Log\LoggerInterface;
@@ -29,6 +32,12 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
  * (RGPD prime sur la demande), déchiffre le refresh token en mémoire,
  * envoie, puis MarkEmailSent/MarkEmailFailed. Échecs = codes stables i18n ;
  * NotFound/Conflict absorbés (redélivrance = cas normal, pattern M1.4 durci).
+ *
+ * IDEMPOTENCE (P0 revue fin M2) : le message est chargé et son statut vérifié
+ * AVANT l'appel provider — une redélivrance Messenger d'un envoi déjà réglé
+ * (SENT/FAILED) n'expédie JAMAIS un second email. Fenêtre résiduelle « envoi
+ * réussi puis crash avant markSent » : nécessiterait une clé d'idempotence
+ * provider — tracée en ROADMAP (M3).
  */
 final class EmailSendConsumer
 {
@@ -38,6 +47,7 @@ final class EmailSendConsumer
     public const string REASON_SEND_FAILED = 'send_failed';
 
     public function __construct(
+        private readonly OutboundMessageRepository $messages,
         private readonly MailboxRepository $mailboxes,
         private readonly DraftGateway $drafts,
         private readonly RecipientResolver $recipients,
@@ -52,6 +62,21 @@ final class EmailSendConsumer
     #[AsMessageHandler(bus: 'event.bus')]
     public function onEmailSendRequested(EmailSendRequested $event): void
     {
+        // Garde d'idempotence : ne JAMAIS ré-expédier un message déjà réglé.
+        try {
+            $message = $this->messages->get(OutboundMessageId::fromString($event->messageId));
+        } catch (OutboundMessageNotFound) {
+            return; // message supprimé entre-temps : rien à envoyer
+        }
+        if ($message->tenantId()->toString() !== $event->tenantId || OutboundStatus::SENDING !== $message->status()) {
+            $this->logger->info('Email send request ignored (already settled or foreign tenant).', [
+                'message_id' => $event->messageId,
+                'tenant_id' => $event->tenantId,
+            ]);
+
+            return;
+        }
+
         $mailbox = $this->mailboxes->findForTenant(TenantId::fromString($event->tenantId));
         $refresh = $mailbox?->refreshToken();
         if (null === $mailbox || MailboxStatus::CONNECTED !== $mailbox->status() || null === $refresh) {

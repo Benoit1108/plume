@@ -9,6 +9,7 @@ use App\Mailbox\Application\RecipientResolver;
 use App\Mailbox\Domain\Mailbox\Exception\MailboxNotOperational;
 use App\Mailbox\Domain\Mailbox\MailboxRepository;
 use App\Mailbox\Domain\Mailbox\MailboxStatus;
+use App\Mailbox\Domain\Outbound\Exception\DraftAlreadySending;
 use App\Mailbox\Domain\Outbound\Exception\DraftNotSendable;
 use App\Mailbox\Domain\Outbound\Exception\RecipientNotContactable;
 use App\Mailbox\Domain\Outbound\OutboundMessage;
@@ -46,6 +47,10 @@ final class SendDraftHandler implements CommandHandler
             ?? throw InvalidValue::because(sprintf('Unknown draft "%s".', $command->draftId));
         if ('READY' !== $draft->status) {
             throw DraftNotSendable::inStatus($draft->status);
+        }
+        // Anti double envoi (double-clic, rejeu réseau) : un seul envoi actif par brouillon.
+        if ($this->messages->existsActiveForDraft($command->tenantId, $command->draftId)) {
+            throw DraftAlreadySending::forDraft($command->draftId);
         }
 
         $recipient = $this->recipients->resolve($command->tenantId, $draft->leadId);
