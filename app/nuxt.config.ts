@@ -3,6 +3,12 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-07-01',
   devtools: { enabled: true },
 
+  // Transition de route sobre (fondu + léger décalage) ; respecte prefers-reduced-motion
+  // via les classes .page-* de main.css (neutralisées sous mouvement réduit).
+  app: {
+    pageTransition: { name: 'page', mode: 'out-in' },
+  },
+
   // @nuxt/ui : composants + thème clair/sombre (color-mode) + design tokens.
   // @nuxtjs/i18n : UI bilingue FR/EN (cf. ADR-0011).
   modules: ['@nuxt/ui', '@nuxt/eslint', '@pinia/nuxt', '@nuxtjs/i18n'],

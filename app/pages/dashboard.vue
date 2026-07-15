@@ -61,7 +61,7 @@ const hasActivity = computed(() =>
 
       <template v-else>
         <!-- KPIs -->
-        <section class="mt-6 grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <section class="mt-6 grid grid-cols-2 lg:grid-cols-4 gap-3 rise-stagger">
           <div class="border border-default rounded-xl p-4 bg-elevated/40">
             <p class="text-xs text-dimmed font-semibold uppercase tracking-wide">{{ t('dashboard.kpis.responseRate') }}</p>
             <p class="mt-1 font-serif text-3xl font-semibold tabular-nums">
@@ -105,10 +105,11 @@ const hasActivity = computed(() =>
             :aria-label="board.pipeline.map(slice => `${statusLabel(slice.status)} : ${slice.count}`).join(', ')"
           >
             <div
-              v-for="slice in board.pipeline"
+              v-for="(slice, i) in board.pipeline"
               :key="slice.status"
+              class="grow-x"
               :class="STATUS_TINTS[slice.status]"
-              :style="{ width: `${(slice.count / Math.max(1, totalLeads)) * 100}%` }"
+              :style="{ width: `${(slice.count / Math.max(1, totalLeads)) * 100}%`, animationDelay: `${i * 0.05}s` }"
             />
           </div>
           <ul class="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs">
@@ -132,12 +133,12 @@ const hasActivity = computed(() =>
               <div class="absolute inset-x-0 border-t border-dashed border-primary/60" :style="{ bottom: `${goalLinePercent}%` }" />
             </div>
             <ol class="grid grid-cols-8 gap-2 items-end">
-              <li v-for="week in board.weeklyActivity" :key="week.weekStart" class="flex flex-col items-center gap-1">
+              <li v-for="(week, i) in board.weeklyActivity" :key="week.weekStart" class="flex flex-col items-center gap-1">
                 <div class="h-24 w-full flex items-end">
                   <div
-                    class="w-full rounded-t-sm min-h-0.5"
+                    class="w-full rounded-t-sm min-h-0.5 grow-y"
                     :class="week.acts >= board.weeklyTarget ? 'bg-primary' : 'bg-primary/35'"
-                    :style="{ height: `${barHeightPercent(week.acts)}%` }"
+                    :style="{ height: `${barHeightPercent(week.acts)}%`, animationDelay: `${i * 0.05}s` }"
                     role="img"
                     :aria-label="`${t('dashboard.weekly.weekOf', { date: weekLabel(week.weekStart) })} : ${t('dashboard.weekly.acts', { count: week.acts }, week.acts)}`"
                   />

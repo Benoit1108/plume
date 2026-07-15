@@ -90,7 +90,7 @@ function isOverdue(lead: Lead): boolean {
         <p class="text-[11px] uppercase tracking-widest text-dimmed font-semibold">
           {{ t('today.followUpsDue') }} <span class="font-mono">{{ board.followUpsDue.length }}</span>
         </p>
-        <ul class="mt-3 border border-default rounded-xl divide-y divide-[var(--ui-border)]">
+        <ul class="mt-3 border border-default rounded-xl divide-y divide-[var(--ui-border)] rise-stagger">
           <li v-for="lead in board.followUpsDue" :key="lead.id" class="p-4 flex flex-col gap-3 sm:flex-row sm:items-center">
             <div class="min-w-0 flex-1">
               <NuxtLink :to="`/leads/${lead.id}`" class="font-medium hover:text-primary">
@@ -135,7 +135,7 @@ function isOverdue(lead: Lead): boolean {
         <p class="text-[11px] uppercase tracking-widest text-dimmed font-semibold">
           {{ t('today.toContact') }} <span class="font-mono">{{ board.toContact.length }}</span>
         </p>
-        <ul class="mt-3 border border-default rounded-xl divide-y divide-[var(--ui-border)]">
+        <ul class="mt-3 border border-default rounded-xl divide-y divide-[var(--ui-border)] rise-stagger">
           <li v-for="lead in board.toContact" :key="lead.id" class="p-4 flex flex-col gap-3 sm:flex-row sm:items-center">
             <div class="min-w-0 flex-1">
               <NuxtLink :to="`/leads/${lead.id}`" class="font-medium hover:text-primary">

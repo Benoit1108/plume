@@ -44,3 +44,46 @@
 
 /* Titres en serif éditoriale */
 h1, h2, h3, .font-display { font-family: var(--font-serif); }
+
+/* ---------------------------------------------------------------------------
+   Motion — transitions de route + micro-animations d'entrée (état des lieux
+   visuel : « manque d'animation/transition »). Sobre et orchestré, jamais
+   partout. Entièrement neutralisé sous prefers-reduced-motion (plancher a11y).
+--------------------------------------------------------------------------- */
+
+/* Transition de route (nuxt.config app.pageTransition = { name: 'page' }). */
+.page-enter-active,
+.page-leave-active { transition: opacity 0.18s ease, transform 0.18s ease; }
+.page-enter-from { opacity: 0; transform: translateY(6px); }
+.page-leave-to { opacity: 0; transform: translateY(-4px); }
+
+/* Entrée en fondu montant : élément isolé (.rise) ou liste en cascade (.rise-stagger). */
+@keyframes plume-rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+.rise { animation: plume-rise 0.45s cubic-bezier(0.22, 0.61, 0.36, 1) both; }
+.rise-stagger > * { animation: plume-rise 0.45s cubic-bezier(0.22, 0.61, 0.36, 1) both; }
+.rise-stagger > *:nth-child(1) { animation-delay: 0.02s; }
+.rise-stagger > *:nth-child(2) { animation-delay: 0.06s; }
+.rise-stagger > *:nth-child(3) { animation-delay: 0.10s; }
+.rise-stagger > *:nth-child(4) { animation-delay: 0.14s; }
+.rise-stagger > *:nth-child(5) { animation-delay: 0.18s; }
+.rise-stagger > *:nth-child(6) { animation-delay: 0.22s; }
+.rise-stagger > *:nth-child(7) { animation-delay: 0.26s; }
+.rise-stagger > *:nth-child(n + 8) { animation-delay: 0.30s; }
+
+/* Poussée des barres du tableau de bord (délai porté en style inline par index). */
+@keyframes plume-grow-y { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@keyframes plume-grow-x { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.grow-y { transform-origin: bottom; animation: plume-grow-y 0.6s cubic-bezier(0.22, 0.61, 0.36, 1) both; }
+.grow-x { transform-origin: left; animation: plume-grow-x 0.7s cubic-bezier(0.22, 0.61, 0.36, 1) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .page-enter-active,
+  .page-leave-active,
+  .rise,
+  .rise-stagger > *,
+  .grow-y,
+  .grow-x { transition: none !important; animation: none !important; }
+}

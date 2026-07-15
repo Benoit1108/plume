@@ -50,7 +50,7 @@ const priorityDot: Record<string, string> = {
          Mobile : colonnes larges + accroche (scroll-snap) une colonne à la fois. -->
     <div v-else class="mt-6 relative">
       <div class="overflow-x-auto pb-4 snap-x snap-mandatory sm:snap-none">
-        <div class="flex gap-4 min-w-max">
+        <div class="flex gap-4 min-w-max rise-stagger">
           <section
             v-for="column in COLUMNS"
             :key="column"
@@ -65,7 +65,7 @@ const priorityDot: Record<string, string> = {
               <li v-for="lead in byStatus.get(column)" :key="lead.id">
                 <NuxtLink
                   :to="`/leads/${lead.id}`"
-                  class="block border border-default rounded-lg p-3 bg-default hover:bg-elevated focus-visible:outline-2 focus-visible:outline-primary"
+                  class="block border border-default rounded-lg p-3 bg-default hover:bg-elevated focus-visible:outline-2 focus-visible:outline-primary motion-safe:transition-transform motion-safe:hover:-translate-y-0.5"
                 >
                   <div class="flex items-center gap-2">
                     <span
