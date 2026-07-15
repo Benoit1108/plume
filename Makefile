@@ -8,7 +8,7 @@ PHP := $(DC) run --rm --no-deps --user $(UID):$(GID) -e HOME=/tmp -e COMPOSER_HO
 # Variante avec dépendances (DB up) pour les migrations.
 PHP_DB := $(DC) run --rm --user $(UID):$(GID) -e HOME=/tmp -e COMPOSER_HOME=/tmp/composer php
 
-.PHONY: help up up-full down build install lock jwt-keys migrate test phpstan deptrac cs cs-fix audit schema-validate openapi front-install front-lint front-typecheck front-test
+.PHONY: help up up-full down build install lock jwt-keys migrate seed test phpstan deptrac cs cs-fix audit schema-validate openapi front-install front-lint front-typecheck front-test
 
 help: ## Affiche cette aide
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS=":.*?## "}; {printf "  \033[36m%-14s\033[0m %s\n", $$1, $$2}'
@@ -36,6 +36,9 @@ jwt-keys: ## Génère la paire de clés JWT (Lexik)
 
 migrate: ## Applique les migrations Doctrine (DB requise)
 	$(PHP_DB) php bin/console doctrine:migrations:migrate --no-interaction
+
+seed: ## Jeu de données de RECETTE (dev only : recette@plume.fr / recette-2026)
+	$(PHP_DB) php bin/console app:dev:seed
 
 hooks: ## Installe le hook git pre-commit (cs-fixer + eslint)
 	git config core.hooksPath .githooks
