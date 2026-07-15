@@ -173,8 +173,16 @@ const hasActivity = computed(() =>
                 </tr>
               </thead>
               <tbody class="divide-y divide-[var(--ui-border)]">
-                <tr v-for="row in board.segments" :key="row.segment">
-                  <td class="py-2 pr-3">{{ segmentLabel(row.segment) }}</td>
+                <tr v-for="row in board.segments" :key="row.segment" class="motion-safe:transition-colors hover:bg-elevated/50">
+                  <td class="py-2 pr-3">
+                    <NuxtLink
+                      :to="`/leads?segment=${row.segment}`"
+                      class="hover:text-primary underline-offset-2 hover:underline"
+                      :aria-label="t('dashboard.segments.drillDown', { segment: segmentLabel(row.segment) })"
+                    >
+                      {{ segmentLabel(row.segment) }}
+                    </NuxtLink>
+                  </td>
                   <td class="py-2 px-3 text-right font-mono tabular-nums">{{ row.contacted }}</td>
                   <td class="py-2 px-3 text-right font-mono tabular-nums">{{ row.replied }}</td>
                   <td class="py-2 px-3 text-right font-mono tabular-nums">{{ segmentRate(row.contacted, row.replied) }}</td>

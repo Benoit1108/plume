@@ -144,6 +144,11 @@
     "eyebrow": "Atelier · pipeline",
     "title": "Pistes",
     "newLead": "Piste",
+    "filterBySegment": "Filtrer par segment",
+    "filterAllSegments": "Tous les segments",
+    "dnd": {
+      "illegal": "Déplacement non autorisé pour cette piste."
+    },
     "empty": "Aucune piste. Crée ta première piste ici ou depuis une organisation du Répertoire.",
     "statuses": {
       "TO_CONTACT": "À contacter",
@@ -384,6 +389,7 @@
     },
     "segments": {
       "title": "Par segment",
+      "drillDown": "Voir les pistes du segment {segment}",
       "segment": "Segment",
       "contacted": "Contactées",
       "replied": "Réponses",

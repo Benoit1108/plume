@@ -144,6 +144,11 @@
     "eyebrow": "Studio · pipeline",
     "title": "Leads",
     "newLead": "Lead",
+    "filterBySegment": "Filter by segment",
+    "filterAllSegments": "All segments",
+    "dnd": {
+      "illegal": "This move isn't allowed for this lead."
+    },
     "empty": "No leads yet. Create your first one here or from a Directory organization.",
     "statuses": {
       "TO_CONTACT": "To contact",
@@ -384,6 +389,7 @@
     },
     "segments": {
       "title": "By segment",
+      "drillDown": "View {segment} segment leads",
       "segment": "Segment",
       "contacted": "Contacted",
       "replied": "Replies",
