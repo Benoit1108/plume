@@ -51,7 +51,7 @@ function isOverdue(lead: Lead): boolean {
 </script>
 
 <template>
-  <PageContainer width="reading">
+  <PageContainer width="atelier">
     <PageHeader :eyebrow="t('today.eyebrow')" :title="t('today.title')" />
 
     <div v-if="loading" class="py-12 text-center text-dimmed">{{ t('common.loading') }}</div>

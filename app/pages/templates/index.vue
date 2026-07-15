@@ -102,7 +102,7 @@ async function removeTemplate(): Promise<void> {
 </script>
 
 <template>
-  <PageContainer width="reading">
+  <PageContainer width="atelier">
     <PageHeader :eyebrow="t('templates.eyebrow')" :title="t('templates.title')">
       <template #subtitle>
         <p class="mt-2 text-sm text-muted">

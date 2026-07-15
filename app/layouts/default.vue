@@ -5,6 +5,9 @@ const route = useRoute()
 
 const navOpen = ref(false)
 
+// Repli de la barre latérale (rail d'icônes) — persisté en cookie (SSR-safe).
+const navCollapsed = useCookie<boolean>('plume_nav_collapsed', { default: () => false })
+
 // Ferme le tiroir dès qu'on change de page.
 watch(() => route.path, () => {
   navOpen.value = false
@@ -13,8 +16,11 @@ watch(() => route.path, () => {
 
 <template>
   <div class="min-h-screen flex bg-default text-default">
-    <aside class="w-56 shrink-0 border-r border-default p-4 hidden md:flex flex-col">
-      <AppNav />
+    <aside
+      class="shrink-0 border-r border-default hidden md:flex flex-col transition-[width] duration-200"
+      :class="navCollapsed ? 'w-16 px-2 py-4' : 'w-56 p-4'"
+    >
+      <AppNav :collapsed="navCollapsed" collapsible @toggle-collapse="navCollapsed = !navCollapsed" />
     </aside>
 
     <div class="flex-1 min-w-0 flex flex-col">

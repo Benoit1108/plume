@@ -155,7 +155,7 @@ async function deleteContact(): Promise<void> {
 </script>
 
 <template>
-  <PageContainer width="reading">
+  <PageContainer width="atelier">
     <UButton variant="link" icon="i-lucide-arrow-left" to="/organizations" class="px-0 mb-2">
       {{ t('directory.title') }}
     </UButton>

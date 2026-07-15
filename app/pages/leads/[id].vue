@@ -167,7 +167,7 @@ const canScheduleFollowUp = computed(() =>
 </script>
 
 <template>
-  <PageContainer width="reading">
+  <PageContainer width="atelier">
     <UButton variant="link" icon="i-lucide-arrow-left" to="/leads" class="px-0 mb-2">
       {{ t('pipeline.title') }}
     </UButton>

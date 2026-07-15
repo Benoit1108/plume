@@ -107,12 +107,12 @@ async function save(): Promise<void> {
 </script>
 
 <template>
-  <PageContainer width="form">
+  <PageContainer width="atelier">
     <PageHeader :eyebrow="t('settings.eyebrow')" :title="t('settings.title')" />
 
     <div v-if="loading" class="py-12 text-center text-dimmed">{{ t('common.loading') }}</div>
 
-    <form v-else class="mt-6 flex flex-col gap-8" @submit.prevent="save">
+    <form v-else class="mt-6 flex flex-col gap-8 max-w-2xl" @submit.prevent="save">
       <!-- Objectif hebdomadaire -->
       <section class="border border-default rounded-xl p-4 bg-elevated/40">
         <p class="text-sm font-semibold">{{ t('settings.goal.title') }}</p>
@@ -144,7 +144,7 @@ async function save(): Promise<void> {
     </form>
 
     <!-- Boîte email connectée (M2.1) — hors du form profil : cycle de vie séparé. -->
-    <section class="mt-8 border border-default rounded-xl p-4 bg-elevated/40">
+    <section class="mt-8 border border-default rounded-xl p-4 bg-elevated/40 max-w-2xl">
       <div class="flex items-center gap-2 flex-wrap">
         <p class="text-sm font-semibold">{{ t('mailbox.title') }}</p>
         <UBadge

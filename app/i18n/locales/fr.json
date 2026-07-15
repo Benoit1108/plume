@@ -18,6 +18,8 @@
     "menu": "Navigation",
     "openMenu": "Ouvrir le menu",
     "home": "Accueil",
+    "collapse": "Réduire le menu",
+    "expand": "Déplier le menu",
     "today": "Aujourd'hui",
     "leads": "Pistes",
     "directory": "Répertoire",
@@ -334,7 +336,7 @@
     }
   },
   "settings": {
-    "eyebrow": "Profil",
+    "eyebrow": "Préférences",
     "title": "Réglages",
     "goal": {
       "title": "Objectif hebdomadaire",

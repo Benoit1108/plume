@@ -3,15 +3,19 @@ const { t } = useI18n()
 const auth = useAuthStore()
 const route = useRoute()
 
-defineEmits<{ navigate: [] }>()
+withDefaults(defineProps<{ collapsed?: boolean, collapsible?: boolean }>(), {
+  collapsed: false,
+  collapsible: false,
+})
+defineEmits<{ navigate: [], toggleCollapse: [] }>()
 
-const nav = computed((): { label: string, to: string | null }[] => [
-  { label: t('nav.today'), to: '/today' },
-  { label: t('nav.dashboard'), to: '/dashboard' },
-  { label: t('nav.leads'), to: '/leads' },
-  { label: t('nav.directory'), to: '/organizations' },
-  { label: t('nav.templates'), to: '/templates' },
-  { label: t('nav.settings'), to: '/settings' },
+const nav = computed((): { label: string, to: string, icon: string }[] => [
+  { label: t('nav.today'), to: '/today', icon: 'i-lucide-calendar-check' },
+  { label: t('nav.dashboard'), to: '/dashboard', icon: 'i-lucide-layout-dashboard' },
+  { label: t('nav.leads'), to: '/leads', icon: 'i-lucide-square-kanban' },
+  { label: t('nav.directory'), to: '/organizations', icon: 'i-lucide-building-2' },
+  { label: t('nav.templates'), to: '/templates', icon: 'i-lucide-file-text' },
+  { label: t('nav.settings'), to: '/settings', icon: 'i-lucide-settings' },
 ])
 </script>
 
@@ -19,24 +23,51 @@ const nav = computed((): { label: string, to: string | null }[] => [
   <div class="flex flex-col gap-1 flex-1 min-h-0">
     <NuxtLink
       to="/today"
-      class="px-2 pb-4 inline-flex w-fit rounded-md focus-visible:outline-2 focus-visible:outline-primary"
+      class="pb-4 inline-flex rounded-md focus-visible:outline-2 focus-visible:outline-primary"
+      :class="collapsed ? 'justify-center px-0' : 'px-2'"
       :aria-label="t('nav.home')"
       @click="$emit('navigate')"
     >
-      <PlumeMark :size="22" />
+      <PlumeMark :size="22" :wordmark="!collapsed" />
     </NuxtLink>
-    <template v-for="item in nav" :key="item.label">
-      <NuxtLink
-        v-if="item.to"
-        :to="item.to"
-        class="px-3 py-2.5 rounded-md text-[15px]"
-        :class="route.path.startsWith(item.to) ? 'bg-elevated text-highlighted font-semibold' : 'text-muted hover:bg-elevated'"
-        @click="$emit('navigate')"
-      >{{ item.label }}</NuxtLink>
-      <span v-else class="px-3 py-2 rounded-md text-sm text-dimmed cursor-default select-none">{{ item.label }}</span>
-    </template>
-    <div class="mt-auto pt-3 border-t border-default text-xs text-dimmed font-mono truncate">
-      {{ auth.email }}
+
+    <NuxtLink
+      v-for="item in nav"
+      :key="item.to"
+      :to="item.to"
+      class="flex items-center gap-3 py-2.5 rounded-md text-[15px]"
+      :class="[
+        collapsed ? 'justify-center px-0' : 'px-3',
+        route.path.startsWith(item.to) ? 'bg-elevated text-highlighted font-semibold' : 'text-muted hover:bg-elevated',
+      ]"
+      :title="collapsed ? item.label : undefined"
+      :aria-label="collapsed ? item.label : undefined"
+      @click="$emit('navigate')"
+    >
+      <UIcon :name="item.icon" class="size-5 shrink-0" aria-hidden="true" />
+      <span v-if="!collapsed" class="truncate">{{ item.label }}</span>
+    </NuxtLink>
+
+    <div class="mt-auto pt-3 border-t border-default flex flex-col gap-2">
+      <button
+        v-if="collapsible"
+        type="button"
+        class="flex items-center gap-3 py-2 rounded-md text-sm text-muted hover:bg-elevated"
+        :class="collapsed ? 'justify-center px-0' : 'px-3'"
+        :aria-label="collapsed ? t('nav.expand') : t('nav.collapse')"
+        :title="collapsed ? t('nav.expand') : t('nav.collapse')"
+        @click="$emit('toggleCollapse')"
+      >
+        <UIcon
+          :name="collapsed ? 'i-lucide-chevrons-right' : 'i-lucide-chevrons-left'"
+          class="size-5 shrink-0"
+          aria-hidden="true"
+        />
+        <span v-if="!collapsed">{{ t('nav.collapse') }}</span>
+      </button>
+      <div v-if="!collapsed" class="text-xs text-dimmed font-mono truncate px-3">
+        {{ auth.email }}
+      </div>
     </div>
   </div>
 </template>
