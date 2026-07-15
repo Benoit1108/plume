@@ -52,8 +52,11 @@ test('création d\'une organisation puis fiche', async ({ page }) => {
   await page.waitForURL(/\/organizations\/[0-9a-f-]+$/)
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(name)
 
-  // Retour liste : l'organisation apparaît.
+  // Retour liste : l'organisation apparaît. On PASSE PAR LA RECHERCHE (le tenant
+  // e2e partagé accumule des centaines d'orgs sur plusieurs pages — cf. revue M1).
   await page.goto('/organizations')
+  await waitForHydration(page)
+  await page.getByRole('textbox', { name: /rechercher|search/i }).fill(name)
   await expect(page.getByRole('link', { name: new RegExp(name) }).first()).toBeVisible()
 
   expect(errors).toEqual([])

@@ -25,7 +25,7 @@ final class ConnectedMailbox extends AggregateRoot
     private function __construct(
         private readonly MailboxId $id,
         private readonly TenantId $tenantId,
-        private readonly MailProviderName $provider,
+        private MailProviderName $provider,
         private EmailAddress $emailAddress,
         private ?EncryptedToken $accessToken,
         private ?EncryptedToken $refreshToken,
@@ -66,15 +66,20 @@ final class ConnectedMailbox extends AggregateRoot
         return $mailbox;
     }
 
-    /** Reconnexion (nouveau consentement) : nouveaux tokens, la boîte redevient opérationnelle. */
-    public function reconnect(EmailAddress $emailAddress, EncryptedToken $accessToken, EncryptedToken $refreshToken, \DateTimeImmutable $now): void
+    /**
+     * Reconnexion (nouveau consentement) : nouveaux tokens, la boîte redevient
+     * opérationnelle. Peut CHANGER de fournisseur (Gmail → Outlook) — une seule
+     * boîte par tenant en V1, le dernier consentement fait foi.
+     */
+    public function reconnect(MailProviderName $provider, EmailAddress $emailAddress, EncryptedToken $accessToken, EncryptedToken $refreshToken, \DateTimeImmutable $now): void
     {
+        $this->provider = $provider;
         $this->emailAddress = $emailAddress;
         $this->accessToken = $accessToken;
         $this->refreshToken = $refreshToken;
         $this->status = MailboxStatus::CONNECTED;
         $this->failureReason = null;
-        $this->recordEvent(new MailboxConnected($this->tenantId->toString(), $this->id->toString(), $this->provider->value, $now));
+        $this->recordEvent(new MailboxConnected($this->tenantId->toString(), $this->id->toString(), $provider->value, $now));
     }
 
     /** Rotation silencieuse des tokens (refresh OAuth automatique) — pas un événement métier. */

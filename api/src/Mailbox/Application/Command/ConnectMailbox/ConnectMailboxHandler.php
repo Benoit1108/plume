@@ -51,7 +51,7 @@ final class ConnectMailboxHandler implements CommandHandler
         // Une boîte par tenant (V1) : reconnexion si elle existe, création sinon.
         $mailbox = $this->mailboxes->findForTenant($tenantId);
         if (null !== $mailbox) {
-            $mailbox->reconnect($email, $access, $refresh, $now);
+            $mailbox->reconnect($provider, $email, $access, $refresh, $now);
         } else {
             $mailbox = ConnectedMailbox::connect(
                 MailboxId::fromString($command->mailboxId),

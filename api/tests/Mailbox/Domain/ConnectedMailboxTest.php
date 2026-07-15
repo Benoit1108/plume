@@ -76,6 +76,7 @@ final class ConnectedMailboxTest extends TestCase
 
         // Reconnexion : la boîte redevient opérationnelle avec de nouveaux tokens.
         $mailbox->reconnect(
+            MailProviderName::GMAIL,
             EmailAddress::fromString('marie@gmail.example'),
             EncryptedToken::fromCiphertext('enc-access-2'),
             EncryptedToken::fromCiphertext('enc-refresh-2'),
@@ -83,6 +84,25 @@ final class ConnectedMailboxTest extends TestCase
         );
         self::assertSame(MailboxStatus::CONNECTED, $mailbox->status());
         self::assertNull($mailbox->failureReason());
+    }
+
+    public function testReconnectCanSwitchProvider(): void
+    {
+        // Une boîte Gmail reconnectée via Outlook adopte le fournisseur Outlook
+        // (une seule boîte par tenant en V1 — le dernier consentement fait foi).
+        $mailbox = $this->aMailbox();
+        $mailbox->pullDomainEvents();
+
+        $mailbox->reconnect(
+            MailProviderName::OUTLOOK,
+            EmailAddress::fromString('marie@outlook.example'),
+            EncryptedToken::fromCiphertext('enc-access-o'),
+            EncryptedToken::fromCiphertext('enc-refresh-o'),
+            $this->now,
+        );
+
+        self::assertSame(MailProviderName::OUTLOOK, $mailbox->provider());
+        self::assertSame('marie@outlook.example', $mailbox->emailAddress()->toString());
     }
 
     public function testOperationsAreGuardedOnNonOperationalMailbox(): void

@@ -140,115 +140,27 @@ onMounted(() => {
   }
 })
 
-// ----- Éditeur (relecture humaine : sujet + corps, Copier, Régénérer, Supprimer) -----
+// ----- Éditeur (enfant) : le brouillon ouvert, réaligné après chaque refresh -----
 const editingDraft = ref<Draft | null>(null)
-const editSubject = ref('')
-const editBody = ref('')
-const savingDraft = ref(false)
-const confirmRegenerate = ref(false)
-const confirmDeleteDraft = ref(false)
 
 function openDraft(draft: Draft): void {
   editingDraft.value = draft
-  editSubject.value = draft.subject ?? ''
-  editBody.value = draft.body
   if (draft.status === 'GENERATING') startPolling()
 }
 
 /** Après un refresh, réaligne l'éditeur ouvert sur l'état serveur (READY/FAILED). */
 function syncEditorWithList(): void {
   if (!editingDraft.value) return
-  const fresh = drafts.value.find(draft => draft.id === editingDraft.value?.id)
-  if (fresh && fresh.updatedAt !== editingDraft.value.updatedAt) {
-    openDraft(fresh)
-  }
-  else if (fresh) {
-    editingDraft.value = fresh
-  }
+  editingDraft.value = drafts.value.find(draft => draft.id === editingDraft.value?.id) ?? null
 }
 
-async function saveDraft(): Promise<void> {
-  if (!editingDraft.value) return
-  savingDraft.value = true
-  try {
-    await draftsApi.edit(editingDraft.value.id, { subject: editSubject.value.trim() || null, body: editBody.value })
-    await refreshDrafts()
-    syncEditorWithList()
-    toast.add({ title: t('drafts.toasts.saved'), color: 'success' })
-  }
-  catch (error) {
-    toast.add({ title: errorToastTitle(t, error), color: 'error' })
-  }
-  finally {
-    savingDraft.value = false
-  }
+/** L'éditeur a modifié le brouillon : rafraîchir, réaligner, relancer le polling si besoin. */
+async function onEditorChanged(): Promise<void> {
+  await refreshDrafts()
+  syncEditorWithList()
+  if (hasGenerating.value) startPolling()
+  emit('activity')
 }
-
-async function copyText(text: string): Promise<void> {
-  try {
-    await navigator.clipboard.writeText(text)
-    toast.add({ title: t('drafts.toasts.copied'), color: 'success' })
-  }
-  catch {
-    toast.add({ title: t('drafts.toasts.copyFailed'), color: 'error' })
-  }
-}
-
-async function regenerateDraft(): Promise<void> {
-  if (!editingDraft.value) return
-  try {
-    await draftsApi.regenerate(editingDraft.value.id)
-    await refreshDrafts()
-    syncEditorWithList()
-    startPolling()
-    emit('activity')
-  }
-  catch (error) {
-    toast.add({ title: errorToastTitle(t, error), color: 'error' })
-  }
-}
-
-async function deleteDraft(): Promise<void> {
-  if (!editingDraft.value) return
-  try {
-    await draftsApi.remove(editingDraft.value.id)
-    editingDraft.value = null
-    await refreshDrafts()
-    toast.add({ title: t('drafts.toasts.deleted'), color: 'success' })
-  }
-  catch (error) {
-    toast.add({ title: errorToastTitle(t, error), color: 'error' })
-  }
-}
-
-// ----- Envoi (M2.2, draft-first : confirmation avec récap) -----
-const confirmSend = ref(false)
-const sending = ref(false)
-
-async function sendDraft(): Promise<void> {
-  if (!editingDraft.value) return
-  sending.value = true
-  try {
-    await draftsApi.send(editingDraft.value.id)
-    confirmSend.value = false
-    editingDraft.value = null
-    emit('activity')
-    toast.add({ title: t('drafts.toasts.sendRequested'), color: 'success' })
-  }
-  catch (error) {
-    toast.add({ title: errorToastTitle(t, error), color: 'error' })
-  }
-  finally {
-    sending.value = false
-  }
-}
-
-const editorOpen = computed({
-  get: () => editingDraft.value !== null,
-  set: (open: boolean) => {
-    if (!open) editingDraft.value = null
-  },
-})
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString(locale.value, { day: 'numeric', month: 'short', year: 'numeric' })
@@ -347,123 +259,14 @@ function formatDate(iso: string): string {
       </template>
     </UModal>
 
-    <!-- Éditeur de brouillon (relecture humaine) -->
-    <USlideover v-model:open="editorOpen" :title="editingDraft ? draftLabels.typeLabel(editingDraft.type) : ''">
-      <template #body>
-        <div v-if="editingDraft" class="flex flex-col gap-4">
-          <div class="flex items-center gap-2 flex-wrap">
-            <UBadge :color="draftLabels.statusColor(editingDraft.status)" variant="soft" size="sm">
-              {{ draftLabels.statusLabel(editingDraft.status) }}
-            </UBadge>
-            <span class="text-xs text-dimmed font-mono uppercase">{{ editingDraft.targetLanguage }}</span>
-            <span class="text-xs text-dimmed">{{ t('drafts.draftFirst') }}</span>
-          </div>
-
-          <div v-if="editingDraft.status === 'GENERATING'" class="py-12 text-center text-muted text-sm">
-            <UIcon name="i-lucide-loader-circle" class="animate-spin text-warning" aria-hidden="true" />
-            <p class="mt-2">{{ t('drafts.generating') }}</p>
-            <UButton v-if="pollExhausted" class="mt-3" size="xs" variant="soft" icon="i-lucide-refresh-cw" @click="manualRefresh">
-              {{ t('drafts.refresh') }}
-            </UButton>
-          </div>
-
-          <UAlert
-            v-else-if="editingDraft.status === 'FAILED'"
-            color="error"
-            variant="soft"
-            icon="i-lucide-alert-triangle"
-            :title="draftLabels.failureLabel(editingDraft.failureReason ?? 'generation_failed')"
-          />
-
-          <template v-else>
-            <UFormField v-if="editingDraft.type !== 'COVER_LETTER' || editSubject" :label="t('drafts.editor.subjectLabel')">
-              <div class="flex gap-2">
-                <UInput v-model="editSubject" class="flex-1" />
-                <UButton
-                  variant="ghost"
-                  color="neutral"
-                  icon="i-lucide-copy"
-                  :aria-label="t('drafts.editor.copySubject')"
-                  :disabled="!editSubject"
-                  @click="() => copyText(editSubject)"
-                />
-              </div>
-            </UFormField>
-            <UFormField :label="t('drafts.editor.bodyLabel')">
-              <UTextarea v-model="editBody" :rows="14" autoresize class="w-full font-mono text-sm" />
-            </UFormField>
-          </template>
-        </div>
-      </template>
-      <template #footer>
-        <div v-if="editingDraft" class="flex gap-2 w-full flex-wrap">
-          <UButton
-            color="neutral"
-            variant="outline"
-            icon="i-lucide-trash-2"
-            :aria-label="t('actions.delete')"
-            @click="() => { confirmDeleteDraft = true }"
-          />
-          <UButton
-            variant="outline"
-            icon="i-lucide-refresh-cw"
-            :disabled="editingDraft.status === 'GENERATING'"
-            @click="() => { confirmRegenerate = true }"
-          >
-            {{ t('drafts.editor.regenerate') }}
-          </UButton>
-          <div class="ml-auto flex gap-2">
-            <UButton
-              v-if="editingDraft.status === 'READY'"
-              variant="soft"
-              icon="i-lucide-copy"
-              :aria-label="t('drafts.editor.copyBody')"
-              @click="() => copyText(editBody)"
-            >
-              {{ t('drafts.editor.copy') }}
-            </UButton>
-            <UButton
-              v-if="editingDraft.status === 'READY' && canSend"
-              icon="i-lucide-send"
-              :loading="sending"
-              @click="() => { confirmSend = true }"
-            >
-              {{ t('drafts.editor.send') }}
-            </UButton>
-            <UButton
-              v-if="editingDraft.status === 'READY'"
-              :loading="savingDraft"
-              :disabled="!editBody.trim()"
-              @click="saveDraft"
-            >
-              {{ t('actions.save') }}
-            </UButton>
-          </div>
-        </div>
-      </template>
-    </USlideover>
-
-    <ConfirmDialog
-      v-model:open="confirmSend"
-      :title="t('drafts.editor.confirmSendTitle')"
-      :description="t('drafts.editor.confirmSendBody', { mailbox: mailbox?.emailAddress ?? '' })"
-      :confirm-label="t('drafts.editor.send')"
-      @confirm="sendDraft"
-    />
-    <ConfirmDialog
-      v-model:open="confirmRegenerate"
-      :title="t('drafts.editor.confirmRegenerateTitle')"
-      :description="t('drafts.editor.confirmRegenerateBody')"
-      :confirm-label="t('drafts.editor.regenerate')"
-      @confirm="regenerateDraft"
-    />
-    <ConfirmDialog
-      v-model:open="confirmDeleteDraft"
-      :title="t('drafts.editor.confirmDeleteTitle')"
-      :description="t('drafts.editor.confirmDeleteBody')"
-      :confirm-label="t('actions.delete')"
-      danger
-      @confirm="deleteDraft"
+    <!-- Éditeur de brouillon (relecture humaine, draft-first) -->
+    <LeadDraftEditor
+      v-model:draft="editingDraft"
+      :can-send="canSend"
+      :mailbox-email="mailbox?.emailAddress ?? ''"
+      :poll-exhausted="pollExhausted"
+      @changed="onEditorChanged"
+      @refresh="manualRefresh"
     />
   </section>
 </template>

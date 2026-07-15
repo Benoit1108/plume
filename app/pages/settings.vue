@@ -43,8 +43,8 @@ async function connectMailbox(provider: 'GMAIL' | 'OUTLOOK'): Promise<void> {
     // Redirection plein écran vers le consentement du fournisseur.
     window.location.href = await mailboxApi.startOAuth(provider)
   }
-  catch {
-    toast.add({ title: t('common.error'), color: 'error' })
+  catch (error) {
+    toast.add({ title: errorToastTitle(t, error), color: 'error' })
     connecting.value = false
   }
 }
@@ -97,8 +97,8 @@ async function save(): Promise<void> {
     await refresh()
     toast.add({ title: t('settings.toasts.saved'), color: 'success' })
   }
-  catch {
-    toast.add({ title: t('common.error'), color: 'error' })
+  catch (error) {
+    toast.add({ title: errorToastTitle(t, error), color: 'error' })
   }
   finally {
     saving.value = false
@@ -165,6 +165,7 @@ async function save(): Promise<void> {
         <div class="mt-3 flex items-center gap-3 flex-wrap text-sm">
           <UIcon name="i-lucide-mail-check" class="text-primary shrink-0" aria-hidden="true" />
           <span class="font-medium">{{ mailbox.emailAddress }}</span>
+          <UBadge color="neutral" variant="soft" size="sm">{{ mailbox.provider }}</UBadge>
           <span v-if="mailbox.connectedAt" class="text-xs text-dimmed">
             {{ t('mailbox.connectedSince', { date: formatDate(mailbox.connectedAt) }) }}
           </span>

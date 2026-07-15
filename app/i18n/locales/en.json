@@ -396,6 +396,7 @@
     "revoke": "Disconnect",
     "connectedSince": "connected since {date}",
     "statuses": {
+      "NONE": "Not connected",
       "CONNECTED": "Connected",
       "ERROR": "Error",
       "REVOKED": "Disconnected"
@@ -413,7 +414,8 @@
     "callback": {
       "connecting": "Connecting your mailbox…",
       "failed": "Connection failed (authorization denied or expired). Try again from Settings.",
-      "backToSettings": "Back to settings"
+      "backToSettings": "Back to settings",
+      "heading": "Connecting the mailbox"
     },
     "toasts": {
       "connected": "Mailbox connected",

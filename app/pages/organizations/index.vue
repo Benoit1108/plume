@@ -54,7 +54,7 @@ const loading = computed(() => status.value === 'idle' || status.value === 'pend
         :aria-label="t('directory.list.typeFilter')"
         class="w-44"
       />
-      <UInput v-model="q" icon="i-lucide-search" :placeholder="t('directory.list.searchPlaceholder')" class="flex-1 min-w-48" />
+      <UInput v-model="q" icon="i-lucide-search" :placeholder="t('directory.list.searchPlaceholder')" :aria-label="t('directory.list.searchPlaceholder')" class="flex-1 min-w-48" />
     </div>
 
     <div class="mt-4">

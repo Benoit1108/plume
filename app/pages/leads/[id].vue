@@ -62,8 +62,8 @@ async function submitNote(): Promise<void> {
     scheduleTimelineCatchUp()
     toast.add({ title: t('pipeline.toasts.noteAdded'), color: 'success' })
   }
-  catch {
-    toast.add({ title: t('common.error'), color: 'error' })
+  catch (error) {
+    toast.add({ title: errorToastTitle(t, error), color: 'error' })
   }
   finally {
     savingNote.value = false
@@ -135,8 +135,8 @@ async function saveSchedule(): Promise<void> {
     scheduleTimelineCatchUp()
     toast.add({ title: t('pipeline.toasts.followUpScheduled'), color: 'success' })
   }
-  catch {
-    toast.add({ title: t('common.error'), color: 'error' })
+  catch (error) {
+    toast.add({ title: errorToastTitle(t, error), color: 'error' })
   }
   finally {
     savingSchedule.value = false
@@ -150,8 +150,8 @@ async function cancelSchedule(): Promise<void> {
     scheduleTimelineCatchUp()
     toast.add({ title: t('pipeline.toasts.followUpCancelled'), color: 'success' })
   }
-  catch {
-    toast.add({ title: t('common.error'), color: 'error' })
+  catch (error) {
+    toast.add({ title: errorToastTitle(t, error), color: 'error' })
   }
 }
 

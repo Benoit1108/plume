@@ -12,6 +12,7 @@ use App\Mailbox\Domain\Mailbox\Event\MailboxConnected;
 use App\Mailbox\Domain\Mailbox\Event\MailboxRevoked;
 use App\Mailbox\Domain\Mailbox\Exception\MailboxNotFound;
 use App\Mailbox\Domain\Mailbox\MailboxStatus;
+use App\Mailbox\Domain\Mailbox\MailProviderName;
 use App\Mailbox\Infrastructure\OAuth\FakeMailboxConnector;
 use App\Shared\Domain\Exception\InvalidValue;
 use App\Shared\Domain\ValueObject\TenantId;
@@ -64,6 +65,16 @@ final class ConnectMailboxHandlerTest extends TestCase
         $mailbox = $this->mailboxes->findForTenant(TenantId::fromString(self::TENANT));
         self::assertSame('mb-1', $mailbox?->id()->toString());
         self::assertSame(2, $this->eventBus->countOf(MailboxConnected::class));
+    }
+
+    public function testReconnectWithDifferentProviderSwitches(): void
+    {
+        ($this->connect)(new ConnectMailbox('mb-1', self::TENANT, 'GMAIL', FakeMailboxConnector::ACCEPTED_CODE));
+        ($this->connect)(new ConnectMailbox('mb-2', self::TENANT, 'OUTLOOK', FakeMailboxConnector::ACCEPTED_CODE));
+
+        $mailbox = $this->mailboxes->findForTenant(TenantId::fromString(self::TENANT));
+        self::assertSame(MailProviderName::OUTLOOK, $mailbox?->provider());
+        self::assertSame('mb-1', $mailbox->id()->toString()); // même agrégat, provider basculé
     }
 
     public function testUnknownProviderIsRejected(): void

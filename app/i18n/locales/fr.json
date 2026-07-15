@@ -396,6 +396,7 @@
     "revoke": "Déconnecter",
     "connectedSince": "connectée depuis le {date}",
     "statuses": {
+      "NONE": "Non connectée",
       "CONNECTED": "Connectée",
       "ERROR": "Erreur",
       "REVOKED": "Déconnectée"
@@ -413,7 +414,8 @@
     "callback": {
       "connecting": "Connexion de votre boîte…",
       "failed": "La connexion a échoué (autorisation refusée ou expirée). Réessayez depuis les Réglages.",
-      "backToSettings": "Retour aux réglages"
+      "backToSettings": "Retour aux réglages",
+      "heading": "Connexion de la boîte email"
     },
     "toasts": {
       "connected": "Boîte connectée",

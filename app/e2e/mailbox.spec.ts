@@ -35,3 +35,34 @@ test('boîte email : connexion OAuth (factice) depuis les réglages, état, déc
 
   expect(errors).toEqual([])
 })
+
+test('boîte email : connexion Outlook (factice) enregistre le fournisseur OUTLOOK', async ({ page }) => {
+  const errors = watchConsole(page)
+
+  await login(page)
+  await page.goto('/settings')
+  await waitForHydration(page)
+
+  // État agnostique (tenant e2e partagé) : déconnecter d'abord si déjà connecté.
+  const connectGmail = page.getByRole('button', { name: /connecter gmail|connect gmail/i })
+  const connectedBadge = page.getByText(/^connectée$|^connected$/i)
+  await expect(connectGmail.or(connectedBadge).first()).toBeVisible()
+  if (await connectedBadge.isVisible()) {
+    await page.getByRole('button', { name: /déconnecter|disconnect/i }).click()
+    await page.getByRole('button', { name: /^déconnecter$|^disconnect$/i }).last().click()
+    await expect(page.getByText(/boîte déconnectée|mailbox disconnected/i).first()).toBeVisible()
+  }
+
+  // Consentement Outlook factice → callback → connectée. Le provider affiché est OUTLOOK.
+  await page.getByRole('button', { name: /connecter outlook|connect outlook/i }).click()
+  await page.waitForURL('**/settings')
+  await expect(page.getByText(/boîte connectée|mailbox connected/i).first()).toBeVisible()
+  await expect(page.getByText('OUTLOOK')).toBeVisible()
+
+  // Nettoyage : déconnecter pour laisser le tenant e2e propre.
+  await page.getByRole('button', { name: /déconnecter|disconnect/i }).click()
+  await page.getByRole('button', { name: /^déconnecter$|^disconnect$/i }).last().click()
+  await expect(page.getByText(/boîte déconnectée|mailbox disconnected/i).first()).toBeVisible()
+
+  expect(errors).toEqual([])
+})

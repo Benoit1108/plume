@@ -1,8 +1,9 @@
 <script setup lang="ts">
 /**
- * Retour du consentement Google : le navigateur arrive ici avec ?code&state.
- * On finalise côté API (le client_secret n'existe que là-bas) puis direction
- * les Réglages. En cas d'échec : Réglages aussi, avec l'erreur affichée.
+ * Retour du consentement OAuth (Gmail ou Outlook) : le navigateur arrive ici
+ * avec ?code&state. On finalise côté API (le client_secret n'existe que
+ * là-bas ; le fournisseur est relu du state signé, pas du segment d'URL) puis
+ * direction les Réglages. En cas d'échec : message annoncé + retour Réglages.
  */
 const { t } = useI18n()
 const route = useRoute()
@@ -31,13 +32,17 @@ onMounted(async () => {
 
 <template>
   <UContainer class="py-16 max-w-md text-center">
-    <template v-if="!failed">
-      <UIcon name="i-lucide-loader-circle" class="animate-spin text-primary" aria-hidden="true" />
-      <p class="mt-3 text-muted">{{ t('mailbox.callback.connecting') }}</p>
-    </template>
-    <template v-else>
-      <UAlert color="error" variant="soft" icon="i-lucide-alert-triangle" :title="t('mailbox.callback.failed')" />
-      <UButton class="mt-4" variant="outline" to="/settings">{{ t('mailbox.callback.backToSettings') }}</UButton>
-    </template>
+    <h1 class="sr-only">{{ t('mailbox.callback.heading') }}</h1>
+    <!-- aria-live : la transition connexion → échec est annoncée aux lecteurs d'écran. -->
+    <div role="status" aria-live="polite">
+      <template v-if="!failed">
+        <UIcon name="i-lucide-loader-circle" class="animate-spin text-primary" aria-hidden="true" />
+        <p class="mt-3 text-muted">{{ t('mailbox.callback.connecting') }}</p>
+      </template>
+      <template v-else>
+        <UAlert color="error" variant="soft" icon="i-lucide-alert-triangle" :title="t('mailbox.callback.failed')" />
+        <UButton class="mt-4" variant="outline" to="/settings">{{ t('mailbox.callback.backToSettings') }}</UButton>
+      </template>
+    </div>
   </UContainer>
 </template>
