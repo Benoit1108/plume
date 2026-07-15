@@ -28,6 +28,10 @@ deptrac:
       collectors:
         - type: classNameRegex
           value: '#^App\\Mailbox\\(Domain|Application)\\#'
+    - name: SourcingCore
+      collectors:
+        - type: classNameRegex
+          value: '#^App\\Sourcing\\(Domain|Application)\\#'
     - name: SharedKernel
       collectors:
         - type: classNameRegex
@@ -38,4 +42,5 @@ deptrac:
     DraftingCore: [SharedKernel]
     AccountCore: [SharedKernel]
     MailboxCore: [SharedKernel]
+    SourcingCore: [SharedKernel]
     SharedKernel: ~
