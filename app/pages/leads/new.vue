@@ -75,11 +75,8 @@ async function onSubmit(): Promise<void> {
 </script>
 
 <template>
-  <UContainer class="py-8 max-w-2xl">
-    <UButton variant="link" icon="i-lucide-arrow-left" to="/leads" class="px-0 mb-2">
-      {{ t('pipeline.title') }}
-    </UButton>
-    <h1 class="font-serif text-3xl font-semibold mb-6">{{ t('pipeline.new.title') }}</h1>
+  <PageContainer width="form">
+    <PageHeader back-to="/leads" :back-label="t('pipeline.title')" :title="t('pipeline.new.title')" />
 
     <UAlert v-if="error" color="error" variant="subtle" :description="error" class="mb-4" />
 
@@ -112,5 +109,5 @@ async function onSubmit(): Promise<void> {
         <UButton type="button" color="neutral" variant="ghost" @click="() => { void navigateTo('/leads') }">{{ t('actions.cancel') }}</UButton>
       </div>
     </form>
-  </UContainer>
+  </PageContainer>
 </template>

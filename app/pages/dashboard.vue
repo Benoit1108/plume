@@ -46,9 +46,8 @@ const hasActivity = computed(() =>
 </script>
 
 <template>
-  <UContainer class="py-8 max-w-3xl">
-    <p class="text-[11px] uppercase tracking-widest text-dimmed font-semibold">{{ t('dashboard.eyebrow') }}</p>
-    <h1 class="font-serif text-3xl font-semibold mt-1">{{ t('dashboard.title') }}</h1>
+  <PageContainer width="atelier">
+    <PageHeader :eyebrow="t('dashboard.eyebrow')" :title="t('dashboard.title')" />
 
     <div v-if="loading" class="py-12 text-center text-dimmed">{{ t('common.loading') }}</div>
 
@@ -178,5 +177,5 @@ const hasActivity = computed(() =>
         </section>
       </template>
     </template>
-  </UContainer>
+  </PageContainer>
 </template>

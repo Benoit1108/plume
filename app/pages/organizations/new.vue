@@ -26,11 +26,8 @@ async function onSubmit(payload: OrganizationInput): Promise<void> {
 </script>
 
 <template>
-  <UContainer class="py-8 max-w-2xl">
-    <UButton variant="link" icon="i-lucide-arrow-left" to="/organizations" class="px-0 mb-2">
-      {{ t('directory.title') }}
-    </UButton>
-    <h1 class="font-serif text-3xl font-semibold mb-6">{{ t('directory.new.title') }}</h1>
+  <PageContainer width="form">
+    <PageHeader back-to="/organizations" :back-label="t('directory.title')" :title="t('directory.new.title')" />
 
     <UAlert v-if="error" color="error" variant="subtle" :description="error" class="mb-4" />
 
@@ -40,5 +37,5 @@ async function onSubmit(payload: OrganizationInput): Promise<void> {
       @submit="onSubmit"
       @cancel="navigateTo('/organizations')"
     />
-  </UContainer>
+  </PageContainer>
 </template>

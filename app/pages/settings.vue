@@ -107,9 +107,8 @@ async function save(): Promise<void> {
 </script>
 
 <template>
-  <UContainer class="py-8 max-w-2xl">
-    <p class="text-[11px] uppercase tracking-widest text-dimmed font-semibold">{{ t('settings.eyebrow') }}</p>
-    <h1 class="font-serif text-3xl font-semibold mt-1">{{ t('settings.title') }}</h1>
+  <PageContainer width="form">
+    <PageHeader :eyebrow="t('settings.eyebrow')" :title="t('settings.title')" />
 
     <div v-if="loading" class="py-12 text-center text-dimmed">{{ t('common.loading') }}</div>
 
@@ -229,5 +228,5 @@ async function save(): Promise<void> {
         @confirm="revokeMailbox"
       />
     </section>
-  </UContainer>
+  </PageContainer>
 </template>

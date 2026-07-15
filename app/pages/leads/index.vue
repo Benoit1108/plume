@@ -33,16 +33,12 @@ const priorityDot: Record<string, string> = {
 </script>
 
 <template>
-  <UContainer class="py-8 max-w-none">
-    <div class="flex items-end gap-4 flex-wrap">
-      <div>
-        <p class="text-[11px] uppercase tracking-widest text-dimmed font-semibold">{{ t('pipeline.eyebrow') }}</p>
-        <h1 class="font-serif text-3xl font-semibold mt-1">{{ t('pipeline.title') }}</h1>
-      </div>
-      <div class="ml-auto">
+  <PageContainer width="atelier">
+    <PageHeader :eyebrow="t('pipeline.eyebrow')" :title="t('pipeline.title')">
+      <template #actions>
         <UButton icon="i-lucide-plus" to="/leads/new">{{ t('pipeline.newLead') }}</UButton>
-      </div>
-    </div>
+      </template>
+    </PageHeader>
 
     <div v-if="loading" class="py-12 text-center text-dimmed">{{ t('common.loading') }}</div>
 
@@ -89,5 +85,5 @@ const priorityDot: Record<string, string> = {
         </section>
       </div>
     </div>
-  </UContainer>
+  </PageContainer>
 </template>

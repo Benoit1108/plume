@@ -39,12 +39,12 @@ async function submit(): Promise<void> {
 </script>
 
 <template>
-  <UContainer class="py-8 max-w-2xl">
-    <UButton variant="link" icon="i-lucide-arrow-left" to="/organizations" class="px-0 mb-2">
-      {{ t('directory.title') }}
-    </UButton>
-    <h1 class="font-serif text-3xl font-semibold mb-2">{{ t('directory.import.title') }}</h1>
-    <p class="text-sm text-muted mb-6">{{ t('directory.import.intro') }}</p>
+  <PageContainer width="form">
+    <PageHeader back-to="/organizations" :back-label="t('directory.title')" :title="t('directory.import.title')">
+      <template #subtitle>
+        <p class="mt-1 text-sm text-muted">{{ t('directory.import.intro') }}</p>
+      </template>
+    </PageHeader>
 
     <div class="border border-default rounded-xl p-4 bg-elevated/40 text-sm">
       <p class="font-medium mb-2">{{ t('directory.import.columnsTitle') }}</p>
@@ -109,5 +109,5 @@ async function submit(): Promise<void> {
         <UButton to="/organizations" icon="i-lucide-arrow-right" trailing>{{ t('directory.import.seeDirectory') }}</UButton>
       </div>
     </div>
-  </UContainer>
+  </PageContainer>
 </template>

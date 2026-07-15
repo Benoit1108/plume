@@ -102,20 +102,20 @@ async function removeTemplate(): Promise<void> {
 </script>
 
 <template>
-  <UContainer class="py-8 max-w-3xl">
-    <div class="flex items-start gap-3 flex-wrap">
-      <div class="min-w-0">
-        <p class="text-[11px] uppercase tracking-widest text-dimmed font-semibold">{{ t('templates.eyebrow') }}</p>
-        <h1 class="font-serif text-3xl font-semibold mt-1">{{ t('templates.title') }}</h1>
+  <PageContainer width="reading">
+    <PageHeader :eyebrow="t('templates.eyebrow')" :title="t('templates.title')">
+      <template #subtitle>
         <p class="mt-2 text-sm text-muted">
           {{ t('templates.intro') }}
           <code class="text-xs bg-elevated rounded px-1 py-0.5 break-all">{{ VARIABLES }}</code>
         </p>
-      </div>
-      <UButton class="ml-auto shrink-0" icon="i-lucide-plus" @click="openCreate">
-        {{ t('templates.new') }}
-      </UButton>
-    </div>
+      </template>
+      <template #actions>
+        <UButton icon="i-lucide-plus" @click="openCreate">
+          {{ t('templates.new') }}
+        </UButton>
+      </template>
+    </PageHeader>
 
     <div v-if="loading" class="py-12 text-center text-dimmed">{{ t('common.loading') }}</div>
 
@@ -198,5 +198,5 @@ async function removeTemplate(): Promise<void> {
       danger
       @confirm="removeTemplate"
     />
-  </UContainer>
+  </PageContainer>
 </template>

@@ -155,7 +155,7 @@ async function deleteContact(): Promise<void> {
 </script>
 
 <template>
-  <UContainer class="py-8 max-w-3xl">
+  <PageContainer width="reading">
     <UButton variant="link" icon="i-lucide-arrow-left" to="/organizations" class="px-0 mb-2">
       {{ t('directory.title') }}
     </UButton>
@@ -288,5 +288,5 @@ async function deleteContact(): Promise<void> {
         @confirm="() => applyDoNotContact(false)"
       />
     </template>
-  </UContainer>
+  </PageContainer>
 </template>

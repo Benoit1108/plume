@@ -31,21 +31,17 @@ const loading = computed(() => status.value === 'idle' || status.value === 'pend
 </script>
 
 <template>
-  <UContainer class="py-8">
-    <div class="flex items-end gap-4 flex-wrap">
-      <div>
-        <p class="text-[11px] uppercase tracking-widest text-dimmed font-semibold">{{ t('directory.eyebrow') }}</p>
-        <h1 class="font-serif text-3xl font-semibold mt-1">{{ t('directory.title') }}</h1>
-      </div>
-      <div class="ml-auto flex gap-2">
+  <PageContainer width="atelier">
+    <PageHeader :eyebrow="t('directory.eyebrow')" :title="t('directory.title')">
+      <template #actions>
         <UButton color="neutral" variant="outline" icon="i-lucide-upload" to="/organizations/import">
           {{ t('directory.list.importCsv') }}
         </UButton>
         <UButton icon="i-lucide-plus" to="/organizations/new">{{ t('directory.list.newOrganization') }}</UButton>
-      </div>
-    </div>
+      </template>
+    </PageHeader>
 
-    <div class="flex gap-2 flex-wrap mt-6">
+    <div class="flex gap-2 flex-wrap">
       <USelect
         v-model="type"
         :items="typeFilterItems"
@@ -149,5 +145,5 @@ const loading = computed(() => status.value === 'idle' || status.value === 'pend
         </ul>
       </template>
     </div>
-  </UContainer>
+  </PageContainer>
 </template>

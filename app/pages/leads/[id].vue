@@ -167,7 +167,7 @@ const canScheduleFollowUp = computed(() =>
 </script>
 
 <template>
-  <UContainer class="py-8 max-w-3xl">
+  <PageContainer width="reading">
     <UButton variant="link" icon="i-lucide-arrow-left" to="/leads" class="px-0 mb-2">
       {{ t('pipeline.title') }}
     </UButton>
@@ -323,5 +323,5 @@ const canScheduleFollowUp = computed(() =>
         @confirm="() => applyAction('lose')"
       />
     </template>
-  </UContainer>
+  </PageContainer>
 </template>
