@@ -13,11 +13,11 @@ describe('useAccount', () => {
   it('changePassword poste l\'ancien et le nouveau mot de passe', async () => {
     apiMock.mockResolvedValueOnce(undefined)
 
-    await useAccount().changePassword('ancien-Mdp', 'nouveau-Mdp-456')
+    await useAccount().changePassword('secret-Test-123', 'secret-Test-456')
 
     const [path, options] = apiMock.mock.calls[0] as [string, { method: string, body: { currentPassword: string, newPassword: string } }]
     expect(path).toBe('/api/v1/account/password')
     expect(options.method).toBe('POST')
-    expect(options.body).toEqual({ currentPassword: 'ancien-Mdp', newPassword: 'nouveau-Mdp-456' })
+    expect(options.body).toEqual({ currentPassword: 'secret-Test-123', newPassword: 'secret-Test-456' })
   })
 })

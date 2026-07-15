@@ -63,7 +63,7 @@ final class ChangePasswordApiTest extends ApiTestCase
 
         $client->request('POST', '/api/v1/account/password', [
             'auth_bearer' => $token,
-            'json' => ['currentPassword' => self::PASSWORD, 'newPassword' => 'nouveau-Mdp-456'],
+            'json' => ['currentPassword' => self::PASSWORD, 'newPassword' => 'secret-Test-456'],
         ]);
         self::assertResponseStatusCodeSame(204);
 
@@ -74,7 +74,7 @@ final class ChangePasswordApiTest extends ApiTestCase
         self::assertResponseStatusCodeSame(401);
 
         $client->request('POST', '/api/v1/login_check', [
-            'json' => ['email' => 'a@plume.test', 'password' => 'nouveau-Mdp-456'],
+            'json' => ['email' => 'a@plume.test', 'password' => 'secret-Test-456'],
         ]);
         self::assertResponseIsSuccessful();
     }
@@ -87,7 +87,7 @@ final class ChangePasswordApiTest extends ApiTestCase
 
         $client->request('POST', '/api/v1/account/password', [
             'auth_bearer' => $token,
-            'json' => ['currentPassword' => 'wrong-password', 'newPassword' => 'nouveau-Mdp-456'],
+            'json' => ['currentPassword' => 'wrong-password', 'newPassword' => 'secret-Test-456'],
         ]);
         self::assertResponseStatusCodeSame(422);
     }
@@ -121,7 +121,7 @@ final class ChangePasswordApiTest extends ApiTestCase
         for ($i = 0; $i < 5; ++$i) {
             $client->request('POST', '/api/v1/account/password', [
                 'auth_bearer' => $token,
-                'json' => ['currentPassword' => 'wrong', 'newPassword' => 'nouveau-Mdp-456'],
+                'json' => ['currentPassword' => 'wrong', 'newPassword' => 'secret-Test-456'],
             ]);
             self::assertResponseStatusCodeSame(422);
         }
@@ -129,7 +129,7 @@ final class ChangePasswordApiTest extends ApiTestCase
         // ... le 6e est bloqué par le rate limiter (avant même la vérification).
         $client->request('POST', '/api/v1/account/password', [
             'auth_bearer' => $token,
-            'json' => ['currentPassword' => self::PASSWORD, 'newPassword' => 'nouveau-Mdp-456'],
+            'json' => ['currentPassword' => self::PASSWORD, 'newPassword' => 'secret-Test-456'],
         ]);
         self::assertResponseStatusCodeSame(429);
     }
