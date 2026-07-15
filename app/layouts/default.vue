@@ -28,7 +28,13 @@ watch(() => route.path, () => {
           :aria-label="t('nav.openMenu')"
           @click="() => { navOpen = true }"
         />
-        <PlumeMark :size="18" class="md:hidden" />
+        <NuxtLink
+          to="/today"
+          class="md:hidden inline-flex rounded-md focus-visible:outline-2 focus-visible:outline-primary"
+          :aria-label="t('nav.home')"
+        >
+          <PlumeMark :size="18" />
+        </NuxtLink>
         <div class="flex-1" />
         <LocaleSwitcher />
         <ThemeToggle />

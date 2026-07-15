@@ -14,8 +14,8 @@ withDefaults(defineProps<{ size?: number }>(), { size: 24 })
       style="width: 0.9em; height: 0.9em"
       aria-hidden="true"
     >
-      <path d="M20 4C11 6 6 12 5 20l2-1c1-6 5-11 13-13Z" fill="currentColor" />
-      <path d="M7 19 5 21" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+      <path d="M4 20c6-1 10-5 13-13 .5-1.4 2.4-1 2 .5C17 15 11 20 5 20.7 4 20.8 3.4 20.1 4 20z" fill="currentColor" />
+      <path d="M12 12c2-4 5-6 8-7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" opacity="0.55" />
     </svg>
     <span>Plume</span>
   </span>

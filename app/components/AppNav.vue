@@ -17,12 +17,19 @@ const nav = computed((): { label: string, to: string | null }[] => [
 
 <template>
   <div class="flex flex-col gap-1 flex-1 min-h-0">
-    <PlumeMark :size="20" class="px-2 pb-4" />
+    <NuxtLink
+      to="/today"
+      class="px-2 pb-4 inline-flex w-fit rounded-md focus-visible:outline-2 focus-visible:outline-primary"
+      :aria-label="t('nav.home')"
+      @click="$emit('navigate')"
+    >
+      <PlumeMark :size="22" />
+    </NuxtLink>
     <template v-for="item in nav" :key="item.label">
       <NuxtLink
         v-if="item.to"
         :to="item.to"
-        class="px-3 py-2 rounded-md text-sm"
+        class="px-3 py-2.5 rounded-md text-[15px]"
         :class="route.path.startsWith(item.to) ? 'bg-elevated text-highlighted font-semibold' : 'text-muted hover:bg-elevated'"
         @click="$emit('navigate')"
       >{{ item.label }}</NuxtLink>
