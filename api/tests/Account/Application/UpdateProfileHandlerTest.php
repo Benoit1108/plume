@@ -7,6 +7,7 @@ namespace App\Tests\Account\Application;
 use App\Account\Application\Command\UpdateProfile\UpdateProfile;
 use App\Account\Application\Command\UpdateProfile\UpdateProfileHandler;
 use App\Account\Domain\Profile\Event\ProfileCreated;
+use App\Account\Domain\Profile\Event\ProfileIdentityChanged;
 use App\Account\Domain\Profile\Event\ProfilePresentationChanged;
 use App\Account\Domain\Profile\Event\WeeklyGoalChanged;
 use App\Shared\Domain\Exception\InvalidValue;
@@ -73,6 +74,30 @@ final class UpdateProfileHandlerTest extends TestCase
         $profile = $this->profiles->find(TenantId::fromString('tenant-1'));
         self::assertNull($profile?->bio());
         self::assertNull($profile?->specialties());
+    }
+
+    public function testUpdatesDisplayIdentity(): void
+    {
+        ($this->handler)(new UpdateProfile('tenant-1', 5, null, null, null, 'Marie', 'Lefèvre'));
+
+        $profile = $this->profiles->find(TenantId::fromString('tenant-1'));
+        self::assertSame('Marie', $profile?->firstName());
+        self::assertSame('Lefèvre', $profile->lastName());
+        self::assertSame(1, $this->eventBus->countOf(ProfileIdentityChanged::class));
+
+        // Rejouer à l'identique (aux espaces près) : aucun nouvel event.
+        ($this->handler)(new UpdateProfile('tenant-1', 5, null, null, null, '  Marie ', 'Lefèvre'));
+        self::assertSame(1, $this->eventBus->countOf(ProfileIdentityChanged::class));
+    }
+
+    public function testBlankIdentityIsStoredAsNull(): void
+    {
+        ($this->handler)(new UpdateProfile('tenant-1', 5, null, null, null, '   ', ''));
+
+        $profile = $this->profiles->find(TenantId::fromString('tenant-1'));
+        self::assertNull($profile?->firstName());
+        self::assertNull($profile?->lastName());
+        self::assertSame(0, $this->eventBus->countOf(ProfileIdentityChanged::class));
     }
 
     public function testRejectsOutOfRangeGoal(): void

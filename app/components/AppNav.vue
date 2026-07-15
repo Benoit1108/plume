@@ -16,6 +16,7 @@ const nav = computed((): { label: string, to: string, icon: string }[] => [
   { label: t('nav.directory'), to: '/organizations', icon: 'i-lucide-building-2' },
   { label: t('nav.templates'), to: '/templates', icon: 'i-lucide-file-text' },
   { label: t('nav.settings'), to: '/settings', icon: 'i-lucide-settings' },
+  { label: t('nav.account'), to: '/account', icon: 'i-lucide-circle-user' },
 ])
 </script>
 

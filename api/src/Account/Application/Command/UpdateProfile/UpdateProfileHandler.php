@@ -29,6 +29,7 @@ final class UpdateProfileHandler implements CommandHandler
         $profile = $this->profiles->find($tenantId) ?? Profile::create($tenantId, $now);
         $profile->changeWeeklyGoal($command->weeklyGoal, $now);
         $profile->changePresentation($command->bio, $command->specialties, $command->signature, $now);
+        $profile->changeIdentity($command->firstName, $command->lastName, $now);
 
         $this->profiles->save($profile);
         $this->eventBus->publish(...$profile->pullDomainEvents());

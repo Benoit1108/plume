@@ -13,6 +13,8 @@ final class ProfileView
         public readonly ?string $bio = null,
         public readonly ?string $specialties = null,
         public readonly ?string $signature = null,
+        public readonly ?string $firstName = null,
+        public readonly ?string $lastName = null,
     ) {
     }
 }

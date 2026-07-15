@@ -55,4 +55,6 @@ export interface Profile {
   bio?: string | null
   specialties?: string | null
   signature?: string | null
+  firstName?: string | null
+  lastName?: string | null
 }

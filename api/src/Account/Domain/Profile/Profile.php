@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Account\Domain\Profile;
 
 use App\Account\Domain\Profile\Event\ProfileCreated;
+use App\Account\Domain\Profile\Event\ProfileIdentityChanged;
 use App\Account\Domain\Profile\Event\ProfilePresentationChanged;
 use App\Account\Domain\Profile\Event\WeeklyGoalChanged;
 use App\Shared\Domain\AggregateRoot;
@@ -28,6 +29,8 @@ final class Profile extends AggregateRoot
         private ?string $bio = null,
         private ?string $specialties = null,
         private ?string $signature = null,
+        private ?string $firstName = null,
+        private ?string $lastName = null,
     ) {
     }
 
@@ -69,6 +72,21 @@ final class Profile extends AggregateRoot
         $this->recordEvent(new ProfilePresentationChanged($this->tenantId->toString(), $now));
     }
 
+    /** Identité affichée (nom/prénom) — sans changement, aucun event. */
+    public function changeIdentity(?string $firstName, ?string $lastName, \DateTimeImmutable $now): void
+    {
+        $firstName = $this->normalize($firstName);
+        $lastName = $this->normalize($lastName);
+
+        if ($firstName === $this->firstName && $lastName === $this->lastName) {
+            return;
+        }
+
+        $this->firstName = $firstName;
+        $this->lastName = $lastName;
+        $this->recordEvent(new ProfileIdentityChanged($this->tenantId->toString(), $now));
+    }
+
     private function normalize(?string $value): ?string
     {
         if (null === $value) {
@@ -107,5 +125,15 @@ final class Profile extends AggregateRoot
     public function signature(): ?string
     {
         return $this->signature;
+    }
+
+    public function firstName(): ?string
+    {
+        return $this->firstName;
+    }
+
+    public function lastName(): ?string
+    {
+        return $this->lastName;
     }
 }

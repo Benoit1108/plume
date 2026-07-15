@@ -15,3 +15,9 @@ api_me:
     path: /api/v1/me
     controller: App\Account\Infrastructure\Http\MeController
     methods: [GET]
+
+# Changement du mot de passe de l'utilisateur courant (page Compte).
+api_account_password:
+    path: /api/v1/account/password
+    controller: App\Account\Infrastructure\Http\ChangePasswordController
+    methods: [POST]

@@ -6243,6 +6243,20 @@
                             "string",
                             "null"
                         ]
+                    },
+                    "firstName": {
+                        "maxLength": 100,
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "lastName": {
+                        "maxLength": 100,
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     }
                 }
             },
@@ -6272,6 +6286,20 @@
                     },
                     "signature": {
                         "maxLength": 500,
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "firstName": {
+                        "maxLength": 100,
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "lastName": {
+                        "maxLength": 100,
                         "type": [
                             "string",
                             "null"
@@ -6317,6 +6345,20 @@
                             },
                             "signature": {
                                 "maxLength": 500,
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "firstName": {
+                                "maxLength": 100,
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "lastName": {
+                                "maxLength": 100,
                                 "type": [
                                     "string",
                                     "null"

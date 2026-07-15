@@ -52,4 +52,13 @@ final class ProfileResource
     #[Assert\Length(max: 500)]
     #[Groups(['profile:read', 'profile:write'])]
     public ?string $signature = null;
+
+    /** Identité affichée (« Bonjour {prénom} », en-tête). */
+    #[Assert\Length(max: 100)]
+    #[Groups(['profile:read', 'profile:write'])]
+    public ?string $firstName = null;
+
+    #[Assert\Length(max: 100)]
+    #[Groups(['profile:read', 'profile:write'])]
+    public ?string $lastName = null;
 }

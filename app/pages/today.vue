@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import type { Lead, Today } from '~/types/leads'
+import type { Lead, Profile, Today } from '~/types/leads'
 
 const { t, locale } = useI18n()
 const { pairLabel, priorityLabel } = useLeadLabels()
 const todayApi = useToday()
 const leadsApi = useLeads()
+const profileApi = useProfile()
 const toast = useToast()
 
 const { data: board, refresh, status } = await useAsyncData<Today | null>(
@@ -13,6 +14,14 @@ const { data: board, refresh, status } = await useAsyncData<Today | null>(
   { server: false, default: () => null },
 )
 const loading = computed(() => status.value === 'idle' || status.value === 'pending')
+
+// Accueil personnalisé (« Bonjour {prénom} ») — le nom vient du profil (page Compte).
+const { data: profile } = await useAsyncData<Profile | null>(
+  'today-profile',
+  () => profileApi.get(),
+  { server: false, default: () => null },
+)
+const firstName = computed(() => profile.value?.firstName?.trim() || '')
 
 const progress = computed(() => {
   if (!board.value) return 0
@@ -52,7 +61,11 @@ function isOverdue(lead: Lead): boolean {
 
 <template>
   <PageContainer width="atelier">
-    <PageHeader :eyebrow="t('today.eyebrow')" :title="t('today.title')" />
+    <PageHeader :eyebrow="t('today.eyebrow')" :title="t('today.title')">
+      <template v-if="firstName" #subtitle>
+        <p class="mt-1 text-muted">{{ t('today.greeting', { name: firstName }) }}</p>
+      </template>
+    </PageHeader>
 
     <div v-if="loading" role="status" class="mt-6 flex flex-col gap-6">
       <span class="sr-only">{{ t('common.loading') }}</span>

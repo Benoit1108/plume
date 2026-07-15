@@ -6,6 +6,12 @@ framework:
             policy: sliding_window
             limit: 10
             interval: '15 minutes'
+        # Changement de mot de passe : anti force brute sur l'ancien mot de passe,
+        # PAR utilisateur (endpoint derrière le firewall). 5 essais / 15 min.
+        account_password:
+            policy: sliding_window
+            limit: 5
+            interval: '15 minutes'
         # Génération IA (drafts) : chaque appel peut coûter de l'argent (API Anthropic)
         # et occuper le worker ~30 s. 30 générations / heure par tenant : large pour un
         # usage réel, borne la facture et protège les projections des autres tenants.

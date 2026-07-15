@@ -15,6 +15,8 @@ final class UpdateProfile implements Command
         public readonly ?string $bio,
         public readonly ?string $specialties,
         public readonly ?string $signature,
+        public readonly ?string $firstName = null,
+        public readonly ?string $lastName = null,
     ) {
     }
 }

@@ -33,6 +33,8 @@ final class ProfileProvider implements ProviderInterface
         $resource->bio = $view->bio;
         $resource->specialties = $view->specialties;
         $resource->signature = $view->signature;
+        $resource->firstName = $view->firstName;
+        $resource->lastName = $view->lastName;
 
         return $resource;
     }

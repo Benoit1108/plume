@@ -27,7 +27,7 @@ final class DoctrineProfileSettings implements ProfileSettings
         $tenant = $this->tenantContext->require();
 
         $row = $this->connection->fetchAssociative(
-            'SELECT weekly_goal, timezone, bio, specialties, signature FROM profile WHERE tenant_id = :tenant',
+            'SELECT weekly_goal, timezone, bio, specialties, signature, first_name, last_name FROM profile WHERE tenant_id = :tenant',
             ['tenant' => $tenant->toString()],
         );
 
@@ -41,6 +41,8 @@ final class DoctrineProfileSettings implements ProfileSettings
             $this->strOrNull($row, 'bio'),
             $this->strOrNull($row, 'specialties'),
             $this->strOrNull($row, 'signature'),
+            $this->strOrNull($row, 'first_name'),
+            $this->strOrNull($row, 'last_name'),
         );
     }
 }

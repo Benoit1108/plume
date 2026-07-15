@@ -20,6 +20,7 @@
     "home": "Home",
     "collapse": "Collapse menu",
     "expand": "Expand menu",
+    "account": "Account",
     "today": "Today",
     "leads": "Leads",
     "directory": "Directory",
@@ -247,6 +248,7 @@
   "today": {
     "eyebrow": "Studio · daily",
     "title": "Today",
+    "greeting": "Hello {name} 👋",
     "empty": "Nothing due today — a good time to add targets to the Directory.",
     "followUpsDue": "Follow-ups due",
     "toContact": "To contact",
@@ -338,6 +340,39 @@
       "created": "Template created",
       "updated": "Template saved",
       "deleted": "Template deleted"
+    }
+  },
+  "account": {
+    "eyebrow": "Account",
+    "title": "Account",
+    "identity": {
+      "title": "Display name",
+      "intro": "Used to greet you and personalise the interface.",
+      "firstName": "First name",
+      "lastName": "Last name"
+    },
+    "login": {
+      "title": "Sign in",
+      "email": "Login email",
+      "emailHint": "Used as your identifier. Not editable for now."
+    },
+    "password": {
+      "title": "Password",
+      "current": "Current password",
+      "new": "New password",
+      "confirm": "Confirm new password",
+      "submit": "Change password",
+      "hint": "At least 8 characters."
+    },
+    "toasts": {
+      "identitySaved": "Name saved",
+      "passwordChanged": "Password changed"
+    },
+    "errors": {
+      "invalidCurrent": "Current password is incorrect.",
+      "tooShort": "The new password must be at least 8 characters.",
+      "mismatch": "The two passwords don't match.",
+      "generic": "Couldn't change the password."
     }
   },
   "settings": {

@@ -35,6 +35,8 @@ final class ProfileProcessor implements ProcessorInterface
             $data->bio,
             $data->specialties,
             $data->signature,
+            $data->firstName,
+            $data->lastName,
         ));
 
         return $data;

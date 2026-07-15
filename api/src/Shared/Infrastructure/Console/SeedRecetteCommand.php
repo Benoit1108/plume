@@ -165,6 +165,7 @@ final class SeedRecetteCommand extends Command
             "Marie Lefèvre\nTraductrice EN·ES → FR\nmarie.lefevre@example.fr · +33 6 12 34 56 78",
             $this->now,
         );
+        $profile->changeIdentity('Marie', 'Lefèvre', $this->now);
         $this->profiles->save($profile);
     }
 

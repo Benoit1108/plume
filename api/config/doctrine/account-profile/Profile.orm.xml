@@ -13,5 +13,7 @@
         <field name="bio" type="text" column="bio" nullable="true"/>
         <field name="specialties" type="text" column="specialties" nullable="true"/>
         <field name="signature" type="text" column="signature" nullable="true"/>
+        <field name="firstName" type="string" column="first_name" length="100" nullable="true"/>
+        <field name="lastName" type="string" column="last_name" length="100" nullable="true"/>
     </entity>
 </doctrine-mapping>
