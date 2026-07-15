@@ -117,10 +117,19 @@ Consommateurs : journal d'Interactions, KPIs du tableau de bord, progression/sé
 - Le journal de la Piste s'enrichit de `draft_generated` (event `DraftGenerated` consommé
   cross-contexte — ADR-0003 amendé).
 
-### Passerelle email
-- Agrégat **`CompteEmailConnecte`** (provider, tokens OAuth **chiffrés**, statut).
-- Ports `EnvoiEmail` / `LectureBoite` ; adapters Gmail / Outlook.
-- Entrant → service applicatif qui *matche* via `Message-ID`/`References`, puis appelle `Piste.enregistrerReponse()`.
+### Passerelle email (contexte `Mailbox`, livré M2 — cf. ADR-0007/0016/0017)
+- Agrégat **`ConnectedMailbox`** (`MailboxId`, `provider` `GMAIL`|`OUTLOOK`, tokens
+  `EncryptedToken` **chiffrés au repos**, `status` `CONNECTED`|`ERROR`|`REVOKED`). Une par
+  tenant en V1 (invariant levable). Events `MailboxConnected`/`MailboxRevoked`/`MailboxSyncFailed`.
+- Agrégat **`OutboundMessage`** (envoi) : `SENDING → SENT | FAILED`, gardes d'état
+  anti-redélivrance, `threadKey` (fil provider). Events `EmailSendRequested` (async),
+  `EmailSent`, `EmailSendFailed`, `ReplyCaptured`.
+- Ports (routés par fournisseur via des registres) : `MailboxConnector` (OAuth),
+  `MailSender` (envoi), `ReplyFetcher` (relève), `TokenCipher` (chiffrement) ;
+  frontières `DraftGateway`/`RecipientResolver`/`OpenThreads` (tenant explicite, worker-safe).
+- **Envoi** (`EmailSent`) → la Prospection avance la piste (D3 : `contact()` / `recordFollowUp()`).
+- **Réponse captée** par threading (`ReplyCaptured`) → la Prospection appelle
+  `Lead::recordReply()` (**idempotent**), qui passe en `IN_DISCUSSION` et annule la relance.
 
 ### Sourcing (M3)
 - Agrégat **`PisteCandidate`** en file de tri.

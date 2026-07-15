@@ -64,11 +64,12 @@ Fondations techniques.
       *Reportés → M2 : délais de réponse, valeur estimée, filtres de période, export.*
 
 ### M2 — Passerelle email ✅ (Gmail + Outlook)
-- [ ] Connexion OAuth **Gmail + Outlook**, tokens chiffrés.
-- [ ] Envoi depuis la boîte de la Traductrice (signature), statut d'envoi.
-- [ ] Threading `Message-ID`/`References` → captation des **réponses** → `Piste.enregistrerReponse()`.
-- [ ] Gestion **opt-out** (RGPD). *Pas de tracking d'ouverture.*
-- [ ] Relances contextualisées (reprennent l'historique de la Piste).
+- [x] Connexion OAuth **Gmail + Outlook**, tokens chiffrés (ADR-0016).
+- [x] Envoi depuis la boîte de la Traductrice (signature), statut d'envoi.
+- [x] Threading (`threadId` Gmail / `conversationId` Graph) → captation des **réponses**
+      → `Lead::recordReply()` (idempotent). *Pas de tracking d'ouverture (ADR-0007 tenu).*
+- [x] Gestion **opt-out** (RGPD) : garde `doNotContact` re-vérifiée par le worker à l'envoi.
+- [x] Relances contextualisées (envoyées **dans le fil d'origine**).
 - [x] Cookies tokens **httpOnly** ✅ *(M2.0, 2026-07-14 : posés/rotés/effacés par l'API,
       `/me`, même-origine via proxy Nitro, `vue/no-v-html` bloquant)*.
 - [x] `recordReply()` **idempotent** ✅ *(M2.3 — les relèves répétées sont des no-op)*.

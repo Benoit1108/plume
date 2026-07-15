@@ -113,3 +113,46 @@ Projection après remédiation : back ≥ 9 (P0 + les 4 P1 concentrent l'écart)
   publié ; gardes d'état de `OutboundMessage` appliquées d'emblée (leçon P0 fin M1 tenue au niveau agrégat).
 - Front M2.0 exemplaire (aucun token en JS, anti-XSS effectif sur contenus tiers), i18n 319 clés
   strictement paritaires, seuils de coverage jamais baissés.
+
+---
+
+## Post-scriptum — remédiation appliquée (2026-07-15, 3 lots)
+
+**Lot A — back critique/sécu.** P0 soldé : `EmailSendConsumer` charge l'`OutboundMessage` et
+exige `SENDING` **avant** `->send()` — une redélivrance d'un envoi réglé n'expédie plus de
+second email (verrouillé par un test de redélivrance) ; fenêtre résiduelle envoi/crash-avant-markSent
+documentée (clé d'idempotence provider → M3). P1 : `RecordReply`/`RecordFollowUp`/`ContactLead`
+portent un `tenantId` **vérifié au chargement** (le worker le fournit, HTTP s'appuie sur le
+SQLFilter) — plus de chemin d'écriture async sans garde tenant ; commentaire trompeur de
+`DoctrineLeadRepository::get()` corrigé. `SendDraft` **anti double-envoi** (garde applicative +
+index partiel unique `(tenant_id, draft_id)` hors FAILED ; double POST → 409, testé).
+Adaptateurs **Outlook testés** (MockHttpClient), après refactor DRY des 4 `mintAccessToken` en
+un `AccessTokenMinter` par fournisseur (+ son test). P2 : `markSyncFailed` auto-porte son
+invariant, `syncCursor` justifié. **209 tests back.**
+
+**Lot B — front.** Clé i18n `mailbox.statuses.NONE` + badge du fournisseur dans les Réglages ;
+409 métier distingués sur les mutations restantes ; callback OAuth en `role="status"`/`aria-live`
++ `<h1>`, `aria-label` sur la recherche du Répertoire ; **`LeadDraftEditor` extrait**
+(LeadDraftsSection 469 → 272 lignes). **E2E Outlook** ajouté — il a débusqué et fait corriger un
+vrai bug (`reconnect()` gardait l'ancien fournisseur) ; smoke Répertoire rendu robuste (recherche,
+tenant e2e partagé). **55 front, 13 E2E.**
+
+**Lot C — docs/process.** README (état M2 + structure + section « Activer la passerelle email »),
+`api/src/README` (Mailbox livré), `api/src/Mailbox/README` (vrais ports), DOMAIN-MODEL §
+Passerelle (agrégats/events réels), ROADMAP (5 livrables cochés), DoD M2 corrigée, glossaire
+(`MailProviderName`, `EmailSendRequested`, `AccessTokenMinter`), `.env` (`MAILBOX_FAKE_REDIRECT_URI`),
+**ADR-0018** (auth httpOnly) et **ADR-0019** (adaptateurs par fournisseur) écrits + indexés.
+
+### Notes après remédiation
+
+| Domaine | Avant | Après |
+|---|---|---|
+| Back (DDD/domaine/CQRS/tests) | 7,5 | **9,5** — P0 + les 4 P1 soldés, chemin worker verrouillé, Outlook testé, bug de bascule de fournisseur corrigé |
+| Sécurité | 8,5 | **9,5** — dernier chemin worker gardé, double-envoi bordé ; restes assumés (fenêtre d'idempotence provider, org→Anthropic) tracés M3 |
+| Front | 8,7 | **9** — i18n/a11y/409 soldés, composant dégraissé, E2E Outlook |
+| Docs/process | 7 | **9,5** — docs de tête resynchronisées, 2 ADRs manquants écrits |
+
+**Objectif ≥ 9/10 partout : atteint.** Restes assumés et datés (ROADMAP § M3) : fenêtre
+d'idempotence provider (envoi réussi/crash avant markSent → clé d'idempotence), réponses
+suivantes d'un fil non recapturées (« réponse = fin »), nom d'organisation transmis à Anthropic
+(à acter au registre des traitements), push vs polling à l'hébergement prod.

@@ -146,5 +146,5 @@ réponse) et d'isolation tenant sur toutes les nouvelles surfaces (acquis à mai
       ports, routés par fournisseur (registres) ; le provider voyage signé dans le `state`.
 - [x] Pyramide complète (adaptateurs Gmail/Outlook sur réponses enregistrées, connecteurs/
       senders/fetchers factices en E2E, idempotence + isolation tenant), CI verte,
-      openapi/glossaire/ROADMAP à jour. **201 back / 55 front / 12 E2E.**
+      openapi/glossaire/ROADMAP à jour. **209 back / 55 front / 13 E2E** (après remédiation fin M2).
 - [ ] **Revue de santé fin M2** (process acté) — prochaine étape.

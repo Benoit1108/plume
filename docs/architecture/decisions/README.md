@@ -22,3 +22,5 @@ Ne pas contredire un ADR accepté sans en écrire un nouveau qui le remplace (st
 | [0015](0015-import-csv.md) | Import CSV : bornes, dédoublonnage par nom, rapport | Accepté |
 | [0016](0016-chiffrement-tokens-oauth.md) | Chiffrement des tokens OAuth au repos (sodium, clé dédiée, fail-fast prod) | Accepté |
 | [0017](0017-captation-reponses.md) | Captation des réponses : polling minimisé sur nos fils, recordReply idempotent | Accepté |
+| [0018](0018-auth-cookies-httponly.md) | Auth par cookies httpOnly (SPA même-origine, amende 0006) | Accepté |
+| [0019](0019-adaptateurs-par-fournisseur.md) | Adaptateurs email par fournisseur (3 ports + registres) | Accepté |

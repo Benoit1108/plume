@@ -217,7 +217,9 @@ Le vocabulaire métier ci-dessous est **contractuel** et reste en **français** 
 ### Passerelle email — `OutboundMessage` (M2.2)
 | Métier (FR) | Code (EN) |
 |---|---|
-| Envoi (agrégat) | `OutboundMessage` : `SENDING` \| `SENT` \| `FAILED`, `threadKey` (fil provider, capte les réponses en M2.3), gardes d'état anti-redélivrance |
+| Fournisseur (enum) | `MailProviderName` : `GMAIL` \| `OUTLOOK` |
+| Envoi (agrégat) | `OutboundMessage` : `SENDING` \| `SENT` \| `FAILED`, `threadKey` (fil provider), gardes d'état anti-redélivrance ; events `EmailSendRequested` (async) / `EmailSent` / `EmailSendFailed` |
+| Frappe d'access token | `AccessTokenMinter` → `OAuthAccessTokenMinter` (une instance par fournisseur, partagée sender+relève) |
 | Port d'envoi | `MailSender` (via `MailSenderRegistry`) → `GmailMailSender` / `OutlookMailSender` (Graph : brouillon puis send) / `FakeMailSender` |
 | Destinataire | port `RecipientResolver` : contact désigné de la piste, sinon premier contact avec email — RGPD organisation ET contact |
 | Frontière vers le brouillon | port `DraftGateway` (tenant explicite, worker-safe) |

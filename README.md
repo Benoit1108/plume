@@ -24,8 +24,12 @@ Un mini-CRM SaaS (multi-tenant dès l'architecture, mono-utilisatrice en V1) qui
   assistée (contexte Drafting, brouillons draft-first, gabarits, Claude par env /
   générateur local par défaut), **M1.5** tableau de bord (taux de réponse,
   conversion, activité hebdo, segments).
-- **Revues de santé** appliquées à chaque jalon (`docs/reviews/`), remédiation fin M1 incluse.
-- **Prochaine étape : M2 — passerelle email** (voir [`docs/ROADMAP.md`](docs/ROADMAP.md)).
+- **M2 — passerelle email : livré au complet** — connexion OAuth **Gmail + Outlook**
+  (tokens chiffrés au repos), **envoi** d'un brouillon relu depuis la vraie adresse,
+  **captation des réponses** par threading (la piste passe en discussion, relance annulée),
+  relances envoyées dans le fil ; auth par cookies **httpOnly**.
+- **Revues de santé** appliquées à chaque jalon (`docs/reviews/`), remédiations fin M1 et fin M2 incluses.
+- **Prochaine étape : M3 — ingestion d'annonces** (voir [`docs/ROADMAP.md`](docs/ROADMAP.md)).
 
 ## Stack
 
@@ -50,7 +54,8 @@ plume/
 │  │  ├─ Directory/          # Répertoire (organisations, contacts, import)
 │  │  ├─ Drafting/           # Rédaction assistée (brouillons, gabarits, ACL IA)
 │  │  ├─ Account/            # tenancy, auth, profil
-│  │  ├─ Mailbox/, Sourcing/ # à venir (M2 passerelle email, M3 ingestion)
+│  │  ├─ Mailbox/            # Passerelle email (OAuth Gmail/Outlook, envoi, réponses)
+│  │  ├─ Sourcing/           # à venir (M3 ingestion d'annonces)
 │  │  └─ Shared/             # VOs communs, bus CQRS, exceptions domaine, tenancy
 │  ├─ config/doctrine/       # mapping XML (le domaine reste pur)
 │  └─ tests/                 # domaine (pur) + application (in-memory) + fonctionnels (Postgres)
@@ -120,6 +125,28 @@ DRAFTING_MODEL=claude-sonnet-5   # surchargeable
 
 Les demandes de génération sont plafonnées (30/h par tenant) et l'ADR-0014 documente
 les données transmises au sous-traitant. Voir [`docs/architecture/decisions/`](docs/architecture/decisions/).
+
+### Activer la passerelle email (Gmail / Outlook)
+
+Sans identifiants OAuth, la passerelle utilise des **connecteurs factices** : le parcours
+complet (connexion, envoi, relève des réponses) fonctionne en local, dev, CI et E2E **sans
+aucun compte réel**. Pour brancher les vrais fournisseurs :
+
+```bash
+# api/.env.local (jamais commité)
+GOOGLE_CLIENT_ID=…                # OAuth Google (Gmail send + readonly)
+GOOGLE_CLIENT_SECRET=…
+GOOGLE_REDIRECT_URI=https://votre-hote/oauth/gmail/callback
+MICROSOFT_CLIENT_ID=…             # OAuth Microsoft (Graph Mail.Send + Mail.Read)
+MICROSOFT_CLIENT_SECRET=…
+MICROSOFT_REDIRECT_URI=https://votre-hote/oauth/outlook/callback
+# Clé DÉDIÉE de chiffrement des tokens au repos (obligatoire en prod — ADR-0016) :
+MAILBOX_ENCRYPTION_KEY=$(php -r "echo base64_encode(random_bytes(32));")
+```
+
+Le fournisseur (Gmail ou Outlook) est choisi à la connexion, dans les Réglages. Un seul
+compte connecté par utilisatrice en V1. La relève des réponses tourne toutes les 5 minutes
+(Scheduler) ; aucun tracking d'ouverture. Voir ADR-0007/0016/0017.
 
 ## Licence
 

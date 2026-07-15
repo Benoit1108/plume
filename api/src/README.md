@@ -10,7 +10,7 @@ Sens des dépendances : **Infrastructure → Application → Domain**. Le `Domai
 | `Account/` | Comptes, tenancy, auth, profil (`Profile` : objectif hebdo + présentation) | ✅ livré |
 | `Directory/` | Répertoire — organisations & contacts, import CSV | ✅ livré (M1.1) |
 | `Drafting/` | Rédaction assistée — `Draft`/`Template`, port `MessageGenerator` (canned/Claude) | ✅ livré (M1.4) |
-| `Mailbox/` | Passerelle email (OAuth Gmail/Outlook) | ⬜ à peupler (M2) |
+| `Mailbox/` | Passerelle email — `ConnectedMailbox`/`OutboundMessage`, OAuth Gmail+Outlook, envoi, captation des réponses | ✅ livré (M2) |
 | `Sourcing/` | Ingestion d'annonces | ⬜ à peupler (M3) |
 
 Les frontières inter-contextes sont **outillées** : `deptrac.yaml` (couches) et
