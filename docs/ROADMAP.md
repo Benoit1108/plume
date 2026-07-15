@@ -81,6 +81,11 @@ Fondations techniques.
       (`estimatedValue`, différé depuis M1.2), filtres de période, export.
 
 ### M3 — Ingestion 🔜
+
+> 📐 Note de cadrage **validée** : [`docs/design/M3-conception.md`](design/M3-conception.md)
+> (D1→D7 tranchées : RSS + alertes email par label dédié, `LeadSource` enrichi, dédoublonnage
+> exact + suggestion ; découpage M3.0 socle+tri → M3.1 RSS → M3.2 alertes email ;
+> ADR-0020/0021 à acter).
 - [ ] **Parsers** par source (Strategy) : alertes ProZ, LinkedIn, TranslatorsCafe ; RSS.
 - [ ] File de tri (Piste candidate + Organisation) → écran accepter/rejeter/fusionner.
 - [ ] **Dédoublonnage** Organisations/Contacts.
