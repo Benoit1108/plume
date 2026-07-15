@@ -9,6 +9,11 @@ enum LeadSource: string
 {
     case DIRECT = 'DIRECT';         // Démarchage direct (cœur du métier)
     case REFERRAL = 'REFERRAL';     // Recommandation / bouche-à-oreille
-    case JOB_BOARD = 'JOB_BOARD';   // Annonce (ProZ, LinkedIn… — Sourcing M3)
+    case JOB_BOARD = 'JOB_BOARD';   // Annonce générique (source non précisée)
+    // Provenances fines issues du Sourcing (M3, ADR-0020) :
+    case PROZ = 'PROZ';
+    case LINKEDIN = 'LINKEDIN';
+    case TRANSLATORSCAFE = 'TRANSLATORSCAFE';
+    case RSS = 'RSS';
     case OTHER = 'OTHER';
 }

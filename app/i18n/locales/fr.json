@@ -170,6 +170,10 @@
       "DIRECT": "Démarchage direct",
       "REFERRAL": "Recommandation",
       "JOB_BOARD": "Annonce",
+      "PROZ": "ProZ",
+      "LINKEDIN": "LinkedIn",
+      "TRANSLATORSCAFE": "TranslatorsCafe",
+      "RSS": "Flux RSS",
       "OTHER": "Autre"
     },
     "actions": {

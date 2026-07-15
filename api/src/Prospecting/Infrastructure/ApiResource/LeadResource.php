@@ -72,7 +72,7 @@ final class LeadResource
     #[Groups(['lead:read', 'lead:write'])]
     public string $languagePair = '';
 
-    #[Assert\Choice(['DIRECT', 'REFERRAL', 'JOB_BOARD', 'OTHER'])]
+    #[Assert\Choice(['DIRECT', 'REFERRAL', 'JOB_BOARD', 'PROZ', 'LINKEDIN', 'TRANSLATORSCAFE', 'RSS', 'OTHER'])]
     #[Groups(['lead:read', 'lead:write'])]
     public string $source = 'DIRECT';
 

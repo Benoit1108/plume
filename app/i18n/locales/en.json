@@ -170,6 +170,10 @@
       "DIRECT": "Direct outreach",
       "REFERRAL": "Referral",
       "JOB_BOARD": "Job board",
+      "PROZ": "ProZ",
+      "LINKEDIN": "LinkedIn",
+      "TRANSLATORSCAFE": "TranslatorsCafe",
+      "RSS": "RSS feed",
       "OTHER": "Other"
     },
     "actions": {

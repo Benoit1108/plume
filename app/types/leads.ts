@@ -3,7 +3,7 @@ export type LeadStatus =
   | 'SAMPLE_TEST' | 'WON' | 'LOST' | 'PAUSED'
 
 export type LeadPriority = 'LOW' | 'MEDIUM' | 'HIGH'
-export type LeadSource = 'DIRECT' | 'REFERRAL' | 'JOB_BOARD' | 'OTHER'
+export type LeadSource = 'DIRECT' | 'REFERRAL' | 'JOB_BOARD' | 'PROZ' | 'LINKEDIN' | 'TRANSLATORSCAFE' | 'RSS' | 'OTHER'
 export type LeadAction = 'contact' | 'follow-up' | 'reply' | 'sample-test' | 'win' | 'lose' | 'pause' | 'resume'
 
 /** Piste telle que retournée par l'API (persistée : id garanti). */
