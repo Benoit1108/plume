@@ -46,44 +46,51 @@ const priorityDot: Record<string, string> = {
       {{ t('pipeline.empty') }}
     </div>
 
-    <!-- Kanban : défilement horizontal, colonnes par statut -->
-    <div v-else class="mt-6 overflow-x-auto pb-4">
-      <div class="flex gap-4 min-w-max">
-        <section
-          v-for="column in COLUMNS"
-          :key="column"
-          class="w-64 shrink-0"
-          :aria-label="statusLabel(column)"
-        >
-          <h2 class="text-[11px] uppercase tracking-wider text-dimmed font-semibold px-1 flex items-center gap-2">
-            {{ statusLabel(column) }}
-            <span class="font-mono tabular-nums text-muted">{{ byStatus.get(column)?.length ?? 0 }}</span>
-          </h2>
-          <ul class="mt-2 flex flex-col gap-2 min-h-16 rounded-lg">
-            <li v-for="lead in byStatus.get(column)" :key="lead.id">
-              <NuxtLink
-                :to="`/leads/${lead.id}`"
-                class="block border border-default rounded-lg p-3 bg-elevated/40 hover:bg-elevated focus-visible:outline-2 focus-visible:outline-primary"
-              >
-                <div class="flex items-center gap-2">
-                  <span
-                    class="w-2 h-2 rounded-full shrink-0"
-                    :class="priorityDot[lead.priority]"
-                    :title="priorityLabel(lead.priority)"
-                    aria-hidden="true"
-                  />
-                  <span class="font-medium text-sm truncate">{{ lead.organizationName }}</span>
-                </div>
-                <div class="mt-1.5 flex items-center gap-1.5 flex-wrap">
-                  <LangStamp :code="pairLabel(lead.languagePair)" />
-                  <UBadge color="neutral" variant="soft" size="sm">{{ segmentLabel(lead.segment) }}</UBadge>
-                </div>
-                <span class="sr-only">{{ priorityLabel(lead.priority) }}</span>
-              </NuxtLink>
-            </li>
-          </ul>
-        </section>
+    <!-- Kanban : défilement horizontal, colonnes par statut.
+         Mobile : colonnes larges + accroche (scroll-snap) une colonne à la fois. -->
+    <div v-else class="mt-6 relative">
+      <div class="overflow-x-auto pb-4 snap-x snap-mandatory sm:snap-none">
+        <div class="flex gap-4 min-w-max">
+          <section
+            v-for="column in COLUMNS"
+            :key="column"
+            class="w-[80vw] max-w-xs sm:w-64 shrink-0 snap-start"
+            :aria-label="statusLabel(column)"
+          >
+            <h2 class="text-[11px] uppercase tracking-wider text-dimmed font-semibold px-1 flex items-center gap-2">
+              {{ statusLabel(column) }}
+              <span class="font-mono tabular-nums text-muted">{{ byStatus.get(column)?.length ?? 0 }}</span>
+            </h2>
+            <ul class="mt-2 flex flex-col gap-2 min-h-24 rounded-xl border border-default bg-elevated/30 p-2">
+              <li v-for="lead in byStatus.get(column)" :key="lead.id">
+                <NuxtLink
+                  :to="`/leads/${lead.id}`"
+                  class="block border border-default rounded-lg p-3 bg-default hover:bg-elevated focus-visible:outline-2 focus-visible:outline-primary"
+                >
+                  <div class="flex items-center gap-2">
+                    <span
+                      class="w-2 h-2 rounded-full shrink-0"
+                      :class="priorityDot[lead.priority]"
+                      :title="priorityLabel(lead.priority)"
+                      aria-hidden="true"
+                    />
+                    <span class="font-medium text-sm truncate">{{ lead.organizationName }}</span>
+                  </div>
+                  <div class="mt-1.5 flex items-center gap-1.5 flex-wrap">
+                    <LangStamp :code="pairLabel(lead.languagePair)" />
+                    <UBadge color="neutral" variant="soft" size="sm">{{ segmentLabel(lead.segment) }}</UBadge>
+                  </div>
+                  <span class="sr-only">{{ priorityLabel(lead.priority) }}</span>
+                </NuxtLink>
+              </li>
+            </ul>
+          </section>
+        </div>
       </div>
+      <div
+        class="pointer-events-none absolute inset-y-0 right-0 w-12 hidden sm:block bg-gradient-to-l from-default"
+        aria-hidden="true"
+      />
     </div>
   </PageContainer>
 </template>

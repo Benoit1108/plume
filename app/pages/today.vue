@@ -91,7 +91,7 @@ function isOverdue(lead: Lead): boolean {
           {{ t('today.followUpsDue') }} <span class="font-mono">{{ board.followUpsDue.length }}</span>
         </p>
         <ul class="mt-3 border border-default rounded-xl divide-y divide-[var(--ui-border)]">
-          <li v-for="lead in board.followUpsDue" :key="lead.id" class="p-4 flex items-center gap-3 flex-wrap">
+          <li v-for="lead in board.followUpsDue" :key="lead.id" class="p-4 flex flex-col gap-3 sm:flex-row sm:items-center">
             <div class="min-w-0 flex-1">
               <NuxtLink :to="`/leads/${lead.id}`" class="font-medium hover:text-primary">
                 {{ lead.organizationName }}
@@ -108,22 +108,24 @@ function isOverdue(lead: Lead): boolean {
                 <LangStamp :code="pairLabel(lead.languagePair)" />
               </div>
             </div>
-            <UButton
-              size="sm"
-              variant="outline"
-              icon="i-lucide-feather"
-              :to="`/leads/${lead.id}?draft=follow-up`"
-            >
-              {{ t('today.writeFollowUp') }}
-            </UButton>
-            <UButton
-              size="sm"
-              icon="i-lucide-send"
-              :loading="actingOn === lead.id"
-              @click="() => quickAction(lead, 'follow-up')"
-            >
-              {{ t('pipeline.followUpBlock.done') }}
-            </UButton>
+            <div class="flex gap-2 flex-wrap shrink-0">
+              <UButton
+                size="sm"
+                variant="outline"
+                icon="i-lucide-feather"
+                :to="`/leads/${lead.id}?draft=follow-up`"
+              >
+                {{ t('today.writeFollowUp') }}
+              </UButton>
+              <UButton
+                size="sm"
+                icon="i-lucide-send"
+                :loading="actingOn === lead.id"
+                @click="() => quickAction(lead, 'follow-up')"
+              >
+                {{ t('pipeline.followUpBlock.done') }}
+              </UButton>
+            </div>
           </li>
         </ul>
       </section>
@@ -134,7 +136,7 @@ function isOverdue(lead: Lead): boolean {
           {{ t('today.toContact') }} <span class="font-mono">{{ board.toContact.length }}</span>
         </p>
         <ul class="mt-3 border border-default rounded-xl divide-y divide-[var(--ui-border)]">
-          <li v-for="lead in board.toContact" :key="lead.id" class="p-4 flex items-center gap-3 flex-wrap">
+          <li v-for="lead in board.toContact" :key="lead.id" class="p-4 flex flex-col gap-3 sm:flex-row sm:items-center">
             <div class="min-w-0 flex-1">
               <NuxtLink :to="`/leads/${lead.id}`" class="font-medium hover:text-primary">
                 {{ lead.organizationName }}
@@ -144,15 +146,17 @@ function isOverdue(lead: Lead): boolean {
                 <LangStamp :code="pairLabel(lead.languagePair)" />
               </div>
             </div>
-            <UButton
-              size="sm"
-              variant="outline"
-              icon="i-lucide-send"
-              :loading="actingOn === lead.id"
-              @click="() => quickAction(lead, 'contact')"
-            >
-              {{ t('pipeline.actions.contact') }}
-            </UButton>
+            <div class="flex gap-2 flex-wrap shrink-0">
+              <UButton
+                size="sm"
+                variant="outline"
+                icon="i-lucide-send"
+                :loading="actingOn === lead.id"
+                @click="() => quickAction(lead, 'contact')"
+              >
+                {{ t('pipeline.actions.contact') }}
+              </UButton>
+            </div>
           </li>
         </ul>
       </section>
