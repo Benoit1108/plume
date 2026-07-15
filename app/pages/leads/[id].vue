@@ -172,7 +172,12 @@ const canScheduleFollowUp = computed(() =>
       {{ t('pipeline.title') }}
     </UButton>
 
-    <div v-if="loading" class="text-dimmed py-12">{{ t('common.loading') }}</div>
+    <div v-if="loading" role="status" class="flex flex-col gap-4">
+      <span class="sr-only">{{ t('common.loading') }}</span>
+      <USkeleton class="h-9 w-64 rounded" />
+      <USkeleton class="h-20 rounded-xl" />
+      <USkeleton class="h-40 rounded-xl" />
+    </div>
     <div v-else-if="!lead" class="text-muted py-12">{{ t('pipeline.detail.notFound') }}</div>
 
     <template v-else>

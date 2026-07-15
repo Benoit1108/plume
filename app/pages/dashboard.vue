@@ -49,7 +49,15 @@ const hasActivity = computed(() =>
   <PageContainer width="atelier">
     <PageHeader :eyebrow="t('dashboard.eyebrow')" :title="t('dashboard.title')" />
 
-    <div v-if="loading" class="py-12 text-center text-dimmed">{{ t('common.loading') }}</div>
+    <div v-if="loading" role="status" class="mt-6 flex flex-col gap-4">
+      <span class="sr-only">{{ t('common.loading') }}</span>
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <USkeleton v-for="i in 4" :key="i" class="h-28 rounded-xl" />
+      </div>
+      <USkeleton class="h-24 rounded-xl" />
+      <USkeleton class="h-44 rounded-xl" />
+      <USkeleton class="h-48 rounded-xl" />
+    </div>
 
     <template v-else-if="board">
       <div

@@ -54,10 +54,14 @@ const loading = computed(() => status.value === 'idle' || status.value === 'pend
     </div>
 
     <div class="mt-4">
-      <div v-if="loading" class="py-12 text-center text-dimmed">{{ t('common.loading') }}</div>
+      <div v-if="loading" role="status" class="flex flex-col gap-2">
+        <span class="sr-only">{{ t('common.loading') }}</span>
+        <USkeleton v-for="i in 6" :key="i" class="h-16 rounded-xl" />
+      </div>
 
-      <div v-else-if="!organizations.length" class="py-12 text-center text-muted border border-default rounded-xl">
-        {{ t('directory.list.empty') }}
+      <div v-else-if="!organizations.length" class="py-16 flex flex-col items-center gap-3 text-center border border-default rounded-xl">
+        <p class="text-muted max-w-md">{{ t('directory.list.empty') }}</p>
+        <UButton icon="i-lucide-plus" to="/organizations/new">{{ t('directory.new.title') }}</UButton>
       </div>
 
       <template v-else>

@@ -54,7 +54,18 @@ function isOverdue(lead: Lead): boolean {
   <PageContainer width="atelier">
     <PageHeader :eyebrow="t('today.eyebrow')" :title="t('today.title')" />
 
-    <div v-if="loading" class="py-12 text-center text-dimmed">{{ t('common.loading') }}</div>
+    <div v-if="loading" role="status" class="mt-6 flex flex-col gap-6">
+      <span class="sr-only">{{ t('common.loading') }}</span>
+      <USkeleton class="h-20 rounded-xl" />
+      <div class="flex flex-col gap-3">
+        <USkeleton class="h-4 w-32 rounded" />
+        <USkeleton class="h-20 rounded-xl" />
+      </div>
+      <div class="flex flex-col gap-3">
+        <USkeleton class="h-4 w-32 rounded" />
+        <USkeleton class="h-20 rounded-xl" />
+      </div>
+    </div>
 
     <template v-else-if="board">
       <!-- Objectif hebdo + série -->

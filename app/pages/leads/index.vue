@@ -40,10 +40,18 @@ const priorityDot: Record<string, string> = {
       </template>
     </PageHeader>
 
-    <div v-if="loading" class="py-12 text-center text-dimmed">{{ t('common.loading') }}</div>
+    <div v-if="loading" role="status" class="mt-6 flex gap-3">
+      <span class="sr-only">{{ t('common.loading') }}</span>
+      <div v-for="i in 6" :key="i" class="flex-1 min-w-40 flex flex-col gap-2">
+        <USkeleton class="h-4 w-24 rounded" />
+        <USkeleton class="h-24 rounded-xl" />
+        <USkeleton class="h-24 rounded-xl" />
+      </div>
+    </div>
 
-    <div v-else-if="!allLeads.length" class="mt-6 py-12 text-center text-muted border border-default rounded-xl">
-      {{ t('pipeline.empty') }}
+    <div v-else-if="!allLeads.length" class="mt-6 py-16 flex flex-col items-center gap-3 text-center border border-default rounded-xl">
+      <p class="text-muted max-w-md">{{ t('pipeline.empty') }}</p>
+      <UButton icon="i-lucide-plus" to="/leads/new">{{ t('pipeline.new.title') }}</UButton>
     </div>
 
     <!-- Kanban : colonnes par statut. Grand écran : elles se répartissent pour

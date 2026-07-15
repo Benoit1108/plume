@@ -117,7 +117,10 @@ async function removeTemplate(): Promise<void> {
       </template>
     </PageHeader>
 
-    <div v-if="loading" class="py-12 text-center text-dimmed">{{ t('common.loading') }}</div>
+    <div v-if="loading" role="status" class="mt-6 flex flex-col gap-2">
+      <span class="sr-only">{{ t('common.loading') }}</span>
+      <USkeleton v-for="i in 4" :key="i" class="h-16 rounded-xl" />
+    </div>
 
     <ul v-else-if="templates.length" class="mt-6 border border-default rounded-xl divide-y divide-[var(--ui-border)]">
       <li v-for="template in templates" :key="template.id" class="p-4 flex items-center gap-3 flex-wrap">
@@ -149,9 +152,10 @@ async function removeTemplate(): Promise<void> {
         />
       </li>
     </ul>
-    <p v-else class="mt-6 p-6 text-center text-muted border border-default rounded-xl">
-      {{ t('templates.empty') }}
-    </p>
+    <div v-else class="mt-6 py-16 flex flex-col items-center gap-3 text-center border border-default rounded-xl">
+      <p class="text-muted max-w-md">{{ t('templates.empty') }}</p>
+      <UButton icon="i-lucide-plus" @click="openCreate">{{ t('templates.new') }}</UButton>
+    </div>
 
     <!-- Formulaire création / édition -->
     <USlideover v-model:open="formOpen" :title="editingId ? t('templates.form.editTitle') : t('templates.form.createTitle')">

@@ -110,7 +110,11 @@ async function save(): Promise<void> {
   <PageContainer width="atelier">
     <PageHeader :eyebrow="t('settings.eyebrow')" :title="t('settings.title')" />
 
-    <div v-if="loading" class="py-12 text-center text-dimmed">{{ t('common.loading') }}</div>
+    <div v-if="loading" role="status" class="mt-6 flex flex-col gap-4 max-w-2xl">
+      <span class="sr-only">{{ t('common.loading') }}</span>
+      <USkeleton class="h-24 rounded-xl" />
+      <USkeleton class="h-72 rounded-xl" />
+    </div>
 
     <form v-else class="mt-6 flex flex-col gap-8 max-w-2xl" @submit.prevent="save">
       <!-- Objectif hebdomadaire -->

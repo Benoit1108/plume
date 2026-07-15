@@ -160,7 +160,11 @@ async function deleteContact(): Promise<void> {
       {{ t('directory.title') }}
     </UButton>
 
-    <div v-if="loading" class="text-dimmed py-12">{{ t('common.loading') }}</div>
+    <div v-if="loading" role="status" class="flex flex-col gap-4">
+      <span class="sr-only">{{ t('common.loading') }}</span>
+      <USkeleton class="h-9 w-64 rounded" />
+      <USkeleton class="h-32 rounded-xl" />
+    </div>
     <div v-else-if="!org" class="text-muted py-12">{{ t('directory.detail.notFound') }}</div>
 
     <template v-else>
