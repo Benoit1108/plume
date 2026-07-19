@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+                  https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+    <!-- Agrégat CandidateLead (Sourcing). Domaine pur : mapping XML hors src/. -->
+    <entity name="App\Sourcing\Domain\CandidateLead\CandidateLead" table="candidate_lead">
+        <indexes>
+            <index name="idx_candidate_tenant_status" columns="tenant_id,status"/>
+        </indexes>
+        <unique-constraints>
+            <!-- Anti-doublon au niveau base (ADR-0021) — ceinture et bretelles. -->
+            <unique-constraint name="uniq_candidate_dedup" columns="tenant_id,dedup_hash"/>
+        </unique-constraints>
+        <id name="id" type="candidate_lead_id" column="id">
+            <generator strategy="NONE"/>
+        </id>
+        <field name="tenantId" type="tenant_id" column="tenant_id"/>
+        <field name="source" type="string" column="source" length="32" enum-type="App\Sourcing\Domain\CandidateLead\Source"/>
+        <field name="dedupHash" type="string" column="dedup_hash" length="64"/>
+        <field name="status" type="string" column="status" length="16" enum-type="App\Sourcing\Domain\CandidateLead\CandidateStatus"/>
+        <field name="title" type="string" column="title" length="300"/>
+        <field name="organizationName" type="string" column="organization_name" length="200" nullable="true"/>
+        <field name="languagePair" type="string" column="language_pair" length="16" nullable="true"/>
+        <field name="url" type="text" column="url" nullable="true"/>
+        <field name="excerpt" type="text" column="excerpt" nullable="true"/>
+        <field name="postedAt" type="datetime_immutable" column="posted_at" nullable="true"/>
+        <field name="promotedLeadId" type="string" column="promoted_lead_id" nullable="true"/>
+        <field name="organizationId" type="string" column="organization_id" nullable="true"/>
+        <field name="ingestedAt" type="datetime_immutable" column="ingested_at"/>
+    </entity>
+</doctrine-mapping>

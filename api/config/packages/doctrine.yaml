@@ -19,6 +19,7 @@ doctrine:
             outbound_message_id: App\Mailbox\Infrastructure\Persistence\Doctrine\Type\OutboundMessageIdType
             encrypted_token: App\Mailbox\Infrastructure\Persistence\Doctrine\Type\EncryptedTokenType
             email_address: App\Shared\Infrastructure\Persistence\Doctrine\Type\EmailAddressType
+            candidate_lead_id: App\Sourcing\Infrastructure\Persistence\Doctrine\Type\CandidateLeadIdType
     orm:
         validate_xml_mapping: true
         naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
@@ -36,6 +37,11 @@ doctrine:
                 is_bundle: false
                 dir: '%kernel.project_dir%/config/doctrine/prospecting'
                 prefix: 'App\Prospecting\Domain\Lead'
+            Sourcing:
+                type: xml
+                is_bundle: false
+                dir: '%kernel.project_dir%/config/doctrine/sourcing'
+                prefix: 'App\Sourcing\Domain\CandidateLead'
             Directory:
                 type: xml
                 is_bundle: false
