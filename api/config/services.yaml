@@ -159,3 +159,4 @@ services:
     App\Sourcing\Domain\CandidateLead\CandidateLeadRepository: '@App\Sourcing\Infrastructure\Persistence\Doctrine\DoctrineCandidateLeadRepository'
     App\Sourcing\Application\Gateway\DirectoryGateway: '@App\Sourcing\Infrastructure\Gateway\CommandBusDirectoryGateway'
     App\Sourcing\Application\Gateway\ProspectingGateway: '@App\Sourcing\Infrastructure\Gateway\CommandBusProspectingGateway'
+    App\Sourcing\Application\ReadModel\CandidateQueue: '@App\Sourcing\Infrastructure\ReadModel\DoctrineCandidateQueue'

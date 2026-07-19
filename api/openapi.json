@@ -12,6 +12,319 @@
         }
     ],
     "paths": {
+        "/api/v1/candidate-leads": {
+            "get": {
+                "operationId": "api_candidate-leads_get_collection",
+                "tags": [
+                    "CandidateLead"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "CandidateLead collection",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "type": "object",
+                                    "description": "CandidateLead.jsonld-candidate.read collection.",
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/HydraCollectionBaseSchema"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "required": [
+                                                "member"
+                                            ],
+                                            "properties": {
+                                                "member": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/CandidateLead.jsonld-candidate.read"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/CandidateLead-candidate.read"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "Retrieves the collection of CandidateLead resources.",
+                "description": "Retrieves the collection of CandidateLead resources.",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "The collection page number",
+                        "required": false,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 1
+                        },
+                        "style": "form",
+                        "explode": true
+                    }
+                ]
+            }
+        },
+        "/api/v1/candidate-leads/{id}/accept": {
+            "post": {
+                "operationId": "candidate_accept",
+                "tags": [
+                    "CandidateLead"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "CandidateLead resource created",
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Accepter : cr\u00e9e une nouvelle organisation + piste",
+                "description": "Accepter : cr\u00e9e une nouvelle organisation + piste",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "CandidateLead identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ],
+                "requestBody": {
+                    "description": "The new CandidateLead resource",
+                    "content": {
+                        "application/ld+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CandidateLead.CandidateAcceptInput"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CandidateLead.CandidateAcceptInput"
+                            }
+                        }
+                    },
+                    "required": true
+                }
+            }
+        },
+        "/api/v1/candidate-leads/{id}/merge": {
+            "post": {
+                "operationId": "candidate_merge",
+                "tags": [
+                    "CandidateLead"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "CandidateLead resource created",
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Fusionner : rattache \u00e0 une organisation existante + piste",
+                "description": "Fusionner : rattache \u00e0 une organisation existante + piste",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "CandidateLead identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ],
+                "requestBody": {
+                    "description": "The new CandidateLead resource",
+                    "content": {
+                        "application/ld+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CandidateLead.CandidateMergeInput"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CandidateLead.CandidateMergeInput"
+                            }
+                        }
+                    },
+                    "required": true
+                }
+            }
+        },
+        "/api/v1/candidate-leads/{id}/reject": {
+            "post": {
+                "operationId": "candidate_reject",
+                "tags": [
+                    "CandidateLead"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "CandidateLead resource created",
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Rejeter : \u00e9carte la candidate",
+                "description": "Rejeter : \u00e9carte la candidate",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "CandidateLead identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            }
+        },
         "/api/v1/organizations/{organizationId}/contacts": {
             "post": {
                 "operationId": "api_organizations_organizationIdcontacts_post",
@@ -3617,6 +3930,231 @@
     },
     "components": {
         "schemas": {
+            "CandidateLead-candidate.read": {
+                "type": "object",
+                "description": "File de tri (DTO) \u2014 API orient\u00e9e cas d'usage : les d\u00e9cisions de tri sont des\nPOST d\u00e9di\u00e9s (accepter / fusionner / rejeter), chacune mappe une commande.",
+                "properties": {
+                    "id": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "source": {
+                        "default": "MANUAL",
+                        "type": "string"
+                    },
+                    "status": {
+                        "default": "PENDING",
+                        "type": "string"
+                    },
+                    "title": {
+                        "default": "",
+                        "type": "string"
+                    },
+                    "organizationName": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "languagePair": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "url": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "excerpt": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "postedAt": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "ingestedAt": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                }
+            },
+            "CandidateLead.CandidateAcceptInput": {
+                "type": "object",
+                "description": "File de tri (DTO) \u2014 API orient\u00e9e cas d'usage : les d\u00e9cisions de tri sont des\nPOST d\u00e9di\u00e9s (accepter / fusionner / rejeter), chacune mappe une commande.",
+                "required": [
+                    "organizationName",
+                    "languagePair"
+                ],
+                "properties": {
+                    "organizationName": {
+                        "maxLength": 200,
+                        "default": "",
+                        "type": "string"
+                    },
+                    "organizationType": {
+                        "enum": [
+                            "PUBLISHER",
+                            "AV_STUDIO",
+                            "AGENCY",
+                            "OTHER"
+                        ],
+                        "default": "OTHER",
+                        "type": "string"
+                    },
+                    "languagePair": {
+                        "pattern": "^([a-zA-Z]{2}>[a-zA-Z]{2})$",
+                        "default": "",
+                        "type": "string"
+                    },
+                    "segment": {
+                        "enum": [
+                            "PUBLISHING",
+                            "AUDIOVISUAL",
+                            "TECHNICAL",
+                            "OTHER"
+                        ],
+                        "default": "OTHER",
+                        "type": "string"
+                    },
+                    "priority": {
+                        "enum": [
+                            "LOW",
+                            "MEDIUM",
+                            "HIGH"
+                        ],
+                        "default": "MEDIUM",
+                        "type": "string"
+                    },
+                    "website": {
+                        "maxLength": 2000,
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                }
+            },
+            "CandidateLead.CandidateMergeInput": {
+                "type": "object",
+                "description": "File de tri (DTO) \u2014 API orient\u00e9e cas d'usage : les d\u00e9cisions de tri sont des\nPOST d\u00e9di\u00e9s (accepter / fusionner / rejeter), chacune mappe une commande.",
+                "required": [
+                    "organizationId",
+                    "languagePair"
+                ],
+                "properties": {
+                    "organizationId": {
+                        "format": "uuid",
+                        "externalDocs": {
+                            "url": "https://schema.org/identifier"
+                        },
+                        "default": "",
+                        "type": "string"
+                    },
+                    "languagePair": {
+                        "pattern": "^([a-zA-Z]{2}>[a-zA-Z]{2})$",
+                        "default": "",
+                        "type": "string"
+                    },
+                    "segment": {
+                        "enum": [
+                            "PUBLISHING",
+                            "AUDIOVISUAL",
+                            "TECHNICAL",
+                            "OTHER"
+                        ],
+                        "default": "OTHER",
+                        "type": "string"
+                    },
+                    "priority": {
+                        "enum": [
+                            "LOW",
+                            "MEDIUM",
+                            "HIGH"
+                        ],
+                        "default": "MEDIUM",
+                        "type": "string"
+                    }
+                }
+            },
+            "CandidateLead.jsonld-candidate.read": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/HydraItemBaseSchema"
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "source": {
+                                "default": "MANUAL",
+                                "type": "string"
+                            },
+                            "status": {
+                                "default": "PENDING",
+                                "type": "string"
+                            },
+                            "title": {
+                                "default": "",
+                                "type": "string"
+                            },
+                            "organizationName": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "languagePair": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "url": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "excerpt": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "postedAt": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "ingestedAt": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            }
+                        }
+                    }
+                ],
+                "description": "File de tri (DTO) \u2014 API orient\u00e9e cas d'usage : les d\u00e9cisions de tri sont des\nPOST d\u00e9di\u00e9s (accepter / fusionner / rejeter), chacune mappe une commande."
+            },
             "ConstraintViolation": {
                 "type": "object",
                 "description": "Unprocessable entity",
@@ -6810,6 +7348,10 @@
         {
             "name": "Today",
             "description": "L'\u00e9cran \u00ab Aujourd'hui \u00bb : relances dues, pistes \u00e0 contacter, progression hebdo."
+        },
+        {
+            "name": "CandidateLead",
+            "description": "File de tri (DTO) \u2014 API orient\u00e9e cas d'usage : les d\u00e9cisions de tri sont des\nPOST d\u00e9di\u00e9s (accepter / fusionner / rejeter), chacune mappe une commande."
         }
     ],
     "webhooks": {}
