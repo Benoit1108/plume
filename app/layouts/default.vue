@@ -8,6 +8,12 @@ const navOpen = ref(false)
 // Repli de la barre latérale (rail d'icônes) — persisté en cookie (SSR-safe).
 const navCollapsed = useCookie<boolean>('plume_nav_collapsed', { default: () => false })
 
+// Compteur de la file de tri (badge « À trier ») — chargé une fois à l'ouverture du shell.
+const sourcing = useSourcing()
+onMounted(() => {
+  void sourcing.refreshCount()
+})
+
 // Ferme le tiroir dès qu'on change de page.
 watch(() => route.path, () => {
   navOpen.value = false

@@ -2,6 +2,7 @@
 const { t } = useI18n()
 const auth = useAuthStore()
 const route = useRoute()
+const { pendingCount } = useSourcing()
 
 withDefaults(defineProps<{ collapsed?: boolean, collapsible?: boolean }>(), {
   collapsed: false,
@@ -9,10 +10,11 @@ withDefaults(defineProps<{ collapsed?: boolean, collapsible?: boolean }>(), {
 })
 defineEmits<{ navigate: [], toggleCollapse: [] }>()
 
-const nav = computed((): { label: string, to: string, icon: string }[] => [
+const nav = computed((): { label: string, to: string, icon: string, badge?: number }[] => [
   { label: t('nav.today'), to: '/today', icon: 'i-lucide-calendar-check' },
   { label: t('nav.dashboard'), to: '/dashboard', icon: 'i-lucide-layout-dashboard' },
   { label: t('nav.leads'), to: '/leads', icon: 'i-lucide-square-kanban' },
+  { label: t('nav.triage'), to: '/candidates', icon: 'i-lucide-inbox', badge: pendingCount.value || undefined },
   { label: t('nav.directory'), to: '/organizations', icon: 'i-lucide-building-2' },
   { label: t('nav.templates'), to: '/templates', icon: 'i-lucide-file-text' },
   { label: t('nav.settings'), to: '/settings', icon: 'i-lucide-settings' },
@@ -36,7 +38,7 @@ const nav = computed((): { label: string, to: string, icon: string }[] => [
       v-for="item in nav"
       :key="item.to"
       :to="item.to"
-      class="flex items-center gap-3 py-2.5 rounded-md text-[15px]"
+      class="relative flex items-center gap-3 py-2.5 rounded-md text-[15px]"
       :class="[
         collapsed ? 'justify-center px-0' : 'px-3',
         route.path.startsWith(item.to) ? 'bg-elevated text-highlighted font-semibold' : 'text-muted hover:bg-elevated',
@@ -47,6 +49,14 @@ const nav = computed((): { label: string, to: string, icon: string }[] => [
     >
       <UIcon :name="item.icon" class="size-5 shrink-0" aria-hidden="true" />
       <span v-if="!collapsed" class="truncate">{{ item.label }}</span>
+      <UBadge v-if="item.badge && !collapsed" color="primary" variant="solid" size="sm" class="ml-auto">
+        {{ item.badge }}
+      </UBadge>
+      <span
+        v-else-if="item.badge && collapsed"
+        class="absolute top-1 right-1 size-2 rounded-full bg-primary"
+        aria-hidden="true"
+      />
     </NuxtLink>
 
     <div class="mt-auto pt-3 border-t border-default flex flex-col gap-2">

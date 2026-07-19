@@ -21,6 +21,7 @@
     "collapse": "Collapse menu",
     "expand": "Expand menu",
     "account": "Account",
+    "triage": "To triage",
     "today": "Today",
     "leads": "Leads",
     "directory": "Directory",
@@ -345,6 +346,35 @@
       "updated": "Template saved",
       "deleted": "Template deleted"
     }
+  },
+  "sourcing": {
+    "eyebrow": "Workshop · To triage",
+    "title": "To triage",
+    "intro": "Ingested announcements: accept to create a lead, merge into an existing organization, or reject.",
+    "empty": "Nothing to triage yet — ingested announcements will appear here.",
+    "viewAnnounce": "View announcement",
+    "acceptTitle": "Accept — new organization + lead",
+    "mergeTitle": "Merge — attach to an existing organization",
+    "actions": {
+      "accept": "Accept",
+      "merge": "Merge",
+      "reject": "Reject"
+    },
+    "form": {
+      "organizationName": "Organization name",
+      "organizationType": "Type",
+      "organization": "Existing organization",
+      "languagePair": "Language pair",
+      "segment": "Segment",
+      "priority": "Priority",
+      "website": "Website"
+    },
+    "toasts": {
+      "promoted": "Lead created",
+      "rejected": "Announcement rejected"
+    },
+    "confirmRejectTitle": "Reject this announcement?",
+    "confirmRejectBody": "\"{title}\" won't come back to the queue."
   },
   "account": {
     "eyebrow": "Account",

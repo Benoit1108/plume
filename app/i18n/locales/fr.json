@@ -21,6 +21,7 @@
     "collapse": "Réduire le menu",
     "expand": "Déplier le menu",
     "account": "Compte",
+    "triage": "À trier",
     "today": "Aujourd'hui",
     "leads": "Pistes",
     "directory": "Répertoire",
@@ -345,6 +346,35 @@
       "updated": "Modèle enregistré",
       "deleted": "Modèle supprimé"
     }
+  },
+  "sourcing": {
+    "eyebrow": "Atelier · À trier",
+    "title": "À trier",
+    "intro": "Les annonces ingérées : accepte pour créer une piste, fusionne avec une organisation existante, ou rejette.",
+    "empty": "Rien à trier pour l'instant — les annonces ingérées apparaîtront ici.",
+    "viewAnnounce": "Voir l'annonce",
+    "acceptTitle": "Accepter — nouvelle organisation + piste",
+    "mergeTitle": "Fusionner — rattacher à une organisation existante",
+    "actions": {
+      "accept": "Accepter",
+      "merge": "Fusionner",
+      "reject": "Rejeter"
+    },
+    "form": {
+      "organizationName": "Nom de l'organisation",
+      "organizationType": "Type",
+      "organization": "Organisation existante",
+      "languagePair": "Paire de langues",
+      "segment": "Segment",
+      "priority": "Priorité",
+      "website": "Site web"
+    },
+    "toasts": {
+      "promoted": "Piste créée",
+      "rejected": "Annonce rejetée"
+    },
+    "confirmRejectTitle": "Rejeter cette annonce ?",
+    "confirmRejectBody": "« {title} » ne réapparaîtra pas dans la file."
   },
   "account": {
     "eyebrow": "Compte",

@@ -113,6 +113,7 @@ final class SeedRecetteCommand extends Command
         $organizations = $this->seedOrganizations($tenantId);
         $this->seedMailbox($tenantId);
         $counts = $this->seedLeads($tenantId, $organizations);
+        $this->seedCandidates($tenantId);
 
         $io->success(sprintf(
             "Recette prête : %d organisations, %d pistes, %d interactions, %d brouillons, %d envois.\nConnexion : %s / %s",
@@ -149,7 +150,7 @@ final class SeedRecetteCommand extends Command
     private function purge(): void
     {
         $this->connection->executeStatement(
-            'TRUNCATE TABLE "outbound_message", "connected_mailbox", "draft", "template", '
+            'TRUNCATE TABLE "candidate_lead", "outbound_message", "connected_mailbox", "draft", "template", '
             .'"interaction", "lead", "organization", "profile" RESTART IDENTITY CASCADE',
         );
     }
@@ -167,6 +168,37 @@ final class SeedRecetteCommand extends Command
         );
         $profile->changeIdentity('Marie', 'Lefèvre', $this->now);
         $this->profiles->save($profile);
+    }
+
+    /** Quelques annonces en attente de tri (file « À trier »). */
+    private function seedCandidates(TenantId $tenantId): void
+    {
+        /** @var list<array{source: string, title: string, org: string, pair: string, url: ?string, excerpt: string}> $candidates */
+        $candidates = [
+            ['source' => 'PROZ', 'title' => 'Traduction roman jeunesse EN>FR (80 000 mots)', 'org' => 'Little Star Publishing', 'pair' => 'en>fr', 'url' => 'https://www.proz.com/translation-jobs/exemple-1', 'excerpt' => 'Recherche traducteur·rice littéraire EN>FR pour un roman jeunesse, livraison sous 3 mois.'],
+            ['source' => 'RSS', 'title' => 'Sous-titrage série documentaire ES>FR', 'org' => 'Docu Films', 'pair' => 'es>fr', 'url' => 'https://exemple.test/jobs/subtitling-1', 'excerpt' => 'Sous-titrage de 6 épisodes (52 min), délai serré.'],
+            ['source' => 'LINKEDIN', 'title' => "Localisation d'application EN>FR", 'org' => 'TechFlow', 'pair' => 'en>fr', 'url' => 'https://www.linkedin.com/jobs/exemple', 'excerpt' => 'Localisation UI + docs, ~15 000 mots, secteur SaaS.'],
+            ['source' => 'TRANSLATORSCAFE', 'title' => 'Traduction manuel technique EN>FR', 'org' => 'IndusTrad', 'pair' => 'en>fr', 'url' => null, 'excerpt' => "Manuel d'utilisation machine-outil, glossaire fourni."],
+        ];
+
+        $i = 0;
+        foreach ($candidates as $c) {
+            ++$i;
+            $this->connection->insert('candidate_lead', [
+                'id' => $this->ids->generate(),
+                'tenant_id' => $tenantId->toString(),
+                'source' => $c['source'],
+                'dedup_hash' => hash('sha256', $c['source'].'|'.$c['org'].'|'.$c['title']),
+                'status' => 'PENDING',
+                'title' => $c['title'],
+                'organization_name' => $c['org'],
+                'language_pair' => $c['pair'],
+                'url' => $c['url'],
+                'excerpt' => $c['excerpt'],
+                'posted_at' => $this->now->modify(sprintf('-%d days', $i))->format('Y-m-d H:i:s'),
+                'ingested_at' => $this->now->modify(sprintf('-%d hours', $i))->format('Y-m-d H:i:s'),
+            ]);
+        }
     }
 
     private function seedTemplates(TenantId $tenantId): void
