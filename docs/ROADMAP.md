@@ -86,10 +86,16 @@ Fondations techniques.
 > (D1→D7 tranchées : RSS + alertes email par label dédié, `LeadSource` enrichi, dédoublonnage
 > exact + suggestion ; découpage M3.0 socle+tri → M3.1 RSS → M3.2 alertes email ;
 > ADR-0020/0021 à acter).
-- [ ] **Parsers** par source (Strategy) : alertes ProZ, LinkedIn, TranslatorsCafe ; RSS.
-- [ ] File de tri (Piste candidate + Organisation) → écran accepter/rejeter/fusionner.
-- [ ] **Dédoublonnage** Organisations/Contacts.
-- [ ] Conservation de l'email brut (reprocessing).
+- [x] **M3.0 — Socle Sourcing + file de tri** ✅ : contexte `Sourcing` (agrégat
+      `CandidateLead` immuable après tri, ADR-0020), **file de tri** accepter/fusionner/
+      rejeter (écran « À trier » + badge de nav), **promotion cross-contexte par gateway**
+      (crée Organisation + Piste), **dédoublonnage** à l'ingestion (`dedupHash`, ADR-0021),
+      `LeadSource` enrichi (provenance fine). Pyramide complète (domaine/appli/fonctionnel).
+- [ ] **M3.1 — Ingestion RSS** : `RssParser` (Strategy) derrière `AlertSource`, polling
+      Scheduler, conservation du brut (`RawAlert`).
+- [ ] **M3.2 — Alertes email** : parsers ProZ/TranslatorsCafe/LinkedIn, notification depuis
+      la Passerelle email via label dédié.
+- [ ] **Dédoublonnage** Organisations/Contacts (suggestion au tri — exact V1, ADR-0021).
 
 ---
 

@@ -84,5 +84,10 @@ Créer un utilisateur local : `docker compose exec php php bin/console app:user:
 **M1 complet (revue de santé fin M1 appliquée) et M2 — passerelle email — complet** :
 contexte `Mailbox` (OAuth **Gmail + Outlook** derrière des ports routés par fournisseur,
 tokens chiffrés ADR-0016, envoi asynchrone draft-first, captation des réponses par polling
-ADR-0017, relances dans le fil). Auth en cookies httpOnly (M2.0). Prochaine étape :
-**revue de santé fin M2** (process acté), puis M3 (ingestion d'annonces).
+ADR-0017, relances dans le fil). Auth en cookies httpOnly (M2.0).
+
+**M3.0 — socle Sourcing + file de tri livré** : contexte `Sourcing` (agrégat `CandidateLead`,
+ADR-0020/0021), écran « À trier » (accepter/fusionner/rejeter), promotion cross-contexte par
+gateway, dédoublonnage à l'ingestion, `LeadSource` enrichi. Reste **M3.1 (ingestion RSS)**
+puis **M3.2 (alertes email)**. Une passe d'harmonisation visuelle (largeurs, sidebar repliable,
+skeletons, DnD kanban) + une page **Compte** (mot de passe, nom d'affichage) ont aussi été livrées.
