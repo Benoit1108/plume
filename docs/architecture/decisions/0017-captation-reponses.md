@@ -33,3 +33,15 @@
 > PISTE — quand la suppression de piste/organisation existera, ses interactions partiront
 > avec elle (mêmes transactions). Pas de rétention temporelle en V1 mono-utilisatrice ;
 > à réévaluer au registre de traitement (ouverture SaaS, V2).
+
+---
+
+> **Amendement M3.2 — lecture d'un label d'alertes.** La relève d'origine ne lit que les fils
+> initiés par l'app (minimisation). M3.2 **élargit** la lecture à un **label dédié** que la
+> Traductrice pose elle-même (« Plume/Alertes ») : la Passerelle lit **uniquement ce label**
+> (jamais toute la boîte) et publie `AlertEmailReceived` (langage publié) ; le Sourcing décide
+> de l'ingestion (`IngestAlertEmailOnAlertEmailReceived` → parser générique → `IngestCandidate`).
+> Élargissement **cadré et consenti** : pas de balayage, périmètre limité au label. Un email
+> d'alerte peut porter des données personnelles → mêmes gardes que le Répertoire (jamais de
+> contact importé sans tri humain) ; brut conservé puis purgé avec la candidate (D6). Échec de
+> relève = no-op silencieux (canal secondaire), le Scheduler repasse.

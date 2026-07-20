@@ -80,7 +80,7 @@ Fondations techniques.
       (pertinents une fois les réponses captées automatiquement), valeur estimée des pistes
       (`estimatedValue`, différé depuis M1.2), filtres de période, export.
 
-### M3 — Ingestion 🔜
+### M3 — Ingestion ✅
 
 > 📐 Note de cadrage **validée** : [`docs/design/M3-conception.md`](design/M3-conception.md)
 > (D1→D7 tranchées : RSS + alertes email par label dédié, `LeadSource` enrichi, dédoublonnage
@@ -97,8 +97,12 @@ Fondations techniques.
       Réglages « Sources ») ; relève manuelle (`POST /sources/poll` + bouton) **et** automatique
       (Scheduler 30 min, fan-out tous tenants) ; purge planifiée du brut des annonces rejetées
       (D6, J+30). Cf. `docs/design/M3.1-ingestion-rss.md`.
-- [ ] **M3.2 — Alertes email** : parsers ProZ/TranslatorsCafe/LinkedIn, notification depuis
-      la Passerelle email via label dédié.
+- [x] **M3.2 — Alertes email** ✅ *(plomberie + parser générique)* : la Passerelle lit un
+      **label dédié** (« Plume/Alertes », ADR-0017 amendé) et publie `AlertEmailReceived` ; le
+      Sourcing parse (provenance par domaine expéditeur) et ingère (dédoublonnage par id de
+      message, brut conservé). Relève auto (Scheduler, fan-out par boîte). **Suivi** (avec de
+      vrais emails) : adaptateurs réels Gmail/Outlook de lecture du label + parsers fins par
+      fournisseur. Cf. `docs/design/M3.2-alertes-email.md`.
 - [ ] **Dédoublonnage** Organisations/Contacts (suggestion au tri — exact V1, ADR-0021).
 
 ---

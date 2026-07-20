@@ -106,6 +106,8 @@ services:
     App\Mailbox\Application\DraftGateway: '@App\Mailbox\Infrastructure\Gateway\DoctrineDraftGateway'
     App\Mailbox\Application\RecipientResolver: '@App\Mailbox\Infrastructure\Gateway\DoctrineRecipientResolver'
     App\Mailbox\Application\OpenThreads: '@App\Mailbox\Infrastructure\ReadModel\DoctrineOpenThreads'
+    # M3.2 — alertes email : relève du label dédié (factice par défaut ; adaptateurs réels = suivi).
+    App\Mailbox\Application\AlertEmailFetcher: '@App\Mailbox\Infrastructure\Fetcher\FakeAlertEmailFetcher'
     App\Mailbox\Application\ReplyFetcherRegistry: '@App\Mailbox\Infrastructure\Fetcher\ProviderReplyFetcherRegistry'
     App\Mailbox\Infrastructure\Fetcher\ProviderReplyFetcherRegistry:
         arguments:

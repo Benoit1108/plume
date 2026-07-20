@@ -91,6 +91,9 @@ ADR-0020/0021), écran « À trier » (accepter/fusionner/rejeter), promotion cr
 gateway, dédoublonnage à l'ingestion, `LeadSource` enrichi. **M3.1 — ingestion RSS complète livrée** :
 port `AlertSource` + `RssAlertSource`/`FakeAlertSource`, brut conservé (`RawAlert` + `rawRef`),
 flux configurables par tenant (`AlertFeed`, écran Réglages « Sources »), relève manuelle
-(`POST /sources/poll` + bouton) et auto (Scheduler 30 min), purge du brut (D6). Reste **M3.2
-(alertes email)**. Une passe d'harmonisation visuelle + une page **Compte** (mot de passe, nom
-d'affichage) ont aussi été livrées.
+(`POST /sources/poll` + bouton) et auto (Scheduler 30 min), purge du brut (D6). **M3.2 — alertes
+email** (plomberie) : la Passerelle lit un label dédié (« Plume/Alertes », ADR-0017 amendé) et
+publie `AlertEmailReceived` ; le Sourcing parse (par domaine expéditeur) et ingère. **Jalon M3
+complet** (suivi : adaptateurs email réels + parsers fins par fournisseur, avec de vrais emails).
+Une passe d'harmonisation visuelle + une page **Compte** (mot de passe, nom d'affichage) ont
+aussi été livrées.

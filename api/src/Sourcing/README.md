@@ -38,6 +38,14 @@ d'organisation/piste orpheline (ADR-0020). Dédoublonnage à l'ingestion : ADR-0
 - **API** : `GET/POST /sources`, `POST /sources/{id}/{activate,deactivate}`, `DELETE /sources/{id}`,
   `POST /sources/poll` (relève manuelle, tenant courant).
 
-## Reste
+## Livré (M3.2 — alertes email, plomberie)
 
-- **M3.2** — alertes email : lecture d'un label dédié (via Mailbox), conservation de l'email brut.
+- **`Application/AlertEmail/AlertEmailParser`** : parser générique d'email d'alerte (1 annonce =
+  1 email, provenance déduite du domaine de l'expéditeur).
+- **`Infrastructure/Policy/IngestAlertEmailOnAlertEmailReceived`** : consomme l'event Mailbox
+  `AlertEmailReceived` (langage publié) → parse → `IngestCandidate` (tenant réactivé, dédoublonnage
+  par id de message). Côté Passerelle : `FetchAlertEmails` lit un label dédié (ADR-0017 amendé) et
+  publie l'event ; `FakeAlertEmailFetcher` par défaut (adaptateurs réels Gmail/Outlook = suivi).
+
+**M3 complet.** Suivi (avec de vrais emails) : lecture réelle du label par fournisseur + parsers
+fins ProZ/TranslatorsCafe/LinkedIn.

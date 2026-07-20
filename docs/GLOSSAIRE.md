@@ -231,7 +231,7 @@ Le vocabulaire métier ci-dessous est **contractuel** et reste en **français** 
 | Réponse captée | event `ReplyCaptured` (Mailbox → politique Prospection `RecordReplyOnReplyCaptured`) |
 | Relève | port `ReplyFetcher` (via `ReplyFetcherRegistry`) → `GmailReplyFetcher` / `OutlookReplyFetcher` (bodyPreview) / `FakeReplyFetcher` + `OpenThreads` ; Scheduler 5 min + geste manuel (ADR-0017) |
 
-## Contexte Sourcing (M3.0 socle + M3.1 ingestion RSS livrés ; M3.2 alertes email à venir)
+## Contexte Sourcing (M3 complet : socle + tri + ingestion RSS + alertes email)
 
 | Terme             | Définition |
 |-------------------|------------|
@@ -249,7 +249,8 @@ Le vocabulaire métier ci-dessous est **contractuel** et reste en **français** 
 | **Source d'annonces** (`AlertSource`) | Stratégie de lecture par canal : `RssAlertSource` (flux RSS réel) / `FakeAlertSource` (démo, repli sans flux). |
 | **Relève automatique** (`PollAllSourcesTick`) | Scheduler : relève les flux actifs de tous les tenants toutes les 30 min. |
 | **Brut d'annonce** (`RawAlert`) | Contenu brut conservé d'une annonce (audit / reprocessing) ; `CandidateLead.rawRef` y renvoie. Purge planifiée (D6) : M3.1b. |
-| **Alerte email** (`Alert`, M3.2) | Email de notification d'offres (ProZ, LinkedIn, TranslatorsCafe) — *pas encore livré*. |
+| **Alerte email** (`AlertEmailReceived`, M3.2) | Email d'offres lu sous le label dédié « Plume/Alertes » ; la Passerelle le publie, le Sourcing le parse (`AlertEmailParser`, provenance par domaine) et l'ingère. |
+| **Relève des alertes** (`FetchAlertEmails`, `AlertEmailFetcher`) | Lecture du label dédié (factice par défaut ; adaptateurs réels Gmail/Outlook = suivi). Scheduler `FetchAllAlertEmailsTick`. |
 
 ## Concepts futurs
 

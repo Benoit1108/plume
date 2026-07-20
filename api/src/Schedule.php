@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App;
 
+use App\Mailbox\Infrastructure\Scheduler\FetchAllAlertEmailsTick;
 use App\Mailbox\Infrastructure\Scheduler\FetchAllRepliesTick;
 use App\Sourcing\Infrastructure\Scheduler\PollAllSourcesTick;
 use App\Sourcing\Infrastructure\Scheduler\PurgeRawAlertsTick;
@@ -36,6 +37,9 @@ class Schedule implements ScheduleProviderInterface
 
             // Relève des flux d'annonces (RSS) de tous les tenants ayant un flux actif (M3.1b).
             ->add(RecurringMessage::every('30 minutes', new PollAllSourcesTick()))
+
+            // Relève des alertes email (label dédié) de toutes les boîtes connectées (M3.2).
+            ->add(RecurringMessage::every('30 minutes', new FetchAllAlertEmailsTick()))
 
             // Purge quotidienne du brut des annonces rejetées de longue date (D6).
             ->add(RecurringMessage::every('1 day', new PurgeRawAlertsTick()));

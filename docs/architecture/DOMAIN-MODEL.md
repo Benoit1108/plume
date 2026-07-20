@@ -131,6 +131,8 @@ Consommateurs : journal d'Interactions, KPIs du tableau de bord, progression/sé
 - **Envoi** (`EmailSent`) → la Prospection avance la piste (D3 : `contact()` / `recordFollowUp()`).
 - **Réponse captée** par threading (`ReplyCaptured`) → la Prospection appelle
   `Lead::recordReply()` (**idempotent**), qui passe en `IN_DISCUSSION` et annule la relance.
+- **Alerte captée** sous le label dédié (`AlertEmailReceived`, M3.2) → le Sourcing ingère
+  l'annonce (ADR-0017 amendé). Lecture limitée au label (minimisation).
 
 ### Sourcing — file de tri (contexte `Sourcing`, livré M3.0 — cf. ADR-0020/0021)
 - Agrégat **`CandidateLead`** (annonce candidate) : une annonce captée, en attente de tri.
@@ -171,7 +173,10 @@ Consommateurs : journal d'Interactions, KPIs du tableau de bord, progression/sé
   par item (dédoublonnage par `externalId`). Déclenchement **manuel** (`POST /sources/poll`) et
   **automatique** (Scheduler 30 min, fan-out par tenant). Purge planifiée du brut des annonces
   rejetées (D6, J+30).
-- **Reste** : **M3.2** (alertes email : label dédié via la Passerelle).
+- **Alertes email (M3.2 livré, plomberie)** : la Passerelle lit un **label dédié** et publie
+  `AlertEmailReceived` (langage publié) ; la politique Sourcing `IngestAlertEmailOnAlertEmailReceived`
+  parse (générique : provenance par domaine de l'expéditeur) et dispatche `IngestCandidate`.
+  Adaptateurs réels Gmail/Outlook + parsers fins par fournisseur = suivi. **M3 complet.**
 
 ### Compte (contexte `Account`, livré M2.0 / M3.0)
 - Agrégat **`Profile`** (un par tenant) : préférences et présentation de la traductrice.
