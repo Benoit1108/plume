@@ -23,7 +23,7 @@ watch(() => route.path, () => {
 <template>
   <div class="min-h-screen flex bg-default text-default">
     <aside
-      class="shrink-0 border-r border-default hidden md:flex flex-col transition-[width] duration-200"
+      class="shrink-0 border-r border-default hidden md:flex flex-col motion-safe:transition-[width] motion-safe:duration-200"
       :class="navCollapsed ? 'w-16 px-2 py-4' : 'w-56 p-4'"
     >
       <AppNav :collapsed="navCollapsed" collapsible @toggle-collapse="navCollapsed = !navCollapsed" />

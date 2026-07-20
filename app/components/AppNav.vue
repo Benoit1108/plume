@@ -44,7 +44,7 @@ const nav = computed((): { label: string, to: string, icon: string, badge?: numb
         route.path.startsWith(item.to) ? 'bg-elevated text-highlighted font-semibold' : 'text-muted hover:bg-elevated',
       ]"
       :title="collapsed ? item.label : undefined"
-      :aria-label="collapsed ? item.label : undefined"
+      :aria-label="collapsed ? [item.label, item.badge].filter(Boolean).join(' · ') : undefined"
       @click="$emit('navigate')"
     >
       <UIcon :name="item.icon" class="size-5 shrink-0" aria-hidden="true" />

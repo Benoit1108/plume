@@ -10,6 +10,13 @@ const sourcing = useSourcing()
 const directory = useDirectory()
 const toast = useToast()
 
+// Après un tri, l'élément traité disparaît : on ramène le focus en tête de page
+// (sinon il retombe sur <body> et l'utilisateur clavier perd sa place).
+const topRef = ref<HTMLElement | null>(null)
+function focusTop(): void {
+  void nextTick(() => topRef.value?.focus())
+}
+
 const { data: candidates, refresh, status } = await useAsyncData<CandidateLead[]>(
   'candidate-queue',
   () => sourcing.queue(),
@@ -94,10 +101,11 @@ async function submitTriage(): Promise<void> {
     }
     triaging.value = null
     await refresh()
+    focusTop()
     toast.add({ title: t('sourcing.toasts.promoted'), color: 'success' })
   }
   catch (error) {
-    toast.add({ title: errorToastTitle(t, error), color: 'error' })
+    toast.add({ title: isConflict(error) ? t('sourcing.errors.conflict') : errorToastTitle(t, error), color: 'error' })
   }
   finally {
     submitting.value = false
@@ -119,6 +127,7 @@ async function doReject(): Promise<void> {
     await sourcing.reject(rejecting.value.id)
     rejecting.value = null
     await refresh()
+    focusTop()
     toast.add({ title: t('sourcing.toasts.rejected'), color: 'success' })
   }
   catch (error) {
@@ -133,11 +142,13 @@ function formatDate(iso?: string | null): string {
 
 <template>
   <PageContainer width="reading">
-    <PageHeader :eyebrow="t('sourcing.eyebrow')" :title="t('sourcing.title')">
-      <template #subtitle>
-        <p class="mt-1 text-muted">{{ t('sourcing.intro') }}</p>
-      </template>
-    </PageHeader>
+    <div ref="topRef" tabindex="-1" class="outline-none">
+      <PageHeader :eyebrow="t('sourcing.eyebrow')" :title="t('sourcing.title')">
+        <template #subtitle>
+          <p class="mt-1 text-muted">{{ t('sourcing.intro') }}</p>
+        </template>
+      </PageHeader>
+    </div>
 
     <div v-if="loading" role="status" class="mt-6 flex flex-col gap-3">
       <span class="sr-only">{{ t('common.loading') }}</span>

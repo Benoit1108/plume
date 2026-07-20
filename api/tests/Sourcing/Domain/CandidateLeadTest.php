@@ -128,6 +128,13 @@ final class CandidateLeadTest extends TestCase
         self::assertInstanceOf(CandidateLeadRejected::class, $candidate->pullDomainEvents()[0]);
     }
 
+    public function testSourceMapsToLeadSource(): void
+    {
+        self::assertSame('PROZ', Source::PROZ->toLeadSource());
+        self::assertSame('RSS', Source::RSS->toLeadSource());
+        self::assertSame('JOB_BOARD', Source::MANUAL->toLeadSource()); // seul mapping non-identité
+    }
+
     public function testCannotRetriageOnceTriaged(): void
     {
         $candidate = $this->ingest();

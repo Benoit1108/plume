@@ -175,6 +175,7 @@
       "LINKEDIN": "LinkedIn",
       "TRANSLATORSCAFE": "TranslatorsCafe",
       "RSS": "Flux RSS",
+      "MANUAL": "Ajout manuel",
       "OTHER": "Autre"
     },
     "actions": {
@@ -372,6 +373,9 @@
     "toasts": {
       "promoted": "Piste créée",
       "rejected": "Annonce rejetée"
+    },
+    "errors": {
+      "conflict": "Impossible : cette organisation existe peut-être déjà — utilisez « Fusionner » pour la rattacher."
     },
     "confirmRejectTitle": "Rejeter cette annonce ?",
     "confirmRejectBody": "« {title} » ne réapparaîtra pas dans la file."

@@ -175,6 +175,7 @@
       "LINKEDIN": "LinkedIn",
       "TRANSLATORSCAFE": "TranslatorsCafe",
       "RSS": "RSS feed",
+      "MANUAL": "Manual",
       "OTHER": "Other"
     },
     "actions": {
@@ -372,6 +373,9 @@
     "toasts": {
       "promoted": "Lead created",
       "rejected": "Announcement rejected"
+    },
+    "errors": {
+      "conflict": "Not possible: this organization may already exist — use \"Merge\" to attach it."
     },
     "confirmRejectTitle": "Reject this announcement?",
     "confirmRejectBody": "\"{title}\" won't come back to the queue."
