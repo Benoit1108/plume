@@ -39,7 +39,7 @@ Le vocabulaire métier ci-dessous est **contractuel** et reste en **français** 
 | Réponse | `Reply` |
 | Alerte | `Alert` |
 | Parser | `AlertParser` |
-| Piste candidate | `CandidateLead` |
+| Annonce candidate (file de tri) | `CandidateLead` |
 | Mission (futur) | `Assignment` |
 | Facture (futur) | `Invoice` |
 
@@ -76,7 +76,7 @@ Le vocabulaire métier ci-dessous est **contractuel** et reste en **français** 
 | Métier (FR) | Code (EN) |
 |---|---|
 | PaireDeLangue (source>cible, ex. en>fr) | `LanguagePair` |
-| Origine de la piste | `LeadSource` : `DIRECT` (démarchage direct), `REFERRAL` (recommandation), `JOB_BOARD` (annonce), `OTHER` |
+| Origine de la piste | `LeadSource` : `DIRECT` (démarchage direct, cœur métier), `REFERRAL` (recommandation), `JOB_BOARD` (annonce générique), `PROZ`, `LINKEDIN`, `TRANSLATORSCAFE`, `RSS`, `OTHER` — **table contractuelle** ; les 4 valeurs fines viennent du tri d'annonces (Sourcing, ADR-0020) |
 | Priorité | `Priority` : `LOW` \| `MEDIUM` \| `HIGH` |
 | Une piste active par organisation | invariant `ActiveLeadAlreadyExists` (index partiel en filet) |
 | Démarchage interdit (RGPD) | `OrganizationNotContactable` — vérifié via le port `OrganizationGateway` |
@@ -229,13 +229,21 @@ Le vocabulaire métier ci-dessous est **contractuel** et reste en **français** 
 | Réponse captée | event `ReplyCaptured` (Mailbox → politique Prospection `RecordReplyOnReplyCaptured`) |
 | Relève | port `ReplyFetcher` (via `ReplyFetcherRegistry`) → `GmailReplyFetcher` / `OutlookReplyFetcher` (bodyPreview) / `FakeReplyFetcher` + `OpenThreads` ; Scheduler 5 min + geste manuel (ADR-0017) |
 
-## Contexte Sourcing (V2/M3)
+## Contexte Sourcing (socle M3.0 livré ; ingestion RSS M3.1 + alertes M3.2 à venir)
 
 | Terme             | Définition |
 |-------------------|------------|
-| **Alerte**        | Email de notification d'offres (ProZ, LinkedIn, TranslatorsCafe) ou flux RSS. |
-| **Parser**        | Stratégie de lecture d'une source d'alerte donnée. |
-| **Piste candidate**| Opportunité issue de l'ingestion, en **file de tri** avant acceptation. |
+| **Annonce candidate** (`CandidateLead`) | Opportunité captée, en **file de tri** avant décision. Immuable une fois triée. |
+| **File « À trier »** | Écran listant les annonces `PENDING` ; actions **accepter** / **fusionner** / **rejeter**. |
+| **Source** (`Source`) | Provenance fine d'une annonce : `PROZ`, `LINKEDIN`, `TRANSLATORSCAFE`, `RSS`, `MANUAL`. Projetée vers `LeadSource` à la promotion (`MANUAL → JOB_BOARD`, sinon identité). |
+| **Statut de tri** (`CandidateStatus`) | `PENDING` (à trier) \| `ACCEPTED` (nouvelle organisation + piste) \| `MERGED` (rattachée à une organisation existante) \| `REJECTED` (écartée). |
+| **Accepter** (`AcceptCandidate`) | Crée une **nouvelle** Organisation + une Piste, puis passe l'annonce `ACCEPTED`. |
+| **Fusionner** (`MergeCandidate`) | Rattache à une **Organisation existante** : réutilise la piste active si elle existe (note « annonce rattachée »), sinon en crée une. Passe `MERGED`. |
+| **Rejeter** (`RejectCandidate`) | Écarte l'annonce (`REJECTED`). |
+| **Empreinte de dédoublonnage** (`dedupHash`) | sha256 normalisé de `(Source, externalId?, orgName?, titre)` + index unique `(tenant_id, dedup_hash)` : l'ingestion d'un doublon est un no-op (ADR-0021). |
+| **Re-tri interdit** (`CandidateAlreadyTriaged`, 409) | seul `PENDING` est triable ; une annonce déjà triée est immuable. |
+| **Alerte** (`Alert`, M3.2) | Email de notification d'offres (ProZ, LinkedIn, TranslatorsCafe) — *pas encore livré*. |
+| **Parser d'alerte** (`AlertParser`, M3.1) | Stratégie de lecture d'une source (RSS d'abord) — *pas encore livré*. |
 
 ## Concepts futurs
 
@@ -250,5 +258,5 @@ Le vocabulaire métier ci-dessous est **contractuel** et reste en **français** 
 |-------------------|------------|
 | **PaireDeLangue** | Couple directionnel (source → cible), ex. `EN→FR`, `ES→FR`. `EN↔FR` = deux paires. |
 | **Tarif**         | Montant + devise + **base** (`AU_MOT_SOURCE`, `AU_MOT_CIBLE`, `A_LA_MINUTE`, `FORFAIT`) + minimum de facturation. |
-| **Source**        | Origine d'une Piste : `DEMARCHAGE_DIRECT`, `PROZ`, `LINKEDIN`, `TRANSLATORSCAFE`, `RSS`, `RECOMMANDATION`, `IMPORT`. |
-| **Priorite**      | `HAUTE`, `MOYENNE`, `BASSE`. |
+| **Source de piste** (`LeadSource`) | Origine d'une Piste : `DIRECT` (démarchage direct), `REFERRAL` (recommandation), `JOB_BOARD` (annonce générique), `PROZ`, `LINKEDIN`, `TRANSLATORSCAFE`, `RSS`, `OTHER`. Table contractuelle — à ne pas confondre avec `Source` (Sourcing), qui s'y projette. |
+| **Priorite**      | `HAUTE`, `MOYENNE`, `BASSE` (code : `Priority` = `LOW` \| `MEDIUM` \| `HIGH`). |

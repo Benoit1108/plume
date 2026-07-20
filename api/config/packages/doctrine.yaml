@@ -2,6 +2,11 @@ doctrine:
     dbal:
         url: '%env(resolve:DATABASE_URL)%'
         profiling_collect_backtrace: '%kernel.debug%'
+        # Tables gérées HORS métadonnées ORM (migrations explicites / framework) : on les
+        # soustrait au diff pour qu'il ne propose jamais de les DROP.
+        #   - interaction        : projection append-only (journal), écrite/lue en DBAL pur
+        #   - messenger_messages : transport Messenger (outbox transactionnel)
+        schema_filter: '~^(?!(messenger_messages|interaction)$)~'
         types:
             lead_id: App\Prospecting\Infrastructure\Persistence\Doctrine\Type\LeadIdType
             tenant_id: App\Shared\Infrastructure\Persistence\Doctrine\Type\TenantIdType

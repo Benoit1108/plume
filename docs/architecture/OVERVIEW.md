@@ -13,7 +13,7 @@ Conséquence structurante : **monolithe modulaire hexagonal**, découpé par bou
 | **Prospection**       | Core            | Pistes, pipeline, interactions, relances, objectifs de régularité. |
 | **Répertoire**        | Supporting      | Organisations & Contacts, annuaire. Fournit les cibles. |
 | **Rédaction assistée**| Supporting      | Génération IA + Modèles. ACL → API Claude. |
-| **Sourcing**          | Supporting (M3) | Ingestion d'alertes/RSS → pistes candidates. |
+| **Sourcing**          | Supporting      | Annonces candidates → file de tri → promotion en Pistes. **Socle + tri livrés (M3.0)** ; ingestion RSS (M3.1) et alertes email (M3.2) à venir. |
 | **Passerelle email**  | Generic (tech.) | Envoi + lecture. ACL → Gmail/Outlook. Sert Prospection ET Sourcing. |
 | **Compte & Tenancy**  | Generic         | Tenants, auth, profil. |
 | **Gestion de mission**| Core n°2 (futur)| Missions décrochées. |

@@ -3,7 +3,8 @@
 Modélisation tactique DDD. Détaille le **cœur Prospection** ; survole les autres contextes.
 Les noms sont ici **métier (FR)** ; les identifiants du code sont **EN** via la table de
 correspondance du [glossaire](../GLOSSAIRE.md) (contractuelle — ADR-0010).
-*Resynchronisé à la clôture de M1 (2026-07-14) : les events portent leurs noms réels.*
+*Resynchronisé à M3.0 (2026-07-20) : contexte Sourcing, `LeadSource` enrichi, contexte Compte,
+events aux noms réels (EN).*
 
 ---
 
@@ -82,7 +83,7 @@ Table append-only écrite par des handlers réagissant aux domain events (`Piste
 | **Langue** | Code ISO 639-1 validé. |
 | **Segment** | `PUBLISHING` \| `AUDIOVISUAL` \| `TECHNICAL` \| `OTHER` (UI : Édition, Audiovisuel, Technique, Autre). |
 | **StatutPipeline** | Enum + règles de transition. |
-| **Source** | `DEMARCHAGE_DIRECT` \| `PROZ` \| `LINKEDIN` \| `TRANSLATORSCAFE` \| `RSS` \| `RECOMMANDATION` \| `IMPORT`. |
+| **LeadSource** | `DIRECT` (démarchage direct, cœur métier) \| `REFERRAL` (recommandation) \| `JOB_BOARD` (annonce, source non précisée) \| `PROZ` \| `LINKEDIN` \| `TRANSLATORSCAFE` \| `RSS` \| `OTHER`. **Enrichi en M3.0** (ADR-0020) : les valeurs fines viennent du tri d'annonces (`Source` du Sourcing → `LeadSource`). Table **contractuelle** — cf. glossaire. |
 | **Priorite** | `HAUTE` \| `MOYENNE` \| `BASSE`. |
 | **Tarif** | Montant + devise + base (`AU_MOT_SOURCE`/`AU_MOT_CIBLE`/`A_LA_MINUTE`/`FORFAIT`) + minimum. |
 | **Money** | Montant + devise. |
@@ -93,7 +94,7 @@ Table append-only écrite par des handlers réagissant aux domain events (`Piste
 
 ## Domain events (colonne vertébrale du découplage)
 
-`PisteCreee` · `PisteContactee` · `RelancePlanifiee` · `RelanceEnvoyee` · `ReponseRecue` · `StatutChange` · `PisteGagnee` · `PistePerdue` · `NoteAjoutee`
+`LeadCreated` · `LeadContacted` · `FollowUpScheduled` · `FollowUpSent` · `FollowUpCancelled` · `ReplyReceived` · `LeadMovedToSampleTest` · `LeadWon` · `LeadLost` · `LeadPaused` · `LeadResumed` · `NoteAdded`
 
 Consommateurs : journal d'Interactions, KPIs du tableau de bord, progression/série, notifications.
 
@@ -104,7 +105,7 @@ Consommateurs : journal d'Interactions, KPIs du tableau de bord, progression/sé
 ### Répertoire
 - **`Organisation`** (racine) **contient** ses **`Contact`** (entités) : peu nombreux, édités ensemble.
 - Invariants : email unique par organisation, tenant cohérent.
-- Dédoublonnage à l'ingestion (M3).
+- Dédoublonnage des annonces à l'ingestion : porté par le contexte Sourcing (livré M3.0, ADR-0021).
 
 ### Rédaction assistée (contexte `Drafting`, livré M1.4 — cf. ADR-0014)
 - **`Brouillon` (`Draft`) est un agrégat persistant à états** : `GENERATING → READY | FAILED`,
@@ -131,10 +132,51 @@ Consommateurs : journal d'Interactions, KPIs du tableau de bord, progression/sé
 - **Réponse captée** par threading (`ReplyCaptured`) → la Prospection appelle
   `Lead::recordReply()` (**idempotent**), qui passe en `IN_DISCUSSION` et annule la relance.
 
-### Sourcing (M3)
-- Agrégat **`PisteCandidate`** en file de tri.
-- Domain services **`ParserAlerte`** (Strategy) par source.
-- Acceptation → crée Organisation (dédup) + Piste.
+### Sourcing — file de tri (contexte `Sourcing`, livré M3.0 — cf. ADR-0020/0021)
+- Agrégat **`CandidateLead`** (annonce candidate) : une annonce captée, en attente de tri.
+  Champs : `CandidateLeadId`, `TenantId`, `Source`, `dedupHash`, `CandidateStatus`, titre,
+  nom d'organisation ?, paire de langue ?, url ?, extrait ?, date de publication ?,
+  `promotedLeadId` ?, `organizationId` ?, date d'ingestion. **Immuable une fois triée.**
+- Enum **`Source`** (provenance fine) : `PROZ` \| `LINKEDIN` \| `TRANSLATORSCAFE` \| `RSS` \| `MANUAL`.
+  `Source::toLeadSource()` projette vers `LeadSource` (identité, sauf `MANUAL → JOB_BOARD`).
+- **Machine à états** (`CandidateStatus`) :
+  ```
+  PENDING ─► ACCEPTED   (nouvelle Organisation + nouvelle Piste)
+          ├► MERGED     (Organisation existante ; rattache à la piste active ou en crée une)
+          └► REJECTED   (écartée)
+  ```
+  `PENDING` est le seul état triable ; tout re-tri lève `CandidateAlreadyTriaged` (409).
+- **Dédoublonnage à l'ingestion** (ADR-0021) : `Dedup::hash(Source, externalId?, orgName?, titre)`
+  (sha256 normalisé) + index unique `(tenant_id, dedup_hash)`. `IngestCandidate` est un **no-op**
+  si le hash existe déjà pour le tenant. `MANUAL` sans identifiant externe → garde faible (assumé).
+- **Promotion cross-contexte par gateways** (ports Application — jamais d'accès direct à un
+  agrégat étranger) : `DirectoryGateway::createOrganization` (Répertoire) +
+  `ProspectingGateway::createLead` (Prospection). Accept et Merge dispatchent sur `command.bus` :
+  tri + création d'organisation + création de piste partagent **une seule transaction** (bus
+  imbriqué, `doctrine_transaction`). La garde `PENDING` est évaluée **AVANT** les gateways →
+  aucune organisation/piste orpheline (ADR-0020, verrouillé par un test d'atomicité).
+- **Fusion vers une organisation à piste active** (ADR-0021, décision produit du 2026-07-20) :
+  l'invariant « 1 piste active par organisation » (M1.2) interdit une 2e piste ; `MergeCandidate`
+  **rattache l'annonce à la piste active existante** (note « Annonce rattachée : … » via
+  `ProspectingGateway::annotateLead`), sans créer de doublon.
+- Events : `CandidateLeadIngested` · `CandidateLeadAccepted` · `CandidateLeadMerged` · `CandidateLeadRejected`.
+- Écran **« À trier »** : file des `PENDING`, actions accepter/fusionner/rejeter, badge de compte
+  dans la navigation.
+- **Reste** : **M3.1** (ingestion RSS — le parseur par source, différé, *non encore livré*) puis
+  **M3.2** (alertes email).
+
+### Compte (contexte `Account`, livré M2.0 / M3.0)
+- Agrégat **`Profile`** (un par tenant) : préférences et présentation de la traductrice.
+  - **Régularité** : `weeklyGoal` (objectif hebdo, défaut 5), `timezone` (défaut `Europe/Paris`).
+  - **Présentation** (matière première des prompts de génération — M1.4) : `bio`, `specialties`, `signature`.
+  - **Identité d'affichage** (M3.0) : `firstName`, `lastName` (nom affiché dans l'app).
+  - Méthodes : `changeWeeklyGoal`, `changePresentation`, `changeIdentity` — chacune n'émet un
+    event **que si** la valeur change.
+  - Events : `ProfileCreated` · `WeeklyGoalChanged` · `ProfilePresentationChanged` · `ProfileIdentityChanged`.
+- **Authentification** (M2.0) : JWT en cookies httpOnly + refresh tokens (gesdinet). Le
+  **changement de mot de passe révoque tous les refresh tokens** du compte (expulse une session
+  détournée — remédiation revue M3.0). Préoccupation d'infrastructure (Symfony Security), hors
+  agrégat de domaine.
 
 ### Gestion de mission (futur)
 - **`Mission`** : volume, deadline, tarif, livrables, statut. Lien `PisteGagnee` → `Mission`.
