@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Lead, LeadAction, LeadStatus } from '~/types/leads'
+import type { Lead, LeadStatus } from '~/types/leads'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -52,30 +52,13 @@ const priorityDot: Record<string, string> = {
 }
 
 // --- Glisser-déposer : déplacer une piste d'une colonne à l'autre. ---
-/** Statut cible d'une colonne -> action métier qui y mène (resume exclu : cible dynamique). */
-const ACTION_FOR_STATUS: Partial<Record<LeadStatus, LeadAction>> = {
-  CONTACTED: 'contact',
-  FOLLOWED_UP: 'follow-up',
-  IN_DISCUSSION: 'reply',
-  SAMPLE_TEST: 'sample-test',
-  WON: 'win',
-  LOST: 'lose',
-  PAUSED: 'pause',
-}
-
+// Logique de légalité des transitions : util pur `~/utils/kanban` (testé isolément).
 const dragging = ref<Lead | null>(null)
 const dragOver = ref<LeadStatus | null>(null)
 const moving = ref<string | null>(null)
 
-/** L'action qui mène `lead` vers `targetStatus`, si elle est légale (allowedActions). */
-function actionFor(lead: Lead, targetStatus: LeadStatus): LeadAction | null {
-  if (lead.status === targetStatus) return null
-  const action = ACTION_FOR_STATUS[targetStatus]
-  return action && lead.allowedActions.includes(action) ? action : null
-}
-
 function isLegalTarget(targetStatus: LeadStatus): boolean {
-  return dragging.value ? actionFor(dragging.value, targetStatus) !== null : false
+  return dragging.value ? kanbanActionFor(dragging.value, targetStatus) !== null : false
 }
 
 function onDragStart(lead: Lead, event: DragEvent): void {
@@ -97,7 +80,7 @@ async function onDrop(targetStatus: LeadStatus): Promise<void> {
   dragging.value = null
   if (!lead) return
 
-  const action = actionFor(lead, targetStatus)
+  const action = kanbanActionFor(lead, targetStatus)
   if (!action) {
     if (lead.status !== targetStatus) toast.add({ title: t('pipeline.dnd.illegal'), color: 'warning' })
     return

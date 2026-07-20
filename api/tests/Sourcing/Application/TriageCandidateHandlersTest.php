@@ -118,6 +118,30 @@ final class TriageCandidateHandlersTest extends TestCase
         ($handler)(new AcceptCandidate('cand-1', 'Éditions X', 'PUBLISHER', 'en>fr', 'PUBLISHING', 'MEDIUM'));
     }
 
+    public function testRetriageIsGuardedBeforeGatewaysSoNoOrphanIsCreated(): void
+    {
+        // La promotion (organisation + piste + accept) partage UNE transaction (bus
+        // imbriqué, doctrine_transaction). La sûreté repose donc sur la garde PENDING
+        // évaluée AVANT les gateways (cf. ADR-0020) : un 2e tri est coupé net et ne
+        // laisse aucune organisation/piste orpheline. On le prouve sur les compteurs.
+        $this->seedCandidate();
+        $handler = new AcceptCandidateHandler($this->repo, $this->directory, $this->prospecting, $this->ids, $this->clock, $this->eventBus);
+        ($handler)(new AcceptCandidate('cand-1', 'Éditions X', 'PUBLISHER', 'en>fr', 'PUBLISHING', 'MEDIUM'));
+
+        self::assertCount(1, $this->directory->created);
+        self::assertCount(1, $this->prospecting->created);
+
+        try {
+            ($handler)(new AcceptCandidate('cand-1', 'Éditions X', 'PUBLISHER', 'en>fr', 'PUBLISHING', 'MEDIUM'));
+            self::fail('Un second tri aurait dû lever CandidateAlreadyTriaged.');
+        } catch (CandidateAlreadyTriaged) {
+            // attendu : la garde coupe avant d'atteindre les gateways.
+        }
+
+        self::assertCount(1, $this->directory->created, 'aucune organisation orpheline');
+        self::assertCount(1, $this->prospecting->created, 'aucune piste orpheline');
+    }
+
     public function testMergeRejectsUnknownOrganization(): void
     {
         $this->seedCandidate();
