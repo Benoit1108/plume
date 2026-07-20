@@ -1,10 +1,13 @@
 import { expect, test } from '@playwright/test'
 import { login, waitForHydration, watchConsole } from './helpers'
 
-// Le flux de tri complet (annonce → accepter → piste) attend un point d'entrée
-// d'ingestion (M3.1 RSS) : le navigateur ne peut pas seeder de candidate. On garde
-// ici la garde console/hydratation + l'état vide sur le tenant e2e (aucune annonce).
-test('la file de tri « À trier » se charge sans erreur (vide pour le tenant e2e)', async ({ page }) => {
+// Boucle d'ingestion RSS (M3.1a) : relever une source (FakeAlertSource par défaut — 2 annonces
+// démo à guid FIXES) fait entrer des annonces dans « À trier ». Le test est agnostique à l'état
+// initial du tenant e2e (partagé, persistant) : la relève est idempotente (dédoublonnage par
+// guid), donc l'annonce de démo est visible qu'elle vienne d'être ingérée ou d'un run précédent.
+// On ne trie PAS ici : un tri est irréversible (anti-réapparition ADR-0021) et casserait
+// l'idempotence ; les décisions de tri sont couvertes par les tests fonctionnels.
+test('file « À trier » : relever une source RSS fait entrer les annonces', async ({ page }) => {
   const errors = watchConsole(page)
 
   await login(page)
@@ -12,7 +15,12 @@ test('la file de tri « À trier » se charge sans erreur (vide pour le tenant e
   await waitForHydration(page)
 
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
-  await expect(page.getByText(/rien à trier|nothing to triage/i)).toBeVisible()
+
+  await page.getByRole('button', { name: /relever les annonces|fetch announcements/i }).first().click()
+
+  // L'annonce de démonstration apparaît dans la file, avec ses actions de tri.
+  await expect(page.getByText(/Studio Démo Audiovisuel/i)).toBeVisible()
+  await expect(page.getByRole('button', { name: /^accepter$|^accept$/i }).first()).toBeVisible()
 
   expect(errors).toEqual([])
 })

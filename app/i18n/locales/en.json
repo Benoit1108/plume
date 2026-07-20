@@ -359,7 +359,8 @@
     "actions": {
       "accept": "Accept",
       "merge": "Merge",
-      "reject": "Reject"
+      "reject": "Reject",
+      "poll": "Fetch announcements"
     },
     "form": {
       "organizationName": "Organization name",
@@ -372,7 +373,8 @@
     },
     "toasts": {
       "promoted": "Lead created",
-      "rejected": "Announcement rejected"
+      "rejected": "Announcement rejected",
+      "polled": "Sources fetched"
     },
     "errors": {
       "conflict": "Not possible: this organization may already exist — use \"Merge\" to attach it."

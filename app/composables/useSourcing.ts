@@ -36,5 +36,8 @@ export function useSourcing() {
       api<unknown>(`/api/v1/candidate-leads/${id}/merge`, { method: 'POST', body, headers: ldWrite }),
     reject: (id: string) =>
       api<unknown>(`/api/v1/candidate-leads/${id}/reject`, { method: 'POST', body: {}, headers: ldWrite }),
+    /** Relève les sources configurées (tenant courant) et ingère les annonces trouvées. */
+    poll: () =>
+      api<unknown>('/api/v1/sources/poll', { method: 'POST', body: {}, headers: ldWrite }),
   }
 }

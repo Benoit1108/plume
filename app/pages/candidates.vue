@@ -135,6 +135,23 @@ async function doReject(): Promise<void> {
   }
 }
 
+// --- Relever les sources (ingestion des annonces, tenant courant) ---
+const polling = ref(false)
+async function doPoll(): Promise<void> {
+  polling.value = true
+  try {
+    await sourcing.poll()
+    await refresh()
+    toast.add({ title: t('sourcing.toasts.polled'), color: 'success' })
+  }
+  catch (error) {
+    toast.add({ title: errorToastTitle(t, error), color: 'error' })
+  }
+  finally {
+    polling.value = false
+  }
+}
+
 function formatDate(iso?: string | null): string {
   return iso ? new Date(iso).toLocaleDateString(locale.value, { day: 'numeric', month: 'short', year: 'numeric' }) : ''
 }
@@ -147,6 +164,11 @@ function formatDate(iso?: string | null): string {
         <template #subtitle>
           <p class="mt-1 text-muted">{{ t('sourcing.intro') }}</p>
         </template>
+        <template #actions>
+          <UButton icon="i-lucide-refresh-cw" variant="outline" :loading="polling" @click="doPoll">
+            {{ t('sourcing.actions.poll') }}
+          </UButton>
+        </template>
       </PageHeader>
     </div>
 
@@ -158,6 +180,9 @@ function formatDate(iso?: string | null): string {
     <div v-else-if="!candidates.length" class="mt-6 py-16 flex flex-col items-center gap-3 text-center border border-default rounded-xl">
       <UIcon name="i-lucide-inbox" class="size-8 text-dimmed" aria-hidden="true" />
       <p class="text-muted max-w-md">{{ t('sourcing.empty') }}</p>
+      <UButton icon="i-lucide-refresh-cw" variant="outline" :loading="polling" @click="doPoll">
+        {{ t('sourcing.actions.poll') }}
+      </UButton>
     </div>
 
     <ul v-else class="mt-6 flex flex-col gap-3 rise-stagger">

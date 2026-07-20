@@ -359,7 +359,8 @@
     "actions": {
       "accept": "Accepter",
       "merge": "Fusionner",
-      "reject": "Rejeter"
+      "reject": "Rejeter",
+      "poll": "Relever les annonces"
     },
     "form": {
       "organizationName": "Nom de l'organisation",
@@ -372,7 +373,8 @@
     },
     "toasts": {
       "promoted": "Piste créée",
-      "rejected": "Annonce rejetée"
+      "rejected": "Annonce rejetée",
+      "polled": "Sources relevées"
     },
     "errors": {
       "conflict": "Impossible : cette organisation existe peut-être déjà — utilisez « Fusionner » pour la rattacher."

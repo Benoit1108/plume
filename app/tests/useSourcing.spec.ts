@@ -43,4 +43,14 @@ describe('useSourcing', () => {
     expect(paths).toContain('/api/v1/candidate-leads/c1/merge')
     expect(paths).toContain('/api/v1/candidate-leads/c1/reject')
   })
+
+  it('poll relève la source configurée', async () => {
+    apiMock.mockResolvedValue(undefined)
+
+    await useSourcing().poll()
+
+    const [path, options] = apiMock.mock.calls[0] as [string, { method: string }]
+    expect(path).toBe('/api/v1/sources/poll')
+    expect(options.method).toBe('POST')
+  })
 })
