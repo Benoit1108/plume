@@ -162,14 +162,16 @@ Consommateurs : journal d'Interactions, KPIs du tableau de bord, progression/sé
 - Events : `CandidateLeadIngested` · `CandidateLeadAccepted` · `CandidateLeadMerged` · `CandidateLeadRejected`.
 - Écran **« À trier »** : file des `PENDING`, actions accepter/fusionner/rejeter, badge de compte
   dans la navigation.
-- **Ingestion (M3.1a livré)** : support **`RawAlert`** (brut d'une annonce conservé pour audit/
-  reprocessing — `RawAlertId`, `TenantId`, `Source`, payload, `fetchedAt` ; hors agrégat métier,
-  écrit en DBAL, non mappé ORM) ; la `CandidateLead` le référence par `rawRef`. Port
+- **Ingestion RSS (M3.1 livré)** : support **`RawAlert`** (brut d'une annonce conservé pour
+  audit/reprocessing — `RawAlertId`, `TenantId`, `Source`, payload, `fetchedAt` ; hors agrégat
+  métier, écrit en DBAL, non mappé ORM) ; la `CandidateLead` le référence par `rawRef`. Port
   **`AlertSource`** (Strategy) → `RssAlertSource` (HttpClient, parsing best-effort) /
-  `FakeAlertSource` (démo). `PollAlertSource` relève la source configurée → `IngestCandidate`
-  par item (dédoublonnage par `externalId`). Déclenchement manuel `POST /sources/poll`.
-- **Reste** : **M3.1b** (gestion des flux `AlertFeed` + Scheduler auto + purge du brut) puis
-  **M3.2** (alertes email).
+  `FakeAlertSource` (démo, repli sans flux). Agrégat **`AlertFeed`** (flux RSS par tenant :
+  `source`, `url`, `label`, `active`). `PollAlertSource` relève les flux actifs → `IngestCandidate`
+  par item (dédoublonnage par `externalId`). Déclenchement **manuel** (`POST /sources/poll`) et
+  **automatique** (Scheduler 30 min, fan-out par tenant). Purge planifiée du brut des annonces
+  rejetées (D6, J+30).
+- **Reste** : **M3.2** (alertes email : label dédié via la Passerelle).
 
 ### Compte (contexte `Account`, livré M2.0 / M3.0)
 - Agrégat **`Profile`** (un par tenant) : préférences et présentation de la traductrice.

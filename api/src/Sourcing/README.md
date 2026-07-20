@@ -21,19 +21,23 @@ De l'annonce captée à la Piste : file de tri, dédoublonnage, promotion cross-
 Sûreté de la promotion : la garde `PENDING` est évaluée **avant** les gateways → jamais
 d'organisation/piste orpheline (ADR-0020). Dédoublonnage à l'ingestion : ADR-0021.
 
-## Livré (M3.1a — moteur d'ingestion RSS)
+## Livré (M3.1 — ingestion RSS complète)
 
 - **`Domain/RawAlert/`** : `RawAlert` (brut d'une annonce, conservé pour audit/reprocessing),
   référencé par `CandidateLead::rawRef`.
-- **`Application/Source/`** : port `AlertSource` (Strategy) + `ParsedAlert` (DTO) ; commande
-  `PollAlertSource` (relève → `IngestCandidate` par item, dédoublonnage par `externalId`).
-- **`Infrastructure/Source/`** : `RssAlertSource` (HttpClient, parsing best-effort — item
-  malformé ignoré), `FakeAlertSource` (démo sans réseau, défaut), `AlertSourceFactory` (réel si
-  `SOURCING_RSS_FEED_URL`, factice sinon). `RawAlert` écrit en DBAL (tenant explicite).
-- **API** : `POST /sources/poll` (relève manuelle, tenant courant — I/O sync comme la relève M2).
+- **`Domain/AlertFeed/`** : agrégat `AlertFeed` (flux RSS configuré par tenant : source, url,
+  label, actif) + events.
+- **`Application/`** : port `AlertSource` (Strategy) + `ParsedAlert` ; `PollAlertSource` (relève
+  les flux actifs → `IngestCandidate` par item, dédoublonnage par `externalId`) ; commandes
+  `AddAlertFeed`/`RemoveAlertFeed`/`SetAlertFeedActive` + query `GetAlertFeeds`.
+- **`Infrastructure/Source/`** : `RssAlertSource` (HttpClient, parsing best-effort — item malformé
+  ignoré), `FakeAlertSource` (démo sans réseau, repli quand aucun flux). `RawAlert`/`AlertFeed` en
+  DBAL/ORM (tenant explicite, fail-closed).
+- **`Infrastructure/Scheduler/`** : `PollAllSourcesTick` (relève auto 30 min, fan-out par tenant)
+  + `PurgeRawAlertsTick` (purge quotidienne du brut des annonces rejetées, D6, J+30).
+- **API** : `GET/POST /sources`, `POST /sources/{id}/{activate,deactivate}`, `DELETE /sources/{id}`,
+  `POST /sources/poll` (relève manuelle, tenant courant).
 
 ## Reste
 
-- **M3.1b** — gestion des flux (`AlertFeed` + CRUD + écran Réglages « Sources »), Scheduler auto
-  (fan-out tous tenants), purge planifiée du brut (D6).
 - **M3.2** — alertes email : lecture d'un label dédié (via Mailbox), conservation de l'email brut.

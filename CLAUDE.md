@@ -88,8 +88,9 @@ ADR-0017, relances dans le fil). Auth en cookies httpOnly (M2.0).
 
 **M3.0 — socle Sourcing + file de tri livré** : contexte `Sourcing` (agrégat `CandidateLead`,
 ADR-0020/0021), écran « À trier » (accepter/fusionner/rejeter), promotion cross-contexte par
-gateway, dédoublonnage à l'ingestion, `LeadSource` enrichi. **M3.1a — moteur d'ingestion RSS
-livré** : port `AlertSource` + `RssAlertSource`/`FakeAlertSource`, brut conservé (`RawAlert` +
-`rawRef`), `POST /sources/poll` + bouton « Relever les annonces ». Reste **M3.1b** (gestion des
-flux `AlertFeed` + Scheduler auto + purge du brut) puis **M3.2 (alertes email)**. Une passe
-d'harmonisation visuelle + une page **Compte** (mot de passe, nom d'affichage) ont aussi été livrées.
+gateway, dédoublonnage à l'ingestion, `LeadSource` enrichi. **M3.1 — ingestion RSS complète livrée** :
+port `AlertSource` + `RssAlertSource`/`FakeAlertSource`, brut conservé (`RawAlert` + `rawRef`),
+flux configurables par tenant (`AlertFeed`, écran Réglages « Sources »), relève manuelle
+(`POST /sources/poll` + bouton) et auto (Scheduler 30 min), purge du brut (D6). Reste **M3.2
+(alertes email)**. Une passe d'harmonisation visuelle + une page **Compte** (mot de passe, nom
+d'affichage) ont aussi été livrées.

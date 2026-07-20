@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App;
 
 use App\Mailbox\Infrastructure\Scheduler\FetchAllRepliesTick;
+use App\Sourcing\Infrastructure\Scheduler\PollAllSourcesTick;
+use App\Sourcing\Infrastructure\Scheduler\PurgeRawAlertsTick;
 use Symfony\Component\Console\Messenger\RunCommandMessage;
 use Symfony\Component\Scheduler\Attribute\AsSchedule;
 use Symfony\Component\Scheduler\RecurringMessage;
@@ -30,6 +32,12 @@ class Schedule implements ScheduleProviderInterface
             ->add(RecurringMessage::every('1 day', new RunCommandMessage('gesdinet:jwt:clear')))
 
             // Relève des réponses (D2 : polling — push réévalué à l'hébergement prod, ADR-0017).
-            ->add(RecurringMessage::every('5 minutes', new FetchAllRepliesTick()));
+            ->add(RecurringMessage::every('5 minutes', new FetchAllRepliesTick()))
+
+            // Relève des flux d'annonces (RSS) de tous les tenants ayant un flux actif (M3.1b).
+            ->add(RecurringMessage::every('30 minutes', new PollAllSourcesTick()))
+
+            // Purge quotidienne du brut des annonces rejetées de longue date (D6).
+            ->add(RecurringMessage::every('1 day', new PurgeRawAlertsTick()));
     }
 }
