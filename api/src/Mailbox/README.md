@@ -10,12 +10,25 @@ tokens), ADR-0017 (captation des réponses).
   curseur de relève. Une par tenant en V1 (invariant levable). Events `MailboxConnected`/`MailboxRevoked`/`MailboxSyncFailed`.
 - **`OutboundMessage`** (agrégat) : envoi (`SENDING` → `SENT` | `FAILED`, gardes anti-redélivrance),
   `threadKey` (fil provider). Events `EmailSendRequested`/`EmailSent`/`EmailSendFailed`/`ReplyCaptured`.
+- Event `AlertEmailReceived` (M3.2) : un email d'alerte lu sous le label dédié — **langage publié**
+  vers le Sourcing (émis par le handler `FetchAlertEmails`).
 
 ## Application (`Application/`)
 - Ports : `MailboxConnector` (OAuth), `MailSender` (envoi), `ReplyFetcher` (relève) — chacun via
-  un **registre** (`…Registry`) qui route selon le fournisseur de la boîte ; `TokenCipher` (chiffrement) ;
+  un **registre** (`…Registry`) qui route selon le fournisseur de la boîte ; `AlertEmailFetcher`
+  (relève des alertes sous un label dédié, M3.2) ; `TokenCipher` (chiffrement) ;
   `DraftGateway`/`RecipientResolver`/`OpenThreads` (frontières vers Drafting/Prospection, tenant explicite).
-- Commandes : `ConnectMailbox`, `RevokeMailbox`, `SendDraft`, `MarkEmailSent`/`MarkEmailFailed`, `FetchReplies`.
+- Commandes : `ConnectMailbox`, `RevokeMailbox`, `SendDraft`, `MarkEmailSent`/`MarkEmailFailed`,
+  `FetchReplies`, `FetchAlertEmails` (M3.2).
+
+## Relève des alertes (M3.2)
+- `FetchAlertEmails` lit **uniquement le label dédié « Plume/Alertes »** (minimisation, ADR-0017
+  amendé) via le port `AlertEmailFetcher` et publie un `AlertEmailReceived` par email — le Sourcing
+  décide de l'ingestion (jamais d'appel direct inter-contextes). Échec = no-op silencieux (canal
+  secondaire), le Scheduler repasse.
+- Adaptateur `FakeAlertEmailFetcher` par défaut (démo sans réseau) ; adaptateurs réels Gmail/Outlook
+  de lecture du label = **suivi** (avec de vrais emails).
+- Scheduler `FetchAllAlertEmailsTick` : fan-out **asynchrone par boîte connectée** (isolation de panne).
 
 ## Infrastructure (`Infrastructure/`)
 - OAuth : `GmailConnector`/`OutlookConnector` + `FakeMailboxConnector` (défaut sans identifiants),

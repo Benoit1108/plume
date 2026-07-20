@@ -51,8 +51,8 @@
 Après `make seed`, le tenant `recette@plume.fr` contient :
 
 - **Profil** : Marie Lefèvre, traductrice **EN↔FR / ES→FR** (bio + signature + spécialités
-  renseignées), objectif hebdomadaire par défaut.
-- **~13 organisations** avec contacts, réparties par segment :
+  renseignées), objectif hebdomadaire fixé à **4**.
+- **12 organisations** avec contacts, réparties par segment :
   - *Édition* : Éditions du Phare, Gallimard Jeunesse, Éditions Actes Sud, Nord-Sud Verlag ;
   - *Audiovisuel* : Studio Dubbing Paris, Titra Films, VSI Group ;
   - *Technique (agences)* : LinguaTech Solutions, TransPerfect, Agence Traduco ;

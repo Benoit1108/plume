@@ -40,7 +40,8 @@ Le vocabulaire métier ci-dessous est **contractuel** et reste en **français** 
 | Source d'annonces (Strategy) | `AlertSource` (port) → `RssAlertSource` / `FakeAlertSource` |
 | Annonce extraite | `ParsedAlert` (DTO) |
 | Brut d'annonce conservé | `RawAlert` (audit / reprocessing) |
-| Alerte email | `Alert` (M3.2) |
+| Alerte email (event publié) | `AlertEmailReceived` |
+| Parser d'email d'alerte | `AlertEmailParser` |
 | Annonce candidate (file de tri) | `CandidateLead` |
 | Mission (futur) | `Assignment` |
 | Facture (futur) | `Invoice` |
@@ -244,11 +245,11 @@ Le vocabulaire métier ci-dessous est **contractuel** et reste en **français** 
 | **Rejeter** (`RejectCandidate`) | Écarte l'annonce (`REJECTED`). |
 | **Empreinte de dédoublonnage** (`dedupHash`) | sha256 normalisé de `(Source, externalId?, orgName?, titre)` + index unique `(tenant_id, dedup_hash)` : l'ingestion d'un doublon est un no-op (ADR-0021). |
 | **Re-tri interdit** (`CandidateAlreadyTriaged`, 409) | seul `PENDING` est triable ; une annonce déjà triée est immuable. |
-| **Relever** (`PollAlertSource`, `POST /sources/poll`) | Interroger la source configurée (tenant courant) et ingérer les annonces trouvées (M3.1a). |
+| **Relever** (`PollAlertSource`, `POST /sources/poll`) | Interroger les flux actifs (tenant courant) et ingérer les annonces trouvées. |
 | **Flux d'annonces** (`AlertFeed`) | Un flux RSS configuré par le tenant (URL, nom, actif). Géré dans Réglages « Sources ». |
 | **Source d'annonces** (`AlertSource`) | Stratégie de lecture par canal : `RssAlertSource` (flux RSS réel) / `FakeAlertSource` (démo, repli sans flux). |
 | **Relève automatique** (`PollAllSourcesTick`) | Scheduler : relève les flux actifs de tous les tenants toutes les 30 min. |
-| **Brut d'annonce** (`RawAlert`) | Contenu brut conservé d'une annonce (audit / reprocessing) ; `CandidateLead.rawRef` y renvoie. Purge planifiée (D6) : M3.1b. |
+| **Brut d'annonce** (`RawAlert`) | Contenu brut conservé d'une annonce (audit / reprocessing) ; `CandidateLead.rawRef` y renvoie. Purgé (D6) 30 j après tri. |
 | **Alerte email** (`AlertEmailReceived`, M3.2) | Email d'offres lu sous le label dédié « Plume/Alertes » ; la Passerelle le publie, le Sourcing le parse (`AlertEmailParser`, provenance par domaine) et l'ingère. |
 | **Relève des alertes** (`FetchAlertEmails`, `AlertEmailFetcher`) | Lecture du label dédié (factice par défaut ; adaptateurs réels Gmail/Outlook = suivi). Scheduler `FetchAllAlertEmailsTick`. |
 

@@ -124,7 +124,8 @@ Consommateurs : journal d'Interactions, KPIs du tableau de bord, progression/sé
   tenant en V1 (invariant levable). Events `MailboxConnected`/`MailboxRevoked`/`MailboxSyncFailed`.
 - Agrégat **`OutboundMessage`** (envoi) : `SENDING → SENT | FAILED`, gardes d'état
   anti-redélivrance, `threadKey` (fil provider). Events `EmailSendRequested` (async),
-  `EmailSent`, `EmailSendFailed`, `ReplyCaptured`.
+  `EmailSent`, `EmailSendFailed`, `ReplyCaptured`, `AlertEmailReceived` (M3.2, émis par le
+  handler `FetchAlertEmails` — langage publié vers le Sourcing).
 - Ports (routés par fournisseur via des registres) : `MailboxConnector` (OAuth),
   `MailSender` (envoi), `ReplyFetcher` (relève), `TokenCipher` (chiffrement) ;
   frontières `DraftGateway`/`RecipientResolver`/`OpenThreads` (tenant explicite, worker-safe).

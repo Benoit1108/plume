@@ -9,7 +9,7 @@ use App\Sourcing\Application\Source\ParsedAlert;
 use App\Sourcing\Domain\CandidateLead\Source;
 
 /**
- * Source factice déterministe (défaut sans `SOURCING_RSS_FEED_URL`) : joue la boucle
+ * Source factice déterministe (repli quand le tenant n'a aucun flux actif) : joue la boucle
  * d'ingestion de bout en bout sans réseau (dev / CI / E2E). Les `externalId` sont FIXES →
  * une relève répétée est dédoublonnée (aucun doublon), donc idempotente et testable.
  */
