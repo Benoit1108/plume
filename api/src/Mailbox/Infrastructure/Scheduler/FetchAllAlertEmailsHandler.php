@@ -5,17 +5,21 @@ declare(strict_types=1);
 namespace App\Mailbox\Infrastructure\Scheduler;
 
 use App\Mailbox\Application\Command\FetchAlertEmails\FetchAlertEmails;
-use App\Shared\Application\Command\CommandBus;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Messenger\Stamp\TransportNamesStamp;
 
-/** Éventail par tenant : chaque boîte CONNECTED relève ses alertes (tenant explicite). */
+/**
+ * Éventail par tenant : chaque boîte CONNECTED relève ses alertes dans un message ASYNCHRONE
+ * dédié (isolation de panne + I/O IMAP/Graph hors de la tâche de fan-out).
+ */
 #[AsMessageHandler]
 final class FetchAllAlertEmailsHandler
 {
     public function __construct(
         private readonly Connection $connection,
-        private readonly CommandBus $commandBus,
+        private readonly MessageBusInterface $commandBus,
     ) {
     }
 
@@ -26,7 +30,7 @@ final class FetchAllAlertEmailsHandler
             "SELECT tenant_id FROM connected_mailbox WHERE status = 'CONNECTED'",
         );
         foreach ($tenants as $tenantId) {
-            $this->commandBus->dispatch(new FetchAlertEmails($tenantId));
+            $this->commandBus->dispatch(new FetchAlertEmails($tenantId), [new TransportNamesStamp(['async'])]);
         }
     }
 }

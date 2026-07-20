@@ -21,6 +21,7 @@ final class RssAlertSource implements AlertSource
     private const int MAX_TITLE = 300; // aligné sur la colonne candidate_lead.title VARCHAR(300)
     private const int MAX_EXCERPT = 2000;
     private const int MAX_URL = 2000;
+    private const int MAX_FEED_BYTES = 5_000_000; // borne la taille d'un flux relevé (anti-DoS)
 
     private readonly LoggerInterface $logger;
 
@@ -38,10 +39,23 @@ final class RssAlertSource implements AlertSource
         }
 
         try {
-            $xml = $this->httpClient->request('GET', $feedUrl)->getContent();
+            $response = $this->httpClient->request('GET', $feedUrl);
+            // Refuse un flux dont la taille annoncée dépasse la borne (anti-DoS ; le cas sans
+            // Content-Length reste borné par le timeout global du client + la garde ci-dessous).
+            $declared = (int) ($response->getHeaders()['content-length'][0] ?? 0);
+            if ($declared > self::MAX_FEED_BYTES) {
+                $this->logger->warning('Sourcing: flux RSS trop volumineux, ignoré.', ['bytes' => $declared]);
+
+                return;
+            }
+            $xml = $response->getContent();
         } catch (\Throwable $e) {
             $this->logger->warning('Sourcing: échec de récupération du flux RSS.', ['error' => $e->getMessage()]);
 
+            return;
+        }
+
+        if (\strlen($xml) > self::MAX_FEED_BYTES) {
             return;
         }
 

@@ -20,4 +20,7 @@ interface AlertFeedRepository
      * @return list<AlertFeed>
      */
     public function activeForTenant(TenantId $tenantId): array;
+
+    /** Nombre total de flux (actifs ou non) d'un tenant — pour le plafond de quota. */
+    public function countForTenant(TenantId $tenantId): int;
 }

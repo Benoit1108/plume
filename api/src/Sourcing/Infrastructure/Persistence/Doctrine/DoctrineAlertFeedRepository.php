@@ -57,4 +57,15 @@ final class DoctrineAlertFeedRepository implements AlertFeedRepository
 
         return $feeds;
     }
+
+    public function countForTenant(TenantId $tenantId): int
+    {
+        return (int) $this->em->createQueryBuilder()
+            ->select('COUNT(f.id)')
+            ->from(AlertFeed::class, 'f')
+            ->where('f.tenantId = :tenant')
+            ->setParameter('tenant', $tenantId->toString())
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
 }

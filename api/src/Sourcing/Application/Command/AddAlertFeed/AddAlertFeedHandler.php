@@ -13,10 +13,14 @@ use App\Shared\Domain\ValueObject\TenantId;
 use App\Sourcing\Domain\AlertFeed\AlertFeed;
 use App\Sourcing\Domain\AlertFeed\AlertFeedId;
 use App\Sourcing\Domain\AlertFeed\AlertFeedRepository;
+use App\Sourcing\Domain\AlertFeed\Exception\AlertFeedLimitReached;
 use App\Sourcing\Domain\CandidateLead\Source;
 
 final class AddAlertFeedHandler implements CommandHandler
 {
+    /** Plafond de flux par tenant (borne la charge de relève et l'amplification SSRF/DoS). */
+    private const int MAX_FEEDS_PER_TENANT = 25;
+
     public function __construct(
         private readonly AlertFeedRepository $feeds,
         private readonly IdGenerator $ids,
@@ -30,9 +34,14 @@ final class AddAlertFeedHandler implements CommandHandler
         $source = Source::tryFrom($command->source)
             ?? throw InvalidValue::because(sprintf('Unknown source "%s".', $command->source));
 
+        $tenantId = TenantId::fromString($command->tenantId);
+        if ($this->feeds->countForTenant($tenantId) >= self::MAX_FEEDS_PER_TENANT) {
+            throw AlertFeedLimitReached::forTenant(self::MAX_FEEDS_PER_TENANT);
+        }
+
         $feed = AlertFeed::add(
             AlertFeedId::fromString($this->ids->generate()),
-            TenantId::fromString($command->tenantId),
+            $tenantId,
             $source,
             $command->url,
             $command->label,

@@ -25,3 +25,9 @@ framework:
             policy: sliding_window
             limit: 20
             interval: '1 hour'
+        # Relève manuelle des sources (POST /sources/poll) : I/O réseau synchrone dans la
+        # requête — 12 relèves / heure par tenant, borne la charge worker et l'amplification.
+        sources_poll:
+            policy: sliding_window
+            limit: 12
+            interval: '1 hour'

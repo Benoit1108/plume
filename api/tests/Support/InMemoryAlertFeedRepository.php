@@ -37,6 +37,11 @@ final class InMemoryAlertFeedRepository implements AlertFeedRepository
         ));
     }
 
+    public function countForTenant(TenantId $tenantId): int
+    {
+        return \count(array_filter($this->byId, static fn (AlertFeed $f): bool => $f->tenantId()->equals($tenantId)));
+    }
+
     public function count(): int
     {
         return \count($this->byId);

@@ -11,6 +11,7 @@ use App\Sourcing\Application\Command\RemoveAlertFeed\RemoveAlertFeedHandler;
 use App\Sourcing\Application\Command\SetAlertFeedActive\SetAlertFeedActive;
 use App\Sourcing\Application\Command\SetAlertFeedActive\SetAlertFeedActiveHandler;
 use App\Sourcing\Domain\AlertFeed\AlertFeedId;
+use App\Sourcing\Domain\AlertFeed\Exception\AlertFeedLimitReached;
 use App\Sourcing\Domain\AlertFeed\Exception\AlertFeedNotFound;
 use App\Tests\Support\FixedClock;
 use App\Tests\Support\InMemoryAlertFeedRepository;
@@ -38,6 +39,17 @@ final class AlertFeedHandlersTest extends TestCase
         ($handler)(new AddAlertFeed('tenant-1', 'RSS', 'https://proz.example/rss', 'ProZ'));
 
         self::assertSame(1, $this->feeds->count());
+    }
+
+    public function testEnforcesTheFeedLimitPerTenant(): void
+    {
+        $handler = new AddAlertFeedHandler($this->feeds, new SequentialIdGenerator(), $this->clock, $this->eventBus);
+        for ($i = 0; $i < 25; ++$i) {
+            ($handler)(new AddAlertFeed('tenant-1', 'RSS', 'https://f'.$i.'.example/rss', null));
+        }
+
+        $this->expectException(AlertFeedLimitReached::class);
+        ($handler)(new AddAlertFeed('tenant-1', 'RSS', 'https://over.example/rss', null));
     }
 
     public function testRemoveDeletesFeed(): void
