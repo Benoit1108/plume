@@ -134,3 +134,57 @@ comme aux jalons précédents. Le **volet architecture (§5, Lot E)** est diffé
 V1 en grande partie **assumables**, dont la refonte se justifie surtout **à l'approche de la V2**.
 → arbitrage utilisateur : quels lots traiter maintenant, et que faire de la dette d'architecture
 (corriger les « Fort », tracer le reste en ADR, ou tout reporter).
+
+---
+
+## Post-scriptum — remédiation appliquée (2026-07-20, lots A→E)
+
+**Lot A — P0 + sécurité** (`08208d9`). P0 titre borné dans le domaine (≤300, aligné colonne) +
+cap parser → l'ingestion RSS ne casse plus. **SSRF** : le fetch RSS passe par
+`NoPrivateNetworkHttpClient` (refuse IP privées/réservées, redirections comprises). **XSS** : le
+`link` RSS n'est retenu comme URL que s'il est http(s) (`safeHttpUrl`) + garde `href`/`website`
+front. **RGPD** : la purge du brut vise toute annonce **triée** (REJECTED/ACCEPTED/MERGED), plus
+seulement rejetée.
+
+**Lot B — robustesse back** (`4dc6144`). Fan-out du Scheduler **asynchrone par tenant/boîte**
+(`TransportNamesStamp`) → isolation de panne, plus de transaction commune ni d'I/O dans la tâche
+de fan-out. Plafond de 25 flux/tenant + rate-limit `/sources/poll` (12/h) + cap de réponse RSS
+(5 Mo). Tests fan-out + plafond. La course check-then-insert du dédoublonnage est bornée par le
+rate-limit (manuel) et le retry Messenger (Scheduler) ; relève manuelle laissée synchrone (assumé).
+
+**Lot C — front/UX/a11y** (`1c75199`). Confirmation avant retrait d'un flux (comble la seule
+action destructive sans garde) ; titres de section en `<h2>` ; loaders `role="status"` ; focus
+ramené après retrait ; toast sur activer/désactiver ; 409 d'ajout distingué ; « Fusionner »
+désactivé (avec explication) sans organisation ; modale de tri décrite ; bouton « Relever »
+d'en-tête masqué en état vide. Parité i18n FR/EN tenue.
+
+**Lot D — docs de tête** (`4b79d77`). OVERVIEW (Sourcing = M3 complet), README Mailbox (section
+M3.2), GLOSSAIRE (identifiant fantôme `Alert` → `AlertEmailReceived`/`AlertEmailParser`),
+DOMAIN-MODEL (`AlertEmailReceived` dans l'énumération), RECETTE (12 orgs, objectif seed 4), note
+M3.1 + docbloc `FakeAlertSource` (câblage réel par flux, `SOURCING_RSS_FEED_URL`/`AlertSourceFactory`
+non retenus). Récidive n°4 soldée.
+
+**Lot E — architecture (actionnable + ADR)**. **Corrigé** : les lectures cross-contexte des
+gateways Sourcing passent désormais par des **queries** (`OrganizationExists` du Répertoire,
+`FindActiveLead` de la Prospection) — chaque contexte possède son SQL, plus de couplage au schéma
+physique d'un autre contexte. **Test de contrat** `PublishedEventContractTest` : fige la forme des
+5 events « langage publié » cross-consommés (comble l'angle mort deptrac en Infra). **Tracé** :
+les autres choix (I/O manuel synchrone, cérémonie de mapping, patrons d'adaptateurs, couche
+server-state front, types OpenAPI, SSR vs SPA) → **ADR-0022** (décisions V2).
+
+### Notes après remédiation
+
+| Domaine | Avant | Après |
+|---|---|---|
+| Back (DDD/domaine/CQRS/tests) | 7 | **9** — P0 soldé, fan-out isolé, dédoublonnage borné, fan-out testé |
+| Sécurité / RGPD | 6,5 | **9** — SSRF bridée, XSS fermé, rétention D6 corrigée, rate-limit + plafond de flux |
+| Front / UX / a11y | 7 | **9** — confirmation destructive, a11y (h2/role=status/focus), 409 distingué, cul-de-sac levé |
+| Docs / process | 6,5 | **9** — docs de tête resynchronisées (récidive n°4 soldée) |
+| Architecture back | 8 | **8,5** — lectures cross-contexte par ports + contrat d'events ; restes tracés ADR-0022 |
+| Architecture front | 7 | **7** — dette **tracée ADR-0022** (refonte server-state/types/SSR = décision V2, par arbitrage) |
+
+**Objectif ≥ 9/10 sur les 4 axes fonctionnels : atteint.** L'architecture est **améliorée
+là où c'était actionnable** et **explicitement tracée** ailleurs (ADR-0022), conformément à
+l'arbitrage. Restes assumés : relève manuelle synchrone, course de dédoublonnage bornée,
+adaptateurs email réels + parsers fins par fournisseur (suivi M3.2, avec de vrais emails).
+Prochaine grande étape : cadrage **V2** (rouvrir ADR-0022).

@@ -26,3 +26,4 @@ Ne pas contredire un ADR accepté sans en écrire un nouveau qui le remplace (st
 | [0019](0019-adaptateurs-par-fournisseur.md) | Adaptateurs email par fournisseur (3 ports + registres) | Accepté |
 | [0020](0020-contexte-sourcing.md) | Contexte Sourcing & file de tri (candidate → piste, promotion par gateway, tri humain) | Accepté |
 | [0021](0021-dedoublonnage-sourcing.md) | Dédoublonnage des annonces (dedupHash + suggestion exacte, fusion humaine) | Accepté |
+| [0022](0022-dettes-architecture-v2.md) | Dettes d'architecture à trancher en V2 (revue fin M3) | Proposé |

@@ -6,16 +6,17 @@ namespace App\Sourcing\Infrastructure\Gateway;
 
 use App\Prospecting\Application\Command\AddLeadNote\AddLeadNote;
 use App\Prospecting\Application\Command\CreateLead\CreateLead;
+use App\Prospecting\Application\Query\FindActiveLead\FindActiveLead;
 use App\Shared\Application\Command\CommandBus;
+use App\Shared\Application\Query\QueryBus;
 use App\Sourcing\Application\Gateway\ProspectingGateway;
-use Doctrine\DBAL\Connection;
 
-/** Frontière Sourcing → Prospection : délègue aux commandes, lit en DBAL fail-closed. */
+/** Frontière Sourcing → Prospection : délègue aux commandes et à la query FindActiveLead. */
 final class CommandBusProspectingGateway implements ProspectingGateway
 {
     public function __construct(
         private readonly CommandBus $commandBus,
-        private readonly Connection $connection,
+        private readonly QueryBus $queryBus,
     ) {
     }
 
@@ -35,11 +36,7 @@ final class CommandBusProspectingGateway implements ProspectingGateway
 
     public function activeLeadId(string $tenantId, string $organizationId): ?string
     {
-        // « Active » = non terminale (cf. index partiel uniq_lead_active_per_organization).
-        $id = $this->connection->fetchOne(
-            "SELECT id FROM lead WHERE tenant_id = :tenant AND organization_id = :org AND status NOT IN ('WON', 'LOST') LIMIT 1",
-            ['tenant' => $tenantId, 'org' => $organizationId],
-        );
+        $id = $this->queryBus->ask(new FindActiveLead($tenantId, $organizationId));
 
         return \is_string($id) ? $id : null;
     }

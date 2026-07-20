@@ -14,4 +14,10 @@ interface LeadSearch
 
     /** @throws \App\Prospecting\Domain\Lead\Exception\LeadNotFound */
     public function get(string $id): LeadView;
+
+    /**
+     * Id de la piste ACTIVE (non terminale) d'une organisation, s'il en existe une
+     * (invariant « 1 piste active/org »). Tenant EXPLICITE, worker-safe.
+     */
+    public function activeLeadIdForOrganization(string $tenantId, string $organizationId): ?string;
 }

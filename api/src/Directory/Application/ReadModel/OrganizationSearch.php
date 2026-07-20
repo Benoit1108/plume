@@ -14,4 +14,7 @@ interface OrganizationSearch
 
     /** @throws \App\Directory\Domain\Organization\Exception\OrganizationNotFound */
     public function get(string $id): OrganizationView;
+
+    /** Existence d'une organisation dans un tenant (tenant EXPLICITE, worker-safe). */
+    public function existsById(string $organizationId, string $tenantId): bool;
 }

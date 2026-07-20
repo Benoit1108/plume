@@ -88,6 +88,15 @@ final class DoctrineOrganizationSearch implements OrganizationSearch
         return $this->mapRow($row);
     }
 
+    public function existsById(string $organizationId, string $tenantId): bool
+    {
+        // Tenant EXPLICITE (worker-safe) : le Répertoire possède ce SQL, pas ses appelants.
+        return false !== $this->connection->fetchOne(
+            'SELECT 1 FROM organization WHERE id = :id AND tenant_id = :tenant LIMIT 1',
+            ['id' => $organizationId, 'tenant' => $tenantId],
+        );
+    }
+
     private function requireTenant(): string
     {
         return $this->tenantContext->require()->toString();

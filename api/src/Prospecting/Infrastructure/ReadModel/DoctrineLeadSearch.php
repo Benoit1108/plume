@@ -78,6 +78,18 @@ final class DoctrineLeadSearch implements LeadSearch
         return $this->mapper->map($row);
     }
 
+    public function activeLeadIdForOrganization(string $tenantId, string $organizationId): ?string
+    {
+        // « Active » = non terminale (cf. index partiel uniq_lead_active_per_organization).
+        // Tenant EXPLICITE (worker-safe) : la Prospection possède ce SQL, pas ses appelants.
+        $id = $this->connection->fetchOne(
+            "SELECT id FROM lead WHERE tenant_id = :tenant AND organization_id = :org AND status NOT IN ('WON', 'LOST') LIMIT 1",
+            ['tenant' => $tenantId, 'org' => $organizationId],
+        );
+
+        return \is_string($id) ? $id : null;
+    }
+
     private function requireTenant(): string
     {
         return $this->tenantContext->require()->toString();
