@@ -26,6 +26,8 @@ final class CandidateAcceptInput
     #[Assert\Choice(['LOW', 'MEDIUM', 'HIGH'])]
     public string $priority = 'MEDIUM';
 
-    #[Assert\Length(max: 2000)]
+    // Alimente la création d'organisation → mêmes contraintes que OrganizationResource::$website.
+    #[Assert\Url(requireTld: true)]
+    #[Assert\Length(max: 255)]
     public ?string $website = null;
 }

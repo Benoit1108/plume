@@ -4038,7 +4038,11 @@
                         "type": "string"
                     },
                     "website": {
-                        "maxLength": 2000,
+                        "format": "uri",
+                        "maxLength": 255,
+                        "externalDocs": {
+                            "url": "https://schema.org/url"
+                        },
                         "type": [
                             "string",
                             "null"
