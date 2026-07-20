@@ -94,6 +94,11 @@ const newFeedUrl = ref('')
 const newFeedLabel = ref('')
 const addingFeed = ref(false)
 const feedUrlValid = computed(() => /^https?:\/\/.+/i.test(newFeedUrl.value.trim()))
+// Focus ramené en tête de section après un retrait (l'élément traité disparaît).
+const sourcesRef = ref<HTMLElement | null>(null)
+function focusSources(): void {
+  void nextTick(() => sourcesRef.value?.focus())
+}
 
 async function addFeed(): Promise<void> {
   if (!feedUrlValid.value) return
@@ -106,7 +111,7 @@ async function addFeed(): Promise<void> {
     toast.add({ title: t('sourcing.feeds.added'), color: 'success' })
   }
   catch (error) {
-    toast.add({ title: errorToastTitle(t, error), color: 'error' })
+    toast.add({ title: isConflict(error) ? t('sourcing.feeds.errorConflict') : errorToastTitle(t, error), color: 'error' })
   }
   finally {
     addingFeed.value = false
@@ -117,16 +122,30 @@ async function toggleFeed(feed: AlertFeed): Promise<void> {
   try {
     await sourcingApi.setFeedActive(feed.id, !feed.active)
     await refreshFeeds()
+    toast.add({ title: feed.active ? t('sourcing.feeds.deactivated') : t('sourcing.feeds.activated'), color: 'success' })
   }
   catch (error) {
     toast.add({ title: errorToastTitle(t, error), color: 'error' })
   }
 }
 
-async function removeFeed(feed: AlertFeed): Promise<void> {
+// Retrait d'un flux = action destructive → confirmation, puis focus en tête de section.
+const feedToRemove = ref<AlertFeed | null>(null)
+const confirmRemoveFeed = computed({
+  get: () => feedToRemove.value !== null,
+  set: (open: boolean) => {
+    if (!open) feedToRemove.value = null
+  },
+})
+
+async function doRemoveFeed(): Promise<void> {
+  const feed = feedToRemove.value
+  if (!feed) return
   try {
     await sourcingApi.removeFeed(feed.id)
+    feedToRemove.value = null
     await refreshFeeds()
+    focusSources()
     toast.add({ title: t('sourcing.feeds.removed'), color: 'success' })
   }
   catch (error) {
@@ -172,7 +191,7 @@ async function save(): Promise<void> {
     <form v-else class="mt-6 flex flex-col gap-8 max-w-2xl" @submit.prevent="save">
       <!-- Objectif hebdomadaire -->
       <section class="border border-default rounded-xl p-4 bg-elevated/40">
-        <p class="text-sm font-semibold">{{ t('settings.goal.title') }}</p>
+        <h2 class="text-sm font-semibold">{{ t('settings.goal.title') }}</h2>
         <UFormField :label="t('settings.goal.label')" :hint="t('settings.goal.hint')" class="mt-3">
           <UInput v-model.number="weeklyGoal" type="number" min="1" max="99" class="w-32" />
         </UFormField>
@@ -181,7 +200,7 @@ async function save(): Promise<void> {
       <!-- Présentation (matière première de la rédaction assistée) -->
       <section class="border border-default rounded-xl p-4 bg-elevated/40 flex flex-col gap-4">
         <div>
-          <p class="text-sm font-semibold">{{ t('settings.presentation.title') }}</p>
+          <h2 class="text-sm font-semibold">{{ t('settings.presentation.title') }}</h2>
           <p class="text-xs text-muted mt-1">{{ t('settings.presentation.intro') }}</p>
         </div>
         <UFormField :label="t('settings.presentation.bioLabel')" :hint="t('settings.presentation.bioHint')">
@@ -203,7 +222,7 @@ async function save(): Promise<void> {
     <!-- Boîte email connectée (M2.1) — hors du form profil : cycle de vie séparé. -->
     <section class="mt-8 border border-default rounded-xl p-4 bg-elevated/40 max-w-2xl">
       <div class="flex items-center gap-2 flex-wrap">
-        <p class="text-sm font-semibold">{{ t('mailbox.title') }}</p>
+        <h2 class="text-sm font-semibold">{{ t('mailbox.title') }}</h2>
         <UBadge
           v-if="mailbox"
           :color="mailbox.status === 'CONNECTED' ? 'success' : mailbox.status === 'ERROR' ? 'error' : 'neutral'"
@@ -215,7 +234,10 @@ async function save(): Promise<void> {
       </div>
       <p class="text-xs text-muted mt-1">{{ t('mailbox.intro') }}</p>
 
-      <div v-if="mailboxLoading" class="mt-3 text-sm text-dimmed">{{ t('common.loading') }}</div>
+      <div v-if="mailboxLoading" role="status" class="mt-3 text-sm text-dimmed">
+        <span class="sr-only">{{ t('common.loading') }}</span>
+        {{ t('common.loading') }}
+      </div>
 
       <template v-else-if="mailbox && (mailbox.status === 'CONNECTED' || mailbox.status === 'ERROR')">
         <div class="mt-3 flex items-center gap-3 flex-wrap text-sm">
@@ -288,10 +310,13 @@ async function save(): Promise<void> {
 
     <!-- Sources d'annonces (M3.1b) : flux RSS relevés par « À trier ». -->
     <section class="mt-8 border border-default rounded-xl p-4 bg-elevated/40 max-w-2xl">
-      <p class="text-sm font-semibold">{{ t('sourcing.feeds.title') }}</p>
+      <h2 ref="sourcesRef" tabindex="-1" class="text-sm font-semibold outline-none">{{ t('sourcing.feeds.title') }}</h2>
       <p class="text-xs text-muted mt-1">{{ t('sourcing.feeds.intro') }}</p>
 
-      <div v-if="feedsLoading" class="mt-3 text-sm text-dimmed">{{ t('common.loading') }}</div>
+      <div v-if="feedsLoading" role="status" class="mt-3 text-sm text-dimmed">
+        <span class="sr-only">{{ t('common.loading') }}</span>
+        {{ t('common.loading') }}
+      </div>
 
       <ul v-else-if="feeds.length" class="mt-3 flex flex-col gap-2">
         <li
@@ -318,7 +343,7 @@ async function save(): Promise<void> {
               color="error"
               icon="i-lucide-trash-2"
               :aria-label="t('sourcing.feeds.remove')"
-              @click="() => removeFeed(feed)"
+              @click="() => { feedToRemove = feed }"
             />
           </div>
         </li>
@@ -340,6 +365,15 @@ async function save(): Promise<void> {
           </UButton>
         </div>
       </form>
+
+      <ConfirmDialog
+        v-model:open="confirmRemoveFeed"
+        :title="t('sourcing.feeds.confirmRemoveTitle')"
+        :description="t('sourcing.feeds.confirmRemoveBody', { label: feedToRemove?.label ?? '' })"
+        :confirm-label="t('sourcing.feeds.remove')"
+        danger
+        @confirm="doRemoveFeed"
+      />
     </section>
   </PageContainer>
 </template>

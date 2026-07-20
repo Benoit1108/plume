@@ -170,7 +170,8 @@ function safeUrl(url?: string | null): string | null {
           <p class="mt-1 text-muted">{{ t('sourcing.intro') }}</p>
         </template>
         <template #actions>
-          <UButton icon="i-lucide-refresh-cw" variant="outline" :loading="polling" @click="doPoll">
+          <!-- Masqué en état vide : le CTA de l'état vide évite le doublon de même libellé. -->
+          <UButton v-if="candidates.length" icon="i-lucide-refresh-cw" variant="outline" :loading="polling" @click="doPoll">
             {{ t('sourcing.actions.poll') }}
           </UButton>
         </template>
@@ -218,7 +219,14 @@ function safeUrl(url?: string | null): string | null {
             <UButton size="sm" icon="i-lucide-check" @click="() => openAccept(candidate)">
               {{ t('sourcing.actions.accept') }}
             </UButton>
-            <UButton size="sm" variant="outline" icon="i-lucide-git-merge" @click="() => openMerge(candidate)">
+            <UButton
+              size="sm"
+              variant="outline"
+              icon="i-lucide-git-merge"
+              :disabled="!organizations.length"
+              :title="!organizations.length ? t('sourcing.mergeNoOrg') : undefined"
+              @click="() => openMerge(candidate)"
+            >
               {{ t('sourcing.actions.merge') }}
             </UButton>
             <UButton
@@ -235,7 +243,11 @@ function safeUrl(url?: string | null): string | null {
     </ul>
 
     <!-- Accepter (nouvelle organisation) / Fusionner (organisation existante) -->
-    <UModal v-model:open="triageOpen" :title="triaging?.mode === 'accept' ? t('sourcing.acceptTitle') : t('sourcing.mergeTitle')">
+    <UModal
+      v-model:open="triageOpen"
+      :title="triaging?.mode === 'accept' ? t('sourcing.acceptTitle') : t('sourcing.mergeTitle')"
+      :description="triaging?.mode === 'accept' ? t('sourcing.acceptDescription') : t('sourcing.mergeDescription')"
+    >
       <template #body>
         <div v-if="triaging" class="flex flex-col gap-4">
           <template v-if="triaging.mode === 'accept'">
