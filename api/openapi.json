@@ -3504,6 +3504,65 @@
                 ]
             }
         },
+        "/api/v1/sources/poll": {
+            "post": {
+                "operationId": "sources_poll",
+                "tags": [
+                    "Source"
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Source resource created",
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Relever la source configur\u00e9e (tenant courant) et ing\u00e9rer les annonces trouv\u00e9es",
+                "description": "Relever la source configur\u00e9e (tenant courant) et ing\u00e9rer les annonces trouv\u00e9es",
+                "parameters": []
+            }
+        },
         "/api/v1/templates": {
             "get": {
                 "operationId": "api_templates_get_collection",
@@ -7356,6 +7415,10 @@
         {
             "name": "CandidateLead",
             "description": "File de tri (DTO) \u2014 API orient\u00e9e cas d'usage : les d\u00e9cisions de tri sont des\nPOST d\u00e9di\u00e9s (accepter / fusionner / rejeter), chacune mappe une commande."
+        },
+        {
+            "name": "Source",
+            "description": "Sources d'annonces. M3.1a : un seul geste \u2014 relever la source configur\u00e9e pour le tenant\ncourant (d\u00e9clenchement manuel). La gestion des flux (CRUD) et le Scheduler auto = M3.1b."
         }
     ],
     "webhooks": {}

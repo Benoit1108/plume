@@ -2,15 +2,16 @@
 
 declare(strict_types=1);
 
-namespace App\Sourcing\Application\Command\IngestCandidate;
+namespace App\Sourcing\Application\Source;
 
-use App\Shared\Application\Command\Command;
-
-/** Fait entrer une annonce dans la file de tri (parser, source factice, saisie). */
-final class IngestCandidate implements Command
+/**
+ * Annonce extraite d'une source, prête à être ingérée. Champs best-effort et bornés
+ * (le parser garantit un `title` non vide et des longueurs saines). `externalId` = guid
+ * stable de l'annonce (RSS) → dédoublonnage fiable ; `rawPayload` = item brut conservé.
+ */
+final class ParsedAlert
 {
     public function __construct(
-        public readonly string $tenantId,
         public readonly string $source,
         public readonly string $title,
         public readonly ?string $organizationName = null,

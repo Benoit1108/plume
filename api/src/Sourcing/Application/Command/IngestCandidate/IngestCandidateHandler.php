@@ -15,11 +15,15 @@ use App\Sourcing\Domain\CandidateLead\CandidateLeadId;
 use App\Sourcing\Domain\CandidateLead\CandidateLeadRepository;
 use App\Sourcing\Domain\CandidateLead\Dedup;
 use App\Sourcing\Domain\CandidateLead\Source;
+use App\Sourcing\Domain\RawAlert\RawAlert;
+use App\Sourcing\Domain\RawAlert\RawAlertId;
+use App\Sourcing\Domain\RawAlert\RawAlertRepository;
 
 final class IngestCandidateHandler implements CommandHandler
 {
     public function __construct(
         private readonly CandidateLeadRepository $candidates,
+        private readonly RawAlertRepository $rawAlerts,
         private readonly IdGenerator $ids,
         private readonly Clock $clock,
         private readonly EventBus $eventBus,
@@ -34,9 +38,25 @@ final class IngestCandidateHandler implements CommandHandler
 
         $dedupHash = Dedup::hash($source, $command->externalId, $command->organizationName, $command->title);
 
-        // Anti-doublon (ADR-0021) : déjà vue → no-op silencieux.
+        // Anti-doublon (ADR-0021) : déjà vue → no-op silencieux (aucun brut conservé).
         if ($this->candidates->existsByDedupHash($tenantId, $dedupHash)) {
             return;
+        }
+
+        $now = $this->clock->now();
+
+        // Conservation du brut (audit / reprocessing) — seulement pour une annonce neuve.
+        $rawRef = null;
+        if (null !== $command->rawPayload && '' !== trim($command->rawPayload)) {
+            $rawAlert = RawAlert::capture(
+                RawAlertId::fromString($this->ids->generate()),
+                $tenantId,
+                $source,
+                $command->rawPayload,
+                $now,
+            );
+            $this->rawAlerts->save($rawAlert);
+            $rawRef = $rawAlert->id()->toString();
         }
 
         $candidate = CandidateLead::ingest(
@@ -50,7 +70,8 @@ final class IngestCandidateHandler implements CommandHandler
             $command->url,
             $command->excerpt,
             self::parseDate($command->postedAt),
-            $this->clock->now(),
+            $now,
+            $rawRef,
         );
 
         $this->candidates->save($candidate);

@@ -37,6 +37,7 @@ final class CandidateLead extends AggregateRoot
         private readonly ?string $excerpt,
         private readonly ?\DateTimeImmutable $postedAt,
         private readonly \DateTimeImmutable $ingestedAt,
+        private readonly ?string $rawRef = null,
     ) {
     }
 
@@ -52,6 +53,7 @@ final class CandidateLead extends AggregateRoot
         ?string $excerpt,
         ?\DateTimeImmutable $postedAt,
         \DateTimeImmutable $now,
+        ?string $rawRef = null,
     ): self {
         $title = trim($title);
         if ('' === $title) {
@@ -74,6 +76,7 @@ final class CandidateLead extends AggregateRoot
             self::normalize($excerpt),
             $postedAt,
             $now,
+            self::normalize($rawRef),
         );
         $candidate->recordEvent(new CandidateLeadIngested(
             $id->toString(),
@@ -198,5 +201,11 @@ final class CandidateLead extends AggregateRoot
     public function ingestedAt(): \DateTimeImmutable
     {
         return $this->ingestedAt;
+    }
+
+    /** Référence vers le brut conservé (`RawAlert`), null pour la saisie manuelle. */
+    public function rawRef(): ?string
+    {
+        return $this->rawRef;
     }
 }

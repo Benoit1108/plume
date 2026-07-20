@@ -135,6 +135,31 @@ final class CandidateLeadTest extends TestCase
         self::assertSame('JOB_BOARD', Source::MANUAL->toLeadSource()); // seul mapping non-identité
     }
 
+    public function testIngestCanCarryARawReference(): void
+    {
+        $candidate = CandidateLead::ingest(
+            CandidateLeadId::fromString('cand-raw'),
+            TenantId::fromString('tenant-1'),
+            Source::RSS,
+            'hash-raw',
+            'Titre',
+            null,
+            null,
+            null,
+            null,
+            null,
+            new \DateTimeImmutable(self::NOW),
+            'raw-123',
+        );
+
+        self::assertSame('raw-123', $candidate->rawRef());
+    }
+
+    public function testRawReferenceDefaultsToNull(): void
+    {
+        self::assertNull($this->ingest()->rawRef());
+    }
+
     public function testCannotRetriageOnceTriaged(): void
     {
         $candidate = $this->ingest();

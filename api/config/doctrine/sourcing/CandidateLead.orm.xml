@@ -28,5 +28,7 @@
         <field name="promotedLeadId" type="string" column="promoted_lead_id" nullable="true"/>
         <field name="organizationId" type="string" column="organization_id" nullable="true"/>
         <field name="ingestedAt" type="datetime_immutable" column="ingested_at"/>
+        <!-- Référence vers le brut conservé (RawAlert), null pour la saisie manuelle (M3.1a). -->
+        <field name="rawRef" type="string" column="raw_ref" length="255" nullable="true"/>
     </entity>
 </doctrine-mapping>

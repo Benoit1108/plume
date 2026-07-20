@@ -24,7 +24,7 @@ final class CandidateLeadApiTest extends ApiTestCase
     {
         $connection = static::getContainer()->get(Connection::class);
         \assert($connection instanceof Connection);
-        $connection->executeStatement('TRUNCATE TABLE candidate_lead, lead, organization, app_user, refresh_tokens RESTART IDENTITY CASCADE');
+        $connection->executeStatement('TRUNCATE TABLE candidate_lead, raw_alert, lead, organization, app_user, refresh_tokens RESTART IDENTITY CASCADE');
     }
 
     private function createUser(string $email): string
@@ -100,6 +100,41 @@ final class CandidateLeadApiTest extends ApiTestCase
         self::assertCount(1, $members);
         self::assertSame('Traduction littéraire EN>FR', $members[0]['title']);
         self::assertSame('PROZ', $members[0]['source']);
+    }
+
+    public function testPollIngestsFromTheConfiguredSourceAndIsIdempotent(): void
+    {
+        $this->createUser('a@plume.test');
+        $client = static::createClient();
+        $token = $this->tokenFor($client, 'a@plume.test');
+
+        // Sans SOURCING_RSS_FEED_URL en test => FakeAlertSource (2 annonces démo).
+        $client->request('POST', '/api/v1/sources/poll', ['auth_bearer' => $token]);
+        self::assertResponseStatusCodeSame(202);
+
+        $members = $this->membersOf($client->request('GET', '/api/v1/candidate-leads', ['auth_bearer' => $token])->toArray());
+        self::assertCount(2, $members);
+
+        // Re-relève : mêmes externalId (guid) => dédoublonné, aucun doublon.
+        $client->request('POST', '/api/v1/sources/poll', ['auth_bearer' => $token]);
+        self::assertResponseStatusCodeSame(202);
+        $members = $this->membersOf($client->request('GET', '/api/v1/candidate-leads', ['auth_bearer' => $token])->toArray());
+        self::assertCount(2, $members);
+    }
+
+    public function testPollIsIsolatedPerTenant(): void
+    {
+        $this->createUser('a@plume.test');
+        $this->createUser('b@plume.test');
+        $client = static::createClient();
+
+        $tokenA = $this->tokenFor($client, 'a@plume.test');
+        $client->request('POST', '/api/v1/sources/poll', ['auth_bearer' => $tokenA]);
+
+        // B n'a rien relevé : sa file reste vide (les annonces de A ne fuitent pas).
+        $tokenB = $this->tokenFor($client, 'b@plume.test');
+        $members = $this->membersOf($client->request('GET', '/api/v1/candidate-leads', ['auth_bearer' => $tokenB])->toArray());
+        self::assertCount(0, $members);
     }
 
     public function testAcceptCreatesOrganizationAndLeadAndLeavesQueue(): void

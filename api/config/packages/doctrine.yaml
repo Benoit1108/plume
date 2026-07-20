@@ -6,7 +6,8 @@ doctrine:
         # soustrait au diff pour qu'il ne propose jamais de les DROP.
         #   - interaction        : projection append-only (journal), écrite/lue en DBAL pur
         #   - messenger_messages : transport Messenger (outbox transactionnel)
-        schema_filter: '~^(?!(messenger_messages|interaction)$)~'
+        #   - raw_alert          : brut des annonces ingérées (support Sourcing, DBAL pur)
+        schema_filter: '~^(?!(messenger_messages|interaction|raw_alert)$)~'
         types:
             lead_id: App\Prospecting\Infrastructure\Persistence\Doctrine\Type\LeadIdType
             tenant_id: App\Shared\Infrastructure\Persistence\Doctrine\Type\TenantIdType
