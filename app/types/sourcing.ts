@@ -29,3 +29,19 @@ export interface CandidateMergeInput {
   segment: string
   priority: string
 }
+
+/** Flux d'annonces configuré (M3.1b). */
+export interface AlertFeed {
+  id: string
+  source: CandidateSource
+  url: string
+  label: string
+  active: boolean
+  createdAt: string
+}
+
+export interface AlertFeedInput {
+  source: CandidateSource
+  url: string
+  label?: string | null
+}

@@ -1,5 +1,5 @@
 import type { JsonLdCollection } from '~/types/api'
-import type { CandidateAcceptInput, CandidateLead, CandidateMergeInput } from '~/types/sourcing'
+import type { AlertFeed, AlertFeedInput, CandidateAcceptInput, CandidateLead, CandidateMergeInput } from '~/types/sourcing'
 
 /** Client de la file de tri (Sourcing, M3). `pendingCount` est partagé (badge de nav). */
 export function useSourcing() {
@@ -39,5 +39,17 @@ export function useSourcing() {
     /** Relève les sources configurées (tenant courant) et ingère les annonces trouvées. */
     poll: () =>
       api<unknown>('/api/v1/sources/poll', { method: 'POST', body: {}, headers: ldWrite }),
+
+    /** Flux d'annonces configurés (M3.1b). */
+    async feeds(): Promise<AlertFeed[]> {
+      const res = await api<JsonLdCollection<AlertFeed>>('/api/v1/sources', { headers: ld })
+      return res.member ?? res['hydra:member'] ?? []
+    },
+    addFeed: (body: AlertFeedInput) =>
+      api<unknown>('/api/v1/sources', { method: 'POST', body, headers: ldWrite }),
+    setFeedActive: (id: string, active: boolean) =>
+      api<unknown>(`/api/v1/sources/${id}/${active ? 'activate' : 'deactivate'}`, { method: 'POST', body: {}, headers: ldWrite }),
+    removeFeed: (id: string) =>
+      api<unknown>(`/api/v1/sources/${id}`, { method: 'DELETE' }),
   }
 }

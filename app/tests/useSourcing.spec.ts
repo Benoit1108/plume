@@ -53,4 +53,27 @@ describe('useSourcing', () => {
     expect(path).toBe('/api/v1/sources/poll')
     expect(options.method).toBe('POST')
   })
+
+  it('feeds liste les flux configurés', async () => {
+    apiMock.mockResolvedValueOnce({ member: [{ id: 'f1' }, { id: 'f2' }] })
+
+    await expect(useSourcing().feeds()).resolves.toHaveLength(2)
+    expect((apiMock.mock.calls[0] as [string])[0]).toBe('/api/v1/sources')
+  })
+
+  it('addFeed / setFeedActive / removeFeed ciblent les bons endpoints', async () => {
+    apiMock.mockResolvedValue(undefined)
+    const sourcing = useSourcing()
+
+    await sourcing.addFeed({ source: 'RSS', url: 'https://x.test/rss', label: null })
+    await sourcing.setFeedActive('f1', false)
+    await sourcing.setFeedActive('f2', true)
+    await sourcing.removeFeed('f1')
+
+    const calls = apiMock.mock.calls.map(call => [(call as [string])[0], (call as [string, { method?: string }])[1]?.method])
+    expect(calls).toContainEqual(['/api/v1/sources', 'POST'])
+    expect(calls).toContainEqual(['/api/v1/sources/f1/deactivate', 'POST'])
+    expect(calls).toContainEqual(['/api/v1/sources/f2/activate', 'POST'])
+    expect(calls).toContainEqual(['/api/v1/sources/f1', 'DELETE'])
+  })
 })

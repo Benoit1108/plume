@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import type { Profile } from '~/types/leads'
 import type { Mailbox } from '~/types/mailbox'
+import type { AlertFeed } from '~/types/sourcing'
 
 const { t, locale } = useI18n()
 const profileApi = useProfile()
 const mailboxApi = useMailbox()
+const sourcingApi = useSourcing()
 const toast = useToast()
 
 const { data: profile, refresh, status } = await useAsyncData<Profile | null>(
@@ -79,6 +81,57 @@ async function revokeMailbox(): Promise<void> {
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString(locale.value, { day: 'numeric', month: 'short', year: 'numeric' })
+}
+
+// ----- Sources d'annonces (M3.1b) -----
+const { data: feeds, refresh: refreshFeeds, status: feedsStatus } = await useAsyncData<AlertFeed[]>(
+  'alert-feeds',
+  () => sourcingApi.feeds(),
+  { server: false, default: () => [] },
+)
+const feedsLoading = computed(() => feedsStatus.value === 'idle' || feedsStatus.value === 'pending')
+const newFeedUrl = ref('')
+const newFeedLabel = ref('')
+const addingFeed = ref(false)
+const feedUrlValid = computed(() => /^https?:\/\/.+/i.test(newFeedUrl.value.trim()))
+
+async function addFeed(): Promise<void> {
+  if (!feedUrlValid.value) return
+  addingFeed.value = true
+  try {
+    await sourcingApi.addFeed({ source: 'RSS', url: newFeedUrl.value.trim(), label: newFeedLabel.value.trim() || null })
+    newFeedUrl.value = ''
+    newFeedLabel.value = ''
+    await refreshFeeds()
+    toast.add({ title: t('sourcing.feeds.added'), color: 'success' })
+  }
+  catch (error) {
+    toast.add({ title: errorToastTitle(t, error), color: 'error' })
+  }
+  finally {
+    addingFeed.value = false
+  }
+}
+
+async function toggleFeed(feed: AlertFeed): Promise<void> {
+  try {
+    await sourcingApi.setFeedActive(feed.id, !feed.active)
+    await refreshFeeds()
+  }
+  catch (error) {
+    toast.add({ title: errorToastTitle(t, error), color: 'error' })
+  }
+}
+
+async function removeFeed(feed: AlertFeed): Promise<void> {
+  try {
+    await sourcingApi.removeFeed(feed.id)
+    await refreshFeeds()
+    toast.add({ title: t('sourcing.feeds.removed'), color: 'success' })
+  }
+  catch (error) {
+    toast.add({ title: errorToastTitle(t, error), color: 'error' })
+  }
 }
 
 const saving = ref(false)
@@ -231,6 +284,62 @@ async function save(): Promise<void> {
         danger
         @confirm="revokeMailbox"
       />
+    </section>
+
+    <!-- Sources d'annonces (M3.1b) : flux RSS relevés par « À trier ». -->
+    <section class="mt-8 border border-default rounded-xl p-4 bg-elevated/40 max-w-2xl">
+      <p class="text-sm font-semibold">{{ t('sourcing.feeds.title') }}</p>
+      <p class="text-xs text-muted mt-1">{{ t('sourcing.feeds.intro') }}</p>
+
+      <div v-if="feedsLoading" class="mt-3 text-sm text-dimmed">{{ t('common.loading') }}</div>
+
+      <ul v-else-if="feeds.length" class="mt-3 flex flex-col gap-2">
+        <li
+          v-for="feed in feeds"
+          :key="feed.id"
+          class="flex items-center gap-3 flex-wrap border border-default rounded-lg p-3 bg-default"
+        >
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center gap-2">
+              <span class="font-medium text-sm truncate">{{ feed.label }}</span>
+              <UBadge :color="feed.active ? 'success' : 'neutral'" variant="soft" size="sm">
+                {{ feed.active ? t('sourcing.feeds.active') : t('sourcing.feeds.inactive') }}
+              </UBadge>
+            </div>
+            <p class="text-xs text-dimmed truncate">{{ feed.url }}</p>
+          </div>
+          <div class="flex gap-2 shrink-0">
+            <UButton size="xs" variant="outline" @click="() => toggleFeed(feed)">
+              {{ feed.active ? t('sourcing.feeds.deactivate') : t('sourcing.feeds.activate') }}
+            </UButton>
+            <UButton
+              size="xs"
+              variant="ghost"
+              color="error"
+              icon="i-lucide-trash-2"
+              :aria-label="t('sourcing.feeds.remove')"
+              @click="() => removeFeed(feed)"
+            />
+          </div>
+        </li>
+      </ul>
+      <p v-else class="mt-3 text-sm text-muted">{{ t('sourcing.feeds.empty') }}</p>
+
+      <form class="mt-4 flex flex-col gap-3" @submit.prevent="addFeed">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <UFormField :label="t('sourcing.feeds.urlLabel')">
+            <UInput v-model="newFeedUrl" class="w-full" type="url" placeholder="https://…/rss" />
+          </UFormField>
+          <UFormField :label="t('sourcing.feeds.labelLabel')" :hint="t('sourcing.feeds.labelHint')">
+            <UInput v-model="newFeedLabel" class="w-full" maxlength="120" />
+          </UFormField>
+        </div>
+        <div class="flex justify-end">
+          <UButton type="submit" icon="i-lucide-plus" :loading="addingFeed" :disabled="!feedUrlValid">
+            {{ t('sourcing.feeds.add') }}
+          </UButton>
+        </div>
+      </form>
     </section>
   </PageContainer>
 </template>

@@ -380,7 +380,23 @@
       "conflict": "Impossible : cette organisation existe peut-être déjà — utilisez « Fusionner » pour la rattacher."
     },
     "confirmRejectTitle": "Rejeter cette annonce ?",
-    "confirmRejectBody": "« {title} » ne réapparaîtra pas dans la file."
+    "confirmRejectBody": "« {title} » ne réapparaîtra pas dans la file.",
+    "feeds": {
+      "title": "Sources d'annonces",
+      "intro": "Flux RSS relevés pour alimenter « À trier ». Seuls les flux actifs sont relevés.",
+      "active": "Actif",
+      "inactive": "Inactif",
+      "activate": "Activer",
+      "deactivate": "Désactiver",
+      "remove": "Retirer",
+      "empty": "Aucun flux configuré — ajoutez une URL RSS ci-dessous.",
+      "added": "Flux ajouté",
+      "removed": "Flux retiré",
+      "urlLabel": "URL du flux RSS",
+      "labelLabel": "Nom (optionnel)",
+      "labelHint": "Par défaut : le domaine du flux.",
+      "add": "Ajouter le flux"
+    }
   },
   "account": {
     "eyebrow": "Compte",

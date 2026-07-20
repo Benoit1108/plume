@@ -380,7 +380,23 @@
       "conflict": "Not possible: this organization may already exist — use \"Merge\" to attach it."
     },
     "confirmRejectTitle": "Reject this announcement?",
-    "confirmRejectBody": "\"{title}\" won't come back to the queue."
+    "confirmRejectBody": "\"{title}\" won't come back to the queue.",
+    "feeds": {
+      "title": "Announcement sources",
+      "intro": "RSS feeds fetched to fill \"To triage\". Only active feeds are fetched.",
+      "active": "Active",
+      "inactive": "Inactive",
+      "activate": "Activate",
+      "deactivate": "Deactivate",
+      "remove": "Remove",
+      "empty": "No feed configured — add an RSS URL below.",
+      "added": "Feed added",
+      "removed": "Feed removed",
+      "urlLabel": "RSS feed URL",
+      "labelLabel": "Name (optional)",
+      "labelHint": "Defaults to the feed's domain.",
+      "add": "Add feed"
+    }
   },
   "account": {
     "eyebrow": "Account",
