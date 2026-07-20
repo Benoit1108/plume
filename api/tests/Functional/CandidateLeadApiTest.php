@@ -186,6 +186,79 @@ final class CandidateLeadApiTest extends ApiTestCase
         self::assertCount(0, $queue);
     }
 
+    public function testMutationsAreIsolatedPerTenant(): void
+    {
+        $tenantA = $this->createUser('a@plume.test');
+        $this->createUser('b@plume.test');
+        $this->seedCandidate($tenantA, 'cand-1');
+        $client = static::createClient();
+        $tokenB = $this->tokenFor($client, 'b@plume.test');
+
+        // B ne voit pas la candidate de A → 404 sur chaque mutation (isolation fail-closed).
+        $client->request('POST', '/api/v1/candidate-leads/cand-1/reject', ['auth_bearer' => $tokenB]);
+        self::assertResponseStatusCodeSame(404);
+
+        $client->request('POST', '/api/v1/candidate-leads/cand-1/accept', [
+            'auth_bearer' => $tokenB,
+            'headers' => ['Content-Type' => 'application/ld+json'],
+            'json' => ['organizationName' => 'X', 'organizationType' => 'PUBLISHER', 'languagePair' => 'en>fr', 'segment' => 'PUBLISHING', 'priority' => 'MEDIUM'],
+        ]);
+        self::assertResponseStatusCodeSame(404);
+    }
+
+    public function testDoubleAcceptReturns409(): void
+    {
+        $tenant = $this->createUser('a@plume.test');
+        $this->seedCandidate($tenant, 'cand-1');
+        $client = static::createClient();
+        $token = $this->tokenFor($client, 'a@plume.test');
+        $body = [
+            'auth_bearer' => $token,
+            'headers' => ['Content-Type' => 'application/ld+json'],
+            'json' => ['organizationName' => 'Éditions Test', 'organizationType' => 'PUBLISHER', 'languagePair' => 'en>fr', 'segment' => 'PUBLISHING', 'priority' => 'MEDIUM'],
+        ];
+
+        $client->request('POST', '/api/v1/candidate-leads/cand-1/accept', $body);
+        self::assertResponseStatusCodeSame(204);
+
+        // Re-tri (double-clic / redélivrance) → 409 (garde CandidateAlreadyTriaged).
+        $client->request('POST', '/api/v1/candidate-leads/cand-1/accept', $body);
+        self::assertResponseStatusCodeSame(409);
+    }
+
+    public function testMergeIntoOrgWithActiveLeadAttachesWithoutSecondLead(): void
+    {
+        $tenant = $this->createUser('a@plume.test');
+        $this->seedCandidate($tenant, 'cand-1');
+        $client = static::createClient();
+        $token = $this->tokenFor($client, 'a@plume.test');
+
+        // Organisation avec une piste active.
+        $org = $client->request('POST', '/api/v1/organizations', [
+            'auth_bearer' => $token,
+            'headers' => ['Content-Type' => 'application/ld+json'],
+            'json' => ['name' => 'Éditions Actives', 'type' => 'PUBLISHER'],
+        ])->toArray();
+        $orgId = $org['id'];
+        $client->request('POST', '/api/v1/leads', [
+            'auth_bearer' => $token,
+            'headers' => ['Content-Type' => 'application/ld+json'],
+            'json' => ['organizationId' => $orgId, 'languagePair' => 'en>fr', 'source' => 'DIRECT', 'priority' => 'MEDIUM', 'segment' => 'PUBLISHING'],
+        ]);
+        self::assertResponseIsSuccessful();
+
+        // Fusion : rattache à la piste active — pas de seconde piste.
+        $client->request('POST', '/api/v1/candidate-leads/cand-1/merge', [
+            'auth_bearer' => $token,
+            'headers' => ['Content-Type' => 'application/ld+json'],
+            'json' => ['organizationId' => $orgId, 'languagePair' => 'en>fr', 'segment' => 'PUBLISHING', 'priority' => 'MEDIUM'],
+        ]);
+        self::assertResponseStatusCodeSame(204);
+
+        $leads = $this->membersOf($client->request('GET', '/api/v1/leads', ['auth_bearer' => $token])->toArray());
+        self::assertCount(1, $leads);
+    }
+
     public function testRejectUnknownCandidateReturns404(): void
     {
         $this->createUser('a@plume.test');

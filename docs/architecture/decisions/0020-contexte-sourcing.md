@@ -30,6 +30,16 @@
   Piste existante ; Sourcing est un satellite retirable.
 - ✅ Tri humain = point de contrôle unique (qualité, opt-out, RGPD).
 - ✅ Ajouter une source = un adaptateur `AlertSource`, sans toucher au tri ni à la promotion.
-- ⚠️ La promotion orchestre **deux contextes** (Organisation puis Piste) : chaque commande a
-  sa transaction ; on garantit l'ordre (org d'abord) et l'**idempotence** (ré-acceptation =
-  no-op), un échec partiel est tracé et rejouable (la candidate reste `PENDING`).
+- ✅ La promotion orchestre **deux contextes** (Organisation puis Piste). Le dispatch imbriqué
+  sur `command.bus` (middleware `doctrine_transaction`, connexion unique) s'exécute dans **une
+  seule transaction** : un échec de `CreateLead` **annule** la `CreateOrganization` — pas
+  d'orphelin. La garde de tri (`PENDING`) est vérifiée **dans le handler, AVANT les gateways**
+  (défense de domaine, pas seulement l'atomicité émergente), et le double-clic est en outre
+  bordé par les index uniques (`uniq_organization_tenant_lower_name`,
+  `uniq_lead_active_per_organization`). Ré-acceptation d'une candidate déjà triée → 409.
+- ⚠️ Cette atomicité **repose sur le nesting transactionnel du bus** : passer un gateway en
+  transaction séparée (commande asynchrone) romprait la garantie → il faudrait alors une
+  saga/compensation. À réévaluer si une étape devient asynchrone.
+- ✅ **Fusion sur une organisation à piste active** : on rattache à la piste existante (note
+  « annonce rattachée ») au lieu d'en créer une seconde — l'invariant « une piste active par
+  organisation » (M1.2) tient (revue M3.0).

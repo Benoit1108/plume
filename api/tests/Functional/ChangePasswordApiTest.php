@@ -133,4 +133,21 @@ final class ChangePasswordApiTest extends ApiTestCase
         ]);
         self::assertResponseStatusCodeSame(429);
     }
+
+    public function testChangingPasswordRevokesRefreshTokens(): void
+    {
+        $this->createUser('rev@plume.test');
+        $client = static::createClient();
+        $token = $this->tokenFor($client, 'rev@plume.test'); // pose les cookies (jwt + refresh)
+
+        $client->request('POST', '/api/v1/account/password', [
+            'auth_bearer' => $token,
+            'json' => ['currentPassword' => self::PASSWORD, 'newPassword' => 'secret-Test-456'],
+        ]);
+        self::assertResponseStatusCodeSame(204);
+
+        // Le refresh token de la session ouverte est révoqué → ne rafraîchit plus (cookie rejoué).
+        $client->request('POST', '/api/v1/token/refresh', ['json' => []]);
+        self::assertResponseStatusCodeSame(401);
+    }
 }

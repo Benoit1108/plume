@@ -15,6 +15,7 @@ use App\Sourcing\Application\Command\RejectCandidate\RejectCandidateHandler;
 use App\Sourcing\Domain\CandidateLead\CandidateLead;
 use App\Sourcing\Domain\CandidateLead\CandidateLeadId;
 use App\Sourcing\Domain\CandidateLead\CandidateStatus;
+use App\Sourcing\Domain\CandidateLead\Exception\CandidateAlreadyTriaged;
 use App\Sourcing\Domain\CandidateLead\Exception\CandidateLeadNotFound;
 use App\Sourcing\Domain\CandidateLead\Source;
 use App\Tests\Support\FakeDirectoryGateway;
@@ -90,6 +91,31 @@ final class TriageCandidateHandlersTest extends TestCase
         self::assertSame('org-existing', $this->prospecting->created[0]['organizationId']);
         self::assertCount(0, $this->directory->created); // pas de nouvelle organisation
         self::assertSame(CandidateStatus::MERGED, $this->repo->find(CandidateLeadId::fromString('cand-1'))?->status());
+    }
+
+    public function testMergeAttachesToActiveLeadWithoutCreatingASecond(): void
+    {
+        $this->seedCandidate();
+        $this->directory->addExisting('org-existing');
+        $this->prospecting->withActiveLead('lead-active');
+        $handler = new MergeCandidateHandler($this->repo, $this->directory, $this->prospecting, $this->ids, $this->clock, $this->eventBus);
+
+        ($handler)(new MergeCandidate('cand-1', 'org-existing', 'en>fr', 'PUBLISHING', 'MEDIUM'));
+
+        self::assertCount(0, $this->prospecting->created); // pas de seconde piste
+        self::assertCount(1, $this->prospecting->notes);
+        self::assertSame('lead-active', $this->prospecting->notes[0]['leadId']);
+        self::assertSame(CandidateStatus::MERGED, $this->repo->find(CandidateLeadId::fromString('cand-1'))?->status());
+    }
+
+    public function testCannotTriageTwice(): void
+    {
+        $this->seedCandidate();
+        $handler = new AcceptCandidateHandler($this->repo, $this->directory, $this->prospecting, $this->ids, $this->clock, $this->eventBus);
+        ($handler)(new AcceptCandidate('cand-1', 'Éditions X', 'PUBLISHER', 'en>fr', 'PUBLISHING', 'MEDIUM'));
+
+        $this->expectException(CandidateAlreadyTriaged::class);
+        ($handler)(new AcceptCandidate('cand-1', 'Éditions X', 'PUBLISHER', 'en>fr', 'PUBLISHING', 'MEDIUM'));
     }
 
     public function testMergeRejectsUnknownOrganization(): void

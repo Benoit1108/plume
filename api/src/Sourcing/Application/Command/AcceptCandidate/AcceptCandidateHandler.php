@@ -12,6 +12,8 @@ use App\Sourcing\Application\Gateway\DirectoryGateway;
 use App\Sourcing\Application\Gateway\ProspectingGateway;
 use App\Sourcing\Domain\CandidateLead\CandidateLeadId;
 use App\Sourcing\Domain\CandidateLead\CandidateLeadRepository;
+use App\Sourcing\Domain\CandidateLead\CandidateStatus;
+use App\Sourcing\Domain\CandidateLead\Exception\CandidateAlreadyTriaged;
 use App\Sourcing\Domain\CandidateLead\Exception\CandidateLeadNotFound;
 
 /**
@@ -35,6 +37,11 @@ final class AcceptCandidateHandler implements CommandHandler
     {
         $candidate = $this->candidates->find(CandidateLeadId::fromString($command->candidateLeadId))
             ?? throw CandidateLeadNotFound::withId($command->candidateLeadId);
+
+        // Garde de tri AVANT tout effet cross-contexte : un re-tri concurrent ne crée ni org ni piste.
+        if (CandidateStatus::PENDING !== $candidate->status()) {
+            throw CandidateAlreadyTriaged::is($candidate->status());
+        }
 
         $tenantId = $candidate->tenantId()->toString();
 

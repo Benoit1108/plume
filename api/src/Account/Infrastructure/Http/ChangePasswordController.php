@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Account\Infrastructure\Http;
 
+use App\Account\Infrastructure\Auth\RefreshToken;
 use App\Account\Infrastructure\Persistence\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -60,6 +61,12 @@ final class ChangePasswordController
         }
 
         $user->setPassword($this->hasher->hashPassword($user, $new));
+
+        // Révoque TOUTES les sessions : après changement, les refresh tokens existants ne
+        // valent plus (une victime expulse ainsi un attaquant qui a une session ouverte).
+        foreach ($this->em->getRepository(RefreshToken::class)->findBy(['username' => $user->getUserIdentifier()]) as $token) {
+            $this->em->remove($token);
+        }
         $this->em->flush();
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
