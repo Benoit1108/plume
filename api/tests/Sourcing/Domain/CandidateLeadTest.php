@@ -135,6 +135,25 @@ final class CandidateLeadTest extends TestCase
         self::assertSame('JOB_BOARD', Source::MANUAL->toLeadSource()); // seul mapping non-identité
     }
 
+    public function testTitleLongerThanTheColumnIsRejected(): void
+    {
+        // Garde-fou : un titre > 300 (colonne VARCHAR(300)) lève au lieu de casser l'INSERT.
+        $this->expectException(InvalidValue::class);
+        CandidateLead::ingest(
+            CandidateLeadId::fromString('cand-long'),
+            TenantId::fromString('tenant-1'),
+            Source::RSS,
+            'hash-long',
+            str_repeat('a', 301),
+            null,
+            null,
+            null,
+            null,
+            null,
+            new \DateTimeImmutable(self::NOW),
+        );
+    }
+
     public function testIngestCanCarryARawReference(): void
     {
         $candidate = CandidateLead::ingest(

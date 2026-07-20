@@ -80,4 +80,23 @@ final class RssAlertSourceTest extends TestCase
     {
         self::assertSame([], $this->fetch(new MockHttpClient(new MockResponse('not-xml-at-all'))));
     }
+
+    public function testRejectsNonHttpLinkAsUrl(): void
+    {
+        // Anti-XSS : un lien javascript: ne doit jamais devenir l'URL rendue en href.
+        $feed = '<?xml version="1.0"?><rss version="2.0"><channel><item><title>Piège</title><link>javascript:alert(1)</link></item></channel></rss>';
+        $alerts = $this->fetch(new MockHttpClient(new MockResponse($feed)));
+
+        self::assertCount(1, $alerts);
+        self::assertNull($alerts[0]->url);
+    }
+
+    public function testTruncatesLongTitleToColumnBound(): void
+    {
+        $feed = '<?xml version="1.0"?><rss version="2.0"><channel><item><title>'.str_repeat('a', 400).'</title></item></channel></rss>';
+        $alerts = $this->fetch(new MockHttpClient(new MockResponse($feed)));
+
+        self::assertCount(1, $alerts);
+        self::assertLessThanOrEqual(300, mb_strlen($alerts[0]->title));
+    }
 }

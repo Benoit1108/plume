@@ -57,7 +57,7 @@ function openAccept(candidate: CandidateLead): void {
   form.languagePair = candidate.languagePair ?? 'en>fr'
   form.segment = 'PUBLISHING'
   form.priority = 'MEDIUM'
-  form.website = candidate.url ?? ''
+  form.website = safeUrl(candidate.url) ?? ''
   triaging.value = { candidate, mode: 'accept' }
 }
 
@@ -155,6 +155,11 @@ async function doPoll(): Promise<void> {
 function formatDate(iso?: string | null): string {
   return iso ? new Date(iso).toLocaleDateString(locale.value, { day: 'numeric', month: 'short', year: 'numeric' }) : ''
 }
+
+/** Défense en profondeur anti-XSS : n'accepter un lien d'annonce que s'il est http(s). */
+function safeUrl(url?: string | null): string | null {
+  return url && /^https?:\/\//i.test(url) ? url : null
+}
 </script>
 
 <template>
@@ -200,8 +205,8 @@ function formatDate(iso?: string | null): string {
             </div>
             <p v-if="candidate.excerpt" class="mt-2 text-sm text-muted line-clamp-2">{{ candidate.excerpt }}</p>
             <a
-              v-if="candidate.url"
-              :href="candidate.url"
+              v-if="safeUrl(candidate.url)"
+              :href="safeUrl(candidate.url) ?? undefined"
               target="_blank"
               rel="noopener"
               class="mt-2 inline-flex items-center gap-1 text-xs text-primary hover:underline"

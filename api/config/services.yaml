@@ -172,3 +172,11 @@ services:
         arguments:
             $source: '@App\Sourcing\Infrastructure\Source\RssAlertSource'
             $demoSource: '@App\Sourcing\Infrastructure\Source\FakeAlertSource'
+    # Anti-SSRF : le fetch RSS d'une URL fournie par le tenant passe par un client qui REFUSE
+    # les IP privées/réservées (localhost, 169.254.169.254, 10/8…), y compris après redirection.
+    sourcing.rss.http_client:
+        class: Symfony\Component\HttpClient\NoPrivateNetworkHttpClient
+        arguments: ['@http_client']
+    App\Sourcing\Infrastructure\Source\RssAlertSource:
+        arguments:
+            $httpClient: '@sourcing.rss.http_client'

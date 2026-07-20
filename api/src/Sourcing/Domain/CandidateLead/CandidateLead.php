@@ -59,6 +59,11 @@ final class CandidateLead extends AggregateRoot
         if ('' === $title) {
             throw InvalidValue::because('Candidate title cannot be empty.');
         }
+        // Invariant aligné sur la colonne `title` VARCHAR(300) : jamais d'INSERT en échec
+        // (les parsers tronquent en amont ; garde de dernier recours ici).
+        if (mb_strlen($title) > 300) {
+            throw InvalidValue::because('Candidate title is too long (max 300).');
+        }
         if ('' === trim($dedupHash)) {
             throw InvalidValue::because('Candidate dedupHash cannot be empty.');
         }

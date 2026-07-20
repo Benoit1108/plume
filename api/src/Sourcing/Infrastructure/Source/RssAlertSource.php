@@ -18,7 +18,7 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
  */
 final class RssAlertSource implements AlertSource
 {
-    private const int MAX_TITLE = 500;
+    private const int MAX_TITLE = 300; // aligné sur la colonne candidate_lead.title VARCHAR(300)
     private const int MAX_EXCERPT = 2000;
     private const int MAX_URL = 2000;
 
@@ -92,7 +92,7 @@ final class RssAlertSource implements AlertSource
             title: $title,
             organizationName: null, // non porté par RSS standard — renseigné au tri.
             languagePair: null,
-            url: '' !== $link ? mb_substr($link, 0, self::MAX_URL) : null,
+            url: $this->safeHttpUrl($link),
             excerpt: $this->clean((string) $item->description, self::MAX_EXCERPT) ?: null,
             externalId: $externalId,
             postedAt: $this->toIso((string) $item->pubDate),
@@ -105,6 +105,17 @@ final class RssAlertSource implements AlertSource
         $value = trim(html_entity_decode(strip_tags($value), \ENT_QUOTES | \ENT_HTML5, 'UTF-8'));
 
         return mb_substr($value, 0, $max);
+    }
+
+    /** N'accepte le lien d'un item que s'il est http(s) — anti-XSS (sera rendu en href). */
+    private function safeHttpUrl(string $link): ?string
+    {
+        $link = trim($link);
+        if ('' === $link || 1 !== preg_match('#^https?://#i', $link)) {
+            return null;
+        }
+
+        return mb_substr($link, 0, self::MAX_URL);
     }
 
     private function toIso(string $pubDate): ?string

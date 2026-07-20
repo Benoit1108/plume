@@ -56,16 +56,18 @@ final class PurgeRawAlertsTest extends KernelTestCase
     public function testPurgesRawOfOldRejectedCandidatesOnly(): void
     {
         $this->seed('old-rejected', 'REJECTED', '2026-05-01 10:00:00');   // < cutoff → purgé
+        $this->seed('old-accepted', 'ACCEPTED', '2026-05-01 10:00:00');   // triée ancienne → purgé aussi (RGPD)
         $this->seed('recent-rejected', 'REJECTED', '2026-07-15 10:00:00'); // > cutoff → conservé
-        $this->seed('old-pending', 'PENDING', '2026-05-01 10:00:00');      // pas rejeté → conservé
+        $this->seed('old-pending', 'PENDING', '2026-05-01 10:00:00');      // pas triée → conservé
 
         // Clock fixe → cutoff = 2026-06-20.
         $handler = new PurgeRawAlertsHandler($this->connection, new FixedClock(new \DateTimeImmutable('2026-07-20 12:00:00')));
         ($handler)(new PurgeRawAlertsTick());
 
         self::assertFalse($this->rawExists('old-rejected'), 'le brut rejeté ancien est purgé');
+        self::assertFalse($this->rawExists('old-accepted'), 'le brut d\'une annonce acceptée ancienne est purgé (RGPD)');
         self::assertTrue($this->rawExists('recent-rejected'), 'le brut rejeté récent est conservé');
-        self::assertTrue($this->rawExists('old-pending'), 'le brut d\'une annonce non rejetée est conservé');
+        self::assertTrue($this->rawExists('old-pending'), 'le brut d\'une annonce non triée est conservé');
 
         // La candidate rejetée demeure (dedupHash), mais sa référence au brut est détachée (NULL).
         self::assertNotFalse(
