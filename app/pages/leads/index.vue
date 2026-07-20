@@ -164,6 +164,7 @@ async function onDrop(targetStatus: LeadStatus): Promise<void> {
             dragging && isLegalTarget(column) ? 'ring-2 ring-primary/60' : '',
             dragging && !isLegalTarget(column) && dragging.status !== column ? 'opacity-40' : '',
           ]"
+          :aria-label="statusLabel(column)"
           @dragover.prevent="dragOver = isLegalTarget(column) ? column : null"
           @drop.prevent="onDrop(column)"
         >
