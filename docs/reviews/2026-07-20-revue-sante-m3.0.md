@@ -104,3 +104,60 @@ Options :
   `reduced-motion` exhaustif, parité i18n FR/EN, skeletons `role=status`, modales Nuxt UI
   (focus-trap/Échap/aria).
 - **Pyramide back Sourcing** (domaine/appli/fonctionnel) + ADR-0020/0021 excellents et indexés.
+
+## Post-scriptum — remédiation appliquée (2026-07-20, 4 lots)
+
+**Lot A — sécurité/back critique** (`b352be9`). #1 : le changement de mot de passe **révoque
+tous les refresh tokens** du compte (expulse une session détournée — testé). #2 (décision produit
+§5, option **A** retenue) : `MergeCandidate` **rattache l'annonce à la piste active existante**
+(note « annonce rattachée », statut `MERGED`, **sans** 2e piste) plutôt que de buter sur
+l'invariant « 1 piste active/org » ; sinon crée la piste (testé dans les deux cas). #5 : isolation
+tenant vérifiée sur les **mutations** accept/merge/reject (id d'un autre tenant → 404, plus
+seulement id inexistant). P2-1 : ADR-0020 corrigé — la promotion est **atomique** (bus imbriqué
+`doctrine_transaction`), la sûreté vient de la **garde `PENDING` évaluée avant les gateways**.
+
+**Lot B — tests** (`637ff4b`). Test d'**atomicité de la promotion** : un re-tri est coupé par la
+garde avant les gateways → **aucune organisation/piste orpheline** (prouvé sur les compteurs).
+La logique de légalité du **glisser-déposer kanban** sort de la page vers `~/utils/kanban`
+(`ACTION_FOR_STATUS` + `kanbanActionFor`) et est couverte en **vitest** (action légale/illégale,
+no-op même colonne, `resume` exclu). Garde de re-tri en HTTP (409) et `Source::toLeadSource(MANUAL)`
+également couverts. **246 tests back, +6 front.**
+
+**Lot C — front/UX/a11y** (`fca0732`, correctif `14d3a7a`). #3 : messages **409 dédiés** du tri
+(`isConflict` → `sourcing.errors.conflict`, « choisir une autre organisation/un autre nom »).
+P2-2 : i18n `pipeline.sources.MANUAL`. P2-3 : **focus** ramené en tête après tri (l'élément traité
+disparaît). P2-4 : transition de l'aside gardée `motion-safe`. P2-5 : badge « À trier » **annoncé
+au lecteur d'écran** même replié. **E2E** `candidates.spec.ts` (file vide sur le tenant e2e —
+le seed navigateur d'une annonce attend le point d'entrée d'ingestion M3.1).
+→ **P2-6 (bruit de landmarks) NON appliqué, à dessein** : retirer les `aria-label` des colonnes
+kanban cassait `leads.spec` (colonnes localisées par **région nommée**) **et** supprimait la
+navigation par région, utile au lecteur d'écran. Les 8 colonnes nommées sont un choix a11y
+**légitime** — conservées ; le « bruit » signalé était un jugement, tranché ici en faveur des
+régions nommées.
+
+**Lot D — docs de tête** (`7f5f1cb`) + nit (`c218d72`). Récidive n°3 soldée : **DOMAIN-MODEL**
+(agrégat `CandidateLead` — nom corrigé, machine à états/events/dedup/promotion cross-contexte ;
+contexte **Compte** avec présentation + identité d'affichage + révocation des tokens ;
+`LeadSource` enrichi ; events Prospection aux noms réels ; retrait du `ParserAlerte` non livré),
+**GLOSSAIRE** (`LeadSource` 8 valeurs contractuelles + vocabulaire Sourcing complet ; valeurs
+fausses supprimées), **READMEs** Sourcing/Account/`api/src` (contextes déclarés **vivants**),
+**OVERVIEW** (Sourcing socle M3.0). P2-8 : `schema_filter` (interaction + messenger_messages) →
+`migrations:diff` ne propose plus de DROP les tables non mappées. Nit P2-9 : `website` de
+l'acceptation validé en URL (aligné sur `Organization`).
+
+### Notes après remédiation
+
+| Domaine | Avant | Après |
+|---|---|---|
+| Back (DDD/domaine/CQRS/tests) | 7,5 | **9,5** — atomicité verrouillée (0 orphelin), DnD extrait+testé, isolation tenant sur mutations, 409 re-tri ; ADR-0020 aligné |
+| Sécurité | 7 | **9,5** — révocation des refresh tokens au changement de mdp (testé), fusion sans doublon, URL du site validée |
+| Front | 7,5 | **9** — 409 dédiés, i18n MANUAL, focus/reduced-motion/badge SR, DnD couvert, E2E file de tri |
+| Docs/process | 4 | **9,5** — docs de tête resynchronisées sur le livré, vocabulaire Sourcing contractuel, schema_filter |
+
+**Objectif ≥ 9/10 partout : atteint.** Restes assumés et datés : dédoublonnage `MANUAL` sans
+identifiant externe = garde faible (les identifiants arriveront avec l'ingestion RSS, M3.1) ;
+`candidate_lead.id` en `VARCHAR(255)` = **convention projet** (identique à tous les ids d'agrégat),
+à borner globalement le cas échéant, pas en one-off ; `account.vue` reste sur un repli générique
+si l'API renvoie `violations` (acceptable : pré-validation client + codes `detail` spécifiques) ;
+`DROP INDEX` au diff = limitation Doctrine sur les index **partiels** (raison des migrations
+écrites à la main). La revue **« fin M3 »** complète se refera après M3.2.
