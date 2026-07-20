@@ -162,7 +162,13 @@ Consommateurs : journal d'Interactions, KPIs du tableau de bord, progression/sé
 - Events : `CandidateLeadIngested` · `CandidateLeadAccepted` · `CandidateLeadMerged` · `CandidateLeadRejected`.
 - Écran **« À trier »** : file des `PENDING`, actions accepter/fusionner/rejeter, badge de compte
   dans la navigation.
-- **Reste** : **M3.1** (ingestion RSS — le parseur par source, différé, *non encore livré*) puis
+- **Ingestion (M3.1a livré)** : support **`RawAlert`** (brut d'une annonce conservé pour audit/
+  reprocessing — `RawAlertId`, `TenantId`, `Source`, payload, `fetchedAt` ; hors agrégat métier,
+  écrit en DBAL, non mappé ORM) ; la `CandidateLead` le référence par `rawRef`. Port
+  **`AlertSource`** (Strategy) → `RssAlertSource` (HttpClient, parsing best-effort) /
+  `FakeAlertSource` (démo). `PollAlertSource` relève la source configurée → `IngestCandidate`
+  par item (dédoublonnage par `externalId`). Déclenchement manuel `POST /sources/poll`.
+- **Reste** : **M3.1b** (gestion des flux `AlertFeed` + Scheduler auto + purge du brut) puis
   **M3.2** (alertes email).
 
 ### Compte (contexte `Account`, livré M2.0 / M3.0)

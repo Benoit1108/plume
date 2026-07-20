@@ -37,8 +37,10 @@ Le vocabulaire métier ci-dessous est **contractuel** et reste en **français** 
 | Compte email connecté | `ConnectedMailbox` |
 | Envoi | `OutboundMessage` |
 | Réponse | `Reply` |
-| Alerte | `Alert` |
-| Parser | `AlertParser` |
+| Source d'annonces (Strategy) | `AlertSource` (port) → `RssAlertSource` / `FakeAlertSource` |
+| Annonce extraite | `ParsedAlert` (DTO) |
+| Brut d'annonce conservé | `RawAlert` (audit / reprocessing) |
+| Alerte email | `Alert` (M3.2) |
 | Annonce candidate (file de tri) | `CandidateLead` |
 | Mission (futur) | `Assignment` |
 | Facture (futur) | `Invoice` |
@@ -229,7 +231,7 @@ Le vocabulaire métier ci-dessous est **contractuel** et reste en **français** 
 | Réponse captée | event `ReplyCaptured` (Mailbox → politique Prospection `RecordReplyOnReplyCaptured`) |
 | Relève | port `ReplyFetcher` (via `ReplyFetcherRegistry`) → `GmailReplyFetcher` / `OutlookReplyFetcher` (bodyPreview) / `FakeReplyFetcher` + `OpenThreads` ; Scheduler 5 min + geste manuel (ADR-0017) |
 
-## Contexte Sourcing (socle M3.0 livré ; ingestion RSS M3.1 + alertes M3.2 à venir)
+## Contexte Sourcing (M3.0 socle + M3.1a moteur RSS livrés ; M3.1b + M3.2 à venir)
 
 | Terme             | Définition |
 |-------------------|------------|
@@ -242,8 +244,10 @@ Le vocabulaire métier ci-dessous est **contractuel** et reste en **français** 
 | **Rejeter** (`RejectCandidate`) | Écarte l'annonce (`REJECTED`). |
 | **Empreinte de dédoublonnage** (`dedupHash`) | sha256 normalisé de `(Source, externalId?, orgName?, titre)` + index unique `(tenant_id, dedup_hash)` : l'ingestion d'un doublon est un no-op (ADR-0021). |
 | **Re-tri interdit** (`CandidateAlreadyTriaged`, 409) | seul `PENDING` est triable ; une annonce déjà triée est immuable. |
-| **Alerte** (`Alert`, M3.2) | Email de notification d'offres (ProZ, LinkedIn, TranslatorsCafe) — *pas encore livré*. |
-| **Parser d'alerte** (`AlertParser`, M3.1) | Stratégie de lecture d'une source (RSS d'abord) — *pas encore livré*. |
+| **Relever** (`PollAlertSource`, `POST /sources/poll`) | Interroger la source configurée (tenant courant) et ingérer les annonces trouvées (M3.1a). |
+| **Source d'annonces** (`AlertSource`) | Stratégie de lecture par canal : `RssAlertSource` (flux RSS réel, si `SOURCING_RSS_FEED_URL`) / `FakeAlertSource` (démo, défaut). |
+| **Brut d'annonce** (`RawAlert`) | Contenu brut conservé d'une annonce (audit / reprocessing) ; `CandidateLead.rawRef` y renvoie. Purge planifiée (D6) : M3.1b. |
+| **Alerte email** (`Alert`, M3.2) | Email de notification d'offres (ProZ, LinkedIn, TranslatorsCafe) — *pas encore livré*. |
 
 ## Concepts futurs
 

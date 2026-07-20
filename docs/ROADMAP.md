@@ -91,8 +91,12 @@ Fondations techniques.
       rejeter (écran « À trier » + badge de nav), **promotion cross-contexte par gateway**
       (crée Organisation + Piste), **dédoublonnage** à l'ingestion (`dedupHash`, ADR-0021),
       `LeadSource` enrichi (provenance fine). Pyramide complète (domaine/appli/fonctionnel).
-- [ ] **M3.1 — Ingestion RSS** : `RssParser` (Strategy) derrière `AlertSource`, polling
-      Scheduler, conservation du brut (`RawAlert`).
+- [~] **M3.1 — Ingestion RSS** — *moteur livré (M3.1a)* : port `AlertSource` +
+      `RssAlertSource` (HttpClient, parsing best-effort sur fixtures) + `FakeAlertSource`
+      (démo), conservation du brut (`RawAlert` + `rawRef`), `POST /sources/poll` (relève
+      manuelle, tenant courant) + bouton « Relever les annonces ». **Reste M3.1b** : gestion
+      des flux (agrégat `AlertFeed` + CRUD + Réglages « Sources »), Scheduler auto (fan-out
+      tous tenants), purge planifiée du brut (D6). Cf. `docs/design/M3.1-ingestion-rss.md`.
 - [ ] **M3.2 — Alertes email** : parsers ProZ/TranslatorsCafe/LinkedIn, notification depuis
       la Passerelle email via label dédié.
 - [ ] **Dédoublonnage** Organisations/Contacts (suggestion au tri — exact V1, ADR-0021).
