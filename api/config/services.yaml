@@ -12,8 +12,6 @@ parameters:
     # Connecteur factice (dev/CI/E2E) : le callback retombe sur la route dynamique front.
     env(MAILBOX_FAKE_REDIRECT_URI): 'http://localhost:3000/oauth/gmail/callback'
     env(MAILBOX_ENCRYPTION_KEY): ''
-    # Sourcing : sans URL de flux => source d'annonces factice (démo, sans réseau).
-    env(SOURCING_RSS_FEED_URL): ''
     drafting.anthropic_api_key: '%env(string:ANTHROPIC_API_KEY)%'
     drafting.model: '%env(string:DRAFTING_MODEL)%'
 
@@ -163,13 +161,12 @@ services:
     App\Sourcing\Application\Gateway\ProspectingGateway: '@App\Sourcing\Infrastructure\Gateway\CommandBusProspectingGateway'
     App\Sourcing\Application\ReadModel\CandidateQueue: '@App\Sourcing\Infrastructure\ReadModel\DoctrineCandidateQueue'
 
-    # M3.1a — ingestion : brut conservé + source (réelle si SOURCING_RSS_FEED_URL, sinon factice).
+    # M3.1a/b — ingestion : brut conservé + flux configurés par tenant.
     App\Sourcing\Domain\RawAlert\RawAlertRepository: '@App\Sourcing\Infrastructure\Persistence\Doctrine\DoctrineRawAlertRepository'
-    App\Sourcing\Infrastructure\Source\RssAlertSource:
+    App\Sourcing\Domain\AlertFeed\AlertFeedRepository: '@App\Sourcing\Infrastructure\Persistence\Doctrine\DoctrineAlertFeedRepository'
+    App\Sourcing\Application\ReadModel\AlertFeedList: '@App\Sourcing\Infrastructure\ReadModel\DoctrineAlertFeedList'
+    # Relève : source réelle (RSS) pour les flux configurés, source de démo en repli (aucun flux).
+    App\Sourcing\Application\Command\PollAlertSource\PollAlertSourceHandler:
         arguments:
-            $feedUrl: '%env(SOURCING_RSS_FEED_URL)%'
-    App\Sourcing\Infrastructure\Source\AlertSourceFactory:
-        arguments:
-            $feedUrl: '%env(SOURCING_RSS_FEED_URL)%'
-    App\Sourcing\Application\Source\AlertSource:
-        factory: ['@App\Sourcing\Infrastructure\Source\AlertSourceFactory', 'create']
+            $source: '@App\Sourcing\Infrastructure\Source\RssAlertSource'
+            $demoSource: '@App\Sourcing\Infrastructure\Source\FakeAlertSource'

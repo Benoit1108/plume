@@ -15,7 +15,7 @@ use App\Sourcing\Domain\CandidateLead\Source;
  */
 final class FakeAlertSource implements AlertSource
 {
-    public function fetch(): iterable
+    public function fetch(string $feedUrl): iterable
     {
         yield new ParsedAlert(
             source: Source::RSS->value,

@@ -3504,6 +3504,144 @@
                 ]
             }
         },
+        "/api/v1/sources": {
+            "get": {
+                "operationId": "api_sources_get_collection",
+                "tags": [
+                    "Source"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Source collection",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "type": "object",
+                                    "description": "Source.jsonld-source.read collection.",
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/HydraCollectionBaseSchema"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "required": [
+                                                "member"
+                                            ],
+                                            "properties": {
+                                                "member": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/Source.jsonld-source.read"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Source-source.read"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "Retrieves the collection of Source resources.",
+                "description": "Retrieves the collection of Source resources.",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "The collection page number",
+                        "required": false,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 1
+                        },
+                        "style": "form",
+                        "explode": true
+                    }
+                ]
+            },
+            "post": {
+                "operationId": "source_add",
+                "tags": [
+                    "Source"
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Source resource created",
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Ajouter un flux d'annonces (RSS)",
+                "description": "Ajouter un flux d'annonces (RSS)",
+                "parameters": [],
+                "requestBody": {
+                    "description": "The new Source resource",
+                    "content": {
+                        "application/ld+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Source.AlertFeedInput"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Source.AlertFeedInput"
+                            }
+                        }
+                    },
+                    "required": true
+                }
+            }
+        },
         "/api/v1/sources/poll": {
             "post": {
                 "operationId": "sources_poll",
@@ -3561,6 +3699,200 @@
                 "summary": "Relever la source configur\u00e9e (tenant courant) et ing\u00e9rer les annonces trouv\u00e9es",
                 "description": "Relever la source configur\u00e9e (tenant courant) et ing\u00e9rer les annonces trouv\u00e9es",
                 "parameters": []
+            }
+        },
+        "/api/v1/sources/{id}": {
+            "delete": {
+                "operationId": "source_remove",
+                "tags": [
+                    "Source"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Source resource deleted"
+                    },
+                    "404": {
+                        "description": "Not found",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Retirer un flux",
+                "description": "Retirer un flux",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Source identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            }
+        },
+        "/api/v1/sources/{id}/activate": {
+            "post": {
+                "operationId": "source_activate",
+                "tags": [
+                    "Source"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Source resource created",
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Activer un flux",
+                "description": "Activer un flux",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Source identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            }
+        },
+        "/api/v1/sources/{id}/deactivate": {
+            "post": {
+                "operationId": "source_deactivate",
+                "tags": [
+                    "Source"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Source resource created",
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "D\u00e9sactiver un flux",
+                "description": "D\u00e9sactiver un flux",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Source identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
             }
         },
         "/api/v1/templates": {
@@ -7037,6 +7369,113 @@
                 ],
                 "description": "Envoi d'un brouillon relu (draft-first : READY uniquement). Asynchrone :\nla r\u00e9ponse est l'ACCUS\u00c9 (SENDING) ; le journal de la piste raconte la suite\n(email_sent / email_send_failed)."
             },
+            "Source-source.read": {
+                "type": "object",
+                "description": "Sources d'annonces (flux RSS configur\u00e9s par le tenant, M3.1b) + rel\u00e8ve manuelle (M3.1a).\nAPI orient\u00e9e cas d'usage : ajouter / activer / d\u00e9sactiver / retirer un flux, et relever.",
+                "properties": {
+                    "id": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "source": {
+                        "default": "RSS",
+                        "type": "string"
+                    },
+                    "url": {
+                        "default": "",
+                        "type": "string"
+                    },
+                    "label": {
+                        "default": "",
+                        "type": "string"
+                    },
+                    "active": {
+                        "default": true,
+                        "type": "boolean"
+                    },
+                    "createdAt": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                }
+            },
+            "Source.AlertFeedInput": {
+                "type": "object",
+                "description": "Sources d'annonces (flux RSS configur\u00e9s par le tenant, M3.1b) + rel\u00e8ve manuelle (M3.1a).\nAPI orient\u00e9e cas d'usage : ajouter / activer / d\u00e9sactiver / retirer un flux, et relever.",
+                "properties": {
+                    "source": {
+                        "enum": [
+                            "RSS"
+                        ],
+                        "default": "RSS",
+                        "type": "string"
+                    },
+                    "url": {
+                        "format": "uri",
+                        "maxLength": 2000,
+                        "externalDocs": {
+                            "url": "https://schema.org/url"
+                        },
+                        "default": "",
+                        "type": "string"
+                    },
+                    "label": {
+                        "maxLength": 120,
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                },
+                "required": [
+                    "url"
+                ]
+            },
+            "Source.jsonld-source.read": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/HydraItemBaseSchema"
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "source": {
+                                "default": "RSS",
+                                "type": "string"
+                            },
+                            "url": {
+                                "default": "",
+                                "type": "string"
+                            },
+                            "label": {
+                                "default": "",
+                                "type": "string"
+                            },
+                            "active": {
+                                "default": true,
+                                "type": "boolean"
+                            },
+                            "createdAt": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            }
+                        }
+                    }
+                ],
+                "description": "Sources d'annonces (flux RSS configur\u00e9s par le tenant, M3.1b) + rel\u00e8ve manuelle (M3.1a).\nAPI orient\u00e9e cas d'usage : ajouter / activer / d\u00e9sactiver / retirer un flux, et relever."
+            },
             "Template-template.read": {
                 "type": "object",
                 "description": "Mod\u00e8le (gabarit) de message : canevas r\u00e9utilisable par type/segment/langue,\navec variables ({{contact}}, {{organisation}}, {{langues}}, {{bio}},\n{{specialites}}, {{signature}}). 3 gabarits seed\u00e9s \u00e0 la premi\u00e8re utilisation.",
@@ -7418,7 +7857,7 @@
         },
         {
             "name": "Source",
-            "description": "Sources d'annonces. M3.1a : un seul geste \u2014 relever la source configur\u00e9e pour le tenant\ncourant (d\u00e9clenchement manuel). La gestion des flux (CRUD) et le Scheduler auto = M3.1b."
+            "description": "Sources d'annonces (flux RSS configur\u00e9s par le tenant, M3.1b) + rel\u00e8ve manuelle (M3.1a).\nAPI orient\u00e9e cas d'usage : ajouter / activer / d\u00e9sactiver / retirer un flux, et relever."
         }
     ],
     "webhooks": {}

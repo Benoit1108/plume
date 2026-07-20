@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping
+                  https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+    <!-- Agrégat AlertFeed (Sourcing, M3.1b). Domaine pur : mapping XML hors src/. -->
+    <entity name="App\Sourcing\Domain\AlertFeed\AlertFeed" table="alert_feed">
+        <indexes>
+            <index name="idx_alert_feed_tenant_active" columns="tenant_id,active"/>
+        </indexes>
+        <id name="id" type="alert_feed_id" column="id">
+            <generator strategy="NONE"/>
+        </id>
+        <field name="tenantId" type="tenant_id" column="tenant_id"/>
+        <field name="source" type="string" column="source" length="32" enum-type="App\Sourcing\Domain\CandidateLead\Source"/>
+        <field name="url" type="text" column="url"/>
+        <field name="label" type="string" column="label" length="120"/>
+        <field name="active" type="boolean" column="active"/>
+        <field name="createdAt" type="datetime_immutable" column="created_at"/>
+    </entity>
+</doctrine-mapping>

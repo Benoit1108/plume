@@ -40,7 +40,7 @@ final class RssAlertSourceTest extends TestCase
     /** @return list<ParsedAlert> */
     private function fetch(MockHttpClient $client, string $url = 'https://feed.test/rss'): array
     {
-        return iterator_to_array((new RssAlertSource($client, $url))->fetch(), false);
+        return iterator_to_array((new RssAlertSource($client))->fetch($url), false);
     }
 
     public function testParsesValidItemsAndSkipsTitleless(): void

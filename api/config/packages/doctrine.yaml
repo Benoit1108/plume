@@ -26,6 +26,7 @@ doctrine:
             encrypted_token: App\Mailbox\Infrastructure\Persistence\Doctrine\Type\EncryptedTokenType
             email_address: App\Shared\Infrastructure\Persistence\Doctrine\Type\EmailAddressType
             candidate_lead_id: App\Sourcing\Infrastructure\Persistence\Doctrine\Type\CandidateLeadIdType
+            alert_feed_id: App\Sourcing\Infrastructure\Persistence\Doctrine\Type\AlertFeedIdType
     orm:
         validate_xml_mapping: true
         naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
@@ -48,6 +49,11 @@ doctrine:
                 is_bundle: false
                 dir: '%kernel.project_dir%/config/doctrine/sourcing'
                 prefix: 'App\Sourcing\Domain\CandidateLead'
+            SourcingAlertFeed:
+                type: xml
+                is_bundle: false
+                dir: '%kernel.project_dir%/config/doctrine/sourcing-alertfeed'
+                prefix: 'App\Sourcing\Domain\AlertFeed'
             Directory:
                 type: xml
                 is_bundle: false

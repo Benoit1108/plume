@@ -11,6 +11,10 @@ namespace App\Sourcing\Application\Source;
  */
 interface AlertSource
 {
-    /** @return iterable<ParsedAlert> */
-    public function fetch(): iterable;
+    /**
+     * Lit les annonces d'un flux donné (URL). L'implémentation factice ignore l'URL.
+     *
+     * @return iterable<ParsedAlert>
+     */
+    public function fetch(string $feedUrl): iterable;
 }

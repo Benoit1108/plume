@@ -26,20 +26,19 @@ final class RssAlertSource implements AlertSource
 
     public function __construct(
         private readonly HttpClientInterface $httpClient,
-        private readonly string $feedUrl,
         ?LoggerInterface $logger = null,
     ) {
         $this->logger = $logger ?? new NullLogger();
     }
 
-    public function fetch(): iterable
+    public function fetch(string $feedUrl): iterable
     {
-        if ('' === trim($this->feedUrl)) {
+        if ('' === trim($feedUrl)) {
             return;
         }
 
         try {
-            $xml = $this->httpClient->request('GET', $this->feedUrl)->getContent();
+            $xml = $this->httpClient->request('GET', $feedUrl)->getContent();
         } catch (\Throwable $e) {
             $this->logger->warning('Sourcing: échec de récupération du flux RSS.', ['error' => $e->getMessage()]);
 
