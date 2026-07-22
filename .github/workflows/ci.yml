@@ -100,6 +100,8 @@ jobs:
         run: |
           php bin/console doctrine:database:create --if-not-exists --env=test
           php bin/console doctrine:migrations:migrate --no-interaction --env=test
+      - name: Provision runtime role (RLS)
+        run: php bin/console app:db:provision-app-role --env=test
       - name: Tests
         run: vendor/bin/phpunit
 
@@ -153,17 +155,27 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - name: Start API stack (Postgres + FrankenPHP + worker)
-        run: docker compose up -d --build database php worker
+      - name: Build API image + start Postgres
+        run: |
+          docker compose build php
+          docker compose up -d database
 
       - name: Install backend dependencies (in container)
         run: docker compose run --rm --no-deps php composer install --no-interaction --no-progress
 
-      - name: Prepare backend (JWT keys, schema, e2e user)
+      # Migrations, rôle runtime et user e2e créés par le PROPRIÉTAIRE (contourne la RLS) ;
+      # l'API/worker démarrent ENSUITE avec le rôle runtime plume_app (soumis à la RLS).
+      - name: Prepare backend (owner role)
+        env:
+          OWNER_URL: "postgresql://plume:plume@database:5432/plume?serverVersion=17&charset=utf8"
         run: |
           docker compose run --rm --no-deps php php bin/console lexik:jwt:generate-keypair --skip-if-exists
-          docker compose run --rm php php bin/console doctrine:migrations:migrate --no-interaction
-          docker compose run --rm php php bin/console app:user:create e2e@plume.test e2e-secret-123
+          docker compose run --rm -e DATABASE_URL="$OWNER_URL" php php bin/console app:db:provision-app-role
+          docker compose run --rm -e DATABASE_URL="$OWNER_URL" php php bin/console doctrine:migrations:migrate --no-interaction
+          docker compose run --rm -e DATABASE_URL="$OWNER_URL" php php bin/console app:user:create e2e@plume.test e2e-secret-123
+
+      - name: Start API + worker (runtime role plume_app)
+        run: docker compose up -d php worker
 
       - name: Wait for API
         run: |

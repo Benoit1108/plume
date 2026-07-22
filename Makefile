@@ -5,10 +5,13 @@ GID := $(shell id -g)
 # Commandes ponctuelles en tant qu'utilisateur hôte (évite les fichiers root-owned)
 # avec un HOME/COMPOSER_HOME inscriptibles.
 PHP := $(DC) run --rm --no-deps --user $(UID):$(GID) -e HOME=/tmp -e COMPOSER_HOME=/tmp/composer php
-# Variante avec dépendances (DB up) pour les migrations.
-PHP_DB := $(DC) run --rm --user $(UID):$(GID) -e HOME=/tmp -e COMPOSER_HOME=/tmp/composer php
+# URL du rôle PROPRIÉTAIRE `plume` (contourne la RLS) : migrations, provisioning, tests, console DDL.
+# Le service `php` pointe sinon sur le rôle runtime `plume_app` (soumis à la RLS) — cf. compose.yaml.
+DB_OWNER_URL := postgresql://plume:plume@database:5432/plume?serverVersion=17&charset=utf8
+# Variante avec dépendances (DB up) pour les migrations, en tant que PROPRIÉTAIRE.
+PHP_DB := $(DC) run --rm --user $(UID):$(GID) -e HOME=/tmp -e COMPOSER_HOME=/tmp/composer -e 'DATABASE_URL=$(DB_OWNER_URL)' php
 
-.PHONY: help up up-full down build install lock jwt-keys migrate seed test phpstan deptrac cs cs-fix audit schema-validate openapi front-install front-lint front-typecheck front-test
+.PHONY: help up up-full down build install lock jwt-keys provision-app-role migrate seed test phpstan deptrac cs cs-fix audit schema-validate openapi front-install front-lint front-typecheck front-test
 
 help: ## Affiche cette aide
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS=":.*?## "}; {printf "  \033[36m%-14s\033[0m %s\n", $$1, $$2}'
@@ -34,6 +37,9 @@ lock: ## Met à jour composer.lock
 jwt-keys: ## Génère la paire de clés JWT (Lexik)
 	$(PHP) php bin/console lexik:jwt:generate-keypair --skip-if-exists
 
+provision-app-role: ## Crée/actualise le rôle applicatif runtime plume_app (RLS) + ses privilèges
+	$(PHP_DB) php bin/console app:db:provision-app-role
+
 migrate: ## Applique les migrations Doctrine (DB requise)
 	$(PHP_DB) php bin/console doctrine:migrations:migrate --no-interaction
 
@@ -45,10 +51,11 @@ hooks: ## Installe le hook git pre-commit (cs-fixer + eslint)
 	chmod +x .githooks/pre-commit
 	@echo "Hook pre-commit actif (.githooks/)."
 
-test: ## Lance PHPUnit (unitaires + fonctionnels — crée/migre la base de test)
-	$(DC) run --rm --user $(UID):$(GID) -e HOME=/tmp -e COMPOSER_HOME=/tmp/composer -e APP_ENV=test php \
+test: ## Lance PHPUnit (unitaires + fonctionnels — crée/migre la base de test, rôle propriétaire)
+	$(DC) run --rm --user $(UID):$(GID) -e HOME=/tmp -e COMPOSER_HOME=/tmp/composer -e APP_ENV=test -e 'DATABASE_URL=$(DB_OWNER_URL)' php \
 		sh -c "php bin/console doctrine:database:create --if-not-exists \
 		&& php bin/console doctrine:migrations:migrate --no-interaction \
+		&& php bin/console app:db:provision-app-role \
 		&& vendor/bin/phpunit"
 
 phpstan: ## Analyse statique (niveau max)

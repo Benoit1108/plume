@@ -80,9 +80,10 @@ plume/
 make up
 
 # 2. Première installation uniquement :
-make install          # dépendances composer
-make jwt-keys         # paire de clés JWT locale
-make migrate          # schéma de base
+make install            # dépendances composer
+make jwt-keys           # paire de clés JWT locale
+make provision-app-role # rôle applicatif runtime plume_app (soumis à la RLS) — cf. plus bas
+make migrate            # schéma de base (rôle propriétaire plume)
 docker compose exec php php bin/console app:user:create vous@exemple.fr
 #    → crée l'utilisateur (le mot de passe est demandé, saisie masquée)
 
@@ -92,6 +93,12 @@ cd app && npm install && npm run dev
 # API   : https://localhost:8443 (certificat auto-signé — le front passe par un proxy)
 # App   : http://localhost:3000
 ```
+
+> **Deux rôles Postgres (multi-tenant fail-closed).** Le rôle **propriétaire `plume`**
+> (`DATABASE_URL`) exécute migrations, tests et commandes console — il **contourne** la RLS.
+> L'API HTTP et le worker se connectent avec le rôle **runtime `plume_app`** (non-propriétaire,
+> `make provision-app-role`), **soumis** à la _Row-Level Security_ : filet de sécurité en base
+> par-dessus le filtre applicatif. Créé une fois par cluster, idempotent.
 
 Qualité (identiques à la CI) : `make test`, `make phpstan`, `make deptrac` (couches **et**
 frontières de contextes), `make cs`, `make openapi` (contrat diff-vérifié — à régénérer

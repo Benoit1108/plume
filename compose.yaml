@@ -30,7 +30,7 @@ services:
       SERVER_NAME: "localhost, https://php"
       # CA locale en dev (les hostnames sans point ne sont pas éligibles ACME).
       CADDY_GLOBAL_OPTIONS: "local_certs"
-      DATABASE_URL: "postgresql://plume:plume@database:5432/plume?serverVersion=17&charset=utf8"
+      DATABASE_URL: "postgresql://plume_app:plume_app@database:5432/plume?serverVersion=17&charset=utf8"
       MESSENGER_TRANSPORT_DSN: "doctrine://default"
       APP_ENV: dev
     ports:
@@ -51,7 +51,7 @@ services:
     healthcheck:
       disable: true   # ne sert pas de HTTP (healthcheck FrankenPHP hérité inadapté)
     environment:
-      DATABASE_URL: "postgresql://plume:plume@database:5432/plume?serverVersion=17&charset=utf8"
+      DATABASE_URL: "postgresql://plume_app:plume_app@database:5432/plume?serverVersion=17&charset=utf8"
       MESSENGER_TRANSPORT_DSN: "doctrine://default"
       APP_ENV: dev
     volumes:
@@ -70,7 +70,7 @@ services:
     healthcheck:
       disable: true   # ne sert pas de HTTP (healthcheck FrankenPHP hérité inadapté)
     environment:
-      DATABASE_URL: "postgresql://plume:plume@database:5432/plume?serverVersion=17&charset=utf8"
+      DATABASE_URL: "postgresql://plume_app:plume_app@database:5432/plume?serverVersion=17&charset=utf8"
       MESSENGER_TRANSPORT_DSN: "doctrine://default"
       APP_ENV: dev
     volumes:
