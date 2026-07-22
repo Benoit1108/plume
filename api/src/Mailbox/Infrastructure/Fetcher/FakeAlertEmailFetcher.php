@@ -8,9 +8,10 @@ use App\Mailbox\Application\AlertEmailFetcher;
 use App\Mailbox\Application\FetchedAlertEmail;
 
 /**
- * Relève d'alertes factice (défaut sans adaptateur réel) : joue la boucle de bout en bout
- * sans réseau (dev / CI / E2E). `externalId` FIXE → ingestion idempotente. Les adaptateurs
- * réels Gmail/Outlook (lecture du label) sont un suivi de M3.2.
+ * Relève d'alertes factice (défaut sans identifiants OAuth) : joue la boucle de bout en bout
+ * sans réseau (dev / CI / E2E). `externalId` FIXE → ingestion idempotente. L'adaptateur réel
+ * Gmail (`GmailAlertEmailFetcher`) prend le relais dès que `GOOGLE_CLIENT_ID` est présent ;
+ * l'adaptateur Outlook réel reste un suivi.
  */
 final class FakeAlertEmailFetcher implements AlertEmailFetcher
 {

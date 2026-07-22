@@ -16,7 +16,8 @@ tokens), ADR-0017 (captation des réponses).
 ## Application (`Application/`)
 - Ports : `MailboxConnector` (OAuth), `MailSender` (envoi), `ReplyFetcher` (relève) — chacun via
   un **registre** (`…Registry`) qui route selon le fournisseur de la boîte ; `AlertEmailFetcher`
-  (relève des alertes sous un label dédié, M3.2) ; `TokenCipher` (chiffrement) ;
+  (relève des alertes sous un label dédié, M3.2) **aussi via `AlertEmailFetcherRegistry`** ;
+  `TokenCipher` (chiffrement) ;
   `DraftGateway`/`RecipientResolver`/`OpenThreads` (frontières vers Drafting/Prospection, tenant explicite).
 - Commandes : `ConnectMailbox`, `RevokeMailbox`, `SendDraft`, `MarkEmailSent`/`MarkEmailFailed`,
   `FetchReplies`, `FetchAlertEmails` (M3.2).
@@ -26,8 +27,10 @@ tokens), ADR-0017 (captation des réponses).
   amendé) via le port `AlertEmailFetcher` et publie un `AlertEmailReceived` par email — le Sourcing
   décide de l'ingestion (jamais d'appel direct inter-contextes). Échec = no-op silencieux (canal
   secondaire), le Scheduler repasse.
-- Adaptateur `FakeAlertEmailFetcher` par défaut (démo sans réseau) ; adaptateurs réels Gmail/Outlook
-  de lecture du label = **suivi** (avec de vrais emails).
+- Registre par fournisseur : **`GmailAlertEmailFetcher` réel** (API Gmail HTTP fine — résout le
+  label, liste ses messages, extrait From/Subject/corps texte, base64url ; ACL au patron des
+  autres adaptateurs Gmail) dès que `GOOGLE_CLIENT_ID` est présent, sinon `FakeAlertEmailFetcher`
+  (démo sans réseau). Adaptateur Outlook réel de lecture du label = **suivi** (compte de test Gmail).
 - Scheduler `FetchAllAlertEmailsTick` : fan-out **asynchrone par boîte connectée** (isolation de panne).
 
 ## Infrastructure (`Infrastructure/`)

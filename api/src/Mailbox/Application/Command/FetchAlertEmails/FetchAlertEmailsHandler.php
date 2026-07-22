@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Mailbox\Application\Command\FetchAlertEmails;
 
-use App\Mailbox\Application\AlertEmailFetcher;
+use App\Mailbox\Application\AlertEmailFetcherRegistry;
 use App\Mailbox\Application\Exception\MailSendFailed;
 use App\Mailbox\Application\Exception\TokenCipherFailure;
 use App\Mailbox\Application\TokenCipher;
@@ -27,7 +27,7 @@ final class FetchAlertEmailsHandler implements CommandHandler
 
     public function __construct(
         private readonly MailboxRepository $mailboxes,
-        private readonly AlertEmailFetcher $fetcher,
+        private readonly AlertEmailFetcherRegistry $fetchers,
         private readonly TokenCipher $cipher,
         private readonly EventBus $eventBus,
         private readonly Clock $clock,
@@ -43,7 +43,8 @@ final class FetchAlertEmailsHandler implements CommandHandler
         }
 
         try {
-            $emails = $this->fetcher->fetch($this->cipher->decrypt($refresh->ciphertext()), self::LABEL);
+            $emails = $this->fetchers->fetcherFor($mailbox->provider()->value)
+                ->fetch($this->cipher->decrypt($refresh->ciphertext()), self::LABEL);
         } catch (MailSendFailed|TokenCipherFailure) {
             return;
         }
