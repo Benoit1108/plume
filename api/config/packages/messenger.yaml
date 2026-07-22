@@ -33,6 +33,10 @@ framework:
                 dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
                 options:
                     use_notify: true
+                    # Le rôle runtime plume_app n'a PAS le droit CREATE (RLS, moindre privilège) :
+                    # la table/trigger messenger_messages est créée par `messenger:setup-transports`
+                    # en propriétaire (cf. Makefile/CI), jamais auto-créée au 1er dispatch.
+                    auto_setup: false
                 retry_strategy:
                     max_retries: 3
                     delay: 1000
@@ -41,6 +45,7 @@ framework:
                 dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
                 options:
                     queue_name: failed
+                    auto_setup: false
             # Outbox : l'INSERT dans le transport doctrine rejoint la transaction
             # de la commande (même connexion) — atomicité garantie.
             # scheduler_default est fourni par symfony/scheduler.

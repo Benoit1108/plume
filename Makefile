@@ -40,8 +40,9 @@ jwt-keys: ## Génère la paire de clés JWT (Lexik)
 provision-app-role: ## Crée/actualise le rôle applicatif runtime plume_app (RLS) + ses privilèges
 	$(PHP_DB) php bin/console app:db:provision-app-role
 
-migrate: ## Applique les migrations Doctrine (DB requise)
-	$(PHP_DB) php bin/console doctrine:migrations:migrate --no-interaction
+migrate: ## Applique les migrations Doctrine + crée les transports Messenger (propriétaire, DB requise)
+	$(PHP_DB) sh -c "php bin/console doctrine:migrations:migrate --no-interaction \
+		&& php bin/console messenger:setup-transports"
 
 seed: ## Jeu de données de RECETTE (dev only : recette@plume.fr / recette-2026)
 	$(PHP_DB) php bin/console app:dev:seed
@@ -55,6 +56,7 @@ test: ## Lance PHPUnit (unitaires + fonctionnels — crée/migre la base de test
 	$(DC) run --rm --user $(UID):$(GID) -e HOME=/tmp -e COMPOSER_HOME=/tmp/composer -e APP_ENV=test -e 'DATABASE_URL=$(DB_OWNER_URL)' php \
 		sh -c "php bin/console doctrine:database:create --if-not-exists \
 		&& php bin/console doctrine:migrations:migrate --no-interaction \
+		&& php bin/console messenger:setup-transports \
 		&& php bin/console app:db:provision-app-role \
 		&& vendor/bin/phpunit"
 
