@@ -26,6 +26,12 @@ final class ChangePasswordApiTest extends ApiTestCase
         $connection = static::getContainer()->get(Connection::class);
         \assert($connection instanceof Connection);
         $connection->executeStatement('TRUNCATE TABLE app_user, refresh_tokens RESTART IDENTITY CASCADE');
+
+        // Le stockage du limiteur token (par IP) survit entre runs locaux : on repart propre
+        // pour /token/refresh, sinon les runs répétés finissent en 429.
+        $tokenLimiter = static::getContainer()->get('limiter.token_endpoints');
+        \assert($tokenLimiter instanceof RateLimiterFactory);
+        $tokenLimiter->create('127.0.0.1')->reset();
     }
 
     private function createUser(string $email): void

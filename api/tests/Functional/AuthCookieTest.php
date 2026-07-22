@@ -9,6 +9,7 @@ use App\Account\Infrastructure\Persistence\User;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\Uid\Uuid;
 
 /**
@@ -26,6 +27,11 @@ final class AuthCookieTest extends ApiTestCase
         $connection = static::getContainer()->get(Connection::class);
         \assert($connection instanceof Connection);
         $connection->executeStatement('TRUNCATE TABLE app_user, refresh_tokens RESTART IDENTITY CASCADE');
+
+        // Limiteur token (par IP) : reset pour que les runs répétés ne finissent pas en 429.
+        $tokenLimiter = static::getContainer()->get('limiter.token_endpoints');
+        \assert($tokenLimiter instanceof RateLimiterFactory);
+        $tokenLimiter->create('127.0.0.1')->reset();
 
         $container = static::getContainer();
         /** @var EntityManagerInterface $em */
