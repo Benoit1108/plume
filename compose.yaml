@@ -61,7 +61,11 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
-  # Symfony Scheduler (relances dues, recalculs périodiques)
+  # Symfony Scheduler (relances dues, recalculs périodiques).
+  # PROPRIÉTAIRE `plume` (contourne la RLS) : ses tâches sont des tâches de MAINTENANCE
+  # cross-tenant par conception (énumération des tenants à relever, purge globale du brut).
+  # Il ne sert AUCUN trafic utilisateur et se contente de fan-out : les messages par-tenant
+  # qu'il émet partent sur `async`, consommés par le `worker` (plume_app, tenant activé → RLS).
   scheduler:
     profiles: ["full"]
     build:
@@ -70,7 +74,7 @@ services:
     healthcheck:
       disable: true   # ne sert pas de HTTP (healthcheck FrankenPHP hérité inadapté)
     environment:
-      DATABASE_URL: "postgresql://plume_app:plume_app@database:5432/plume?serverVersion=17&charset=utf8"
+      DATABASE_URL: "postgresql://plume:plume@database:5432/plume?serverVersion=17&charset=utf8"
       MESSENGER_TRANSPORT_DSN: "doctrine://default"
       APP_ENV: dev
     volumes:
