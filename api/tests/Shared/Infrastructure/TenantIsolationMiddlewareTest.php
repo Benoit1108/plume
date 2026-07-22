@@ -8,60 +8,72 @@ use App\Shared\Domain\ValueObject\TenantId;
 use App\Shared\Infrastructure\Doctrine\Tenancy\TenantContext;
 use App\Shared\Infrastructure\Doctrine\Tenancy\TenantScope;
 use App\Shared\Infrastructure\Messenger\TenantIsolationMiddleware;
-use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\Query\FilterCollection;
-use PHPUnit\Framework\TestCase;
+use App\Tests\Support\TenantRecordingMiddleware;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Messenger\Envelope;
-use Symfony\Component\Messenger\Middleware\MiddlewareInterface;
 use Symfony\Component\Messenger\Middleware\StackInterface;
 use Symfony\Component\Messenger\Stamp\ConsumedByWorkerStamp;
 
-final class TenantIsolationMiddlewareTest extends TestCase
+/** Isolation tenant côté worker (vrai TenantScope du conteneur, filtre Doctrine réel). */
+final class TenantIsolationMiddlewareTest extends KernelTestCase
 {
-    private function middleware(TenantContext $context): TenantIsolationMiddleware
-    {
-        $filters = $this->createStub(FilterCollection::class);
-        $filters->method('isEnabled')->willReturn(false); // clear() ne tentera pas de disable
-        $em = $this->createStub(EntityManagerInterface::class);
-        $em->method('getFilters')->willReturn($filters);
+    private TenantContext $context;
+    private TenantScope $scope;
+    private TenantIsolationMiddleware $middleware;
 
-        return new TenantIsolationMiddleware(new TenantScope($context, $em));
+    protected function setUp(): void
+    {
+        $c = static::getContainer();
+        $context = $c->get(TenantContext::class);
+        $scope = $c->get(TenantScope::class);
+        \assert($context instanceof TenantContext);
+        \assert($scope instanceof TenantScope);
+        $this->context = $context;
+        $this->scope = $scope;
+        $this->middleware = new TenantIsolationMiddleware($scope);
+        $this->scope->clear();
     }
 
-    private function passThroughStack(): StackInterface
+    private function stackReturning(TenantRecordingMiddleware $next): StackInterface
     {
         $stack = $this->createStub(StackInterface::class);
-        $stack->method('next')->willReturn(new class implements MiddlewareInterface {
-            public function handle(Envelope $envelope, StackInterface $stack): Envelope
-            {
-                return $envelope;
-            }
-        });
+        $stack->method('next')->willReturn($next);
 
         return $stack;
     }
 
+    public function testWorkerConsumedTenantMessageActivatesDuringThenClearsAfter(): void
+    {
+        $recorder = new TenantRecordingMiddleware($this->context);
+        $message = new class {
+            public string $tenantId = 'cccccccc-cccc-cccc-cccc-cccccccccccc';
+        };
+
+        $this->middleware->handle(new Envelope($message, [new ConsumedByWorkerStamp()]), $this->stackReturning($recorder));
+
+        self::assertSame('cccccccc-cccc-cccc-cccc-cccccccccccc', $recorder->seen?->toString(), 'tenant du message actif PENDANT le handler');
+        self::assertNull($this->context->get(), 'tenant remis à zéro APRÈS');
+    }
+
     public function testWorkerConsumedMessageLeavesNoTenantLeak(): void
     {
-        $context = new TenantContext();
-        $context->set(TenantId::fromString('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa')); // tenant d'un message précédent
+        $this->context->set(TenantId::fromString('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa')); // tenant d'un message précédent
+        $recorder = new TenantRecordingMiddleware($this->context);
 
-        // Message reçu d'un transport (worker).
-        $envelope = new Envelope(new \stdClass(), [new ConsumedByWorkerStamp()]);
-        $this->middleware($context)->handle($envelope, $this->passThroughStack());
+        $this->middleware->handle(new Envelope(new \stdClass(), [new ConsumedByWorkerStamp()]), $this->stackReturning($recorder));
 
-        self::assertNull($context->get(), 'le tenant est remis à zéro après un message worker');
+        self::assertNull($recorder->seen, 'un message non tenanté ne réactive rien (ardoise propre)');
+        self::assertNull($this->context->get(), 'pas de fuite après le message worker');
     }
 
     public function testInProcessDispatchKeepsTheRequestTenant(): void
     {
-        $context = new TenantContext();
-        $context->set(TenantId::fromString('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb')); // tenant de la requête HTTP
+        $this->context->set(TenantId::fromString('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb')); // tenant de la requête HTTP
+        $recorder = new TenantRecordingMiddleware($this->context);
 
-        // Dispatch synchrone (pas de ReceivedStamp) : le tenant de la requête ne doit PAS être effacé.
-        $envelope = new Envelope(new \stdClass());
-        $this->middleware($context)->handle($envelope, $this->passThroughStack());
+        // Pas de ConsumedByWorkerStamp → dispatch synchrone : le tenant de la requête est préservé.
+        $this->middleware->handle(new Envelope(new \stdClass()), $this->stackReturning($recorder));
 
-        self::assertSame('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', $context->get()?->toString());
+        self::assertSame('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', $this->context->get()?->toString());
     }
 }
