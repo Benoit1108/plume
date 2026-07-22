@@ -10,7 +10,7 @@ use App\Shared\Application\Command\CommandBus;
 use App\Shared\Domain\Exception\Conflict;
 use App\Shared\Domain\Exception\NotFound;
 use App\Shared\Domain\ValueObject\TenantId;
-use App\Shared\Infrastructure\Doctrine\Tenancy\TenantContext;
+use App\Shared\Infrastructure\Doctrine\Tenancy\TenantScope;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
@@ -23,7 +23,7 @@ final class RecordReplyOnReplyCaptured
 {
     public function __construct(
         private readonly CommandBus $commandBus,
-        private readonly TenantContext $tenantContext,
+        private readonly TenantScope $tenantScope,
         private readonly LoggerInterface $logger,
     ) {
     }
@@ -31,7 +31,7 @@ final class RecordReplyOnReplyCaptured
     #[AsMessageHandler(bus: 'event.bus')]
     public function onReplyCaptured(ReplyCaptured $event): void
     {
-        $this->tenantContext->set(TenantId::fromString($event->tenantId));
+        $this->tenantScope->activate(TenantId::fromString($event->tenantId));
 
         try {
             $this->commandBus->dispatch(new RecordReply($event->leadId, $event->preview, $event->tenantId));

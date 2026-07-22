@@ -4,8 +4,11 @@ framework:
 
         buses:
             # Une commande = une transaction (doctrine_transaction).
+            # tenant_isolation en PREMIER (hors transaction) : ardoise tenant propre par
+            # message worker, avant que la transaction et les requêtes ne s'ouvrent.
             command.bus:
                 middleware:
+                    - App\Shared\Infrastructure\Messenger\TenantIsolationMiddleware
                     - doctrine_transaction
             # Lectures.
             query.bus:
@@ -17,6 +20,8 @@ framework:
             event.bus:
                 default_middleware:
                     allow_no_handlers: true
+                middleware:
+                    - App\Shared\Infrastructure\Messenger\TenantIsolationMiddleware
 
         # Après épuisement des retries, les messages partent dans `failed`
         # (table messenger_messages, queue dédiée) au lieu d'être perdus —

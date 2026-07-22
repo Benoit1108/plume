@@ -19,6 +19,12 @@ final class TenantContext
         $this->tenantId = $tenantId;
     }
 
+    /** Remet à zéro le tenant courant (fin de requête / de message worker — anti-fuite). */
+    public function clear(): void
+    {
+        $this->tenantId = null;
+    }
+
     public function get(): ?TenantId
     {
         return $this->tenantId;

@@ -11,7 +11,7 @@ use App\Shared\Application\Command\CommandBus;
 use App\Shared\Domain\Exception\Conflict;
 use App\Shared\Domain\Exception\NotFound;
 use App\Shared\Domain\ValueObject\TenantId;
-use App\Shared\Infrastructure\Doctrine\Tenancy\TenantContext;
+use App\Shared\Infrastructure\Doctrine\Tenancy\TenantScope;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
@@ -25,7 +25,7 @@ final class AdvanceLeadOnEmailSent
 {
     public function __construct(
         private readonly CommandBus $commandBus,
-        private readonly TenantContext $tenantContext,
+        private readonly TenantScope $tenantScope,
         private readonly LoggerInterface $logger,
     ) {
     }
@@ -36,7 +36,7 @@ final class AdvanceLeadOnEmailSent
         // Worker : pas de contexte de requête — le tenant vient de l'EVENT et est
         // réactivé explicitement (pattern acté dès M1.2) pour que les gardes
         // fail-closed (gateway RGPD) travaillent dans le bon périmètre.
-        $this->tenantContext->set(TenantId::fromString($event->tenantId));
+        $this->tenantScope->activate(TenantId::fromString($event->tenantId));
 
         $command = 'FOLLOW_UP_EMAIL' === $event->draftType
             ? new RecordFollowUp($event->leadId, $event->tenantId)

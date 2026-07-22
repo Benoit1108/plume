@@ -8,7 +8,7 @@ use App\Mailbox\Domain\Mailbox\Event\AlertEmailReceived;
 use App\Shared\Application\Command\CommandBus;
 use App\Shared\Domain\Exception\DomainError;
 use App\Shared\Domain\ValueObject\TenantId;
-use App\Shared\Infrastructure\Doctrine\Tenancy\TenantContext;
+use App\Shared\Infrastructure\Doctrine\Tenancy\TenantScope;
 use App\Sourcing\Application\AlertEmail\AlertEmailParser;
 use App\Sourcing\Application\Command\IngestCandidate\IngestCandidate;
 use Psr\Log\LoggerInterface;
@@ -24,7 +24,7 @@ final class IngestAlertEmailOnAlertEmailReceived
     public function __construct(
         private readonly CommandBus $commandBus,
         private readonly AlertEmailParser $parser,
-        private readonly TenantContext $tenantContext,
+        private readonly TenantScope $tenantScope,
         private readonly LoggerInterface $logger,
     ) {
     }
@@ -32,7 +32,7 @@ final class IngestAlertEmailOnAlertEmailReceived
     #[AsMessageHandler(bus: 'event.bus')]
     public function onAlertEmailReceived(AlertEmailReceived $event): void
     {
-        $this->tenantContext->set(TenantId::fromString($event->tenantId));
+        $this->tenantScope->activate(TenantId::fromString($event->tenantId));
 
         foreach ($this->parser->parse($event->fromAddress, $event->subject, $event->body, $event->externalId) as $alert) {
             try {
