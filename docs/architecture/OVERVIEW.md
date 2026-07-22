@@ -58,10 +58,17 @@ Les domain events sont persistés dans **la même transaction** que l'agrégat, 
 ## Multi-tenancy
 
 - Base **unique**, schéma **partagé**, discriminant **`tenant_id`** sur les tables tenant.
-- Isolation via **Doctrine `SQLFilter`** activé à chaque requête, `TenantId` extrait du token JWT.
-- Les **read models DBAL** (hors ORM, le SQLFilter ne s'y applique pas) portent un prédicat
-  tenant **explicite et fail-closed** (`TenantContext::require()`) — cf. ADR-0013. Dans le
-  worker (pas de contexte de requête), le tenant voyage **dans l'event/la commande**.
+- **Deux lignes de défense** (cf. ADR-0023) :
+  1. **Applicative** — `TenantScope` (point unique) synchronise `TenantContext`, le **`SQLFilter`**
+     Doctrine et la variable de session Postgres `app.current_tenant`. Les **read models DBAL**
+     (hors ORM) portent un prédicat tenant **explicite et fail-closed** (`TenantContext::require()`,
+     ADR-0013).
+  2. **Base — Row-Level Security** : le runtime se connecte via un rôle **non-propriétaire**
+     (`plume_app`) soumis à des policies `tenant_id = current_setting('app.current_tenant')`
+     (fail-closed). Filet indépendant si le filtre applicatif est contourné. Le propriétaire
+     `plume` (migrations/tests/scheduler-maintenance) la contourne.
+- Le tenant est activé à l'auth JWT (HTTP), réactivé **par message** côté worker (il voyage dans
+  l'event/la commande), et remis à zéro en fin de requête/message (connexion FrankenPHP réutilisée).
 - Le **domaine ignore la tenancy** : c'est une préoccupation d'infrastructure.
 - V1 : une seule Traductrice. Extraction schéma-par-tenant possible plus tard sans refonte du domaine.
 

@@ -24,7 +24,7 @@ Cœur métier = **pipeline de prospection + relances**. Voir `README.md` et `doc
 - **Les queries lisent des read models** (vues immuables via un port `…Search`, SQL direct fail-closed sur le tenant — cf. ADR-0013), jamais les agrégats.
 - **API Platform expose des DTO**, jamais les entités Doctrine ni les agrégats. State Providers/Processors délèguent au bus CQRS.
 - **Les erreurs métier héritent de `Shared\Domain\Exception\DomainError`** (`InvalidValue` → 422, `NotFound` → 404, `Conflict` → 409 — mapping `exception_to_status`). Jamais d'exception SPL nue dans le domaine.
-- **Multi-tenancy = préoccupation d'infra** : `SQLFilter` sur `tenant_id` (ORM) + prédicat explicite (read models DBAL), toujours **fail-closed**. Le domaine n'en sait rien.
+- **Multi-tenancy = préoccupation d'infra**, **deux lignes de défense fail-closed** (ADR-0023) : (1) applicative — `SQLFilter` sur `tenant_id` (ORM) + prédicat explicite (read models DBAL), pilotés par `TenantScope` ; (2) base — **RLS** sous le rôle runtime non-propriétaire `plume_app`. Le domaine n'en sait rien. ⚠️ **Toute nouvelle table métier tenantée** doit porter `tenant_id` **et** recevoir sa policy RLS dans la migration (sinon le filet base saute). Créer le rôle en dev : `make provision-app-role`.
 - **Pas d'horloge ni d'UUID en dur** dans Application : ports `Clock` et `IdGenerator`.
 - **Secrets/tokens chiffrés au repos** ; jamais de credential en clair en base ou en log.
 
@@ -57,7 +57,8 @@ Cœur métier = **pipeline de prospection + relances**. Voir `README.md` et `doc
 
 ```bash
 make up             # stack dev (Postgres + API https://localhost:8443 + worker — le journal en dépend)
-make migrate        # migrations Doctrine
+make provision-app-role # rôle runtime plume_app (RLS) — 1re install / nouveau cluster
+make migrate        # migrations Doctrine (+ messenger:setup-transports, en propriétaire)
 make jwt-keys       # génère les clés JWT locales (une fois)
 make test           # PHPUnit complet (crée/migre la base _test)
 make phpstan        # analyse statique niveau max
@@ -97,3 +98,9 @@ publie `AlertEmailReceived` ; le Sourcing parse (par domaine expéditeur) et ing
 complet** (suivi : adaptateurs email réels + parsers fins par fournisseur, avec de vrais emails).
 Une passe d'harmonisation visuelle + une page **Compte** (mot de passe, nom d'affichage) ont
 aussi été livrées.
+
+**Chantiers pré-V2 en cours** (cf. `docs/design/PRE-V2-cadrage.md`) : **chantier 1 — durcissement
+back multi-tenant terminé** : rôle runtime non-propriétaire `plume_app` + **Row-Level Security**
+fail-closed (ADR-0023), var de session `app.current_tenant` propagée HTTP + worker, scheduler en
+propriétaire pour la maintenance cross-tenant. **À suivre** : chantier 2 (mail réel + parsers +
+RSS Atom), chantier 3 (front TanStack Query, SPA, types OpenAPI).
