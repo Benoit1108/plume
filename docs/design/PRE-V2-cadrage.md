@@ -48,10 +48,12 @@
 - ✅ Maison à raison : ports CQRS (10 lignes sur Messenger), multi-tenant (pas de bundle
   Symfony de référence ; RLS ajoute la garantie base), ACL Gmail/Graph en HTTP fin (éviter
   `google/apiclient`, obèse).
-- ❌ **Le raté : parser RSS maison mono-dialecte** — ne lit que RSS 2.0 (`channel->item`) ;
-  un flux **Atom** (`feed->entry`, fréquent pour les offres) rend **zéro annonce en silence**.
-  → Correctif au chantier 2 : `laminas/laminas-feed` (ou `debril/feed-io`) **derrière le port
-  `AlertSource`** (interface inchangée).
+- ✅ **Le raté (CORRIGÉ, chantier 2)** : le parser RSS maison ne lisait que RSS 2.0
+  (`channel->item`) ; un flux **Atom** (`feed->entry`, fréquent pour les offres) rendait **zéro
+  annonce en silence**. `RssAlertSource` délègue désormais à **`laminas/laminas-feed`** (RSS 2.0
+  **et** Atom, interface uniforme), **derrière le port `AlertSource` inchangé**. On garde le fetch
+  maison (garde SSRF `NoPrivateNetworkHttpClient` + bornes de taille) puis `Reader::importString`
+  (jamais `import($uri)`, qui échapperait à la garde SSRF). Test Atom ajouté.
 - ⚠️ À surveiller : flux OAuth maison (state HMAC + échange de tokens — audité M2 ; si bug de
   refresh en réel → `league/oauth2-client` derrière `MailboxConnector`) ; CSV maison
   (`league/csv` si l'import grossit) ; recherche `LIKE` (→ **Postgres FTS natif** quand
@@ -74,7 +76,7 @@ milliers de tenants pour une charge CRM. Ce qui casse en premier, avec parade lo
 ### Erreurs structurelles identifiées (et leur statut)
 - Front : **SSR subi** (→ D3, corrigé au chantier 3) et **types dupliqués** malgré OpenAPI
   (→ chantier 3). Les deux auraient dû être tranchés dès M1/M2.
-- Back : **parser RSS mono-dialecte** (→ chantier 2). Rien d'autre de structurel.
+- Back : **parser RSS mono-dialecte** (✅ corrigé au chantier 2 — laminas-feed). Rien d'autre de structurel.
 
 ## 4. Après le pré-V2 (gardés obligatoires)
 - **Point D** (prérequis techniques V2) : hébergement de production (VPS vs PaaS FR), apps

@@ -37,6 +37,22 @@ final class RssAlertSourceTest extends TestCase
         </rss>
         XML;
 
+    // Flux ATOM (feed>entry) : l'ancien parser maison renvoyait ZÉRO ici (il ne lisait que
+    // channel->item). laminas-feed le lit derrière la même interface.
+    private const string ATOM = <<<'XML'
+        <?xml version="1.0" encoding="UTF-8"?>
+        <feed xmlns="http://www.w3.org/2005/Atom">
+          <title>Alertes Atom</title>
+          <entry>
+            <title>Relecture FR — roman graphique</title>
+            <link href="https://example.test/atom/1"/>
+            <id>atom-0001</id>
+            <summary>Relecture d'un &lt;i&gt;roman&lt;/i&gt; graphique.</summary>
+            <updated>2026-07-19T10:30:00Z</updated>
+          </entry>
+        </feed>
+        XML;
+
     /** @return list<ParsedAlert> */
     private function fetch(MockHttpClient $client, string $url = 'https://feed.test/rss'): array
     {
@@ -60,6 +76,19 @@ final class RssAlertSourceTest extends TestCase
 
         // Sans guid : l'externalId retombe sur le lien (ici absent) => null, mais le titre suffit.
         self::assertSame('job-0002', $alerts[1]->externalId);
+    }
+
+    public function testParsesAtomFeedEntries(): void
+    {
+        $alerts = $this->fetch(new MockHttpClient(new MockResponse(self::ATOM)));
+
+        self::assertCount(1, $alerts);
+        self::assertSame('Relecture FR — roman graphique', $alerts[0]->title);
+        self::assertSame('atom-0001', $alerts[0]->externalId);
+        self::assertSame('https://example.test/atom/1', $alerts[0]->url);
+        self::assertSame('RSS', $alerts[0]->source);
+        self::assertStringContainsString('roman graphique', (string) $alerts[0]->excerpt); // balises retirées
+        self::assertSame('2026-07-19T10:30:00+00:00', $alerts[0]->postedAt);
     }
 
     public function testEmptyFeedUrlYieldsNothing(): void

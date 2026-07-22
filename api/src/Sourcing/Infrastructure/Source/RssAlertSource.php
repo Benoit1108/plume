@@ -7,14 +7,24 @@ namespace App\Sourcing\Infrastructure\Source;
 use App\Sourcing\Application\Source\AlertSource;
 use App\Sourcing\Application\Source\ParsedAlert;
 use App\Sourcing\Domain\CandidateLead\Source;
+use Laminas\Feed\Reader\Entry\AbstractEntry;
+use Laminas\Feed\Reader\Entry\EntryInterface;
+use Laminas\Feed\Reader\Reader;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
- * Source RSS réelle : GET du flux configuré, parsing best-effort des `<item>` (RSS 2.0).
- * Aucun test ne touche le réseau — le `HttpClientInterface` est injecté (MockHttpClient +
- * flux figé en test, patron des adaptateurs M2). Un item malformé est ignoré, jamais propagé.
+ * Source de flux réelle : GET du flux configuré, parsing best-effort des entrées.
+ *
+ * Le parsing délègue à **laminas-feed** (`Reader`), qui lit indifféremment **RSS 2.0** (`item`)
+ * ET **Atom** (`entry`) derrière une interface uniforme — l'ancien parsing maison ne lisait que
+ * `channel->item` et renvoyait zéro annonce, silencieusement, sur un flux Atom (ADR de rétro).
+ *
+ * L'I/O réseau reste SOUS NOTRE contrôle : on récupère le corps via le `HttpClientInterface`
+ * injecté (gardé anti-SSRF + borné en taille), puis on passe la CHAÎNE à `Reader::importString`.
+ * On n'utilise JAMAIS `Reader::import($uri)` (qui ferait sa propre requête, hors garde SSRF).
+ * Aucun test ne touche le réseau ; une entrée malformée est ignorée, jamais propagée.
  */
 final class RssAlertSource implements AlertSource
 {
@@ -44,73 +54,61 @@ final class RssAlertSource implements AlertSource
             // Content-Length reste borné par le timeout global du client + la garde ci-dessous).
             $declared = (int) ($response->getHeaders()['content-length'][0] ?? 0);
             if ($declared > self::MAX_FEED_BYTES) {
-                $this->logger->warning('Sourcing: flux RSS trop volumineux, ignoré.', ['bytes' => $declared]);
+                $this->logger->warning('Sourcing: flux trop volumineux, ignoré.', ['bytes' => $declared]);
 
                 return;
             }
             $xml = $response->getContent();
         } catch (\Throwable $e) {
-            $this->logger->warning('Sourcing: échec de récupération du flux RSS.', ['error' => $e->getMessage()]);
+            $this->logger->warning('Sourcing: échec de récupération du flux.', ['error' => $e->getMessage()]);
 
             return;
         }
 
-        if (\strlen($xml) > self::MAX_FEED_BYTES) {
+        if ('' === trim($xml) || \strlen($xml) > self::MAX_FEED_BYTES) {
             return;
         }
 
-        $feed = $this->parse($xml);
-        if (null === $feed) {
+        try {
+            $feed = Reader::importString($xml); // RSS 2.0 et Atom, transparent
+        } catch (\Throwable $e) {
+            $this->logger->warning('Sourcing: flux illisible (ni RSS ni Atom).', ['error' => $e->getMessage()]);
+
             return;
         }
 
-        foreach ($feed->channel->item ?? [] as $item) {
-            $alert = $this->toAlert($item);
+        foreach ($feed as $entry) {
+            $alert = $this->toAlert($entry);
             if (null !== $alert) {
                 yield $alert;
             }
         }
     }
 
-    private function parse(string $xml): ?\SimpleXMLElement
+    private function toAlert(EntryInterface $entry): ?ParsedAlert
     {
-        if ('' === trim($xml)) {
-            return null;
-        }
-        $previous = libxml_use_internal_errors(true);
-        try {
-            $feed = simplexml_load_string($xml);
-
-            return false === $feed ? null : $feed;
-        } finally {
-            libxml_clear_errors();
-            libxml_use_internal_errors($previous);
-        }
-    }
-
-    private function toAlert(\SimpleXMLElement $item): ?ParsedAlert
-    {
-        $title = $this->clean((string) $item->title, self::MAX_TITLE);
+        $title = $this->clean((string) $entry->getTitle(), self::MAX_TITLE);
         if ('' === $title) {
-            return null; // best-effort : item sans titre exploitable → ignoré.
+            return null; // best-effort : entrée sans titre exploitable → ignorée.
         }
 
-        $guid = trim((string) $item->guid);
-        $link = trim((string) $item->link);
-        $externalId = '' !== $guid ? $guid : ('' !== $link ? $link : null);
+        $link = trim((string) $entry->getLink());
+        $id = trim((string) $entry->getId());
+        $externalId = '' !== $id ? $id : ('' !== $link ? $link : null);
 
-        $raw = $item->asXML();
+        // description (RSS) / summary (Atom), via l'interface uniforme laminas.
+        $excerpt = $this->clean((string) $entry->getDescription(), self::MAX_EXCERPT);
 
         return new ParsedAlert(
             source: Source::RSS->value,
             title: $title,
-            organizationName: null, // non porté par RSS standard — renseigné au tri.
+            organizationName: null, // non porté par les flux standard — renseigné au tri.
             languagePair: null,
             url: $this->safeHttpUrl($link),
-            excerpt: $this->clean((string) $item->description, self::MAX_EXCERPT) ?: null,
+            excerpt: '' !== $excerpt ? $excerpt : null,
             externalId: $externalId,
-            postedAt: $this->toIso((string) $item->pubDate),
-            rawPayload: false === $raw ? null : $raw,
+            postedAt: $this->postedAt($entry),
+            rawPayload: $this->rawXml($entry),
         );
     }
 
@@ -121,7 +119,7 @@ final class RssAlertSource implements AlertSource
         return mb_substr($value, 0, $max);
     }
 
-    /** N'accepte le lien d'un item que s'il est http(s) — anti-XSS (sera rendu en href). */
+    /** N'accepte le lien d'une entrée que s'il est http(s) — anti-XSS (sera rendu en href). */
     private function safeHttpUrl(string $link): ?string
     {
         $link = trim($link);
@@ -132,15 +130,24 @@ final class RssAlertSource implements AlertSource
         return mb_substr($link, 0, self::MAX_URL);
     }
 
-    private function toIso(string $pubDate): ?string
+    private function postedAt(EntryInterface $entry): ?string
     {
-        $pubDate = trim($pubDate);
-        if ('' === $pubDate) {
+        $date = $entry->getDateModified() ?? $entry->getDateCreated();
+
+        return $date?->format(\DateTimeInterface::ATOM);
+    }
+
+    private function rawXml(EntryInterface $entry): ?string
+    {
+        // saveXml() n'est pas sur l'interface mais sur l'implémentation concrète (RSS comme Atom).
+        if (!$entry instanceof AbstractEntry) {
             return null;
         }
         try {
-            return (new \DateTimeImmutable($pubDate))->format(\DateTimeInterface::ATOM);
-        } catch (\Exception) {
+            $xml = trim((string) $entry->saveXml());
+
+            return '' !== $xml ? $xml : null;
+        } catch (\Throwable) {
             return null;
         }
     }
