@@ -9,14 +9,18 @@ const { typeLabel, segmentLabel } = useDirectoryLabels()
 const directory = useDirectory()
 const toast = useToast()
 
-const { data: org, refresh, status } = await useAsyncData<Organization | null>(
-  `org-${id}`,
-  () => directory.get(id),
-  { server: false, default: () => null },
-)
+const queryClient = useQueryClient()
+const { data: orgData, isPending: loading } = useQuery({ queryKey: queryKeys.organization(id), queryFn: () => directory.get(id) })
+const org = computed<Organization | null>(() => orgData.value ?? null)
 
-// server:false → même état « chargement » au SSR (idle) et à l'hydratation (pending).
-const loading = computed(() => status.value === 'idle' || status.value === 'pending')
+// Une mutation du répertoire touche la fiche, la liste ET les pistes (hasReachableContact).
+async function refresh(): Promise<void> {
+  await Promise.all([
+    queryClient.invalidateQueries({ queryKey: queryKeys.organization(id) }),
+    queryClient.invalidateQueries({ queryKey: queryKeys.organizations }),
+    queryClient.invalidateQueries({ queryKey: queryKeys.leads }),
+  ])
+}
 
 const editing = ref(false)
 const savingOrg = ref(false)

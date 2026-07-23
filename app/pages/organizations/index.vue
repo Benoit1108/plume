@@ -16,18 +16,15 @@ const typeFilterItems = computed(() => [
   ...typeOptions.value,
 ])
 
-const { data: organizations, status } = await useAsyncData<Organization[]>(
-  'organizations',
-  () => directory.list({
+// Clé réactive : le filtre (type + recherche) fait partie de la clé → refetch au changement.
+const { data: orgsData, isPending: loading } = useQuery({
+  queryKey: computed(() => ['organizations', type.value, qDebounced.value]),
+  queryFn: () => directory.list({
     type: type.value !== TYPE_ALL ? type.value : undefined,
     q: qDebounced.value || undefined,
   }),
-  { server: false, default: () => [], watch: [type, qDebounced] },
-)
-
-// server:false → au SSR le fetch n'a pas démarré (status 'idle') : rendre le même
-// état « chargement » que le client à l'hydratation, sinon mismatch de branches v-if.
-const loading = computed(() => status.value === 'idle' || status.value === 'pending')
+})
+const organizations = computed<Organization[]>(() => orgsData.value ?? [])
 </script>
 
 <template>

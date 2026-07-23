@@ -10,11 +10,9 @@ const leads = useLeads()
 const toast = useToast()
 const route = useRoute()
 
-const { data: organizations } = await useAsyncData<Organization[]>(
-  'organizations-for-lead',
-  () => directory.list(),
-  { server: false, default: () => [] },
-)
+const queryClient = useQueryClient()
+const { data: orgsData } = useQuery({ queryKey: queryKeys.organizations, queryFn: () => directory.list() })
+const organizations = computed<Organization[]>(() => orgsData.value ?? [])
 
 const NO_CONTACT = 'NONE'
 const form = reactive({
@@ -62,6 +60,7 @@ async function onSubmit(): Promise<void> {
       segment: form.segment,
     }
     const lead = await leads.create(payload)
+    await queryClient.invalidateQueries({ queryKey: queryKeys.leads })
     toast.add({ title: t('pipeline.toasts.created'), color: 'success' })
     await navigateTo(`/leads/${lead.id}`)
   }
