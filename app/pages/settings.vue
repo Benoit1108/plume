@@ -9,12 +9,10 @@ const mailboxApi = useMailbox()
 const sourcingApi = useSourcing()
 const toast = useToast()
 
-const { data: profile, refresh, status } = await useAsyncData<Profile | null>(
-  'profile-settings',
-  () => profileApi.get(),
-  { server: false, default: () => null },
-)
-const loading = computed(() => status.value === 'idle' || status.value === 'pending')
+const queryClient = useQueryClient()
+const { data: profileData, isPending: loading } = useQuery({ queryKey: queryKeys.profile, queryFn: () => profileApi.get() })
+const profile = computed<Profile | null>(() => profileData.value ?? null)
+async function refresh(): Promise<void> { await queryClient.invalidateQueries({ queryKey: queryKeys.profile }) }
 
 const weeklyGoal = ref(5)
 const bio = ref('')
@@ -30,12 +28,9 @@ watch(profile, (value) => {
 }, { immediate: true })
 
 // ----- Boîte email (M2.1) -----
-const { data: mailbox, refresh: refreshMailbox, status: mailboxStatus } = await useAsyncData<Mailbox | null>(
-  'mailbox',
-  () => mailboxApi.get(),
-  { server: false, default: () => null },
-)
-const mailboxLoading = computed(() => mailboxStatus.value === 'idle' || mailboxStatus.value === 'pending')
+const { data: mailboxData, isPending: mailboxLoading } = useQuery({ queryKey: queryKeys.mailbox, queryFn: () => mailboxApi.get() })
+const mailbox = computed<Mailbox | null>(() => mailboxData.value ?? null)
+async function refreshMailbox(): Promise<void> { await queryClient.invalidateQueries({ queryKey: queryKeys.mailbox }) }
 const connecting = ref(false)
 const confirmRevoke = ref(false)
 
@@ -101,12 +96,9 @@ function formatDate(iso: string): string {
 }
 
 // ----- Sources d'annonces (M3.1b) -----
-const { data: feeds, refresh: refreshFeeds, status: feedsStatus } = await useAsyncData<AlertFeed[]>(
-  'alert-feeds',
-  () => sourcingApi.feeds(),
-  { server: false, default: () => [] },
-)
-const feedsLoading = computed(() => feedsStatus.value === 'idle' || feedsStatus.value === 'pending')
+const { data: feedsData, isPending: feedsLoading } = useQuery({ queryKey: queryKeys.feeds, queryFn: () => sourcingApi.feeds() })
+const feeds = computed<AlertFeed[]>(() => feedsData.value ?? [])
+async function refreshFeeds(): Promise<void> { await queryClient.invalidateQueries({ queryKey: queryKeys.feeds }) }
 const newFeedUrl = ref('')
 const newFeedLabel = ref('')
 const addingFeed = ref(false)

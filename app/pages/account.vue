@@ -7,12 +7,10 @@ const profileApi = useProfile()
 const accountApi = useAccount()
 const toast = useToast()
 
-const { data: profile, refresh, status } = await useAsyncData<Profile | null>(
-  'account-profile',
-  () => profileApi.get(),
-  { server: false, default: () => null },
-)
-const loading = computed(() => status.value === 'idle' || status.value === 'pending')
+const queryClient = useQueryClient()
+const { data: profileData, isPending: loading } = useQuery({ queryKey: queryKeys.profile, queryFn: () => profileApi.get() })
+const profile = computed<Profile | null>(() => profileData.value ?? null)
+async function refresh(): Promise<void> { await queryClient.invalidateQueries({ queryKey: queryKeys.profile }) }
 
 // --- Nom d'affichage ---
 const firstName = ref('')

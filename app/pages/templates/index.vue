@@ -9,12 +9,10 @@ const draftLabels = useDraftLabels()
 const { segmentLabel, segmentOptions } = useDirectoryLabels()
 const toast = useToast()
 
-const { data: templates, refresh, status } = await useAsyncData<Template[]>(
-  'templates',
-  () => drafts.templates(),
-  { server: false, default: () => [] },
-)
-const loading = computed(() => status.value === 'idle' || status.value === 'pending')
+const queryClient = useQueryClient()
+const { data: templatesData, isPending: loading } = useQuery({ queryKey: queryKeys.templates, queryFn: () => drafts.templates() })
+const templates = computed<Template[]>(() => templatesData.value ?? [])
+async function refresh(): Promise<void> { await queryClient.invalidateQueries({ queryKey: queryKeys.templates }) }
 
 const VARIABLES = '{{contact}}, {{organisation}}, {{langues}}, {{bio}}, {{specialites}}, {{signature}}'
 
