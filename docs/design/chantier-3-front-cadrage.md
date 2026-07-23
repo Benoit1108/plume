@@ -1,6 +1,10 @@
 # Chantier 3 — Front : SPA + TanStack Query + types OpenAPI (note de cadrage)
 
-- **Statut** : proposé (à valider avant de coder)
+- **Statut : RÉALISÉ** (2026-07-23, CI verte à chaque lot) — A `cf97d76`, B `7dea1a3`, C `10c4890`,
+  D `3398f3e`/`f07321f`/`1c3fddb`/`3ebb38c`/`600c455`. Écart assumé sur A : la sortie OpenAPI
+  d'API Platform étant imprécise (statuts en `string`, nullabilité permissive), on a livré l'infra
+  (contrat généré + alarme de drift) sans dériver les types applicatifs — reste possible après un
+  durcissement OpenAPI back. Le **poll manuel async** (dette ADR-0022 §1) n'est PAS fait ici (report).
 - **Contexte** : dettes front actées en [ADR-0022](../architecture/decisions/0022-dettes-architecture-v2.md) et
   [note PRE-V2](./PRE-V2-cadrage.md) — SSR subi, état serveur géré à la main, types dupliqués.
   Arbitrages déjà pris par Benoit : **TanStack Query**, **SPA `ssr:false`**, **types générés depuis OpenAPI**.
