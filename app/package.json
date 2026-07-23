@@ -8,6 +8,7 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
+    "gen:types": "openapi-typescript ../api/openapi.json -o types/api-generated.ts",
     "lint": "eslint .",
     "type-check": "nuxt typecheck",
     "test": "vitest run",
@@ -30,6 +31,7 @@
     "@types/node": "^26.1.1",
     "@vitest/coverage-v8": "^4.1.10",
     "eslint": "^10.7.0",
+    "openapi-typescript": "^7.13.0",
     "typescript": "^6.0.3",
     "vitest": "^4.1.10",
     "vue-tsc": "^3.3.7"
