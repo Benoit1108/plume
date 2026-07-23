@@ -17,19 +17,15 @@ function focusTop(): void {
   void nextTick(() => topRef.value?.focus())
 }
 
-const { data: candidates, refresh, status } = await useAsyncData<CandidateLead[]>(
-  'candidate-queue',
-  () => sourcing.queue(),
-  { server: false, default: () => [] },
-)
-const loading = computed(() => status.value === 'idle' || status.value === 'pending')
+const queryClient = useQueryClient()
+// queryFn appelle sourcing.queue() qui met aussi à jour le compteur partagé du badge de nav.
+const { data: candidatesData, isPending: loading } = useQuery({ queryKey: queryKeys.candidateQueue, queryFn: () => sourcing.queue() })
+const candidates = computed<CandidateLead[]>(() => candidatesData.value ?? [])
+async function refresh(): Promise<void> { await queryClient.invalidateQueries({ queryKey: queryKeys.candidateQueue }) }
 
 // Organisations existantes (pour la fusion).
-const { data: organizations } = await useAsyncData<Organization[]>(
-  'candidate-orgs',
-  () => directory.list(),
-  { server: false, default: () => [] },
-)
+const { data: orgsData } = useQuery({ queryKey: queryKeys.organizations, queryFn: () => directory.list() })
+const organizations = computed<Organization[]>(() => orgsData.value ?? [])
 const organizationOptions = computed(() => organizations.value.map(o => ({ value: o.id, label: o.name })))
 
 // --- Tri : accepter (nouvelle organisation) / fusionner (organisation existante) ---
@@ -100,7 +96,12 @@ async function submitTriage(): Promise<void> {
       })
     }
     triaging.value = null
-    await refresh()
+    // La promotion crée une piste (+ éventuellement une organisation) : on rafraîchit les 3.
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: queryKeys.candidateQueue }),
+      queryClient.invalidateQueries({ queryKey: queryKeys.leads }),
+      queryClient.invalidateQueries({ queryKey: queryKeys.organizations }),
+    ])
     focusTop()
     toast.add({ title: t('sourcing.toasts.promoted'), color: 'success' })
   }

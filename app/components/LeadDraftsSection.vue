@@ -18,19 +18,16 @@ const draftsApi = useDrafts()
 const draftLabels = useDraftLabels()
 const toast = useToast()
 
-const { data: drafts, refresh: refreshDrafts } = await useAsyncData<Draft[]>(
-  `lead-${props.leadId}-drafts`,
-  () => draftsApi.forLead(props.leadId),
-  { server: false, default: () => [] },
-)
+const queryClient = useQueryClient()
+const { data: draftsData } = useQuery({ queryKey: queryKeys.draftsForLead(props.leadId), queryFn: () => draftsApi.forLead(props.leadId) })
+const drafts = computed<Draft[]>(() => draftsData.value ?? [])
+// Le polling GENERATING (ci-dessous) rappelle refreshDrafts ; invalidate → refetch, .then() voit le frais.
+async function refreshDrafts(): Promise<void> { await queryClient.invalidateQueries({ queryKey: queryKeys.draftsForLead(props.leadId) }) }
 
 // La boîte connectée conditionne le bouton Envoyer (clé partagée avec les Réglages).
 const mailboxApi = useMailbox()
-const { data: mailbox } = await useAsyncData<Mailbox | null>(
-  'mailbox',
-  () => mailboxApi.get(),
-  { server: false, default: () => null },
-)
+const { data: mailboxData } = useQuery({ queryKey: queryKeys.mailbox, queryFn: () => mailboxApi.get() })
+const mailbox = computed<Mailbox | null>(() => mailboxData.value ?? null)
 const canSend = computed(() => mailbox.value?.status === 'CONNECTED')
 
 // ----- Génération (modale) -----

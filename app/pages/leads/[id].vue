@@ -10,18 +10,23 @@ const { segmentLabel } = useDirectoryLabels()
 const leads = useLeads()
 const toast = useToast()
 
-const { data: lead, refresh, status } = await useAsyncData<Lead | null>(
-  `lead-${id}`,
-  () => leads.get(id),
-  { server: false, default: () => null },
-)
-const { data: interactions, refresh: refreshTimeline } = await useAsyncData<Interaction[]>(
-  `lead-${id}-timeline`,
-  () => leads.timeline(id),
-  { server: false, default: () => [] },
-)
+const queryClient = useQueryClient()
+const { data: leadData, isPending: loading } = useQuery({ queryKey: queryKeys.lead(id), queryFn: () => leads.get(id) })
+const lead = computed<Lead | null>(() => leadData.value ?? null)
 
-const loading = computed(() => status.value === 'idle' || status.value === 'pending')
+const { data: interactionsData } = useQuery({ queryKey: queryKeys.leadTimeline(id), queryFn: () => leads.timeline(id) })
+const interactions = computed<Interaction[]>(() => interactionsData.value ?? [])
+
+// Une transition change aussi la place de la piste dans le kanban → invalider la liste.
+async function refresh(): Promise<void> {
+  await Promise.all([
+    queryClient.invalidateQueries({ queryKey: queryKeys.lead(id) }),
+    queryClient.invalidateQueries({ queryKey: queryKeys.leads }),
+  ])
+}
+async function refreshTimeline(): Promise<void> {
+  await queryClient.invalidateQueries({ queryKey: queryKeys.leadTimeline(id) })
+}
 
 const transitioning = ref(false)
 const confirmLose = ref(false)
