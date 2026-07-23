@@ -528,9 +528,11 @@
     "toasts": {
       "connected": "Boîte connectée",
       "revoked": "Boîte déconnectée",
-      "fetched": "Relève effectuée — le journal des pistes est à jour."
+      "fetched": "Relève effectuée — le journal des pistes est à jour.",
+      "alertsFetched": "Relève des alertes lancée — les nouvelles annonces apparaîtront dans « À trier »."
     },
     "fetchNow": "Relever les réponses",
+    "fetchAlertsNow": "Relever les alertes",
     "lastSync": "dernière relève : {date}",
     "connectOutlook": "Connecter Outlook"
   }

@@ -9,6 +9,7 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Post;
+use App\Mailbox\Infrastructure\ApiResource\State\FetchAlertEmailsProcessor;
 use App\Mailbox\Infrastructure\ApiResource\State\FetchRepliesProcessor;
 use App\Mailbox\Infrastructure\ApiResource\State\MailboxConnectProcessor;
 use App\Mailbox\Infrastructure\ApiResource\State\MailboxProvider;
@@ -51,6 +52,15 @@ use Symfony\Component\Validator\Constraints as Assert;
             provider: MailboxProvider::class,
             processor: FetchRepliesProcessor::class,
             openapi: new \ApiPlatform\OpenApi\Model\Operation(summary: 'Relever les réponses maintenant (le Scheduler le fait toutes les 5 min)'),
+        ),
+        new Post(
+            uriTemplate: '/mailbox/fetch-alerts',
+            name: 'mailbox_fetch_alerts',
+            input: false,
+            status: 200,
+            provider: MailboxProvider::class,
+            processor: FetchAlertEmailsProcessor::class,
+            openapi: new \ApiPlatform\OpenApi\Model\Operation(summary: 'Relever les alertes du label dédié maintenant (le Scheduler le fait toutes les 30 min)'),
         ),
         new Delete(
             uriTemplate: '/mailbox',

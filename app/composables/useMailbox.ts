@@ -17,8 +17,10 @@ export function useMailbox() {
     /** Finalise la connexion au retour du consentement (code + state anti-CSRF). */
     connect: (code: string, state: string) =>
       api<Mailbox>('/api/v1/mailbox/connect', { method: 'POST', body: { code, state }, headers: ldWrite }),
-    /** Relève immédiate (le Scheduler le fait toutes les 5 min). */
+    /** Relève immédiate des réponses (le Scheduler le fait toutes les 5 min). */
     fetchReplies: () => api<Mailbox>('/api/v1/mailbox/fetch-replies', { method: 'POST', body: {}, headers: ldWrite }),
+    /** Relève immédiate des alertes du label dédié (le Scheduler le fait toutes les 30 min). */
+    fetchAlerts: () => api<Mailbox>('/api/v1/mailbox/fetch-alerts', { method: 'POST', body: {}, headers: ldWrite }),
     revoke: () => api<unknown>('/api/v1/mailbox', { method: 'DELETE' }),
   }
 }

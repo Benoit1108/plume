@@ -68,6 +68,23 @@ async function fetchRepliesNow(): Promise<void> {
   }
 }
 
+const fetchingAlerts = ref(false)
+
+async function fetchAlertsNow(): Promise<void> {
+  fetchingAlerts.value = true
+  try {
+    await mailboxApi.fetchAlerts()
+    await refreshMailbox()
+    toast.add({ title: t('mailbox.toasts.alertsFetched'), color: 'success' })
+  }
+  catch (error) {
+    toast.add({ title: errorToastTitle(t, error), color: 'error' })
+  }
+  finally {
+    fetchingAlerts.value = false
+  }
+}
+
 async function revokeMailbox(): Promise<void> {
   try {
     await mailboxApi.revoke()
@@ -281,6 +298,15 @@ async function save(): Promise<void> {
               @click="fetchRepliesNow"
             >
               {{ t('mailbox.fetchNow') }}
+            </UButton>
+            <UButton
+              size="xs"
+              variant="outline"
+              icon="i-lucide-download"
+              :loading="fetchingAlerts"
+              @click="fetchAlertsNow"
+            >
+              {{ t('mailbox.fetchAlertsNow') }}
             </UButton>
             <UButton size="xs" variant="ghost" color="error" icon="i-lucide-unlink" @click="() => { confirmRevoke = true }">
               {{ t('mailbox.revoke') }}

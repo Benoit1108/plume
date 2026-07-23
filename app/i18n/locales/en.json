@@ -528,9 +528,11 @@
     "toasts": {
       "connected": "Mailbox connected",
       "revoked": "Mailbox disconnected",
-      "fetched": "Fetch done — lead journals are up to date."
+      "fetched": "Fetch done — lead journals are up to date.",
+      "alertsFetched": "Alerts fetch triggered — new announcements will appear in “To triage”."
     },
     "fetchNow": "Fetch replies",
+    "fetchAlertsNow": "Fetch alerts",
     "lastSync": "last sync: {date}",
     "connectOutlook": "Connect Outlook"
   }

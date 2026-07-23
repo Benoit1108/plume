@@ -2654,6 +2654,77 @@
                 }
             }
         },
+        "/api/v1/mailbox/fetch-alerts": {
+            "post": {
+                "operationId": "mailbox_fetch_alerts",
+                "tags": [
+                    "Mailbox"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Mailbox resource created",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Mailbox.jsonld-mailbox.read"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Mailbox-mailbox.read"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Relever les alertes du label d\u00e9di\u00e9 maintenant (le Scheduler le fait toutes les 30 min)",
+                "description": "Relever les alertes du label d\u00e9di\u00e9 maintenant (le Scheduler le fait toutes les 30 min)",
+                "parameters": []
+            }
+        },
         "/api/v1/mailbox/fetch-replies": {
             "post": {
                 "operationId": "mailbox_fetch_replies",

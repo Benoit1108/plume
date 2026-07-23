@@ -25,7 +25,7 @@ final class MailboxApiTest extends ApiTestCase
     {
         $connection = static::getContainer()->get(Connection::class);
         \assert($connection instanceof Connection);
-        $connection->executeStatement('TRUNCATE TABLE connected_mailbox, app_user, refresh_tokens RESTART IDENTITY CASCADE');
+        $connection->executeStatement('TRUNCATE TABLE connected_mailbox, app_user, refresh_tokens, candidate_lead, raw_alert RESTART IDENTITY CASCADE');
     }
 
     private function createUser(string $email): void
@@ -125,6 +125,30 @@ final class MailboxApiTest extends ApiTestCase
         $after = $client->request('GET', '/api/v1/mailbox', ['auth_bearer' => $token])->toArray();
         self::assertSame('REVOKED', $after['status']);
         self::assertNull($connection->fetchOne('SELECT access_token FROM connected_mailbox LIMIT 1'));
+    }
+
+    public function testFetchAlertsIngestsLabelledEmails(): void
+    {
+        $this->createUser('a@plume.test');
+        $client = static::createClient();
+        $token = $this->tokenFor($client, 'a@plume.test');
+
+        // Boîte connectée (connecteur factice en test) puis relève manuelle des alertes.
+        $state = $this->startOAuth($client, $token);
+        $this->connect($client, $token, $state);
+        self::assertResponseStatusCodeSame(201);
+
+        $mailbox = $client->request('POST', '/api/v1/mailbox/fetch-alerts', [
+            'auth_bearer' => $token,
+            'headers' => ['Content-Type' => 'application/ld+json'],
+        ])->toArray();
+        self::assertSame('CONNECTED', $mailbox['status']);
+
+        // En test les events sont consommés en ligne : l'alerte factice est devenue un candidat.
+        $connection = static::getContainer()->get(Connection::class);
+        \assert($connection instanceof Connection);
+        $count = $connection->fetchOne('SELECT COUNT(*) FROM candidate_lead');
+        self::assertSame(1, is_numeric($count) ? (int) $count : 0);
     }
 
     public function testConnectOutlookViaStateProvider(): void
