@@ -6,6 +6,7 @@ namespace App\Mailbox\Infrastructure\Fetcher;
 
 use App\Mailbox\Application\IncomingReply;
 use App\Mailbox\Application\ReplyFetcher;
+use App\Mailbox\Application\ReplyPreviewCleaner;
 use App\Mailbox\Infrastructure\Token\AccessTokenMinter;
 use Symfony\Contracts\HttpClient\Exception\ExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -49,8 +50,8 @@ final class GmailReplyFetcher implements ReplyFetcher
                     continue;
                 }
                 $snippet = $message['snippet'] ?? null;
-                $preview = \is_string($snippet) ? trim(html_entity_decode($snippet, \ENT_QUOTES | \ENT_HTML5, 'UTF-8')) : '';
-                $replies[] = new IncomingReply($leadId, $threadKey, mb_substr($preview, 0, 280));
+                $preview = ReplyPreviewCleaner::clean(\is_string($snippet) ? $snippet : '');
+                $replies[] = new IncomingReply($leadId, $threadKey, $preview);
                 break; // une réponse suffit : la piste passe en discussion
             }
         }

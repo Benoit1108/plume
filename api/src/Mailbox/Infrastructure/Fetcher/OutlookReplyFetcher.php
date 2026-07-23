@@ -6,6 +6,7 @@ namespace App\Mailbox\Infrastructure\Fetcher;
 
 use App\Mailbox\Application\IncomingReply;
 use App\Mailbox\Application\ReplyFetcher;
+use App\Mailbox\Application\ReplyPreviewCleaner;
 use App\Mailbox\Infrastructure\Token\AccessTokenMinter;
 use Symfony\Contracts\HttpClient\Exception\ExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -50,7 +51,7 @@ final class OutlookReplyFetcher implements ReplyFetcher
                     continue;
                 }
                 $preview = $message['bodyPreview'] ?? null;
-                $replies[] = new IncomingReply($leadId, $threadKey, mb_substr(\is_string($preview) ? trim($preview) : '', 0, 280));
+                $replies[] = new IncomingReply($leadId, $threadKey, ReplyPreviewCleaner::clean(\is_string($preview) ? $preview : ''));
                 break;
             }
         }
