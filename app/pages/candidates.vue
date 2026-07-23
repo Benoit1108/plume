@@ -137,13 +137,26 @@ async function doReject(): Promise<void> {
 }
 
 // --- Relever les sources (ingestion des annonces, tenant courant) ---
+// La relève est ASYNCHRONE (202, worker) : on rafraîchit la file plusieurs fois au fil de
+// l'ingestion (l'I/O RSS peut prendre quelques secondes côté worker).
 const polling = ref(false)
+const pollCatchUpTimers: ReturnType<typeof setTimeout>[] = []
+
+function schedulePollCatchUp(): void {
+  pollCatchUpTimers.forEach(clearTimeout)
+  pollCatchUpTimers.length = 0
+  for (const delay of [1000, 3000, 6000, 10000]) {
+    pollCatchUpTimers.push(setTimeout(() => { void refresh() }, delay))
+  }
+}
+onUnmounted(() => pollCatchUpTimers.forEach(clearTimeout))
+
 async function doPoll(): Promise<void> {
   polling.value = true
   try {
     await sourcing.poll()
-    await refresh()
     toast.add({ title: t('sourcing.toasts.polled'), color: 'success' })
+    schedulePollCatchUp()
   }
   catch (error) {
     toast.add({ title: errorToastTitle(t, error), color: 'error' })

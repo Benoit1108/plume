@@ -18,9 +18,9 @@ test('file « À trier » : relever une source RSS fait entrer les annonces', as
 
   await page.getByRole('button', { name: /relever les annonces|fetch announcements/i }).first().click()
 
-  // Au moins une carte triable apparaît (on n'assère pas un titre précis : robuste au tenant
-  // e2e persistant, où une annonce démo a pu être triée par un run antérieur).
-  await expect(page.getByRole('button', { name: /^accepter$|^accept$/i }).first()).toBeVisible()
+  // La relève est ASYNCHRONE (202 + worker) : la carte apparaît via les rafraîchissements
+  // différés de la file (jusqu'à ~10 s) — on laisse une marge au lieu du timeout par défaut (5 s).
+  await expect(page.getByRole('button', { name: /^accepter$|^accept$/i }).first()).toBeVisible({ timeout: 15000 })
 
   expect(errors).toEqual([])
 })

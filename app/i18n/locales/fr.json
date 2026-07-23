@@ -382,7 +382,7 @@
     "toasts": {
       "promoted": "Piste créée",
       "rejected": "Annonce rejetée",
-      "polled": "Sources relevées"
+      "polled": "Relève lancée — les annonces vont apparaître"
     },
     "errors": {
       "conflict": "Impossible : cette organisation existe peut-être déjà — utilisez « Fusionner » pour la rattacher."

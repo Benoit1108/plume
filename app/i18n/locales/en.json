@@ -382,7 +382,7 @@
     "toasts": {
       "promoted": "Lead created",
       "rejected": "Announcement rejected",
-      "polled": "Sources fetched"
+      "polled": "Fetch started — announcements will appear shortly"
     },
     "errors": {
       "conflict": "Not possible: this organization may already exist — use \"Merge\" to attach it."
