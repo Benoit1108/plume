@@ -62,9 +62,11 @@ final class CandidateLeadResource
     #[Groups(['candidate:read'])]
     public ?string $id = null;
 
+    #[ApiProperty(openapiContext: ['enum' => ['PROZ', 'LINKEDIN', 'TRANSLATORSCAFE', 'RSS', 'MANUAL']])]
     #[Groups(['candidate:read'])]
     public string $source = 'MANUAL';
 
+    #[ApiProperty(openapiContext: ['enum' => ['PENDING', 'ACCEPTED', 'MERGED', 'REJECTED']])]
     #[Groups(['candidate:read'])]
     public string $status = 'PENDING';
 

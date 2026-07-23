@@ -4488,11 +4488,24 @@
                     },
                     "source": {
                         "default": "MANUAL",
-                        "type": "string"
+                        "type": "string",
+                        "enum": [
+                            "PROZ",
+                            "LINKEDIN",
+                            "TRANSLATORSCAFE",
+                            "RSS",
+                            "MANUAL"
+                        ]
                     },
                     "status": {
                         "default": "PENDING",
-                        "type": "string"
+                        "type": "string",
+                        "enum": [
+                            "PENDING",
+                            "ACCEPTED",
+                            "MERGED",
+                            "REJECTED"
+                        ]
                     },
                     "title": {
                         "default": "",
@@ -4654,11 +4667,24 @@
                             },
                             "source": {
                                 "default": "MANUAL",
-                                "type": "string"
+                                "type": "string",
+                                "enum": [
+                                    "PROZ",
+                                    "LINKEDIN",
+                                    "TRANSLATORSCAFE",
+                                    "RSS",
+                                    "MANUAL"
+                                ]
                             },
                             "status": {
                                 "default": "PENDING",
-                                "type": "string"
+                                "type": "string",
+                                "enum": [
+                                    "PENDING",
+                                    "ACCEPTED",
+                                    "MERGED",
+                                    "REJECTED"
+                                ]
                             },
                             "title": {
                                 "default": "",
@@ -5518,7 +5544,12 @@
                     },
                     "status": {
                         "default": "GENERATING",
-                        "type": "string"
+                        "type": "string",
+                        "enum": [
+                            "GENERATING",
+                            "READY",
+                            "FAILED"
+                        ]
                     },
                     "failureReason": {
                         "type": [
@@ -5598,7 +5629,12 @@
                             },
                             "status": {
                                 "default": "GENERATING",
-                                "type": "string"
+                                "type": "string",
+                                "enum": [
+                                    "GENERATING",
+                                    "READY",
+                                    "FAILED"
+                                ]
                             },
                             "failureReason": {
                                 "type": [
@@ -6021,7 +6057,17 @@
                     },
                     "status": {
                         "default": "TO_CONTACT",
-                        "type": "string"
+                        "type": "string",
+                        "enum": [
+                            "TO_CONTACT",
+                            "CONTACTED",
+                            "FOLLOWED_UP",
+                            "IN_DISCUSSION",
+                            "SAMPLE_TEST",
+                            "WON",
+                            "LOST",
+                            "PAUSED"
+                        ]
                     },
                     "allowedActions": {
                         "type": "array",
@@ -6209,7 +6255,17 @@
                     },
                     "status": {
                         "default": "TO_CONTACT",
-                        "type": "string"
+                        "type": "string",
+                        "enum": [
+                            "TO_CONTACT",
+                            "CONTACTED",
+                            "FOLLOWED_UP",
+                            "IN_DISCUSSION",
+                            "SAMPLE_TEST",
+                            "WON",
+                            "LOST",
+                            "PAUSED"
+                        ]
                     },
                     "allowedActions": {
                         "type": "array",
@@ -6335,7 +6391,17 @@
                             },
                             "status": {
                                 "default": "TO_CONTACT",
-                                "type": "string"
+                                "type": "string",
+                                "enum": [
+                                    "TO_CONTACT",
+                                    "CONTACTED",
+                                    "FOLLOWED_UP",
+                                    "IN_DISCUSSION",
+                                    "SAMPLE_TEST",
+                                    "WON",
+                                    "LOST",
+                                    "PAUSED"
+                                ]
                             },
                             "allowedActions": {
                                 "type": "array",
@@ -6464,7 +6530,17 @@
                             },
                             "status": {
                                 "default": "TO_CONTACT",
-                                "type": "string"
+                                "type": "string",
+                                "enum": [
+                                    "TO_CONTACT",
+                                    "CONTACTED",
+                                    "FOLLOWED_UP",
+                                    "IN_DISCUSSION",
+                                    "SAMPLE_TEST",
+                                    "WON",
+                                    "LOST",
+                                    "PAUSED"
+                                ]
                             },
                             "allowedActions": {
                                 "type": "array",
@@ -6610,7 +6686,17 @@
                     },
                     "status": {
                         "default": "TO_CONTACT",
-                        "type": "string"
+                        "type": "string",
+                        "enum": [
+                            "TO_CONTACT",
+                            "CONTACTED",
+                            "FOLLOWED_UP",
+                            "IN_DISCUSSION",
+                            "SAMPLE_TEST",
+                            "WON",
+                            "LOST",
+                            "PAUSED"
+                        ]
                     },
                     "allowedActions": {
                         "type": "array",
@@ -6736,7 +6822,17 @@
                             },
                             "status": {
                                 "default": "TO_CONTACT",
-                                "type": "string"
+                                "type": "string",
+                                "enum": [
+                                    "TO_CONTACT",
+                                    "CONTACTED",
+                                    "FOLLOWED_UP",
+                                    "IN_DISCUSSION",
+                                    "SAMPLE_TEST",
+                                    "WON",
+                                    "LOST",
+                                    "PAUSED"
+                                ]
                             },
                             "allowedActions": {
                                 "type": "array",
@@ -6870,7 +6966,13 @@
                     },
                     "status": {
                         "default": "NONE",
-                        "type": "string"
+                        "type": "string",
+                        "enum": [
+                            "NONE",
+                            "CONNECTED",
+                            "ERROR",
+                            "REVOKED"
+                        ]
                     },
                     "failureReason": {
                         "type": [
@@ -6930,7 +7032,13 @@
                             },
                             "status": {
                                 "default": "NONE",
-                                "type": "string"
+                                "type": "string",
+                                "enum": [
+                                    "NONE",
+                                    "CONNECTED",
+                                    "ERROR",
+                                    "REVOKED"
+                                ]
                             },
                             "failureReason": {
                                 "type": [

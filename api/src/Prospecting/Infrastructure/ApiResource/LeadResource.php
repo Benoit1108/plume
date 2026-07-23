@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Prospecting\Infrastructure\ApiResource;
 
+use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
@@ -86,6 +87,7 @@ final class LeadResource
     public string $segment = 'OTHER';
 
     #[Groups(['lead:read'])]
+    #[ApiProperty(openapiContext: ['enum' => ['TO_CONTACT', 'CONTACTED', 'FOLLOWED_UP', 'IN_DISCUSSION', 'SAMPLE_TEST', 'WON', 'LOST', 'PAUSED']])]
     public string $status = 'TO_CONTACT';
 
     /** @var string[] actions de transition proposables (contact, reply, win…) */

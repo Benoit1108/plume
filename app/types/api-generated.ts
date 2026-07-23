@@ -930,10 +930,16 @@ export interface components {
          */
         "CandidateLead-candidate.read": {
             id?: string | null;
-            /** @default MANUAL */
-            source: string;
-            /** @default PENDING */
-            status: string;
+            /**
+             * @default MANUAL
+             * @enum {string}
+             */
+            source: "PROZ" | "LINKEDIN" | "TRANSLATORSCAFE" | "RSS" | "MANUAL";
+            /**
+             * @default PENDING
+             * @enum {string}
+             */
+            status: "PENDING" | "ACCEPTED" | "MERGED" | "REJECTED";
             /** @default  */
             title: string;
             organizationName?: string | null;
@@ -999,10 +1005,16 @@ export interface components {
          */
         "CandidateLead.jsonld-candidate.read": components["schemas"]["HydraItemBaseSchema"] & {
             id?: string | null;
-            /** @default MANUAL */
-            source: string;
-            /** @default PENDING */
-            status: string;
+            /**
+             * @default MANUAL
+             * @enum {string}
+             */
+            source: "PROZ" | "LINKEDIN" | "TRANSLATORSCAFE" | "RSS" | "MANUAL";
+            /**
+             * @default PENDING
+             * @enum {string}
+             */
+            status: "PENDING" | "ACCEPTED" | "MERGED" | "REJECTED";
             /** @default  */
             title: string;
             organizationName?: string | null;
@@ -1250,8 +1262,11 @@ export interface components {
             subject?: string | null;
             /** @default  */
             body: string;
-            /** @default GENERATING */
-            status: string;
+            /**
+             * @default GENERATING
+             * @enum {string}
+             */
+            status: "GENERATING" | "READY" | "FAILED";
             failureReason?: string | null;
             createdAt?: string | null;
             updatedAt?: string | null;
@@ -1276,8 +1291,11 @@ export interface components {
             subject?: string | null;
             /** @default  */
             body: string;
-            /** @default GENERATING */
-            status: string;
+            /**
+             * @default GENERATING
+             * @enum {string}
+             */
+            status: "GENERATING" | "READY" | "FAILED";
             failureReason?: string | null;
             createdAt?: string | null;
             updatedAt?: string | null;
@@ -1417,8 +1435,11 @@ export interface components {
              * @enum {string}
              */
             segment: "PUBLISHING" | "AUDIOVISUAL" | "TECHNICAL" | "OTHER";
-            /** @default TO_CONTACT */
-            status: string;
+            /**
+             * @default TO_CONTACT
+             * @enum {string}
+             */
+            status: "TO_CONTACT" | "CONTACTED" | "FOLLOWED_UP" | "IN_DISCUSSION" | "SAMPLE_TEST" | "WON" | "LOST" | "PAUSED";
             allowedActions?: string[];
             /** @default false */
             hasReachableContact: boolean;
@@ -1491,8 +1512,11 @@ export interface components {
              * @enum {string}
              */
             segment: "PUBLISHING" | "AUDIOVISUAL" | "TECHNICAL" | "OTHER";
-            /** @default TO_CONTACT */
-            status: string;
+            /**
+             * @default TO_CONTACT
+             * @enum {string}
+             */
+            status: "TO_CONTACT" | "CONTACTED" | "FOLLOWED_UP" | "IN_DISCUSSION" | "SAMPLE_TEST" | "WON" | "LOST" | "PAUSED";
             allowedActions?: string[];
             /** @default false */
             hasReachableContact: boolean;
@@ -1534,8 +1558,11 @@ export interface components {
              * @enum {string}
              */
             segment: "PUBLISHING" | "AUDIOVISUAL" | "TECHNICAL" | "OTHER";
-            /** @default TO_CONTACT */
-            status: string;
+            /**
+             * @default TO_CONTACT
+             * @enum {string}
+             */
+            status: "TO_CONTACT" | "CONTACTED" | "FOLLOWED_UP" | "IN_DISCUSSION" | "SAMPLE_TEST" | "WON" | "LOST" | "PAUSED";
             allowedActions?: string[];
             /** @default false */
             hasReachableContact: boolean;
@@ -1577,8 +1604,11 @@ export interface components {
              * @enum {string}
              */
             segment: "PUBLISHING" | "AUDIOVISUAL" | "TECHNICAL" | "OTHER";
-            /** @default TO_CONTACT */
-            status: string;
+            /**
+             * @default TO_CONTACT
+             * @enum {string}
+             */
+            status: "TO_CONTACT" | "CONTACTED" | "FOLLOWED_UP" | "IN_DISCUSSION" | "SAMPLE_TEST" | "WON" | "LOST" | "PAUSED";
             allowedActions?: string[];
             /** @default false */
             hasReachableContact: boolean;
@@ -1622,8 +1652,11 @@ export interface components {
              * @enum {string}
              */
             segment: "PUBLISHING" | "AUDIOVISUAL" | "TECHNICAL" | "OTHER";
-            /** @default TO_CONTACT */
-            status: string;
+            /**
+             * @default TO_CONTACT
+             * @enum {string}
+             */
+            status: "TO_CONTACT" | "CONTACTED" | "FOLLOWED_UP" | "IN_DISCUSSION" | "SAMPLE_TEST" | "WON" | "LOST" | "PAUSED";
             allowedActions?: string[];
             /** @default false */
             hasReachableContact: boolean;
@@ -1661,8 +1694,11 @@ export interface components {
              * @enum {string}
              */
             segment: "PUBLISHING" | "AUDIOVISUAL" | "TECHNICAL" | "OTHER";
-            /** @default TO_CONTACT */
-            status: string;
+            /**
+             * @default TO_CONTACT
+             * @enum {string}
+             */
+            status: "TO_CONTACT" | "CONTACTED" | "FOLLOWED_UP" | "IN_DISCUSSION" | "SAMPLE_TEST" | "WON" | "LOST" | "PAUSED";
             allowedActions?: string[];
             /** @default false */
             hasReachableContact: boolean;
@@ -1712,8 +1748,11 @@ export interface components {
             provider: string;
             /** @default  */
             emailAddress: string;
-            /** @default NONE */
-            status: string;
+            /**
+             * @default NONE
+             * @enum {string}
+             */
+            status: "NONE" | "CONNECTED" | "ERROR" | "REVOKED";
             failureReason?: string | null;
             connectedAt?: string | null;
             lastSyncAt?: string | null;
@@ -1742,8 +1781,11 @@ export interface components {
             provider: string;
             /** @default  */
             emailAddress: string;
-            /** @default NONE */
-            status: string;
+            /**
+             * @default NONE
+             * @enum {string}
+             */
+            status: "NONE" | "CONNECTED" | "ERROR" | "REVOKED";
             failureReason?: string | null;
             connectedAt?: string | null;
             lastSyncAt?: string | null;

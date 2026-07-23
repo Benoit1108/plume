@@ -1,4 +1,7 @@
-export type OrganizationType = 'PUBLISHER' | 'AV_STUDIO' | 'AGENCY' | 'OTHER'
+import type { Schemas } from './api-schemas'
+
+// Enum dérivé du contrat OpenAPI (durcissement) → drift détecté si le back change.
+export type OrganizationType = Schemas['Organization-org.read']['type']
 export type Segment = 'PUBLISHING' | 'AUDIOVISUAL' | 'TECHNICAL' | 'OTHER'
 
 /** Contact tel que retourné par l'API (persisté : id garanti). */

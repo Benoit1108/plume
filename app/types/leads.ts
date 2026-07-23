@@ -1,9 +1,10 @@
-export type LeadStatus =
-  | 'TO_CONTACT' | 'CONTACTED' | 'FOLLOWED_UP' | 'IN_DISCUSSION'
-  | 'SAMPLE_TEST' | 'WON' | 'LOST' | 'PAUSED'
+import type { Schemas } from './api-schemas'
 
-export type LeadPriority = 'LOW' | 'MEDIUM' | 'HIGH'
-export type LeadSource = 'DIRECT' | 'REFERRAL' | 'JOB_BOARD' | 'PROZ' | 'LINKEDIN' | 'TRANSLATORSCAFE' | 'RSS' | 'OTHER'
+// Enums dérivés du contrat OpenAPI (durcissement) → drift détecté si le back change.
+export type LeadStatus = Schemas['Lead-lead.read']['status']
+export type LeadPriority = Schemas['Lead-lead.read']['priority']
+export type LeadSource = Schemas['Lead-lead.read']['source']
+// Hors contrat (allowedActions exposé en string[]) → maintenu à la main.
 export type LeadAction = 'contact' | 'back-to-contact' | 'follow-up' | 'reply' | 'sample-test' | 'win' | 'lose' | 'pause' | 'resume'
 
 /** Piste telle que retournée par l'API (persistée : id garanti). */

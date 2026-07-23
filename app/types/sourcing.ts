@@ -1,5 +1,8 @@
-export type CandidateSource = 'PROZ' | 'LINKEDIN' | 'TRANSLATORSCAFE' | 'RSS' | 'MANUAL'
-export type CandidateStatus = 'PENDING' | 'ACCEPTED' | 'MERGED' | 'REJECTED'
+import type { Schemas } from './api-schemas'
+
+// Enums dérivés du contrat OpenAPI (durcissement) → drift détecté si le back change.
+export type CandidateSource = Schemas['CandidateLead-candidate.read']['source']
+export type CandidateStatus = Schemas['CandidateLead-candidate.read']['status']
 
 export interface CandidateLead {
   id: string

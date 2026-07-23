@@ -86,6 +86,7 @@ final class MailboxResource
 
     /** NONE = aucune boîte connectée (la ressource singleton répond toujours 200). */
     #[Groups(['mailbox:read'])]
+    #[ApiProperty(openapiContext: ['enum' => ['NONE', 'CONNECTED', 'ERROR', 'REVOKED']])]
     public string $status = 'NONE';
 
     /** Code de raison (i18n côté front), jamais un message interne. */

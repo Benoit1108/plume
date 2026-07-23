@@ -94,6 +94,7 @@ final class DraftResource
     public string $body = '';
 
     #[Groups(['draft:read'])]
+    #[ApiProperty(openapiContext: ['enum' => ['GENERATING', 'READY', 'FAILED']])]
     public string $status = 'GENERATING';
 
     /** Code de raison (i18n côté front), jamais un message interne. */

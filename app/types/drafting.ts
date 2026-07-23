@@ -1,5 +1,8 @@
-export type DraftType = 'APPLICATION_EMAIL' | 'COVER_LETTER' | 'FOLLOW_UP_EMAIL'
-export type DraftStatus = 'GENERATING' | 'READY' | 'FAILED'
+import type { Schemas } from './api-schemas'
+
+// Enums dérivés du contrat OpenAPI (durcissement) → drift détecté si le back change.
+export type DraftType = Schemas['Draft-draft.read']['type']
+export type DraftStatus = Schemas['Draft-draft.read']['status']
 export type Segment = 'PUBLISHING' | 'AUDIOVISUAL' | 'TECHNICAL' | 'OTHER'
 
 /** Brouillon généré (draft-first : relu, édité, copié — jamais envoyé en M1). */
