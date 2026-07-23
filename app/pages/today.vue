@@ -8,19 +8,14 @@ const leadsApi = useLeads()
 const profileApi = useProfile()
 const toast = useToast()
 
-const { data: board, refresh, status } = await useAsyncData<Today | null>(
-  'today',
-  () => todayApi.get(),
-  { server: false, default: () => null },
-)
-const loading = computed(() => status.value === 'idle' || status.value === 'pending')
+const queryClient = useQueryClient()
+
+const { data: boardData, isPending: loading } = useQuery({ queryKey: queryKeys.today, queryFn: () => todayApi.get() })
+const board = computed<Today | null>(() => boardData.value ?? null)
 
 // Accueil personnalisé (« Bonjour {prénom} ») — le nom vient du profil (page Compte).
-const { data: profile } = await useAsyncData<Profile | null>(
-  'today-profile',
-  () => profileApi.get(),
-  { server: false, default: () => null },
-)
+const { data: profileData } = useQuery({ queryKey: queryKeys.profile, queryFn: () => profileApi.get() })
+const profile = computed<Profile | null>(() => profileData.value ?? null)
 const firstName = computed(() => profile.value?.firstName?.trim() || '')
 
 const progress = computed(() => {
@@ -35,7 +30,7 @@ async function quickAction(lead: Lead, action: 'contact' | 'follow-up'): Promise
   actingOn.value = lead.id
   try {
     await leadsApi.transition(lead.id, action)
-    await refresh()
+    await queryClient.invalidateQueries({ queryKey: queryKeys.today })
     toast.add({
       title: action === 'contact' ? t('pipeline.toasts.updated') : t('pipeline.toasts.followUpDone'),
       color: 'success',

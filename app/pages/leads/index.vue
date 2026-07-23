@@ -9,13 +9,9 @@ const { segmentLabel, segmentOptions } = useDirectoryLabels()
 const leadsApi = useLeads()
 const toast = useToast()
 
-const { data: allLeads, status, refresh } = await useAsyncData<Lead[]>(
-  'leads',
-  () => leadsApi.list(),
-  { server: false, default: () => [] },
-)
-
-const loading = computed(() => status.value === 'idle' || status.value === 'pending')
+const queryClient = useQueryClient()
+const { data: allLeadsData, isPending: loading } = useQuery({ queryKey: queryKeys.leads, queryFn: () => leadsApi.list() })
+const allLeads = computed<Lead[]>(() => allLeadsData.value ?? [])
 
 /** Colonnes du kanban (tous les statuts du pipeline). */
 const COLUMNS: LeadStatus[] = ['TO_CONTACT', 'CONTACTED', 'FOLLOWED_UP', 'IN_DISCUSSION', 'SAMPLE_TEST', 'PAUSED', 'WON', 'LOST']
@@ -91,7 +87,7 @@ async function onDrop(targetStatus: LeadStatus): Promise<void> {
   moving.value = lead.id
   try {
     await leadsApi.transition(lead.id, action)
-    await refresh()
+    await queryClient.invalidateQueries({ queryKey: queryKeys.leads })
     toast.add({ title: t('pipeline.toasts.updated'), color: 'success' })
   }
   catch (error) {
