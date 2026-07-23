@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Sourcing\Application;
 
 use App\Sourcing\Application\AlertEmail\AlertEmailParser;
+use App\Sourcing\Application\AlertEmail\LinkedInAlertEmailParser;
 use App\Sourcing\Domain\CandidateLead\Source;
 use PHPUnit\Framework\TestCase;
 
@@ -15,6 +16,31 @@ final class AlertEmailParserTest extends TestCase
     protected function setUp(): void
     {
         $this->parser = new AlertEmailParser();
+    }
+
+    public function testDelegatesToFineParserWhenItRecognizesTheEmail(): void
+    {
+        // Avec le parser fin LinkedIn branché, un digest à 2 offres → 2 candidats structurés.
+        $dispatcher = new AlertEmailParser([new LinkedInAlertEmailParser()]);
+        $body = "Titre 1\nBoîte 1\nParis, France\nVoir l’offre : https://www.linkedin.com/comm/jobs/view/111\n"
+            ."-----\nTitre 2\nBoîte 2\nLyon, France\nVoir l’offre : https://www.linkedin.com/comm/jobs/view/222";
+
+        $alerts = $dispatcher->parse('jobalerts-noreply@linkedin.com', 'Alertes', $body, 'msg-1');
+
+        self::assertCount(2, $alerts);
+        self::assertSame('Titre 1', $alerts[0]->title);
+        self::assertSame('linkedin-111', $alerts[0]->externalId);
+    }
+
+    public function testFallsBackToGenericWhenFineParserFindsNothing(): void
+    {
+        // Email LinkedIn sans lien d'offre : le parser fin rend [] → extraction générique (1/email).
+        $dispatcher = new AlertEmailParser([new LinkedInAlertEmailParser()]);
+        $alerts = $dispatcher->parse('jobalerts-noreply@linkedin.com', 'Invitation à se connecter', 'Bonjour, https://www.linkedin.com/feed', 'msg-9');
+
+        self::assertCount(1, $alerts);
+        self::assertSame(Source::LINKEDIN->value, $alerts[0]->source);
+        self::assertSame('Invitation à se connecter', $alerts[0]->title); // titre = sujet (générique)
     }
 
     public function testProducesOneCandidatePerEmailWithSourceFromSender(): void

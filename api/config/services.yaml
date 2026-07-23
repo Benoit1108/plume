@@ -169,6 +169,12 @@ services:
     App\Sourcing\Application\Gateway\DirectoryGateway: '@App\Sourcing\Infrastructure\Gateway\CommandBusDirectoryGateway'
     App\Sourcing\Application\Gateway\ProspectingGateway: '@App\Sourcing\Infrastructure\Gateway\CommandBusProspectingGateway'
     App\Sourcing\Application\ReadModel\CandidateQueue: '@App\Sourcing\Infrastructure\ReadModel\DoctrineCandidateQueue'
+    # M3.2 — parsing des emails d'alerte : dispatcher générique + parsers FINS par fournisseur
+    # (extraction structurée, plusieurs offres par digest). Autres fournisseurs = suivi.
+    App\Sourcing\Application\AlertEmail\AlertEmailParser:
+        arguments:
+            $providerParsers:
+                - '@App\Sourcing\Application\AlertEmail\LinkedInAlertEmailParser'
 
     # M3.1a/b — ingestion : brut conservé + flux configurés par tenant.
     App\Sourcing\Domain\RawAlert\RawAlertRepository: '@App\Sourcing\Infrastructure\Persistence\Doctrine\DoctrineRawAlertRepository'

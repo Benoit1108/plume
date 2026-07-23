@@ -8,10 +8,11 @@ use App\Sourcing\Application\Source\ParsedAlert;
 use App\Sourcing\Domain\CandidateLead\Source;
 
 /**
- * Parser d'email d'alerte — **générique** (M3.2) : 1 annonce = 1 email. La provenance est
- * déduite du domaine de l'expéditeur ; le titre vient du sujet, l'extrait du corps, l'URL du
- * 1er lien trouvé. Best-effort : les parsers fins par fournisseur (extraction structurée) sont
- * un suivi, avec de vrais emails. Aucune donnée personnelle n'est extraite automatiquement.
+ * Parser d'email d'alerte (M3.2). **Dispatcher** : délègue d'abord à un parser FIN spécifique au
+ * fournisseur (LinkedIn…, extraction structurée, potentiellement plusieurs offres par email) ;
+ * si aucun ne reconnaît l'expéditeur — ou si le parser fin ne trouve rien — retombe sur une
+ * extraction **générique** (1 annonce = 1 email : provenance par domaine, titre = sujet, URL =
+ * 1er lien). Aucune donnée personnelle n'est extraite automatiquement.
  */
 final class AlertEmailParser
 {
@@ -19,9 +20,25 @@ final class AlertEmailParser
     private const int MAX_EXCERPT = 500;
     private const int MAX_URL = 2000;
 
+    /** @param iterable<ProviderAlertParser> $providerParsers */
+    public function __construct(private readonly iterable $providerParsers = [])
+    {
+    }
+
     /** @return ParsedAlert[] */
     public function parse(string $fromAddress, string $subject, string $body, string $externalId): array
     {
+        foreach ($this->providerParsers as $parser) {
+            if (!$parser->supports($fromAddress)) {
+                continue;
+            }
+            $alerts = $parser->parse($subject, $body, $externalId);
+            if ([] !== $alerts) {
+                return $alerts; // parser fin concluant
+            }
+            break; // fournisseur reconnu mais rien d'exploitable → extraction générique
+        }
+
         $title = trim($subject);
         if ('' === $title) {
             return []; // best-effort : sans sujet exploitable, on n'ingère rien.
