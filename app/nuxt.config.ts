@@ -3,6 +3,12 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-07-01',
   devtools: { enabled: true },
 
+  // SPA assumée (ADR-0022 / cadrage chantier 3) : Plume est un outil PRIVÉ authentifié → aucun
+  // besoin SEO, et le SSR n'était de toute façon pas exploité (chaque useAsyncData est en
+  // `server: false`). On garde le serveur Nitro (build + `node .output/server/index.mjs`) pour le
+  // proxy /api même-origine (cookies httpOnly) — NE PAS passer en full-static.
+  ssr: false,
+
   // Transition de route sobre (fondu + léger décalage) ; respecte prefers-reduced-motion
   // via les classes .page-* de main.css (neutralisées sous mouvement réduit).
   app: {

@@ -156,7 +156,7 @@ jobs:
       - name: Tests (coverage)
         run: npm run test:coverage
 
-  # --- e2e : navigateur réel contre la stack complète (SSR, hydratation, API) ---
+  # --- e2e : navigateur réel contre la stack complète (SPA montée côté client, proxy API) ---
   e2e:
     name: E2E (Playwright)
     runs-on: ubuntu-latest

@@ -1,0 +1,28 @@
+<!-- Écran de chargement SPA (ssr:false) : affiché avant le montage de l'app. HTML autonome
+     (styles inline, aucune dépendance CSS/JS). Sobre, raccord « Encre violette », les deux thèmes. -->
+<style>
+  #plume-spa-loader {
+    position: fixed; inset: 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 1.25rem;
+    background: #0d0b14; color: #E9E3F7;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  @media (prefers-color-scheme: light) {
+    #plume-spa-loader { background: #F4F1FB; color: #3b2d63; }
+  }
+  #plume-spa-loader .plume-mark {
+    font-family: "Fraunces", Georgia, serif; font-size: 1.75rem; font-weight: 600; letter-spacing: .01em;
+  }
+  #plume-spa-loader .plume-spin {
+    width: 2rem; height: 2rem; border-radius: 9999px;
+    border: 3px solid rgba(155, 135, 217, .25); border-top-color: #9B87D9;
+    animation: plume-rot .7s linear infinite;
+  }
+  @keyframes plume-rot { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { #plume-spa-loader .plume-spin { animation: none; } }
+</style>
+<div id="plume-spa-loader" role="status" aria-live="polite">
+  <div class="plume-mark">Plume</div>
+  <div class="plume-spin"></div>
+  <span style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Chargement…</span>
+</div>
