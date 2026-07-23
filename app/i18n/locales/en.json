@@ -192,6 +192,7 @@
     "confirmLoseBody": "“{name}” will reach a terminal status — no further transition will be possible (notes remain allowed).",
     "confirmContactNoContactTitle": "Mark as contacted?",
     "confirmContactNoContactBody": "This organization has no contact with an email. “Contact” logs a manual touch and starts the follow-up cadence, but sends no email. Continue?",
+    "confirmContactNoContactConfirm": "Mark as contacted",
     "detail": {
       "notFound": "Lead not found.",
       "timeline": "Journal",

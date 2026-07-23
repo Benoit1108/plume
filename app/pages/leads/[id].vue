@@ -340,7 +340,7 @@ const canScheduleFollowUp = computed(() =>
         v-model:open="confirmContactWithoutContact"
         :title="t('pipeline.confirmContactNoContactTitle')"
         :description="t('pipeline.confirmContactNoContactBody')"
-        :confirm-label="t('pipeline.actions.contact')"
+        :confirm-label="t('pipeline.confirmContactNoContactConfirm')"
         @confirm="() => applyAction('contact')"
       />
     </template>

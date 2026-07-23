@@ -192,6 +192,7 @@
     "confirmLoseBody": "« {name} » passera en statut terminal — plus aucune transition ne sera possible (les notes restent autorisées).",
     "confirmContactNoContactTitle": "Marquer comme contactée ?",
     "confirmContactNoContactBody": "Aucun contact avec email n'est renseigné pour cette organisation. « Contacter » enregistre un contact manuel et démarre la cadence de relance, mais n'envoie aucun email. Continuer ?",
+    "confirmContactNoContactConfirm": "Marquer contactée",
     "detail": {
       "notFound": "Piste introuvable.",
       "timeline": "Journal",

@@ -27,6 +27,8 @@ test('parcours pipeline : organisation → piste → contact → réponse → ga
 
   // Contact → réponse → discussion (le bouton suivant apparaît après chaque refresh).
   await page.getByRole('button', { name: /^contacter$|^contact$/i }).click()
+  // L'organisation n'a pas de contact avec email → confirmation « Contacter » (garde-fou UX).
+  await page.getByRole('button', { name: /marquer contactée|mark as contacted/i }).click()
   await page.getByRole('button', { name: /réponse reçue|reply received/i }).click()
   await page.getByRole('button', { name: /^gagnée$|^won$/i }).click()
 

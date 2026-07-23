@@ -10,6 +10,8 @@ test('tableau de bord : un pipeline joué produit des chiffres cohérents', asyn
   // Jouer une piste jusqu'à la victoire (contact → réponse → gagnée).
   await createLeadViaUi(page, orgName)
   await page.getByRole('button', { name: /^contacter$|^contact$/i }).click()
+  // Organisation sans contact avec email → confirmation « Contacter » (garde-fou UX).
+  await page.getByRole('button', { name: /marquer contactée|mark as contacted/i }).click()
   await page.getByRole('button', { name: /réponse reçue|reply received/i }).click()
   await page.getByRole('button', { name: /^gagnée$|^won$/i }).click()
   await expect(page.getByText(/gagnée|won/i).first()).toBeVisible()
