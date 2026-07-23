@@ -7,12 +7,11 @@ const { statusLabel } = useLeadLabels()
 const { segmentLabel } = useDirectoryLabels()
 const dashboardApi = useDashboard()
 
-const { data: board, status } = await useAsyncData<Dashboard | null>(
-  'dashboard',
-  () => dashboardApi.get(),
-  { server: false, default: () => null },
-)
-const loading = computed(() => status.value === 'idle' || status.value === 'pending')
+const { data, isPending: loading } = useQuery({
+  queryKey: ['dashboard'],
+  queryFn: () => dashboardApi.get(),
+})
+const board = computed<Dashboard | null>(() => data.value ?? null)
 
 const percentFormat = computed(() => new Intl.NumberFormat(locale.value, { style: 'percent', maximumFractionDigits: 0 }))
 

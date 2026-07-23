@@ -19,6 +19,11 @@ export default defineNuxtConfig({
   // @nuxtjs/i18n : UI bilingue FR/EN (cf. ADR-0011).
   modules: ['@nuxt/ui', '@nuxt/eslint', '@pinia/nuxt', '@nuxtjs/i18n'],
 
+  // Auto-import des hooks TanStack Query (chantier 3, lot D) — évite un import par page.
+  imports: {
+    presets: [{ from: '@tanstack/vue-query', imports: ['useQuery', 'useMutation', 'useQueryClient'] }],
+  },
+
   css: ['~/assets/css/main.css'],
 
   // Icônes : tout ce qui est référencé dans les sources est embarqué dans le
