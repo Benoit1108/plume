@@ -180,6 +180,7 @@
     },
     "actions": {
       "contact": "Contacter",
+      "back-to-contact": "Repasser à « À contacter »",
       "reply": "Réponse reçue",
       "sample-test": "Test / Échantillon",
       "win": "Gagnée",
@@ -189,6 +190,8 @@
     },
     "confirmLoseTitle": "Marquer la piste perdue ?",
     "confirmLoseBody": "« {name} » passera en statut terminal — plus aucune transition ne sera possible (les notes restent autorisées).",
+    "confirmContactNoContactTitle": "Marquer comme contactée ?",
+    "confirmContactNoContactBody": "Aucun contact avec email n'est renseigné pour cette organisation. « Contacter » enregistre un contact manuel et démarre la cadence de relance, mais n'envoie aucun email. Continuer ?",
     "detail": {
       "notFound": "Piste introuvable.",
       "timeline": "Journal",
@@ -202,6 +205,7 @@
     "timeline": {
       "created": "Piste créée",
       "contacted": "Contact établi",
+      "back_to_contact": "Repassée à « À contacter »",
       "reply": "Réponse reçue",
       "sample_test": "Passage en test / échantillon",
       "won": "Piste gagnée",

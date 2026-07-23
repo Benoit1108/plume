@@ -13,7 +13,7 @@ final class LeadViewMapper
 {
     use HydratesRows;
 
-    public const COLUMNS = 'l.id, l.organization_id, l.contact_id, l.language_pair, l.source, l.priority, l.segment, l.status, l.created_at, l.last_contacted_at, l.last_reply_at, l.next_follow_up_at, l.next_follow_up_label, o.name AS organization_name';
+    public const COLUMNS = "l.id, l.organization_id, l.contact_id, l.language_pair, l.source, l.priority, l.segment, l.status, l.created_at, l.last_contacted_at, l.last_reply_at, l.next_follow_up_at, l.next_follow_up_label, o.name AS organization_name, EXISTS (SELECT 1 FROM jsonb_array_elements(COALESCE(o.contacts, '[]'::jsonb)) e WHERE COALESCE(e->>'email', '') <> '') AS has_reachable_contact";
     public const FROM = 'FROM lead l LEFT JOIN organization o ON o.id = l.organization_id AND o.tenant_id = l.tenant_id';
 
     /** @param array<string, mixed> $row */
@@ -37,6 +37,7 @@ final class LeadViewMapper
             $this->date($row, 'last_reply_at'),
             $this->date($row, 'next_follow_up_at'),
             $this->strOrNull($row, 'next_follow_up_label'),
+            $this->bool($row['has_reachable_contact'] ?? false),
         );
     }
 
@@ -53,6 +54,7 @@ final class LeadViewMapper
         }
 
         $actionByTarget = [
+            PipelineStatus::TO_CONTACT->value => 'back-to-contact',
             PipelineStatus::CONTACTED->value => 'contact',
             PipelineStatus::FOLLOWED_UP->value => 'follow-up',
             PipelineStatus::IN_DISCUSSION->value => 'reply',
@@ -64,9 +66,7 @@ final class LeadViewMapper
 
         $actions = [];
         foreach ($status->allowedTransitions() as $target) {
-            if (isset($actionByTarget[$target->value])) {
-                $actions[] = $actionByTarget[$target->value];
-            }
+            $actions[] = $actionByTarget[$target->value]; // map exhaustive sur les statuts
         }
 
         return array_values(array_unique($actions));

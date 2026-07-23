@@ -24,6 +24,8 @@ final class LeadView
         public readonly ?\DateTimeImmutable $lastReplyAt,
         public readonly ?\DateTimeImmutable $nextFollowUpAt,
         public readonly ?string $nextFollowUpLabel,
+        /** L'organisation a-t-elle au moins un contact avec email (envoi/relance possibles) ? */
+        public readonly bool $hasReachableContact = false,
     ) {
     }
 }

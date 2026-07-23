@@ -1506,6 +1506,90 @@
                 ]
             }
         },
+        "/api/v1/leads/{id}/back-to-contact": {
+            "post": {
+                "operationId": "lead_back_to_contact",
+                "tags": [
+                    "Lead"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lead resource created",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Lead.jsonld-lead.read"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Lead-lead.read"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Repasser \u00e0 \u00ab \u00c0 contacter \u00bb (corrige un contact par erreur)",
+                "description": "Repasser \u00e0 \u00ab \u00c0 contacter \u00bb (corrige un contact par erreur)",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Lead identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            }
+        },
         "/api/v1/leads/{id}/contact": {
             "post": {
                 "operationId": "lead_contact",
@@ -5945,6 +6029,10 @@
                             "type": "string"
                         }
                     },
+                    "hasReachableContact": {
+                        "default": false,
+                        "type": "boolean"
+                    },
                     "createdAt": {
                         "type": [
                             "string",
@@ -6129,6 +6217,10 @@
                             "type": "string"
                         }
                     },
+                    "hasReachableContact": {
+                        "default": false,
+                        "type": "boolean"
+                    },
                     "createdAt": {
                         "type": [
                             "string",
@@ -6250,6 +6342,10 @@
                                 "items": {
                                     "type": "string"
                                 }
+                            },
+                            "hasReachableContact": {
+                                "default": false,
+                                "type": "boolean"
                             },
                             "createdAt": {
                                 "type": [
@@ -6375,6 +6471,10 @@
                                 "items": {
                                     "type": "string"
                                 }
+                            },
+                            "hasReachableContact": {
+                                "default": false,
+                                "type": "boolean"
                             },
                             "createdAt": {
                                 "type": [
@@ -6518,6 +6618,10 @@
                             "type": "string"
                         }
                     },
+                    "hasReachableContact": {
+                        "default": false,
+                        "type": "boolean"
+                    },
                     "createdAt": {
                         "type": [
                             "string",
@@ -6639,6 +6743,10 @@
                                 "items": {
                                     "type": "string"
                                 }
+                            },
+                            "hasReachableContact": {
+                                "default": false,
+                                "type": "boolean"
                             },
                             "createdAt": {
                                 "type": [

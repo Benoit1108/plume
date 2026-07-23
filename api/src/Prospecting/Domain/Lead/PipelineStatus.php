@@ -23,7 +23,8 @@ enum PipelineStatus: string
     {
         return match ($this) {
             self::TO_CONTACT => [self::CONTACTED, self::LOST, self::PAUSED],
-            self::CONTACTED => [self::FOLLOWED_UP, self::IN_DISCUSSION, self::LOST, self::PAUSED],
+            // TO_CONTACT depuis CONTACTED = correction d'un « Contacter » cliqué par erreur (ADR-0008 amendé).
+            self::CONTACTED => [self::TO_CONTACT, self::FOLLOWED_UP, self::IN_DISCUSSION, self::LOST, self::PAUSED],
             self::FOLLOWED_UP => [self::FOLLOWED_UP, self::IN_DISCUSSION, self::LOST, self::PAUSED],
             self::IN_DISCUSSION => [self::SAMPLE_TEST, self::WON, self::LOST, self::PAUSED],
             self::SAMPLE_TEST => [self::WON, self::LOST, self::IN_DISCUSSION],

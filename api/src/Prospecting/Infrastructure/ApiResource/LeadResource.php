@@ -40,6 +40,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Post(processor: LeadWriteProcessor::class),
         // Transitions métier — POST sans corps, retournent la piste mise à jour.
         new Post(uriTemplate: '/leads/{id}/contact', name: 'lead_contact', provider: LeadProvider::class, processor: LeadTransitionProcessor::class, input: false, status: 200, openapi: new \ApiPlatform\OpenApi\Model\Operation(summary: 'Marquer la piste contactée')),
+        new Post(uriTemplate: '/leads/{id}/back-to-contact', name: 'lead_back_to_contact', provider: LeadProvider::class, processor: LeadTransitionProcessor::class, input: false, status: 200, openapi: new \ApiPlatform\OpenApi\Model\Operation(summary: 'Repasser à « À contacter » (corrige un contact par erreur)')),
         new Post(uriTemplate: '/leads/{id}/reply', name: 'lead_reply', provider: LeadProvider::class, processor: LeadTransitionProcessor::class, input: false, status: 200, openapi: new \ApiPlatform\OpenApi\Model\Operation(summary: 'Enregistrer une réponse (ouvre la discussion)')),
         new Post(uriTemplate: '/leads/{id}/sample-test', name: 'lead_sample_test', provider: LeadProvider::class, processor: LeadTransitionProcessor::class, input: false, status: 200, openapi: new \ApiPlatform\OpenApi\Model\Operation(summary: 'Passer au test/échantillon')),
         new Post(uriTemplate: '/leads/{id}/win', name: 'lead_win', provider: LeadProvider::class, processor: LeadTransitionProcessor::class, input: false, status: 200, openapi: new \ApiPlatform\OpenApi\Model\Operation(summary: 'Marquer gagnée')),
@@ -90,6 +91,10 @@ final class LeadResource
     /** @var string[] actions de transition proposables (contact, reply, win…) */
     #[Groups(['lead:read'])]
     public array $allowedActions = [];
+
+    /** L'organisation a-t-elle un contact avec email (sinon « Contacter » demande confirmation). */
+    #[Groups(['lead:read'])]
+    public bool $hasReachableContact = false;
 
     #[Groups(['lead:read'])]
     public ?string $createdAt = null;

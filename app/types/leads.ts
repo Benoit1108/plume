@@ -4,7 +4,7 @@ export type LeadStatus =
 
 export type LeadPriority = 'LOW' | 'MEDIUM' | 'HIGH'
 export type LeadSource = 'DIRECT' | 'REFERRAL' | 'JOB_BOARD' | 'PROZ' | 'LINKEDIN' | 'TRANSLATORSCAFE' | 'RSS' | 'OTHER'
-export type LeadAction = 'contact' | 'follow-up' | 'reply' | 'sample-test' | 'win' | 'lose' | 'pause' | 'resume'
+export type LeadAction = 'contact' | 'back-to-contact' | 'follow-up' | 'reply' | 'sample-test' | 'win' | 'lose' | 'pause' | 'resume'
 
 /** Piste telle que retournée par l'API (persistée : id garanti). */
 export interface Lead {
@@ -18,6 +18,7 @@ export interface Lead {
   segment: string
   status: LeadStatus
   allowedActions: LeadAction[]
+  hasReachableContact: boolean
   createdAt: string
   lastContactedAt?: string | null
   lastReplyAt?: string | null
@@ -28,7 +29,7 @@ export interface Lead {
 export type LeadInput = Pick<Lead, 'organizationId' | 'contactId' | 'languagePair' | 'source' | 'priority' | 'segment'>
 
 export type InteractionType =
-  | 'created' | 'contacted' | 'reply' | 'sample_test' | 'won' | 'lost'
+  | 'created' | 'contacted' | 'back_to_contact' | 'reply' | 'sample_test' | 'won' | 'lost'
   | 'paused' | 'resumed' | 'note'
   | 'follow_up_scheduled' | 'followed_up' | 'follow_up_cancelled'
   | 'draft_generated'

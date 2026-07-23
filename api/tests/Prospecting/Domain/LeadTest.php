@@ -13,6 +13,7 @@ use App\Prospecting\Domain\Lead\Event\LeadLost;
 use App\Prospecting\Domain\Lead\Event\LeadMovedToSampleTest;
 use App\Prospecting\Domain\Lead\Event\LeadPaused;
 use App\Prospecting\Domain\Lead\Event\LeadResumed;
+use App\Prospecting\Domain\Lead\Event\LeadReturnedToContact;
 use App\Prospecting\Domain\Lead\Event\LeadWon;
 use App\Prospecting\Domain\Lead\Event\NoteAdded;
 use App\Prospecting\Domain\Lead\Event\ReplyReceived;
@@ -183,6 +184,28 @@ final class LeadTest extends TestCase
         $lead = $this->aLeadIn(PipelineStatus::SAMPLE_TEST);
         $this->expectException(IllegalStatusTransition::class);
         $lead->pause($this->now);
+    }
+
+    public function testReturnToContactCorrectsAMistakenContact(): void
+    {
+        $lead = $this->aLeadIn(PipelineStatus::CONTACTED);
+        self::assertNotNull($lead->lastContactedAt());
+
+        $lead->returnToContact($this->now);
+
+        self::assertSame(PipelineStatus::TO_CONTACT, $lead->status());
+        self::assertNull($lead->lastContactedAt(), 'la date de contact est effacée');
+
+        $classes = array_map(get_class(...), $lead->pullDomainEvents());
+        self::assertContains(FollowUpCancelled::class, $classes, 'la relance auto planifiée est annulée');
+        self::assertContains(LeadReturnedToContact::class, $classes);
+    }
+
+    public function testReturnToContactRefusedOnceDiscussionStarted(): void
+    {
+        $lead = $this->aLeadIn(PipelineStatus::IN_DISCUSSION);
+        $this->expectException(IllegalStatusTransition::class);
+        $lead->returnToContact($this->now);
     }
 
     public function testPauseThenResumeRestoresPreviousStatus(): void

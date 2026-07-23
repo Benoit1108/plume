@@ -143,6 +143,46 @@ final class LeadApiTest extends ApiTestCase
         self::assertSame('Contrat signé !', $items[0]['payload']['text'] ?? null);
     }
 
+    public function testReturnToContactMovesLeadBack(): void
+    {
+        $this->createUser('a@plume.test');
+        $client = static::createClient();
+        $token = $this->tokenFor($client, 'a@plume.test');
+        $leadId = $this->aLead($client, $token, $this->anOrganization($client, $token));
+
+        // Contacter (par erreur) → CONTACTED, l'action de retour est proposée.
+        $this->post($client, $token, "/api/v1/leads/$leadId/contact");
+        /** @var array{status: string, allowedActions: string[]} $contacted */
+        $contacted = $client->request('GET', "/api/v1/leads/$leadId", ['auth_bearer' => $token])->toArray();
+        self::assertSame('CONTACTED', $contacted['status']);
+        self::assertContains('back-to-contact', $contacted['allowedActions']);
+
+        // Repasser à « À contacter » : retour TO_CONTACT + date de contact effacée
+        // (une valeur null n'est pas sérialisée → la clé disparaît de la réponse).
+        /** @var array{status: string} $back */
+        $back = $this->post($client, $token, "/api/v1/leads/$leadId/back-to-contact")->toArray();
+        self::assertSame('TO_CONTACT', $back['status']);
+        self::assertArrayNotHasKey('lastContactedAt', $back);
+    }
+
+    public function testHasReachableContactReflectsOrganizationContacts(): void
+    {
+        $this->createUser('a@plume.test');
+        $client = static::createClient();
+        $token = $this->tokenFor($client, 'a@plume.test');
+        $orgId = $this->anOrganization($client, $token);
+        $leadId = $this->aLead($client, $token, $orgId);
+
+        // Organisation sans contact → drapeau faux (le front confirmera avant « Contacter »).
+        $lead = $client->request('GET', "/api/v1/leads/$leadId", ['auth_bearer' => $token])->toArray();
+        self::assertFalse($lead['hasReachableContact']);
+
+        // Ajout d'un contact avec email → drapeau vrai.
+        $this->post($client, $token, "/api/v1/organizations/$orgId/contacts", ['fullName' => 'Jean Dupont', 'email' => 'jean@actes.example']);
+        $withContact = $client->request('GET', "/api/v1/leads/$leadId", ['auth_bearer' => $token])->toArray();
+        self::assertTrue($withContact['hasReachableContact']);
+    }
+
     public function testIllegalTransitionIsConflict(): void
     {
         $this->createUser('a@plume.test');

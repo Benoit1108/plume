@@ -25,12 +25,19 @@ const loading = computed(() => status.value === 'idle' || status.value === 'pend
 
 const transitioning = ref(false)
 const confirmLose = ref(false)
+const confirmContactWithoutContact = ref(false)
 const noteText = ref('')
 const savingNote = ref(false)
 
 function onAction(action: LeadAction): void {
   if (action === 'lose') {
     confirmLose.value = true
+    return
+  }
+  // Garde-fou : « Contacter » ne réclame pas de contact (acte manuel), mais sans contact
+  // joignable c'est probablement une erreur — on confirme d'abord.
+  if (action === 'contact' && lead.value && !lead.value.hasReachableContact) {
+    confirmContactWithoutContact.value = true
     return
   }
   void applyAction(action)
@@ -99,6 +106,7 @@ function timelineLabel(interaction: Interaction): string {
 const timelineIcon: Record<Interaction['type'], string> = {
   created: 'i-lucide-sparkles',
   contacted: 'i-lucide-send',
+  back_to_contact: 'i-lucide-undo-2',
   reply: 'i-lucide-mail-open',
   sample_test: 'i-lucide-flask-conical',
   won: 'i-lucide-trophy',
@@ -326,6 +334,14 @@ const canScheduleFollowUp = computed(() =>
         :confirm-label="t('pipeline.actions.lose')"
         danger
         @confirm="() => applyAction('lose')"
+      />
+
+      <ConfirmDialog
+        v-model:open="confirmContactWithoutContact"
+        :title="t('pipeline.confirmContactNoContactTitle')"
+        :description="t('pipeline.confirmContactNoContactBody')"
+        :confirm-label="t('pipeline.actions.contact')"
+        @confirm="() => applyAction('contact')"
       />
     </template>
   </PageContainer>

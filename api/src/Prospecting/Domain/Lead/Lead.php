@@ -13,6 +13,7 @@ use App\Prospecting\Domain\Lead\Event\LeadLost;
 use App\Prospecting\Domain\Lead\Event\LeadMovedToSampleTest;
 use App\Prospecting\Domain\Lead\Event\LeadPaused;
 use App\Prospecting\Domain\Lead\Event\LeadResumed;
+use App\Prospecting\Domain\Lead\Event\LeadReturnedToContact;
 use App\Prospecting\Domain\Lead\Event\LeadWon;
 use App\Prospecting\Domain\Lead\Event\NoteAdded;
 use App\Prospecting\Domain\Lead\Event\ReplyReceived;
@@ -101,6 +102,18 @@ final class Lead extends AggregateRoot
         $this->lastContactedAt = $now;
         $this->recordEvent(new LeadContacted($this->tenantId->toString(), $this->id->toString(), $now));
         $this->autoScheduleFollowUp($now);
+    }
+
+    /**
+     * Correction d'un « Contacter » cliqué par erreur : retour à « À contacter ». On annule la
+     * relance auto planifiée et on efface la date de contact (la piste n'a jamais été contactée).
+     */
+    public function returnToContact(\DateTimeImmutable $now): void
+    {
+        $this->transitionTo(PipelineStatus::TO_CONTACT);
+        $this->cancelPendingFollowUp(FollowUpCancelReason::MANUAL, $now);
+        $this->lastContactedAt = null;
+        $this->recordEvent(new LeadReturnedToContact($this->tenantId->toString(), $this->id->toString(), $now));
     }
 
     /** Réponse entrante : la discussion s'ouvre, la relance en attente est annulée. */

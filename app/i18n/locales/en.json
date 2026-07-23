@@ -180,6 +180,7 @@
     },
     "actions": {
       "contact": "Contact",
+      "back-to-contact": "Move back to “To contact”",
       "reply": "Reply received",
       "sample-test": "Sample / Test",
       "win": "Won",
@@ -189,6 +190,8 @@
     },
     "confirmLoseTitle": "Mark this lead as lost?",
     "confirmLoseBody": "“{name}” will reach a terminal status — no further transition will be possible (notes remain allowed).",
+    "confirmContactNoContactTitle": "Mark as contacted?",
+    "confirmContactNoContactBody": "This organization has no contact with an email. “Contact” logs a manual touch and starts the follow-up cadence, but sends no email. Continue?",
     "detail": {
       "notFound": "Lead not found.",
       "timeline": "Journal",
@@ -202,6 +205,7 @@
     "timeline": {
       "created": "Lead created",
       "contacted": "Contact made",
+      "back_to_contact": "Moved back to “To contact”",
       "reply": "Reply received",
       "sample_test": "Moved to sample/test",
       "won": "Lead won",

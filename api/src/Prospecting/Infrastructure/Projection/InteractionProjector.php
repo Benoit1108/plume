@@ -16,6 +16,7 @@ use App\Prospecting\Domain\Lead\Event\LeadLost;
 use App\Prospecting\Domain\Lead\Event\LeadMovedToSampleTest;
 use App\Prospecting\Domain\Lead\Event\LeadPaused;
 use App\Prospecting\Domain\Lead\Event\LeadResumed;
+use App\Prospecting\Domain\Lead\Event\LeadReturnedToContact;
 use App\Prospecting\Domain\Lead\Event\LeadWon;
 use App\Prospecting\Domain\Lead\Event\NoteAdded;
 use App\Prospecting\Domain\Lead\Event\ReplyReceived;
@@ -46,6 +47,12 @@ final class InteractionProjector
     public function onLeadContacted(LeadContacted $event): void
     {
         $this->record($event, $event->tenantId, $event->leadId, 'contacted');
+    }
+
+    #[AsMessageHandler(bus: 'event.bus')]
+    public function onLeadReturnedToContact(LeadReturnedToContact $event): void
+    {
+        $this->record($event, $event->tenantId, $event->leadId, 'back_to_contact');
     }
 
     #[AsMessageHandler(bus: 'event.bus')]

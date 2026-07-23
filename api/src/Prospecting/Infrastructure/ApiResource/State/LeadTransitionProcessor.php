@@ -16,6 +16,7 @@ use App\Prospecting\Application\Command\PauseLead\PauseLead;
 use App\Prospecting\Application\Command\RecordFollowUp\RecordFollowUp;
 use App\Prospecting\Application\Command\RecordReply\RecordReply;
 use App\Prospecting\Application\Command\ResumeLead\ResumeLead;
+use App\Prospecting\Application\Command\ReturnLeadToContact\ReturnLeadToContact;
 use App\Prospecting\Application\Query\GetLead\GetLead;
 use App\Prospecting\Application\ReadModel\LeadView;
 use App\Prospecting\Infrastructure\ApiResource\LeadResource;
@@ -32,6 +33,7 @@ final class LeadTransitionProcessor implements ProcessorInterface
 {
     private const COMMANDS = [
         'contact' => ContactLead::class,
+        'back-to-contact' => ReturnLeadToContact::class,
         'follow-up' => RecordFollowUp::class,
         'reply' => RecordReply::class,
         'sample-test' => MoveToSampleTest::class,
