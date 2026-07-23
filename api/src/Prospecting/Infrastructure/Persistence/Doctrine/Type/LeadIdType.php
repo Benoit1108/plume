@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace App\Prospecting\Infrastructure\Persistence\Doctrine\Type;
 
 use App\Prospecting\Domain\Lead\LeadId;
-use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Types\StringType;
+use App\Shared\Infrastructure\Persistence\Doctrine\Type\AbstractStringIdType;
 
 /** Type DBAL pour le VO LeadId (persisté en chaîne). */
-final class LeadIdType extends StringType
+final class LeadIdType extends AbstractStringIdType
 {
     public const string NAME = 'lead_id';
 
@@ -18,33 +17,8 @@ final class LeadIdType extends StringType
         return self::NAME;
     }
 
-    public function convertToDatabaseValue($value, AbstractPlatform $platform): ?string
+    protected function idClass(): string
     {
-        if (null === $value) {
-            return null;
-        }
-        if ($value instanceof LeadId) {
-            return $value->toString();
-        }
-        if (\is_string($value)) {
-            return $value;
-        }
-
-        throw new \InvalidArgumentException('Expected LeadId or string.');
-    }
-
-    public function convertToPHPValue($value, AbstractPlatform $platform): ?LeadId
-    {
-        if (null === $value) {
-            return null;
-        }
-        if ($value instanceof LeadId) {
-            return $value;
-        }
-        if (\is_string($value)) {
-            return LeadId::fromString($value);
-        }
-
-        throw new \InvalidArgumentException('Expected LeadId or string.');
+        return LeadId::class;
     }
 }

@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace App\Directory\Infrastructure\Persistence\Doctrine\Type;
 
 use App\Directory\Domain\Organization\OrganizationId;
-use Doctrine\DBAL\Platforms\AbstractPlatform;
-use Doctrine\DBAL\Types\StringType;
+use App\Shared\Infrastructure\Persistence\Doctrine\Type\AbstractStringIdType;
 
-final class OrganizationIdType extends StringType
+/** Type DBAL pour le VO OrganizationId (persisté en chaîne). */
+final class OrganizationIdType extends AbstractStringIdType
 {
     public const string NAME = 'organization_id';
 
@@ -17,33 +17,8 @@ final class OrganizationIdType extends StringType
         return self::NAME;
     }
 
-    public function convertToDatabaseValue($value, AbstractPlatform $platform): ?string
+    protected function idClass(): string
     {
-        if (null === $value) {
-            return null;
-        }
-        if ($value instanceof OrganizationId) {
-            return $value->toString();
-        }
-        if (\is_string($value)) {
-            return $value;
-        }
-
-        throw new \InvalidArgumentException('Expected OrganizationId or string.');
-    }
-
-    public function convertToPHPValue($value, AbstractPlatform $platform): ?OrganizationId
-    {
-        if (null === $value) {
-            return null;
-        }
-        if ($value instanceof OrganizationId) {
-            return $value;
-        }
-        if (\is_string($value)) {
-            return OrganizationId::fromString($value);
-        }
-
-        throw new \InvalidArgumentException('Expected OrganizationId or string.');
+        return OrganizationId::class;
     }
 }

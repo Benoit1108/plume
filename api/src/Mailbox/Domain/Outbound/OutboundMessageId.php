@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace App\Mailbox\Domain\Outbound;
 
 use App\Shared\Domain\Exception\InvalidValue;
+use App\Shared\Domain\ValueObject\StringId;
 
-final class OutboundMessageId
+final class OutboundMessageId implements StringId
 {
     private function __construct(private readonly string $value)
     {

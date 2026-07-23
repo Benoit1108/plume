@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace App\Prospecting\Domain\Lead;
 
 use App\Shared\Domain\Exception\InvalidValue;
+use App\Shared\Domain\ValueObject\StringId;
 
-final class LeadId
+final class LeadId implements StringId
 {
     private function __construct(private readonly string $value)
     {

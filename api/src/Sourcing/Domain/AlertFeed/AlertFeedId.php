@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace App\Sourcing\Domain\AlertFeed;
 
 use App\Shared\Domain\Exception\InvalidValue;
+use App\Shared\Domain\ValueObject\StringId;
 
-final class AlertFeedId
+final class AlertFeedId implements StringId
 {
     private function __construct(private readonly string $value)
     {

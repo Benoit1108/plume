@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace App\Drafting\Domain\Draft;
 
 use App\Shared\Domain\Exception\InvalidValue;
+use App\Shared\Domain\ValueObject\StringId;
 
-final class DraftId
+final class DraftId implements StringId
 {
     private function __construct(private readonly string $value)
     {

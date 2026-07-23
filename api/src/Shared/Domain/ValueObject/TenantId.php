@@ -6,7 +6,7 @@ namespace App\Shared\Domain\ValueObject;
 
 use App\Shared\Domain\Exception\InvalidValue;
 
-final class TenantId
+final class TenantId implements StringId
 {
     private function __construct(private readonly string $value)
     {
