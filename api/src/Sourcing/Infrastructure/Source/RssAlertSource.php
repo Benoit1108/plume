@@ -114,7 +114,8 @@ final class RssAlertSource implements AlertSource
 
     private function clean(string $value, int $max): string
     {
-        $value = trim(html_entity_decode(strip_tags($value), \ENT_QUOTES | \ENT_HTML5, 'UTF-8'));
+        // Décoder les entités PUIS strip_tags (sinon une balise encodée ressort décodée en texte).
+        $value = trim(strip_tags(html_entity_decode($value, \ENT_QUOTES | \ENT_HTML5, 'UTF-8')));
 
         return mb_substr($value, 0, $max);
     }

@@ -193,3 +193,13 @@ services:
     App\Sourcing\Infrastructure\Source\RssAlertSource:
         arguments:
             $httpClient: '@sourcing.rss.http_client'
+
+# En PROD, le repli « aucun flux configuré » ne doit PAS injecter d'annonces de démonstration
+# dans la file d'un vrai tenant (revue pré-V2) : source de repli neutre. Dev/test/E2E gardent
+# FakeAlertSource (démo/onboarding sans réseau).
+when@prod:
+    services:
+        App\Sourcing\Application\Command\PollAlertSource\PollAlertSourceHandler:
+            arguments:
+                $source: '@App\Sourcing\Infrastructure\Source\RssAlertSource'
+                $demoSource: '@App\Sourcing\Infrastructure\Source\NullAlertSource'

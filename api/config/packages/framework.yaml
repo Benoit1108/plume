@@ -2,6 +2,12 @@ framework:
     secret: '%env(APP_SECRET)%'
     http_method_override: false
     handle_all_throwables: true
+    # Tout le trafic API passe par le proxy same-origin (Nitro/Caddy, ADR-0018). Sans proxy de
+    # confiance, getClientIp() renverrait l'IP du proxy pour TOUS les clients → le rate-limiting
+    # par IP (endpoints token, login throttling) s'effondrerait en un seau global (revue pré-V2).
+    # TRUSTED_PROXIES : réseau/IP du proxy (défaut : loopback = proxy sur le même hôte).
+    trusted_proxies: '%env(TRUSTED_PROXIES)%'
+    trusted_headers: ['x-forwarded-for', 'x-forwarded-proto', 'x-forwarded-host', 'x-forwarded-port']
     php_errors:
         log: true
     uid:

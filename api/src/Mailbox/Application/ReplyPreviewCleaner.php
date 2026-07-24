@@ -35,7 +35,9 @@ final class ReplyPreviewCleaner
     public static function clean(string $raw): string
     {
         // Une seule ligne, sans balises ni entités (jamais de HTML dans un aperçu).
-        $text = trim((string) preg_replace('/\s+/', ' ', html_entity_decode(strip_tags($raw), \ENT_QUOTES | \ENT_HTML5, 'UTF-8')));
+        // Décoder les entités PUIS strip_tags : sinon `&lt;script&gt;` ressort décodé en balise (texte
+        // à échapper). Ici on produit du texte brut sûr.
+        $text = trim((string) preg_replace('/\s+/', ' ', strip_tags(html_entity_decode($raw, \ENT_QUOTES | \ENT_HTML5, 'UTF-8'))));
         if ('' === $text) {
             return '';
         }
