@@ -4,6 +4,7 @@ import type { OrganizationInput } from '~/types/directory'
 const { t } = useI18n()
 const directory = useDirectory()
 const toast = useToast()
+const queryClient = useQueryClient()
 
 const saving = ref(false)
 const error = ref('')
@@ -13,6 +14,7 @@ async function onSubmit(payload: OrganizationInput): Promise<void> {
   saving.value = true
   try {
     const org = await directory.create(payload)
+    await queryClient.invalidateQueries({ queryKey: queryKeys.organizations })
     toast.add({ title: t('directory.toasts.created'), color: 'success' })
     await navigateTo(`/organizations/${org.id}`)
   }

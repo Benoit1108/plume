@@ -41,7 +41,9 @@
   "common": {
     "loading": "Chargement…",
     "error": "Une erreur est survenue. Réessaie.",
-    "conflict": "Action impossible dans l'état actuel — la page vient peut-être de changer."
+    "conflict": "Action impossible dans l'état actuel — la page vient peut-être de changer.",
+    "loadError": "Le chargement a échoué.",
+    "retry": "Réessayer"
   },
   "directory": {
     "eyebrow": "Atelier · cibles",

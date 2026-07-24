@@ -8,7 +8,7 @@ const { segmentLabel } = useDirectoryLabels()
 const dashboardApi = useDashboard()
 
 const { data, isPending: loading } = useQuery({
-  queryKey: ['dashboard'],
+  queryKey: queryKeys.dashboard,
   queryFn: () => dashboardApi.get(),
 })
 const board = computed<Dashboard | null>(() => data.value ?? null)

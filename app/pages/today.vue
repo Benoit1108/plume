@@ -30,7 +30,7 @@ async function quickAction(lead: Lead, action: 'contact' | 'follow-up'): Promise
   actingOn.value = lead.id
   try {
     await leadsApi.transition(lead.id, action)
-    await queryClient.invalidateQueries({ queryKey: queryKeys.today })
+    await invalidateLeadRelated(queryClient)
     toast.add({
       title: action === 'contact' ? t('pipeline.toasts.updated') : t('pipeline.toasts.followUpDone'),
       color: 'success',

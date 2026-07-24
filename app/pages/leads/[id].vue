@@ -11,18 +11,15 @@ const leads = useLeads()
 const toast = useToast()
 
 const queryClient = useQueryClient()
-const { data: leadData, isPending: loading } = useQuery({ queryKey: queryKeys.lead(id), queryFn: () => leads.get(id) })
+const { data: leadData, isPending: loading, isError, refetch } = useQuery({ queryKey: queryKeys.lead(id), queryFn: () => leads.get(id) })
 const lead = computed<Lead | null>(() => leadData.value ?? null)
 
 const { data: interactionsData } = useQuery({ queryKey: queryKeys.leadTimeline(id), queryFn: () => leads.timeline(id) })
 const interactions = computed<Interaction[]>(() => interactionsData.value ?? [])
 
-// Une transition change aussi la place de la piste dans le kanban → invalider la liste.
+// Une transition impacte la fiche, le kanban, l'écran du jour ET les KPI du tableau de bord.
 async function refresh(): Promise<void> {
-  await Promise.all([
-    queryClient.invalidateQueries({ queryKey: queryKeys.lead(id) }),
-    queryClient.invalidateQueries({ queryKey: queryKeys.leads }),
-  ])
+  await invalidateLeadRelated(queryClient, id)
 }
 async function refreshTimeline(): Promise<void> {
   await queryClient.invalidateQueries({ queryKey: queryKeys.leadTimeline(id) })
@@ -191,6 +188,19 @@ const canScheduleFollowUp = computed(() =>
       <USkeleton class="h-20 rounded-xl" />
       <USkeleton class="h-40 rounded-xl" />
     </div>
+    <UAlert
+      v-else-if="isError"
+      color="error"
+      variant="subtle"
+      :title="t('common.loadError')"
+      class="my-6"
+    >
+      <template #actions>
+        <UButton size="xs" color="error" variant="outline" icon="i-lucide-refresh-cw" @click="() => { void refetch() }">
+          {{ t('common.retry') }}
+        </UButton>
+      </template>
+    </UAlert>
     <div v-else-if="!lead" class="text-muted py-12">{{ t('pipeline.detail.notFound') }}</div>
 
     <template v-else>

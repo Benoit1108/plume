@@ -96,10 +96,11 @@ async function submitTriage(): Promise<void> {
       })
     }
     triaging.value = null
-    // La promotion crée une piste (+ éventuellement une organisation) : on rafraîchit les 3.
+    // La promotion crée une piste (+ éventuellement une organisation) : file de tri + tout ce qui
+    // dépend d'une piste (kanban, aujourd'hui, dashboard) + liste des organisations.
     await Promise.all([
+      invalidateLeadRelated(queryClient),
       queryClient.invalidateQueries({ queryKey: queryKeys.candidateQueue }),
-      queryClient.invalidateQueries({ queryKey: queryKeys.leads }),
       queryClient.invalidateQueries({ queryKey: queryKeys.organizations }),
     ])
     focusTop()

@@ -87,7 +87,7 @@ async function onDrop(targetStatus: LeadStatus): Promise<void> {
   moving.value = lead.id
   try {
     await leadsApi.transition(lead.id, action)
-    await queryClient.invalidateQueries({ queryKey: queryKeys.leads })
+    await invalidateLeadRelated(queryClient)
     toast.add({ title: t('pipeline.toasts.updated'), color: 'success' })
   }
   catch (error) {

@@ -41,7 +41,9 @@
   "common": {
     "loading": "Loading…",
     "error": "Something went wrong. Try again.",
-    "conflict": "This action conflicts with the current state — the page may have just changed."
+    "conflict": "This action conflicts with the current state — the page may have just changed.",
+    "loadError": "Loading failed.",
+    "retry": "Retry"
   },
   "directory": {
     "eyebrow": "Studio · targets",
