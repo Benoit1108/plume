@@ -145,10 +145,23 @@ function openDraft(draft: Draft): void {
   if (draft.status === 'GENERATING') startPolling()
 }
 
-/** Après un refresh, réaligne l'éditeur ouvert sur l'état serveur (READY/FAILED). */
+/**
+ * Après un refresh, réaligne l'éditeur ouvert sur l'état serveur — mais UNIQUEMENT si le statut
+ * a changé (ex. GENERATING → READY : on veut alors afficher le contenu généré). Sinon on NE
+ * réassigne PAS : réassigner un nouvel objet à chaque tick de polling relancerait le `watch` de
+ * l'éditeur et écraserait la saisie en cours de l'utilisatrice (P0 revue pré-V2).
+ */
 function syncEditorWithList(): void {
-  if (!editingDraft.value) return
-  editingDraft.value = drafts.value.find(draft => draft.id === editingDraft.value?.id) ?? null
+  const current = editingDraft.value
+  if (!current) return
+  const fresh = drafts.value.find(draft => draft.id === current.id) ?? null
+  if (null === fresh) {
+    editingDraft.value = null // le brouillon a disparu (supprimé)
+  }
+  else if (fresh.status !== current.status) {
+    editingDraft.value = fresh // vrai changement d'état → on réaligne
+  }
+  // même statut : on préserve l'objet courant (donc la saisie non enregistrée)
 }
 
 /** L'éditeur a modifié le brouillon : rafraîchir, réaligner, relancer le polling si besoin. */

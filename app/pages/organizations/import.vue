@@ -3,6 +3,7 @@ import type { ImportResult } from '~/types/directory'
 
 const { t } = useI18n()
 const directory = useDirectory()
+const queryClient = useQueryClient()
 
 const fileName = ref('')
 const content = ref('')
@@ -27,6 +28,8 @@ async function submit(): Promise<void> {
   result.value = null
   try {
     result.value = await directory.importCsv(content.value)
+    // Sinon la liste (et le sélecteur de leads/new) restent en cache → l'import paraît sans effet.
+    await queryClient.invalidateQueries({ queryKey: queryKeys.organizations })
   }
   catch (e) {
     const err = e as { data?: { detail?: string, 'hydra:description'?: string } }
