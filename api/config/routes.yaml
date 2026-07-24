@@ -27,3 +27,9 @@ api_account_delete:
     path: /api/v1/account
     controller: App\Account\Infrastructure\Http\DeleteAccountController
     methods: [DELETE]
+
+# RGPD : export de toutes les données du compte (archive ZIP : JSON + CSV).
+api_account_export:
+    path: /api/v1/account/export
+    controller: App\Account\Infrastructure\Http\ExportAccountController
+    methods: [GET]

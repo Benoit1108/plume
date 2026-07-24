@@ -83,6 +83,28 @@ async function changePassword(): Promise<void> {
   }
 }
 
+// --- Export des données (RGPD, portabilité) ---
+const exporting = ref(false)
+async function exportData(): Promise<void> {
+  exporting.value = true
+  try {
+    const blob = await accountApi.exportData()
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `plume-export-${new Date().toISOString().slice(0, 10)}.zip`
+    link.click()
+    URL.revokeObjectURL(url)
+    toast.add({ title: t('account.export.done'), color: 'success' })
+  }
+  catch {
+    toast.add({ title: t('account.export.error'), color: 'error' })
+  }
+  finally {
+    exporting.value = false
+  }
+}
+
 // --- Suppression de compte (RGPD, soft-delete) ---
 const deleteModalOpen = ref(false)
 const deletePassword = ref('')
@@ -171,6 +193,19 @@ async function deleteAccount(): Promise<void> {
             </UButton>
           </div>
         </form>
+      </section>
+
+      <!-- Mes données : export RGPD (portabilité) -->
+      <section class="border border-default rounded-xl p-4 bg-elevated/40 flex flex-col gap-3">
+        <div>
+          <p class="text-sm font-semibold">{{ t('account.export.title') }}</p>
+          <p class="text-xs text-muted mt-1">{{ t('account.export.intro') }}</p>
+        </div>
+        <div class="flex justify-end">
+          <UButton variant="soft" icon="i-lucide-download" :loading="exporting" @click="exportData">
+            {{ t('account.export.button') }}
+          </UButton>
+        </div>
       </section>
 
       <!-- Zone de danger : suppression de compte (RGPD) -->

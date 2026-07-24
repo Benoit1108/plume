@@ -445,6 +445,13 @@
       "mismatch": "The two passwords don't match.",
       "generic": "Couldn't change the password."
     },
+    "export": {
+      "title": "My data",
+      "intro": "Download all your data (organizations, leads, activity log, drafts…) as a ZIP archive: a complete JSON file plus spreadsheet-friendly CSVs.",
+      "button": "Export my data",
+      "done": "Export downloaded.",
+      "error": "Export failed. Please try again."
+    },
     "danger": {
       "title": "Delete my account",
       "intro": "Permanently deletes your account and all your data (leads, contacts, messages, drafts). Access is cut off immediately; the data is erased after a 30-day grace period.",

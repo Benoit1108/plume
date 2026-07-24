@@ -445,6 +445,13 @@
       "mismatch": "Les deux mots de passe ne correspondent pas.",
       "generic": "Impossible de changer le mot de passe."
     },
+    "export": {
+      "title": "Mes données",
+      "intro": "Téléchargez toutes vos données (organisations, pistes, journal, brouillons…) dans une archive ZIP : un fichier JSON complet et des CSV lisibles dans un tableur.",
+      "button": "Exporter mes données",
+      "done": "Export téléchargé.",
+      "error": "L'export a échoué. Réessayez."
+    },
     "danger": {
       "title": "Supprimer mon compte",
       "intro": "Supprime définitivement votre compte et toutes vos données (pistes, contacts, messages, brouillons). L'accès est coupé immédiatement ; les données sont effacées après un délai de 30 jours.",

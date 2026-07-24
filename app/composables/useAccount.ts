@@ -16,5 +16,12 @@ export function useAccount() {
         method: 'DELETE',
         body: { currentPassword },
       }),
+
+    /** GET /account/export — RGPD : archive ZIP (JSON + CSV) de toutes les données du compte. */
+    exportData: () =>
+      api<Blob>('/api/v1/account/export', {
+        responseType: 'blob',
+        headers: { Accept: 'application/zip' },
+      }),
   }
 }
