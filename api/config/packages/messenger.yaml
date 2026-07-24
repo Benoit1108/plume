@@ -41,6 +41,20 @@ framework:
                     max_retries: 3
                     delay: 1000
                     multiplier: 2
+            # Transport DÉDIÉ aux commandes à I/O réseau lourde et potentiellement lente (relève
+            # RSS, lecture IMAP/Graph). Consommé par un worker SÉPARÉ (`worker_io`) : une relève
+            # lente d'un tenant n'affame plus les projections/policies légères de la file `async`
+            # de tous les autres (isolation de charge inter-contextes, dette ADR-0022 §5).
+            io:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                options:
+                    use_notify: true
+                    queue_name: io
+                    auto_setup: false
+                retry_strategy:
+                    max_retries: 3
+                    delay: 1000
+                    multiplier: 2
             failed:
                 dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
                 options:
@@ -58,6 +72,7 @@ when@test:
     framework:
         messenger:
             transports:
-                # En test, les events sont consommés EN LIGNE (projections immédiates,
-                # assertions déterministes). La prod reste asynchrone (outbox + worker).
+                # En test, events ET commandes I/O sont consommés EN LIGNE (projections/relèves
+                # immédiates, assertions déterministes). La prod reste asynchrone (outbox + workers).
                 async: 'sync://'
+                io: 'sync://'

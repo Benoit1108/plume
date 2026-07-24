@@ -15,8 +15,8 @@ use Symfony\Component\Messenger\Stamp\TransportNamesStamp;
 
 /**
  * Le tick de relève des réponses ne fait que du FAN-OUT ASYNCHRONE par tenant : chaque
- * FetchReplies part sur `async` (worker plume_app, tenant activé → RLS) — jamais de logique
- * tenantée exécutée dans le scheduler propriétaire (P1 revue pré-V2, ADR-0023 §5).
+ * FetchReplies part sur la file `io` (worker plume_app dédié, tenant activé → RLS, isolation de
+ * charge ADR-0022 §5) — jamais de logique tenantée dans le scheduler propriétaire (ADR-0023 §5).
  */
 final class FetchAllRepliesHandlerTest extends TestCase
 {
@@ -42,6 +42,6 @@ final class FetchAllRepliesHandlerTest extends TestCase
         self::assertSame('tenant-a', $first->tenantId);
         $stamp = $dispatched[0]['stamps'][0];
         self::assertInstanceOf(TransportNamesStamp::class, $stamp);
-        self::assertSame(['async'], $stamp->getTransportNames());
+        self::assertSame(['io'], $stamp->getTransportNames());
     }
 }

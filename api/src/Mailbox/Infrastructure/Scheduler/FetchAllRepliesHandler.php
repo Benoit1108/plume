@@ -11,10 +11,11 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\TransportNamesStamp;
 
 /**
- * Éventail par tenant : chaque boîte CONNECTED relève ses réponses dans un message ASYNCHRONE
- * dédié — consommé par le worker (rôle plume_app, tenant activé → RLS appliquée), isolation de
- * panne, I/O IMAP/Graph hors du process scheduler. Aligné sur PollAllSources/FetchAllAlertEmails
- * (le fan-out ne fait QUE énumération + dispatch, aucune logique métier tenantée ici).
+ * Éventail par tenant : chaque boîte CONNECTED relève ses réponses dans un message dédié sur la
+ * file `io` — consommée par le worker plume_app dédié (tenant activé → RLS appliquée), isolation
+ * de panne ET de charge (l'I/O IMAP/Graph, hors du process scheduler, n'affame pas les projections
+ * légères de `async`, ADR-0022 §5). Aligné sur PollAllSources/FetchAllAlertEmails (le fan-out ne
+ * fait QUE énumération + dispatch, aucune logique métier tenantée ici).
  */
 #[AsMessageHandler]
 final class FetchAllRepliesHandler
@@ -34,7 +35,7 @@ final class FetchAllRepliesHandler
              AND tenant_id NOT IN (SELECT tenant_id FROM app_user WHERE deletion_requested_at IS NOT NULL)",
         );
         foreach ($tenants as $tenantId) {
-            $this->commandBus->dispatch(new FetchReplies($tenantId), [new TransportNamesStamp(['async'])]);
+            $this->commandBus->dispatch(new FetchReplies($tenantId), [new TransportNamesStamp(['io'])]);
         }
     }
 }

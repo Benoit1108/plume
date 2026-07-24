@@ -42,6 +42,6 @@ final class PollAllSourcesHandlerTest extends TestCase
         // Chaque poll part sur le transport ASYNCHRONE (pas d'imbrication synchrone).
         $stamp = $dispatched[0]['stamps'][0];
         self::assertInstanceOf(TransportNamesStamp::class, $stamp);
-        self::assertSame(['async'], $stamp->getTransportNames());
+        self::assertSame(['io'], $stamp->getTransportNames());
     }
 }

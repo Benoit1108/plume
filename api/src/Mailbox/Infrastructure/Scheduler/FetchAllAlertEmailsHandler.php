@@ -11,8 +11,9 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\TransportNamesStamp;
 
 /**
- * Éventail par tenant : chaque boîte CONNECTED relève ses alertes dans un message ASYNCHRONE
- * dédié (isolation de panne + I/O IMAP/Graph hors de la tâche de fan-out).
+ * Éventail par tenant : chaque boîte CONNECTED relève ses alertes dans un message dédié sur la
+ * file `io` (worker plume_app séparé) — isolation de panne ET de charge : l'I/O IMAP/Graph
+ * n'affame pas les projections légères de `async` (ADR-0022 §5).
  */
 #[AsMessageHandler]
 final class FetchAllAlertEmailsHandler
@@ -32,7 +33,7 @@ final class FetchAllAlertEmailsHandler
              AND tenant_id NOT IN (SELECT tenant_id FROM app_user WHERE deletion_requested_at IS NOT NULL)",
         );
         foreach ($tenants as $tenantId) {
-            $this->commandBus->dispatch(new FetchAlertEmails($tenantId), [new TransportNamesStamp(['async'])]);
+            $this->commandBus->dispatch(new FetchAlertEmails($tenantId), [new TransportNamesStamp(['io'])]);
         }
     }
 }

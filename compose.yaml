@@ -1,5 +1,5 @@
 # Stack de développement local — Plume
-# FrankenPHP (API) + Postgres + worker Messenger (events async) + Scheduler + Nuxt
+# FrankenPHP (API) + Postgres + workers Messenger (async = events, io = relèves) + Scheduler + Nuxt
 name: plume
 
 services:
@@ -42,7 +42,8 @@ services:
       database:
         condition: service_healthy
 
-  # Consommateur des domain events (outbox -> projections, ex. journal d'interactions).
+  # Consommateur des domain events LÉGERS (file `async` : outbox -> projections/policies, ex.
+  # journal d'interactions). Les I/O réseau lourdes vont sur `worker_io` (file `io`) — cf. §5.
   # Dans la stack PAR DÉFAUT depuis M1.2 : la timeline en dépend.
   worker:
     build:
@@ -50,6 +51,27 @@ services:
     command: ["php", "bin/console", "messenger:consume", "async", "-vv", "--time-limit=3600"]
     healthcheck:
       disable: true   # ne sert pas de HTTP (healthcheck FrankenPHP hérité inadapté)
+    environment:
+      DATABASE_URL: "postgresql://plume_app:plume_app@database:5432/plume?serverVersion=17&charset=utf8"
+      MESSENGER_TRANSPORT_DSN: "doctrine://default"
+      APP_ENV: dev
+    volumes:
+      - ./api:/app
+    depends_on:
+      database:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Worker DÉDIÉ aux commandes à I/O réseau lourde (relève RSS/IMAP/Graph, file `io`).
+  # Séparé du `worker` (events légers/projections sur `async`) : une relève lente d'un tenant
+  # n'affame plus les projections des autres (isolation de charge, dette ADR-0022 §5). Même rôle
+  # runtime plume_app (tenant activé par message → RLS).
+  worker_io:
+    build:
+      context: ./api
+    command: ["php", "bin/console", "messenger:consume", "io", "-vv", "--time-limit=3600"]
+    healthcheck:
+      disable: true
     environment:
       DATABASE_URL: "postgresql://plume_app:plume_app@database:5432/plume?serverVersion=17&charset=utf8"
       MESSENGER_TRANSPORT_DSN: "doctrine://default"

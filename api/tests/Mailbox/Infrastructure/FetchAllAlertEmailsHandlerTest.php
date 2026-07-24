@@ -37,6 +37,6 @@ final class FetchAllAlertEmailsHandlerTest extends TestCase
         self::assertSame('tenant-a', $msg->tenantId);
         $stamp = $dispatched[0]['stamps'][0];
         self::assertInstanceOf(TransportNamesStamp::class, $stamp);
-        self::assertSame(['async'], $stamp->getTransportNames());
+        self::assertSame(['io'], $stamp->getTransportNames());
     }
 }

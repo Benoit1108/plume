@@ -184,8 +184,8 @@ jobs:
           docker compose run --rm -e DATABASE_URL="$OWNER_URL" php php bin/console app:db:provision-app-role
           docker compose run --rm -e DATABASE_URL="$OWNER_URL" php php bin/console app:user:create e2e@plume.test e2e-secret-123
 
-      - name: Start API + worker (runtime role plume_app)
-        run: docker compose up -d php worker
+      - name: Start API + workers (runtime role plume_app)
+        run: docker compose up -d php worker worker_io
 
       - name: Wait for API
         run: |

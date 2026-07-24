@@ -12,9 +12,18 @@
 >   enums dérivés du contrat après durcissement OpenAPI (`5a64025`).
 > - **§8 SSR subi** → soldé : **SPA `ssr:false`** ([ADR-0024](0024-spa-ssr-false.md)).
 >
-> **Restent ouverts** : §3 (patrons d'adaptateurs — la source de démo est désormais neutralisée en
-> prod, mais l'hétérogénéité Selector/registres subsiste), §4 (tables hors ORM), §5 (charge
-> inter-contextes). C'est le vrai périmètre à rouvrir au cadrage V2.
+> **Mise à jour 2026-07-24 (V2.0-b).** La **charge inter-contextes** (relève RSS/email lente
+> retardant les projections/policies de TOUS les tenants — évoquée au cadrage V2 sous l'étiquette
+> approximative « §5 ») est **soldée** : transport Messenger **`io` dédié** aux commandes à I/O
+> réseau lourde (relève RSS/IMAP/Graph) + **worker `worker_io` séparé**, distinct de la file `async`
+> (events/projections légers) et de son worker. Le découpage retenu est **par poids d'I/O** (et non
+> « par contexte » comme esquissé) : c'est le vrai axe du problème — un event léger de Sourcing ne
+> doit pas être pénalisé parce que Sourcing fait aussi de l'I/O RSS lourd.
+>
+> **Restent ouverts** (assumés V1, à rouvrir si besoin) : §3 (patrons d'adaptateurs — la source de
+> démo est neutralisée en prod, mais l'hétérogénéité Selector/registres subsiste), §4 (tables hors
+> ORM), §5 (`RawAlert`/`rawRef`). *(La note antérieure glosait §5 en « charge inter-contextes » : c'était
+> une erreur d'étiquette — le §5 numéroté ci-dessous est bien `RawAlert`/`rawRef`.)*
 - **Contexte** : la revue fin M3 a mené deux audits dédiés aux **choix d'architecture** (back et
   front). Plusieurs sont **assumables en V1 mono-utilisatrice** mais deviendront coûteux à
   l'**ouverture SaaS multi-utilisateurs (V2)**. Cet ADR **trace** ces décisions pour qu'elles

@@ -15,8 +15,8 @@ use Symfony\Component\Messenger\Stamp\TransportNamesStamp;
  * POST /sources/poll : relève ASYNCHRONE pour le tenant courant (geste manuel de « À trier »).
  * L'I/O réseau (RSS, potentiellement lent) se fait sur le WORKER, pas dans la requête HTTP
  * (dette ADR-0022 §1 soldée) → réponse 202 immédiate ; le front rafraîchit la file au fil de
- * l'ingestion. Même chemin que le fan-out du Scheduler (PollAlertSource async), tenant porté
- * par le message (middleware worker).
+ * l'ingestion. Même chemin que le fan-out du Scheduler (PollAlertSource sur la file `io`), tenant
+ * porté par le message (middleware worker).
  *
  * @implements ProcessorInterface<null, null>
  */
@@ -32,7 +32,7 @@ final class PollSourcesProcessor implements ProcessorInterface
     {
         $this->commandBus->dispatch(
             new PollAlertSource($this->tenantContext->require()->toString()),
-            [new TransportNamesStamp(['async'])],
+            [new TransportNamesStamp(['io'])],
         );
 
         return null;

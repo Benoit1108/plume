@@ -16,7 +16,7 @@ PHP_DB := $(DC) run --rm --user $(UID):$(GID) -e HOME=/tmp -e COMPOSER_HOME=/tmp
 help: ## Affiche cette aide
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS=":.*?## "}; {printf "  \033[36m%-14s\033[0m %s\n", $$1, $$2}'
 
-up: ## Démarre la stack de dev (DB + API + worker) — SANS le scheduler ; front sur l'hôte (npm run dev)
+up: ## Démarre la stack de dev (DB + API + workers async & io) — SANS le scheduler ; front sur l'hôte (npm run dev)
 	$(DC) up -d
 
 up-full: ## Démarre TOUT (DB, API, worker, scheduler, front en conteneur)

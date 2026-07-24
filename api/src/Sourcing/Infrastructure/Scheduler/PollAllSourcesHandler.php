@@ -11,9 +11,10 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\TransportNamesStamp;
 
 /**
- * Éventail par tenant : chaque tenant ayant ≥ 1 flux actif est relevé dans un message
- * ASYNCHRONE dédié (isolation de panne — l'échec/retry d'un tenant n'affecte pas les autres,
- * pas de transaction commune, l'I/O réseau ne bloque pas la tâche de fan-out).
+ * Éventail par tenant : chaque tenant ayant ≥ 1 flux actif est relevé dans un message dédié sur
+ * la file `io` (worker plume_app séparé) — isolation de panne (l'échec/retry d'un tenant n'affecte
+ * pas les autres, pas de transaction commune) ET de charge : l'I/O réseau RSS n'affame pas les
+ * projections légères de `async` (ADR-0022 §5).
  */
 #[AsMessageHandler]
 final class PollAllSourcesHandler
@@ -33,7 +34,7 @@ final class PollAllSourcesHandler
              AND tenant_id NOT IN (SELECT tenant_id FROM app_user WHERE deletion_requested_at IS NOT NULL)',
         );
         foreach ($tenants as $tenantId) {
-            $this->commandBus->dispatch(new PollAlertSource($tenantId), [new TransportNamesStamp(['async'])]);
+            $this->commandBus->dispatch(new PollAlertSource($tenantId), [new TransportNamesStamp(['io'])]);
         }
     }
 }
