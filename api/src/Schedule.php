@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App;
 
+use App\Account\Infrastructure\Scheduler\PurgeDeletedAccountsTick;
 use App\Mailbox\Infrastructure\Scheduler\FetchAllAlertEmailsTick;
 use App\Mailbox\Infrastructure\Scheduler\FetchAllRepliesTick;
 use App\Sourcing\Infrastructure\Scheduler\PollAllSourcesTick;
@@ -42,6 +43,9 @@ class Schedule implements ScheduleProviderInterface
             ->add(RecurringMessage::every('30 minutes', new FetchAllAlertEmailsTick()))
 
             // Purge quotidienne du brut des annonces rejetées de longue date (D6).
-            ->add(RecurringMessage::every('1 day', new PurgeRawAlertsTick()));
+            ->add(RecurringMessage::every('1 day', new PurgeRawAlertsTick()))
+
+            // Purge quotidienne des comptes en soft-delete au-delà du délai de grâce (RGPD, V2.0-a2).
+            ->add(RecurringMessage::every('1 day', new PurgeDeletedAccountsTick()));
     }
 }
