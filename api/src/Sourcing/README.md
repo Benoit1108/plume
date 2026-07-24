@@ -40,12 +40,14 @@ d'organisation/piste orpheline (ADR-0020). Dédoublonnage à l'ingestion : ADR-0
 
 ## Livré (M3.2 — alertes email, plomberie)
 
-- **`Application/AlertEmail/AlertEmailParser`** : parser générique d'email d'alerte (1 annonce =
-  1 email, provenance déduite du domaine de l'expéditeur).
+- **`Application/AlertEmail/AlertEmailParser`** : **dispatcher** — délègue à un parser FIN par
+  fournisseur (`ProviderAlertParser`), sinon extraction générique (1 annonce = 1 email, provenance
+  déduite du domaine expéditeur). **`LinkedInAlertEmailParser`** livré (digest = N offres → N
+  candidats, ancrage sur `jobs/view/<id>`, URL canonique, `externalId` = id LinkedIn).
 - **`Infrastructure/Policy/IngestAlertEmailOnAlertEmailReceived`** : consomme l'event Mailbox
   `AlertEmailReceived` (langage publié) → parse → `IngestCandidate` (tenant réactivé, dédoublonnage
   par id de message). Côté Passerelle : `FetchAlertEmails` lit un label dédié (ADR-0017 amendé) et
-  publie l'event ; `FakeAlertEmailFetcher` par défaut (adaptateurs réels Gmail/Outlook = suivi).
+  publie l'event ; `GmailAlertEmailFetcher` réel (si `GOOGLE_CLIENT_ID`), sinon `FakeAlertEmailFetcher`.
 
-**M3 complet.** Suivi (avec de vrais emails) : lecture réelle du label par fournisseur + parsers
-fins ProZ/TranslatorsCafe/LinkedIn.
+**Pré-V2 : mail réel + parser LinkedIn livrés.** Suivi (avec de vrais emails) : parsers fins
+**ProZ / TranslatorsCafe**, adaptateur Outlook réel de lecture du label.

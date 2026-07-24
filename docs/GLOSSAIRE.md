@@ -123,6 +123,7 @@ Le vocabulaire métier ci-dessous est **contractuel** et reste en **français** 
 | Métier (FR) | Code (EN) |
 |---|---|
 | contacter | `contact()` |
+| repasser à « À contacter » (corriger) | `returnToContact()` |
 | planifier une relance | `scheduleFollowUp()` |
 | enregistrer une réponse | `recordReply()` |
 | passer au test/échantillon | `moveToSampleTest()` |
@@ -135,6 +136,7 @@ Le vocabulaire métier ci-dessous est **contractuel** et reste en **français** 
 |---|---|
 | PisteCréée | `LeadCreated` |
 | PisteContactée | `LeadContacted` |
+| PisteRepasséeÀContacter | `LeadReturnedToContact` |
 | RelancePlanifiée | `FollowUpScheduled` (dueAt, auto) |
 | RelanceFaite | `FollowUpSent` (l'envoi réel arrive en M2) |
 | RelanceAnnulée | `FollowUpCancelled` (reason) |

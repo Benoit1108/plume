@@ -1,6 +1,20 @@
 # ADR-0022 — Dettes d'architecture à trancher en V2 (revue fin M3)
 
-- **Statut : Proposé** (2026-07-20 — issu de la [revue de santé fin M3](../../reviews/2026-07-20-revue-sante-fin-m3.md), volet « critique d'architecture »)
+- **Statut : Partiellement soldé** (mis à jour 2026-07-24 — issu de la [revue de santé fin M3](../../reviews/2026-07-20-revue-sante-fin-m3.md), volet « critique d'architecture »)
+
+> **Mise à jour 2026-07-24 (phase pré-V2).** Plusieurs dettes listées ici ont été **soldées** avant
+> le cadrage V2 — à ne PAS rouvrir comme prérequis V2 :
+> - **§1 I/O synchrone** → soldé : relève manuelle des sources ET des réponses en async (worker,
+>   `TransportNamesStamp`), commits `dd1dc2e` / lot A revue pré-V2.
+> - **§2 cérémonie de mapping id-VO** → soldé : `AbstractStringIdType` + interface `StringId` (`163405a`).
+> - **§6 état serveur front** → soldé : **TanStack Query** (chantier 3 lot D).
+> - **§7 types dupliqués** → soldé : `openapi-typescript` + `gen:types` + contrôle CI de drift ;
+>   enums dérivés du contrat après durcissement OpenAPI (`5a64025`).
+> - **§8 SSR subi** → soldé : **SPA `ssr:false`** ([ADR-0024](0024-spa-ssr-false.md)).
+>
+> **Restent ouverts** : §3 (patrons d'adaptateurs — la source de démo est désormais neutralisée en
+> prod, mais l'hétérogénéité Selector/registres subsiste), §4 (tables hors ORM), §5 (charge
+> inter-contextes). C'est le vrai périmètre à rouvrir au cadrage V2.
 - **Contexte** : la revue fin M3 a mené deux audits dédiés aux **choix d'architecture** (back et
   front). Plusieurs sont **assumables en V1 mono-utilisatrice** mais deviendront coûteux à
   l'**ouverture SaaS multi-utilisateurs (V2)**. Cet ADR **trace** ces décisions pour qu'elles

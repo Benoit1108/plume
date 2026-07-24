@@ -99,8 +99,17 @@ complet** (suivi : adaptateurs email réels + parsers fins par fournisseur, avec
 Une passe d'harmonisation visuelle + une page **Compte** (mot de passe, nom d'affichage) ont
 aussi été livrées.
 
-**Chantiers pré-V2 en cours** (cf. `docs/design/PRE-V2-cadrage.md`) : **chantier 1 — durcissement
-back multi-tenant terminé** : rôle runtime non-propriétaire `plume_app` + **Row-Level Security**
-fail-closed (ADR-0023), var de session `app.current_tenant` propagée HTTP + worker, scheduler en
-propriétaire pour la maintenance cross-tenant. **À suivre** : chantier 2 (mail réel + parsers +
-RSS Atom), chantier 3 (front TanStack Query, SPA, types OpenAPI).
+**Phase pré-V2 TERMINÉE** (cf. `docs/design/PRE-V2-cadrage.md` + revue `docs/reviews/2026-07-24-revue-sante-pre-v2.md`) :
+- **Chantier 1 — durcissement back multi-tenant** : rôle runtime non-propriétaire `plume_app` +
+  **Row-Level Security** fail-closed (ADR-0023), var de session `app.current_tenant` propagée
+  HTTP + worker, scheduler propriétaire pour la maintenance cross-tenant.
+- **Chantier 2 — mail réel** : `RssAlertSource` via laminas-feed (RSS 2.0 **+ Atom**),
+  `GmailAlertEmailFetcher` réel (lecture du label), `LinkedInAlertEmailParser` fin (1 offre =
+  1 candidat), relève manuelle des alertes (bouton). Validé en réel (relève + envoi + réponse).
+  *Reste : parsers fins ProZ/TranslatorsCafe (échantillons), envoi/réponse Outlook réel.*
+- **Chantier 3 — front** : **SPA `ssr:false`** (ADR-0024), **TanStack Query** (cache + invalidation),
+  **types générés depuis OpenAPI** (drift CI), parité i18n testée.
+- **Chantier 4 + divers** : `AbstractStringIdType` (dédup id-VO), **poll manuel async**, durcissement
+  OpenAPI (enums de statut). Revue de santé fin pré-V2 remédiée (lots A→D).
+
+**Prochaine grande étape : cadrage V2** (rouvrir ADR-0022 §3/§4/§5 + points D et Futur).

@@ -28,3 +28,4 @@ Ne pas contredire un ADR accepté sans en écrire un nouveau qui le remplace (st
 | [0021](0021-dedoublonnage-sourcing.md) | Dédoublonnage des annonces (dedupHash + suggestion exacte, fusion humaine) | Accepté |
 | [0022](0022-dettes-architecture-v2.md) | Dettes d'architecture à trancher en V2 (revue fin M3) | Proposé |
 | [0023](0023-rls-multi-tenant.md) | Row-Level Security multi-tenant (rôle runtime dédié, var de session, fail-closed) | Accepté |
+| [0024](0024-spa-ssr-false.md) | Front en SPA (ssr:false), serveur Nitro conservé pour le proxy (cookies) | Accepté |

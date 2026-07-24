@@ -81,7 +81,9 @@ Les domain events sont persistés dans **la même transaction** que l'agrégat, 
 
 ## Frontend
 
-- **Nuxt 4** (Vue 3, TypeScript), **Pinia**, SPA authentifiée (ADR-0009 amendé).
+- **Nuxt 4** (Vue 3, TypeScript), **Pinia**, **SPA `ssr:false`** authentifiée (ADR-0024, serveur
+  Nitro conservé pour le proxy `/api` + cookies) ; état serveur via **TanStack Query** ; types
+  dérivés du contrat OpenAPI.
 - Auth **JWT access + refresh**, les DEUX en cookies **httpOnly** posés/rotés/effacés par l'API (M2.0) — le JS ne voit jamais un token ; Bearer accepté en parallèle (outillage/tests) ; rotation single_use, révocation au logout.
 - Vues clés : kanban pipeline, « à faire aujourd'hui », fiche Piste (timeline), éditeur de brouillon, tableau de bord.
 

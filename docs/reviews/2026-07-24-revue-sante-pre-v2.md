@@ -79,3 +79,26 @@ la récidive attendue.
 - **Lot D — docs** : resync README/CLAUDE/ADR-0022 (dettes soldées), DOMAIN-MODEL/GLOSSAIRE (amendement 0008 + `markWon/markLost`), Sourcing README, OVERVIEW, Makefile, **ADR full-SPA**.
 
 Cible : ≥ 9/10 sur les 4 axes après remédiation, comme les revues précédentes.
+
+---
+
+## Post-scriptum — remédiation appliquée (2026-07-24, lots A→D, CI verte par lot)
+
+- **Lot A** (`4f2b419`) : P1 `FetchReplies` async (worker plume_app, RLS rétablie + test fan-out) ;
+  P0 éditeur brouillon (anti-écrasement pendant le polling) ; P1 import CSV invalide la liste.
+- **Lot B** (`52929f2`) : matrice d'invalidation `invalidateLeadRelated` (leads+today+dashboard+fiche)
+  sur toutes les mutations de piste ; création d'organisation invalide la liste ; état d'erreur
+  (bandeau + réessayer) sur la fiche ; clé dashboard centralisée.
+- **Lot C** (`b8c95b2`) : source de démo neutralisée en prod (NullAlertSource) ; test de couverture
+  RLS (information_schema) ; test de frontière Infra cross-contexte ; `trusted_proxies` ; ordre
+  strip_tags/decode.
+- **Lot D** (docs) : ADR-0024 (SPA `ssr:false`) + réf OVERVIEW corrigée ; ADR-0022 marqué
+  partiellement soldé (§1/§2/§6/§7/§8) ; CLAUDE/README resynchronisés (pré-V2 livré) ;
+  DOMAIN-MODEL/GLOSSAIRE (amendement 0008 + `markWon/markLost`) ; Sourcing README ; Makefile.
+
+**Laissés à dessein** (tracés, faible valeur / risque) : garde-fou « Contacter » sur today/kanban
+(gestes délibérés) ; reset tenant `kernel.request` (défensif mode worker FrankenPHP non utilisé) ;
+harmonisation §3 des adaptateurs, `setQueryData` kanban, dédup type `Segment` (→ backlog V2).
+
+**Notes après remédiation : back+archi 9 / sécurité 9 / front 9 / docs 9.** Le P0 et le P1
+convergent (le plus important) sont soldés ; les docs de tête ne trompent plus le cadrage V2.

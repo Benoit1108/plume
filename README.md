@@ -28,8 +28,14 @@ Un mini-CRM SaaS (multi-tenant dès l'architecture, mono-utilisatrice en V1) qui
   (tokens chiffrés au repos), **envoi** d'un brouillon relu depuis la vraie adresse,
   **captation des réponses** par threading (la piste passe en discussion, relance annulée),
   relances envoyées dans le fil ; auth par cookies **httpOnly**.
-- **Revues de santé** appliquées à chaque jalon (`docs/reviews/`), remédiations fin M1 et fin M2 incluses.
-- **Prochaine étape : M3 — ingestion d'annonces** (voir [`docs/ROADMAP.md`](docs/ROADMAP.md)).
+- **M3 — ingestion d'annonces : livré au complet** — contexte Sourcing (file de tri
+  accepter/fusionner/rejeter), flux RSS/Atom par tenant, relève des alertes email (label dédié),
+  parser LinkedIn fin, promotion cross-contexte par gateway.
+- **Phase pré-V2 : livrée** — RLS multi-tenant fail-closed (rôle runtime dédié, ADR-0023), mail
+  réel (Gmail), front **SPA `ssr:false`** + **TanStack Query** + types générés OpenAPI, poll async,
+  `AbstractStringIdType`.
+- **Revues de santé** appliquées à chaque jalon (`docs/reviews/`), remédiations fin M1/M2/M3 et fin pré-V2 incluses.
+- **Prochaine étape : cadrage V2** (voir [`docs/ROADMAP.md`](docs/ROADMAP.md)).
 
 ## Stack
 
@@ -55,7 +61,7 @@ plume/
 │  │  ├─ Drafting/           # Rédaction assistée (brouillons, gabarits, ACL IA)
 │  │  ├─ Account/            # tenancy, auth, profil
 │  │  ├─ Mailbox/            # Passerelle email (OAuth Gmail/Outlook, envoi, réponses)
-│  │  ├─ Sourcing/           # à venir (M3 ingestion d'annonces)
+│  │  ├─ Sourcing/           # ingestion d'annonces (RSS/Atom + alertes email, file de tri)
 │  │  └─ Shared/             # VOs communs, bus CQRS, exceptions domaine, tenancy
 │  ├─ config/doctrine/       # mapping XML (le domaine reste pur)
 │  └─ tests/                 # domaine (pur) + application (in-memory) + fonctionnels (Postgres)

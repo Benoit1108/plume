@@ -36,11 +36,12 @@ Piste (Aggregate Root)
 | Méthode | Effet | Event(s) |
 |---------|-------|----------|
 | `contact()` | marque la Piste contactée + **planifie la relance de cadence** | `LeadContacted`, `FollowUpScheduled` |
+| `returnToContact()` | correction (contact par erreur) : `CONTACTÉE → À_CONTACTER`, annule la relance auto, efface la date de contact (ADR-0008 amendé) | `LeadReturnedToContact` (+ `FollowUpCancelled`) |
 | `scheduleFollowUp(date)` | planifie/replanifie LA relance en attente | `FollowUpScheduled` |
 | `recordFollowUp()` | relance faite + planifie la suivante (cadence J+7/21/45) | `FollowUpSent`, `FollowUpScheduled` |
 | `recordReply()` | **annule la relance en attente**, passe en `EN_DISCUSSION` | `ReplyReceived`, `FollowUpCancelled` |
 | `moveToSampleTest()` | → `TEST_ECHANTILLON` | `LeadMovedToSampleTest` |
-| `win()` / `lose()` | états terminaux (annulent la relance en attente) | `LeadWon` / `LeadLost` (+ `FollowUpCancelled`) |
+| `markWon()` / `markLost()` | états terminaux (annulent la relance en attente) | `LeadWon` / `LeadLost` (+ `FollowUpCancelled`) |
 | `pause()` / `resume()` | met en veille (statut mémorisé) / réactive | `LeadPaused` / `LeadResumed` |
 | `addNote(texte)` | note manuelle | `NoteAdded` |
 
@@ -54,6 +55,7 @@ Piste (Aggregate Root)
 ```
 
 - Transition **automatique** : réponse entrante depuis `CONTACTÉE`/`RELANCÉE` → `EN_DISCUSSION` (déclenchée par la Passerelle email).
+- Transition de **correction** : `CONTACTÉE → À_CONTACTER` (`returnToContact()`, ADR-0008 amendé) — annule la relance auto, pour un « Contacter » cliqué par erreur.
 - `GAGNÉE` / `PERDUE` = terminaux → plus de relance planifiable.
 
 ### Invariants portés par `Piste`
@@ -94,7 +96,7 @@ Table append-only écrite par des handlers réagissant aux domain events (`Piste
 
 ## Domain events (colonne vertébrale du découplage)
 
-`LeadCreated` · `LeadContacted` · `FollowUpScheduled` · `FollowUpSent` · `FollowUpCancelled` · `ReplyReceived` · `LeadMovedToSampleTest` · `LeadWon` · `LeadLost` · `LeadPaused` · `LeadResumed` · `NoteAdded`
+`LeadCreated` · `LeadContacted` · `LeadReturnedToContact` · `FollowUpScheduled` · `FollowUpSent` · `FollowUpCancelled` · `ReplyReceived` · `LeadMovedToSampleTest` · `LeadWon` · `LeadLost` · `LeadPaused` · `LeadResumed` · `NoteAdded`
 
 Consommateurs : journal d'Interactions, KPIs du tableau de bord, progression/série, notifications.
 
