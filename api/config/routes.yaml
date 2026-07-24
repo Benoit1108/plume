@@ -21,3 +21,9 @@ api_account_password:
     path: /api/v1/account/password
     controller: App\Account\Infrastructure\Http\ChangePasswordController
     methods: [POST]
+
+# RGPD : suppression du compte courant (soft-delete + purge différée).
+api_account_delete:
+    path: /api/v1/account
+    controller: App\Account\Infrastructure\Http\DeleteAccountController
+    methods: [DELETE]

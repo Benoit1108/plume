@@ -35,6 +35,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'json')]
     private array $roles = [];
 
+    /**
+     * RGPD — demande de suppression de compte (soft-delete). Non nul ⇒ compte désactivé
+     * immédiatement (l'auth est refusée, la relève de fond s'arrête) ; purge physique après
+     * le délai de grâce (V2.0-a2).
+     */
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $deletionRequestedAt = null;
+
     public function __construct(Uuid $id, Uuid $tenantId, string $email)
     {
         if ('' === $email) {
@@ -93,5 +101,21 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function eraseCredentials(): void
     {
+    }
+
+    /** RGPD — marque le compte pour suppression (soft-delete). Idempotent : conserve la 1re demande. */
+    public function requestDeletion(\DateTimeImmutable $at): void
+    {
+        $this->deletionRequestedAt ??= $at;
+    }
+
+    public function isDeletionRequested(): bool
+    {
+        return null !== $this->deletionRequestedAt;
+    }
+
+    public function deletionRequestedAt(): ?\DateTimeImmutable
+    {
+        return $this->deletionRequestedAt;
     }
 }

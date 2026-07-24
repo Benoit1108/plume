@@ -29,7 +29,9 @@ final class FetchAllRepliesHandler
     {
         /** @var list<string> $tenants */
         $tenants = $this->connection->fetchFirstColumn(
-            "SELECT tenant_id FROM connected_mailbox WHERE status = 'CONNECTED'",
+            // RGPD : on ne relève plus rien pour un compte en cours de suppression (soft-delete).
+            "SELECT tenant_id FROM connected_mailbox WHERE status = 'CONNECTED'
+             AND tenant_id NOT IN (SELECT tenant_id FROM app_user WHERE deletion_requested_at IS NOT NULL)",
         );
         foreach ($tenants as $tenantId) {
             $this->commandBus->dispatch(new FetchReplies($tenantId), [new TransportNamesStamp(['async'])]);

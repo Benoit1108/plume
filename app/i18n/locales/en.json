@@ -444,6 +444,16 @@
       "tooShort": "The new password must be at least 8 characters.",
       "mismatch": "The two passwords don't match.",
       "generic": "Couldn't change the password."
+    },
+    "danger": {
+      "title": "Delete my account",
+      "intro": "Permanently deletes your account and all your data (leads, contacts, messages, drafts). Access is cut off immediately; the data is erased after a 30-day grace period.",
+      "button": "Delete my account",
+      "modalTitle": "Permanently delete the account?",
+      "modalIntro": "This action is irreversible. Enter your password to confirm.",
+      "passwordLabel": "Current password",
+      "confirm": "Delete permanently",
+      "done": "Account deleted. See you soon."
     }
   },
   "settings": {

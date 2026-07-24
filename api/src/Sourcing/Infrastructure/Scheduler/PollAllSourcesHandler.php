@@ -28,7 +28,9 @@ final class PollAllSourcesHandler
     {
         /** @var list<string> $tenants */
         $tenants = $this->connection->fetchFirstColumn(
-            'SELECT DISTINCT tenant_id FROM alert_feed WHERE active = true',
+            // RGPD : on ne relève plus rien pour un compte en cours de suppression (soft-delete).
+            'SELECT DISTINCT tenant_id FROM alert_feed WHERE active = true
+             AND tenant_id NOT IN (SELECT tenant_id FROM app_user WHERE deletion_requested_at IS NOT NULL)',
         );
         foreach ($tenants as $tenantId) {
             $this->commandBus->dispatch(new PollAlertSource($tenantId), [new TransportNamesStamp(['async'])]);

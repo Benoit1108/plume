@@ -16,6 +16,8 @@ security:
         login:
             pattern: ^/api/v1/login_check$
             stateless: true
+            # RGPD : refuse l'accès à un compte en cours de suppression (soft-delete).
+            user_checker: App\Account\Infrastructure\Security\AccountStatusChecker
             # Anti force brute : 5 tentatives / 15 min (par IP + identifiant).
             login_throttling:
                 max_attempts: 5
@@ -31,6 +33,7 @@ security:
             pattern: ^/api/v1/token/refresh$
             stateless: true
             provider: app_users
+            user_checker: App\Account\Infrastructure\Security\AccountStatusChecker
             refresh_jwt:
                 check_path: /api/v1/token/refresh
 
@@ -38,6 +41,7 @@ security:
             pattern: ^/api/v1
             stateless: true
             provider: app_users
+            user_checker: App\Account\Infrastructure\Security\AccountStatusChecker
             jwt: ~
 
     access_control:

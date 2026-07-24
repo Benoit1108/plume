@@ -9,5 +9,12 @@ export function useAccount() {
         method: 'POST',
         body: { currentPassword, newPassword },
       }),
+
+    /** DELETE /account — RGPD : suppression du compte (soft-delete). 422 si le mot de passe est faux. */
+    deleteAccount: (currentPassword: string) =>
+      api<unknown>('/api/v1/account', {
+        method: 'DELETE',
+        body: { currentPassword },
+      }),
   }
 }
