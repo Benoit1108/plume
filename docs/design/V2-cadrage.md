@@ -7,6 +7,12 @@
 - **Périmètre V2 retenu (arbitrage Benoit)** : les 4 piliers — ouverture SaaS multi-utilisateurs,
   facturation/abonnements, backlog gardé (Point D + Futur + dettes ADR-0022 §3/§4/§5), enrichissement
   produit.
+- **Décisions actées (2026-07-24)** :
+  - **Modèle de compte : 1 compte = 1 traductrice** (un tenant = une personne, seule). Le workspace
+    multi-utilisateurs (équipes/rôles) est **différé** à un jalon ultérieur si la demande vient →
+    `app_user` reste simple, ouverture plus rapide.
+  - **Hébergement : non tranché** → V2.0 sera cadrée **agnostique** (abstraire ce qui diffère entre
+    PaaS FR et VPS : store des rate-limiters, secrets, sauvegardes, worker-mode) ; choix au 1er déploiement.
 
 ## Vision
 
@@ -41,7 +47,7 @@ Rien de public ne peut sortir sans ça.
 
 ### V2.1 — Ouverture des comptes (inscription & workspace)
 - Inscription publique (création de compte + tenant + première boîte), vérification email.
-- Modèle **workspace** : un tenant = une traductrice (ou une petite équipe ?) — **à décider**.
+- **1 compte = 1 traductrice** (décidé) : pas de gestion d'équipe en V2, `app_user` reste simple.
 - Onboarding guidé (connexion boîte, premier flux, import annuaire).
 - Gestion du compte (mot de passe déjà là ; ajout : suppression de compte RGPD).
 
@@ -67,12 +73,12 @@ Rien de public ne peut sortir sans ça.
 
 ## Décisions produit / tech à trancher (avant de détailler V2.0)
 
-1. **Hébergement de production** — VPS (Docker Compose/Swarm) vs PaaS FR (Scalingo/Clever Cloud) ?
-   Impacte : FrankenPHP worker-mode (→ reset tenant), store des rate-limiters (Redis multi-instances),
-   sauvegardes/chiffrement DB, où vit `MAILBOX_ENCRYPTION_KEY`.
-2. **Modèle de compte** — 1 tenant = 1 personne, ou workspace multi-utilisateurs (rôles) ? (change
-   `app_user`, l'auth, l'UI).
-3. **Fournisseur de paiement** + modèle de prix (plans, gratuité, essai).
+1. **Hébergement de production** — ⏳ *non tranché → V2.0 cadrée agnostique.* VPS (Docker Compose/Swarm)
+   vs PaaS FR (Scalingo/Clever Cloud). Impacte : FrankenPHP worker-mode (→ reset tenant), store des
+   rate-limiters (Redis multi-instances), sauvegardes/chiffrement DB, où vit `MAILBOX_ENCRYPTION_KEY`.
+   Décision au 1er déploiement.
+2. **Modèle de compte** — ✅ *décidé : 1 compte = 1 traductrice* (workspace multi-utilisateurs différé).
+3. **Fournisseur de paiement** + modèle de prix (plans, gratuité, essai). *(V2.2, pas bloquant pour V2.0.)*
 4. **Nom définitif** du produit (bloque le domaine, les apps OAuth, la marque).
 5. **Validation des apps OAuth** Google/Microsoft (processus de vérification = délai à anticiper).
 6. **RGPD** : as-tu besoin d'un DPO / d'un hébergeur certifié santé/HDS (non a priori) ? DPA à signer.
