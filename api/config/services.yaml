@@ -1,4 +1,8 @@
 parameters:
+    # Store du cache/rate-limiters (hébergement agnostique, V2.0-c) : filesystem par défaut.
+    # Multi-instances : surcharger `app.cache_adapter` en `cache.adapter.redis` (prod config) + REDIS_DSN.
+    app.cache_adapter: 'cache.adapter.filesystem'
+    env(REDIS_DSN): 'redis://localhost'
     # Rédaction assistée : clé absente => générateur local (canned), coût zéro.
     env(ANTHROPIC_API_KEY): ''
     env(DRAFTING_MODEL): 'claude-sonnet-5'
@@ -36,6 +40,8 @@ services:
             - '../src/Kernel.php'
             # Le domaine est du PHP pur : pas de services, pas d'autowiring.
             - '../src/*/Domain/'
+            # Garde-fou prod : arguments scalaires + enregistrée uniquement en when@prod.
+            - '../src/Shared/Infrastructure/Http/ProductionConfigGuard.php'
 
     # Buses CQRS : les implémentations Messenger réalisent les ports de la couche Application.
     App\Shared\Application\Command\CommandBus: '@App\Shared\Infrastructure\Bus\MessengerCommandBus'
@@ -203,3 +209,11 @@ when@prod:
             arguments:
                 $source: '@App\Sourcing\Infrastructure\Source\RssAlertSource'
                 $demoSource: '@App\Sourcing\Infrastructure\Source\NullAlertSource'
+
+        # Fail-fast si des secrets critiques sont restés sur le placeholder de dev (V2.0-c).
+        App\Shared\Infrastructure\Http\ProductionConfigGuard:
+            arguments:
+                $appSecret: '%env(APP_SECRET)%'
+                $jwtPassphrase: '%env(JWT_PASSPHRASE)%'
+            tags:
+                - { name: kernel.event_listener, event: kernel.request, priority: 8192 }

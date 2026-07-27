@@ -44,20 +44,16 @@ security:
             user_checker: App\Account\Infrastructure\Security\AccountStatusChecker
             jwt: ~
 
-    access_control:
-        - { path: ^/api/v1/login_check$, roles: PUBLIC_ACCESS }
-        - { path: ^/api/v1/token/(refresh|invalidate)$, roles: PUBLIC_ACCESS }
-        # /docs public en dev/test uniquement (surchargé en prod ci-dessous).
-        - { path: ^/api/(v1/)?docs, roles: PUBLIC_ACCESS }
-        - { path: ^/api/v1, roles: ROLE_USER }
+    # `access_control` est défini PAR ENVIRONNEMENT (jamais ici en base + un `when@` simultanément :
+    # Symfony refuse de « surcharger » ce nœud liste — sinon le conteneur PROD ne compile pas).
+    # Seule différence prod : /docs (contrat OpenAPI) n'est pas public.
 
-when@prod:
+when@dev:
     security:
-        # En prod, le contrat OpenAPI n'est pas public : la liste remplace celle du dessus.
         access_control:
             - { path: ^/api/v1/login_check$, roles: PUBLIC_ACCESS }
             - { path: ^/api/v1/token/(refresh|invalidate)$, roles: PUBLIC_ACCESS }
-            - { path: ^/api/(v1/)?docs, roles: ROLE_USER }
+            - { path: ^/api/(v1/)?docs, roles: PUBLIC_ACCESS }
             - { path: ^/api/v1, roles: ROLE_USER }
 
 when@test:
@@ -66,3 +62,17 @@ when@test:
             Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface:
                 algorithm: auto
                 cost: 4
+        access_control:
+            - { path: ^/api/v1/login_check$, roles: PUBLIC_ACCESS }
+            - { path: ^/api/v1/token/(refresh|invalidate)$, roles: PUBLIC_ACCESS }
+            - { path: ^/api/(v1/)?docs, roles: PUBLIC_ACCESS }
+            - { path: ^/api/v1, roles: ROLE_USER }
+
+when@prod:
+    security:
+        # En prod, le contrat OpenAPI n'est PAS public (docs = ROLE_USER).
+        access_control:
+            - { path: ^/api/v1/login_check$, roles: PUBLIC_ACCESS }
+            - { path: ^/api/v1/token/(refresh|invalidate)$, roles: PUBLIC_ACCESS }
+            - { path: ^/api/(v1/)?docs, roles: ROLE_USER }
+            - { path: ^/api/v1, roles: ROLE_USER }

@@ -114,3 +114,11 @@ when@prod:
             result_cache_driver:
                 type: pool
                 pool: doctrine.result_cache_pool
+    # Pools de cache Doctrine (recette standard) — définis ici, sinon le conteneur prod ne compile pas.
+    framework:
+        cache:
+            pools:
+                doctrine.result_cache_pool:
+                    adapter: cache.app
+                doctrine.system_cache_pool:
+                    adapter: cache.system
