@@ -129,9 +129,12 @@ jobs:
         run: npm ci
 
       # security : BLOQUANT sur les dépendances runtime, informatif sur les devDeps
-      # (vulnérabilités transitives d'outillage — revue fin M1).
-      - name: Security audit (runtime deps — blocking)
-        run: npm audit --omit=dev --audit-level=high
+      # (vulnérabilités transitives d'outillage — revue fin M1). Le gate bloquant passe par un
+      # script (équivalent de `npm audit --omit=dev --audit-level=high`) qui tolère UNIQUEMENT des
+      # advisories high/critical SANS correctif upstream, tracées et datées dans le script — et
+      # bloque toute autre vulnérabilité runtime. Cf. app/scripts/check-npm-audit.mjs.
+      - name: Security audit (runtime deps — blocking, hors exceptions tracées)
+        run: node scripts/check-npm-audit.mjs
       - name: Security audit (all deps — informative)
         run: npm audit --audit-level=high
         continue-on-error: true
