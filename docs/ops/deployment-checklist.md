@@ -18,6 +18,7 @@ V2.0-c : la config est prête, cette page dit **quoi surcharger** avant d'ouvrir
 | `APP_DB_PASSWORD` | Mot de passe du rôle runtime `plume_app` | mot de passe fort ; répercuter dans `APP_DATABASE_URL` |
 | Mot de passe du rôle propriétaire `plume` | Migrations/console/scheduler | mot de passe fort ; répercuter dans `DATABASE_URL` |
 | `GOOGLE_CLIENT_SECRET` / `MICROSOFT_CLIENT_SECRET` | OAuth mail réel | consoles Google/Microsoft |
+| `ADMIN_DATABASE_URL` | Connexion back-office (rôle **propriétaire**, réservée aux routes ROLE_ADMIN) | répercuter le mot de passe fort du rôle `plume` |
 
 - Ne **jamais** committer ces valeurs (`.env.local` / secrets de la plateforme ; `.env` = défauts de dev).
 - `APP_ENV=prod`, `APP_DEBUG=0`.
@@ -43,6 +44,9 @@ app:db:provision-app-role           # crée/actualise plume_app (DML only, soumi
 
 Puis l'**API + les workers** tournent sous `plume_app` (runtime, RLS active). Sauvegardes DB
 **chiffrées** + testées (restauration). Rotation périodique des secrets ci-dessus.
+
+Créer le (ou les) **administrateur du back-office** : `php bin/console app:admin:create <email>`
+(compte hors tenant, ROLE_ADMIN — jamais créé par l'inscription publique).
 
 ## 4. Processus à lancer
 

@@ -37,6 +37,40 @@
       "error": "This verification link is invalid or expired."
     }
   },
+  "admin": {
+    "eyebrow": "Back office",
+    "title": "Administration",
+    "overview": {
+      "title": "Overview",
+      "accounts": "Accounts",
+      "accountsDetail": "{unverified} unverified · {deleting} pending deletion",
+      "activity": "Leads",
+      "activityDetail": "{orgs} organizations · {sent} emails sent",
+      "mailboxes": "Connected inboxes",
+      "mailboxesError": "{count} in error",
+      "queues": "Failed queue",
+      "queuesDetail": "Failed Messenger messages (0 = healthy)"
+    },
+    "accounts": {
+      "title": "Accounts",
+      "search": "Search by email",
+      "email": "Email",
+      "status": "Status",
+      "orgs": "Organizations",
+      "leads": "Leads",
+      "mailbox": "Inbox",
+      "actions": "Actions",
+      "empty": "No accounts.",
+      "active": "Active",
+      "unverified": "Email unverified",
+      "deleting": "Deletion requested on {date}",
+      "requestDeletion": "Request deletion of account {email}",
+      "deletionRequested": "Deletion requested (purge after 30 days).",
+      "confirmTitle": "Request account deletion?",
+      "confirmBody": "The account {email} will be deactivated immediately and purged after 30 days (support-side GDPR request). This action is recorded in the audit log.",
+      "confirmAction": "Request deletion"
+    }
+  },
   "notifications": {
     "title": "Notifications",
     "aria": "Notifications",
@@ -86,6 +120,7 @@
   },
   "nav": {
     "menu": "Navigation",
+    "admin": "Back office",
     "openMenu": "Open menu",
     "home": "Home",
     "collapse": "Collapse menu",

@@ -7,6 +7,7 @@ namespace App\Account\Infrastructure\Http;
 use App\Account\Infrastructure\Auth\RefreshToken;
 use App\Account\Infrastructure\Persistence\User;
 use App\Shared\Application\Clock;
+use App\Shared\Infrastructure\Audit\AuditLogger;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Cookie;
@@ -35,6 +36,7 @@ final class DeleteAccountController
         private readonly EntityManagerInterface $em,
         private readonly Clock $clock,
         private readonly RateLimiterFactory $accountPasswordLimiter,
+        private readonly AuditLogger $audit,
     ) {
     }
 
@@ -64,6 +66,9 @@ final class DeleteAccountController
             $this->em->remove($token);
         }
         $this->em->flush();
+
+        // Piste d'audit hors tenant (survit à la purge — preuve RGPD).
+        $this->audit->record($user->getUserIdentifier(), 'account.deletion_requested', $user->getTenantId()->toRfc4122());
 
         $response = new JsonResponse(null, Response::HTTP_NO_CONTENT);
         $response->headers->clearCookie('plume_jwt', '/', null, true, true, Cookie::SAMESITE_LAX);

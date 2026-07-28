@@ -11,6 +11,8 @@ export const queryKeys = {
   templates: ['templates'] as const,
   candidateQueue: ['candidate-queue'] as const,
   notifications: ['notifications'] as const,
+  adminOverview: ['admin', 'overview'] as const,
+  adminAccounts: ['admin', 'accounts'] as const,
   organizations: ['organizations'] as const,
   leads: ['leads'] as const,
   organization: (id: string) => ['organization', id] as const,

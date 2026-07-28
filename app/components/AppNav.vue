@@ -19,6 +19,8 @@ const nav = computed((): { label: string, to: string, icon: string, badge?: numb
   { label: t('nav.templates'), to: '/templates', icon: 'i-lucide-file-text' },
   { label: t('nav.settings'), to: '/settings', icon: 'i-lucide-settings' },
   { label: t('nav.account'), to: '/account', icon: 'i-lucide-circle-user' },
+  // Back-office : visible pour les admins seulement (l'autorité reste l'API — ROLE_ADMIN).
+  ...(auth.isAdmin ? [{ label: t('nav.admin'), to: '/admin', icon: 'i-lucide-shield' }] : []),
 ])
 </script>
 

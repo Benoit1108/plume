@@ -1,3 +1,21 @@
+# Back-office (ROLE_ADMIN — cf. access_control) : vue d'ensemble, comptes, actions support.
+api_admin_overview:
+    path: /api/v1/admin/overview
+    controller: App\Admin\Infrastructure\Http\AdminOverviewController
+    methods: [GET]
+
+api_admin_accounts:
+    path: /api/v1/admin/accounts
+    controller: App\Admin\Infrastructure\Http\AdminAccountsController
+    methods: [GET]
+
+api_admin_account_request_deletion:
+    path: /api/v1/admin/accounts/{tenantId}/request-deletion
+    controller: App\Admin\Infrastructure\Http\AdminRequestAccountDeletionController
+    methods: [POST]
+    requirements:
+        tenantId: '[0-9a-f\-]{36}'
+
 # Sonde de santé (PUBLIC) pour l'hébergeur / le monitoring.
 api_health:
     path: /api/v1/health

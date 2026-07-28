@@ -26,6 +26,10 @@ final class MeController
         $user = $this->security->getUser()
             ?? throw new \LogicException('MeController behind the firewall: a user is always present.');
 
-        return new JsonResponse(['email' => $user->getUserIdentifier()]);
+        return new JsonResponse([
+            'email' => $user->getUserIdentifier(),
+            // Le front n'affiche l'entrée back-office qu'aux admins (l'autorité reste l'API : ROLE_ADMIN).
+            'isAdmin' => \in_array('ROLE_ADMIN', $user->getRoles(), true),
+        ]);
     }
 }

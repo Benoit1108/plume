@@ -52,6 +52,8 @@ jobs:
           --health-retries 10
     env:
       DATABASE_URL: "postgresql://plume:plume@127.0.0.1:5432/plume?serverVersion=17&charset=utf8"
+      # Connexion back-office (owner) : même hôte CI — le défaut .env pointe sur `database` (compose).
+      ADMIN_DATABASE_URL: "postgresql://plume:plume@127.0.0.1:5432/plume?serverVersion=17&charset=utf8"
     steps:
       - uses: actions/checkout@v7
       - uses: shivammathur/setup-php@v2

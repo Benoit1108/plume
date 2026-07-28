@@ -17,6 +17,15 @@ export const useAuthStore = defineStore('auth', () => {
     maxAge: THIRTY_DAYS,
   })
 
+  // Témoin non sensible « probablement admin » : n'affiche l'entrée back-office qu'aux admins.
+  // L'AUTORITÉ reste l'API (routes /admin en ROLE_ADMIN → 403 si forgé).
+  const isAdmin = useCookie<boolean>('plume_admin', {
+    default: () => false,
+    sameSite: 'lax',
+    secure: true,
+    maxAge: THIRTY_DAYS,
+  })
+
   // Migration M2.0 : purge des anciens cookies de tokens lisibles par JS.
   const legacyToken = useCookie<string | null>('plume_token')
   const legacyRefresh = useCookie<string | null>('plume_refresh')
@@ -31,8 +40,9 @@ export const useAuthStore = defineStore('auth', () => {
       body: { email: mail, password },
     })
     // Les cookies httpOnly sont posés par la réponse ; on demande à l'API qui on est.
-    const me = await $fetch<{ email: string }>('/api/v1/me')
+    const me = await $fetch<{ email: string, isAdmin?: boolean }>('/api/v1/me')
     email.value = me.email
+    isAdmin.value = me.isAdmin === true
   }
 
   // Mutex : plusieurs 401 simultanés partagent LE même refresh (indispensable
@@ -63,8 +73,9 @@ export const useAuthStore = defineStore('auth', () => {
       .catch(() => { /* déjà expiré/révoqué : rien à faire */ })
 
     email.value = null
+    isAdmin.value = false
     void navigateTo('/login')
   }
 
-  return { email, isAuthenticated, login, tryRefresh, logout }
+  return { email, isAdmin, isAuthenticated, login, tryRefresh, logout }
 })

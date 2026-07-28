@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Account\Infrastructure\Scheduler;
 
+use App\Shared\Infrastructure\Audit\AuditLogger;
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -25,6 +26,7 @@ final class PurgeAccountHandler
     public function __construct(
         private readonly Connection $connection,
         private readonly LoggerInterface $logger,
+        private readonly AuditLogger $audit,
     ) {
     }
 
@@ -51,8 +53,10 @@ final class PurgeAccountHandler
 
         $this->connection->executeStatement('DELETE FROM app_user WHERE tenant_id = :tenant', ['tenant' => $message->tenantId]);
 
-        // Traçabilité RGPD (sans PII : seul l'identifiant technique du tenant).
+        // Traçabilité RGPD (sans PII : seul l'identifiant technique du tenant) + piste d'audit
+        // hors tenant, qui SURVIT à cette purge (preuve que l'effacement a eu lieu).
         $this->logger->info('Purged deleted account after grace period.', ['tenant_id' => $message->tenantId]);
+        $this->audit->record('system', 'account.purged', $message->tenantId);
     }
 
     /**

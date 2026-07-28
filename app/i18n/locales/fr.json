@@ -37,6 +37,40 @@
       "error": "Ce lien de vérification est invalide ou expiré."
     }
   },
+  "admin": {
+    "eyebrow": "Back-office",
+    "title": "Administration",
+    "overview": {
+      "title": "Vue d'ensemble",
+      "accounts": "Comptes",
+      "accountsDetail": "{unverified} non vérifié(s) · {deleting} en suppression",
+      "activity": "Pistes",
+      "activityDetail": "{orgs} organisations · {sent} emails envoyés",
+      "mailboxes": "Boîtes connectées",
+      "mailboxesError": "{count} en erreur",
+      "queues": "File en échec",
+      "queuesDetail": "Messages Messenger en échec (0 = sain)"
+    },
+    "accounts": {
+      "title": "Comptes",
+      "search": "Rechercher par email",
+      "email": "Email",
+      "status": "Statut",
+      "orgs": "Organisations",
+      "leads": "Pistes",
+      "mailbox": "Boîte",
+      "actions": "Actions",
+      "empty": "Aucun compte.",
+      "active": "Actif",
+      "unverified": "Email non vérifié",
+      "deleting": "Suppression demandée le {date}",
+      "requestDeletion": "Demander la suppression du compte {email}",
+      "deletionRequested": "Suppression demandée (purge après 30 jours).",
+      "confirmTitle": "Demander la suppression du compte ?",
+      "confirmBody": "Le compte {email} sera désactivé immédiatement et purgé après 30 jours (demande RGPD côté support). Cette action est tracée au journal d'audit.",
+      "confirmAction": "Demander la suppression"
+    }
+  },
   "notifications": {
     "title": "Notifications",
     "aria": "Notifications",
@@ -86,6 +120,7 @@
   },
   "nav": {
     "menu": "Navigation",
+    "admin": "Back-office",
     "openMenu": "Ouvrir le menu",
     "home": "Accueil",
     "collapse": "Réduire le menu",

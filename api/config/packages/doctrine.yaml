@@ -1,14 +1,24 @@
 doctrine:
     dbal:
-        url: '%env(resolve:DATABASE_URL)%'
-        profiling_collect_backtrace: '%kernel.debug%'
-        # Tables gérées HORS métadonnées ORM (migrations explicites / framework) : on les
-        # soustrait au diff pour qu'il ne propose jamais de les DROP.
-        #   - interaction        : projection append-only (journal), écrite/lue en DBAL pur
-        #   - messenger_messages : transport Messenger (outbox transactionnel)
-        #   - raw_alert          : brut des annonces ingérées (support Sourcing, DBAL pur)
-        #   - notification       : projection du centre de notifications (DBAL pur, V2)
-        schema_filter: '~^(?!(messenger_messages|interaction|raw_alert|notification)$)~'
+        default_connection: default
+        connections:
+            default:
+                url: '%env(resolve:DATABASE_URL)%'
+                profiling_collect_backtrace: '%kernel.debug%'
+                # Tables gérées HORS métadonnées ORM (migrations explicites / framework) : on les
+                # soustrait au diff pour qu'il ne propose jamais de les DROP.
+                #   - interaction        : projection append-only (journal), écrite/lue en DBAL pur
+                #   - messenger_messages : transport Messenger (outbox transactionnel)
+                #   - raw_alert          : brut des annonces ingérées (support Sourcing, DBAL pur)
+                #   - notification       : projection du centre de notifications (DBAL pur, V2)
+                #   - audit_log          : journal d'audit hors tenant (DBAL pur, V2 back-office)
+                schema_filter: '~^(?!(messenger_messages|interaction|raw_alert|notification|audit_log)$)~'
+            # Connexion RÉSERVÉE au back-office (contexte Admin) : rôle PROPRIÉTAIRE, contourne la
+            # RLS — l'admin est un lecteur CROSS-TENANT légitime, même catégorie que le scheduler
+            # (ADR-0023). Injectée UNIQUEMENT dans les services Admin (routes ROLE_ADMIN) via
+            # l'alias d'autowiring `Connection $adminConnection`. Lazy : ouverte seulement si utilisée.
+            admin:
+                url: '%env(resolve:ADMIN_DATABASE_URL)%'
         types:
             lead_id: App\Prospecting\Infrastructure\Persistence\Doctrine\Type\LeadIdType
             tenant_id: App\Shared\Infrastructure\Persistence\Doctrine\Type\TenantIdType
@@ -104,7 +114,11 @@ doctrine:
 when@test:
     doctrine:
         dbal:
-            dbname_suffix: '_test%env(default::TEST_TOKEN)%'
+            connections:
+                default:
+                    dbname_suffix: '_test%env(default::TEST_TOKEN)%'
+                admin:
+                    dbname_suffix: '_test%env(default::TEST_TOKEN)%'
 
 when@prod:
     doctrine:

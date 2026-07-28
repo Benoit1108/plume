@@ -56,6 +56,7 @@ when@dev:
             - { path: ^/api/v1/token/(refresh|invalidate)$, roles: PUBLIC_ACCESS }
             - { path: ^/api/v1/account/password/(forgot|reset)$, roles: PUBLIC_ACCESS }
             - { path: ^/api/v1/(register|account/verify-email)$, roles: PUBLIC_ACCESS }
+            - { path: ^/api/v1/admin, roles: ROLE_ADMIN }
             - { path: ^/api/(v1/)?docs, roles: PUBLIC_ACCESS }
             - { path: ^/api/v1, roles: ROLE_USER }
 
@@ -71,6 +72,7 @@ when@test:
             - { path: ^/api/v1/token/(refresh|invalidate)$, roles: PUBLIC_ACCESS }
             - { path: ^/api/v1/account/password/(forgot|reset)$, roles: PUBLIC_ACCESS }
             - { path: ^/api/v1/(register|account/verify-email)$, roles: PUBLIC_ACCESS }
+            - { path: ^/api/v1/admin, roles: ROLE_ADMIN }
             - { path: ^/api/(v1/)?docs, roles: PUBLIC_ACCESS }
             - { path: ^/api/v1, roles: ROLE_USER }
 
@@ -83,5 +85,6 @@ when@prod:
             - { path: ^/api/v1/token/(refresh|invalidate)$, roles: PUBLIC_ACCESS }
             - { path: ^/api/v1/account/password/(forgot|reset)$, roles: PUBLIC_ACCESS }
             - { path: ^/api/v1/(register|account/verify-email)$, roles: PUBLIC_ACCESS }
+            - { path: ^/api/v1/admin, roles: ROLE_ADMIN }
             - { path: ^/api/(v1/)?docs, roles: ROLE_USER }
             - { path: ^/api/v1, roles: ROLE_USER }
