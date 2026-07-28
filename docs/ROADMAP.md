@@ -113,11 +113,16 @@ Fondations techniques.
   `io` + worker dédié (ADR-0022 §5) ; **préparation déploiement agnostique** (Redis-ready, fail-fast
   secrets prod, compilation prod — `docs/ops/deployment-checklist.md`). Revue de santé fin V2.0 appliquée.
 - [ ] RGPD (volet documentaire) : **registre de traitement + DPA** (sous-traitants Anthropic/Google/Microsoft/hébergeur).
-- [ ] **V2.1** Ouverture des comptes : inscription publique + onboarding (1 compte = 1 traductrice).
+- [ ] **V2.1** Ouverture des comptes : socle (mot de passe oublié, emails transactionnels, vérif
+      email, health, pages légales) → inscription publique + onboarding (1 compte = 1 traductrice).
+- [ ] **Back-office / Admin** : gestion des comptes/tenants, demandes RGPD, métriques, statut système.
+- [ ] **Centre de notifications** : in-app (relance due, réponse, boîte déconnectée, à trier…) + digests email.
 - [ ] **V2.2** Abonnement SaaS : plans + quotas + paiement (≠ facturation client).
-- [ ] Pipeline **configurable** (statuts personnalisables).
-- [ ] **Séquences** de relance multi-étapes.
-- [ ] **Annuaire** pré-rempli (éditeurs FR, labos AV via ATAA, agences).
+- [ ] **V2.3** Enrichissement : pipeline **configurable**, **séquences** de relance, **annuaire**
+      pré-rempli, parsers ProZ/TC + Outlook réel, dashboard enrichi.
+
+> Détail + découpage complet + propositions + TODO Benoit : [`docs/design/V2-plan-directeur.md`](design/V2-plan-directeur.md)
+> et [`docs/ops/TODO-benoit.md`](ops/TODO-benoit.md).
 
 ---
 
