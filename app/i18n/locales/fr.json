@@ -20,6 +20,17 @@
       "invalidToken": "Ce lien de réinitialisation est invalide ou expiré. Refaites une demande."
     }
   },
+  "legal": {
+    "draft": "⚠️ Contenu provisoire — à compléter avant l'ouverture publique.",
+    "terms": {
+      "title": "Conditions générales d'utilisation",
+      "body": "Les conditions générales d'utilisation seront précisées ici."
+    },
+    "privacy": {
+      "title": "Politique de confidentialité",
+      "body": "La politique de confidentialité (données collectées, sous-traitants, droits RGPD, rétention) sera précisée ici."
+    }
+  },
   "theme": {
     "toLight": "Passer au thème clair",
     "toDark": "Passer au thème sombre"

@@ -26,7 +26,10 @@ V2.0-c : la config est prête, cette page dit **quoi surcharger** avant d'ouvrir
 
 - `TRUSTED_PROXIES` = IP/réseau du proxy same-origin devant l'API (sinon `getClientIp()` = IP du
   proxy → rate-limiting par IP effondré). Défaut loopback OK si proxy sur le même hôte.
-- `CORS_ALLOW_ORIGIN`, `DEFAULT_URI`, les `*_REDIRECT_URI` OAuth = domaine de prod (HTTPS).
+- `CORS_ALLOW_ORIGIN`, `DEFAULT_URI`, `APP_FRONTEND_URL`, les `*_REDIRECT_URI` OAuth = domaine de prod (HTTPS).
+- **`MAILER_DSN`** = transport des emails SYSTÈME (vérification, reset de mot de passe…). Défaut
+  `null://null` (aucun envoi) → **obligatoire en prod** (SMTP/API, ex. `smtp://…`), + `MAIL_FROM`.
+- **Sonde de santé** : `GET /api/v1/health` (public, 200/503) pour le load-balancer / monitoring.
 
 ## 3. Base de données (deux rôles, RLS — ADR-0023)
 

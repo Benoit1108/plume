@@ -1,9 +1,9 @@
-// Pages accessibles SANS être connecté (login + parcours mot de passe oublié).
+// Pages accessibles SANS être connecté (login + mot de passe oublié + pages légales).
 const PUBLIC_PAGES = new Set(['/login', '/forgot-password', '/reset-password'])
 
 export default defineNuxtRouteMiddleware((to) => {
   const auth = useAuthStore()
-  const isPublicPage = PUBLIC_PAGES.has(to.path)
+  const isPublicPage = PUBLIC_PAGES.has(to.path) || to.path.startsWith('/legal/')
 
   if (!auth.isAuthenticated && !isPublicPage) {
     return navigateTo('/login')

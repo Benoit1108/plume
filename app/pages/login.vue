@@ -57,6 +57,12 @@ async function onSubmit(): Promise<void> {
           {{ t('auth.forgotPassword') }}
         </NuxtLink>
       </form>
+
+      <div class="mt-4 flex justify-center gap-3 text-xs text-muted">
+        <NuxtLink to="/legal/terms" class="hover:text-default">{{ t('legal.terms.title') }}</NuxtLink>
+        <span>·</span>
+        <NuxtLink to="/legal/privacy" class="hover:text-default">{{ t('legal.privacy.title') }}</NuxtLink>
+      </div>
     </UCard>
   </div>
 </template>

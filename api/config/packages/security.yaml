@@ -51,6 +51,7 @@ security:
 when@dev:
     security:
         access_control:
+            - { path: ^/api/v1/health$, roles: PUBLIC_ACCESS }
             - { path: ^/api/v1/login_check$, roles: PUBLIC_ACCESS }
             - { path: ^/api/v1/token/(refresh|invalidate)$, roles: PUBLIC_ACCESS }
             - { path: ^/api/v1/account/password/(forgot|reset)$, roles: PUBLIC_ACCESS }
@@ -64,6 +65,7 @@ when@test:
                 algorithm: auto
                 cost: 4
         access_control:
+            - { path: ^/api/v1/health$, roles: PUBLIC_ACCESS }
             - { path: ^/api/v1/login_check$, roles: PUBLIC_ACCESS }
             - { path: ^/api/v1/token/(refresh|invalidate)$, roles: PUBLIC_ACCESS }
             - { path: ^/api/v1/account/password/(forgot|reset)$, roles: PUBLIC_ACCESS }
@@ -74,6 +76,7 @@ when@prod:
     security:
         # En prod, le contrat OpenAPI n'est PAS public (docs = ROLE_USER).
         access_control:
+            - { path: ^/api/v1/health$, roles: PUBLIC_ACCESS }
             - { path: ^/api/v1/login_check$, roles: PUBLIC_ACCESS }
             - { path: ^/api/v1/token/(refresh|invalidate)$, roles: PUBLIC_ACCESS }
             - { path: ^/api/v1/account/password/(forgot|reset)$, roles: PUBLIC_ACCESS }

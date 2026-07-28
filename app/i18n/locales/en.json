@@ -20,6 +20,17 @@
       "invalidToken": "This reset link is invalid or expired. Please request a new one."
     }
   },
+  "legal": {
+    "draft": "⚠️ Draft content — to be completed before public launch.",
+    "terms": {
+      "title": "Terms of Service",
+      "body": "The terms of service will be detailed here."
+    },
+    "privacy": {
+      "title": "Privacy Policy",
+      "body": "The privacy policy (collected data, subprocessors, GDPR rights, retention) will be detailed here."
+    }
+  },
   "theme": {
     "toLight": "Switch to light theme",
     "toDark": "Switch to dark theme"
