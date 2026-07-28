@@ -36,7 +36,14 @@ final class TenantScope
         $this->setSessionTenant($tenantId->toString());
     }
 
-    /** Remet à zéro : contexte vidé + filtre désactivé + variable RLS effacée (fail-closed). */
+    /**
+     * Remet à zéro : contexte vidé + filtre désactivé + variable RLS effacée (fail-closed).
+     *
+     * La variable de session n'est réinitialisée QUE si la connexion est déjà ouverte : inutile
+     * d'OUVRIR une connexion juste pour l'effacer sur une requête non tenantée (/docs, health-check,
+     * préflight) — une connexion fraîche démarre sans `app.current_tenant`. Sur une connexion réutilisée
+     * (FrankenPHP), elle est bien ouverte → on efface l'ardoise du tenant précédent (anti-fuite).
+     */
     public function clear(): void
     {
         $this->context->clear();
@@ -44,7 +51,9 @@ final class TenantScope
         if ($filters->isEnabled('tenant')) {
             $filters->disable('tenant');
         }
-        $this->setSessionTenant('');
+        if ($this->connection->isConnected()) {
+            $this->setSessionTenant('');
+        }
     }
 
     private function setSessionTenant(string $value): void

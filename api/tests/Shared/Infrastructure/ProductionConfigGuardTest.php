@@ -25,7 +25,7 @@ final class ProductionConfigGuardTest extends TestCase
 
     public function testRejectsPlaceholderAppSecret(): void
     {
-        $guard = new ProductionConfigGuard('change_me_in_env_local', 'a-real-passphrase');
+        $guard = new ProductionConfigGuard('change_me_in_env_local', 'a-real-passphrase', 'a-real-db-password');
 
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessageMatches('/APP_SECRET/');
@@ -34,16 +34,25 @@ final class ProductionConfigGuardTest extends TestCase
 
     public function testRejectsEmptyJwtPassphrase(): void
     {
-        $guard = new ProductionConfigGuard('a-real-secret', '');
+        $guard = new ProductionConfigGuard('a-real-secret', '', 'a-real-db-password');
 
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessageMatches('/JWT_PASSPHRASE/');
         $guard($this->event());
     }
 
+    public function testRejectsDefaultDbPassword(): void
+    {
+        $guard = new ProductionConfigGuard('a-real-secret', 'a-real-passphrase', 'plume_app');
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessageMatches('/APP_DB_PASSWORD/');
+        $guard($this->event());
+    }
+
     public function testPassesWithRealSecrets(): void
     {
-        $guard = new ProductionConfigGuard('a-real-strong-secret', 'a-real-strong-passphrase');
+        $guard = new ProductionConfigGuard('a-real-strong-secret', 'a-real-strong-passphrase', 'a-real-strong-db-password');
 
         $guard($this->event());
         $this->addToAssertionCount(1);
@@ -51,7 +60,7 @@ final class ProductionConfigGuardTest extends TestCase
 
     public function testIgnoresSubRequests(): void
     {
-        $guard = new ProductionConfigGuard('change_me_in_env_local', '');
+        $guard = new ProductionConfigGuard('change_me_in_env_local', '', 'plume_app');
         $kernel = $this->createStub(HttpKernelInterface::class);
         $subRequest = new RequestEvent($kernel, new Request(), HttpKernelInterface::SUB_REQUEST);
 

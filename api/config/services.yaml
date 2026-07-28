@@ -215,5 +215,6 @@ when@prod:
             arguments:
                 $appSecret: '%env(APP_SECRET)%'
                 $jwtPassphrase: '%env(JWT_PASSPHRASE)%'
+                $dbPassword: '%env(APP_DB_PASSWORD)%'
             tags:
                 - { name: kernel.event_listener, event: kernel.request, priority: 8192 }

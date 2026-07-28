@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Account\Infrastructure\Http;
 
+use App\Account\Infrastructure\Export\SensitiveColumns;
 use App\Account\Infrastructure\Persistence\User;
 use App\Shared\Application\Clock;
 use App\Shared\Infrastructure\Doctrine\Tenancy\TenantContext;
@@ -27,9 +28,6 @@ use Symfony\Component\HttpKernel\Attribute\AsController;
 #[AsController]
 final class ExportAccountController
 {
-    /** Colonnes jamais exportées (secrets/credentials). */
-    private const array SECRET_COLUMNS = ['access_token', 'refresh_token', 'sync_cursor'];
-
     /** Tables tenantées exclues de l'export (brut de tiers, à rétention limitée). */
     private const array EXCLUDED_TABLES = ['raw_alert'];
 
@@ -57,7 +55,7 @@ final class ExportAccountController
                 ['tenant' => $tenant],
             );
             $data[$table] = array_map(
-                static fn (array $row): array => array_diff_key($row, array_flip(self::SECRET_COLUMNS)),
+                static fn (array $row): array => SensitiveColumns::strip($row),
                 $rows,
             );
         }
@@ -105,6 +103,7 @@ final class ExportAccountController
                 FROM pg_class c
                 JOIN pg_namespace n ON n.oid = c.relnamespace
                 WHERE n.nspname = 'public' AND c.relkind = 'r' AND c.relrowsecurity = true
+                  AND c.relname <> 'app_user'
                   AND EXISTS (
                       SELECT 1 FROM information_schema.columns col
                       WHERE col.table_schema = 'public' AND col.table_name = c.relname AND col.column_name = 'tenant_id'

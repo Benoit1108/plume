@@ -39,6 +39,16 @@ final class PurgeAccountHandler
             );
         }
         $this->connection->executeStatement('DELETE FROM refresh_tokens WHERE username = :email', ['email' => $message->email]);
+
+        // Best-effort RGPD : un message en ÉCHEC (queue `failed`) peut porter des données du tenant
+        // sérialisées — hors RLS, sans tenant_id — et survivrait au délai de grâce. On l'efface par
+        // correspondance de l'UUID du tenant dans le corps (les autres files sont consommées en régime
+        // nominal ; on ne touche pas la file live pour ne pas percuter un message en cours).
+        $this->connection->executeStatement(
+            "DELETE FROM messenger_messages WHERE queue_name = 'failed' AND body LIKE :needle",
+            ['needle' => '%'.$message->tenantId.'%'],
+        );
+
         $this->connection->executeStatement('DELETE FROM app_user WHERE tenant_id = :tenant', ['tenant' => $message->tenantId]);
 
         // Traçabilité RGPD (sans PII : seul l'identifiant technique du tenant).

@@ -14,7 +14,8 @@ const ALLOWED = {
     + 'seul « fix » npm est un downgrade cassant en 4.1.3), zéro exposition au runtime servi. '
     + 'À retirer dès qu’un Nuxt embarquant un brace-expansion patché sort.',
 }
-const BLOCKING = new Set(['high', 'critical'])
+const RANK = { info: 0, low: 1, moderate: 2, high: 3, critical: 4 }
+const BLOCKING_FROM = RANK.high
 
 let raw
 try {
@@ -31,22 +32,34 @@ if ('' === raw.trim()) {
 
 const report = JSON.parse(raw)
 
-// Collecte les advisories DIRECTES (objets `via`), dédupliquées par identifiant GHSA.
+// Collecte les advisories DIRECTES (objets `via`), dédupliquées par identifiant GHSA en gardant la
+// sévérité MAXIMALE observée (une occurrence sans `severity` ne doit jamais rétrograder un high).
 /** @type {Map<string, {severity: string, module: string, title: string}>} */
 const advisories = new Map()
 for (const info of Object.values(report.vulnerabilities ?? {})) {
   for (const via of info.via ?? []) {
     if ('object' === typeof via && via.url) {
-      advisories.set(via.url.split('/').pop(), {
-        severity: via.severity ?? info.severity,
-        module: via.name ?? '?',
-        title: (via.title ?? '').slice(0, 80),
-      })
+      const id = via.url.split('/').pop()
+      const severity = via.severity ?? info.severity ?? 'high'
+      const previous = advisories.get(id)
+      if (previous && (RANK[previous.severity] ?? 0) >= (RANK[severity] ?? 0)) {
+        continue
+      }
+      advisories.set(id, { severity, module: via.name ?? '?', title: (via.title ?? '').slice(0, 80) })
     }
   }
 }
 
-const offenders = [...advisories.entries()].filter(([id, a]) => BLOCKING.has(a.severity) && !(id in ALLOWED))
+// Bloque tout advisory ≥ high non tracé. Un `critical` bloque TOUJOURS, même s'il est dans
+// l'allowlist (plafond de sévérité : une exception ne vaut que pour du high).
+const offenders = [...advisories.entries()].filter(([id, a]) => {
+  const rank = RANK[a.severity] ?? RANK.high
+  if (rank < BLOCKING_FROM) {
+    return false
+  }
+
+  return 'critical' === a.severity || !(id in ALLOWED)
+})
 
 if (offenders.length > 0) {
   console.error('❌ Audit runtime BLOQUANT — advisories high/critical NON tracées :')

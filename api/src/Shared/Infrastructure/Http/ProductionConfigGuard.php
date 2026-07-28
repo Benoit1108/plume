@@ -17,14 +17,16 @@ use Symfony\Component\HttpKernel\Event\RequestEvent;
  */
 final class ProductionConfigGuard
 {
-    /** Valeur par défaut de dev dans api/.env — jamais acceptable en prod. */
+    /** Valeurs par défaut de dev dans api/.env — jamais acceptables en prod. */
     private const string PLACEHOLDER = 'change_me_in_env_local';
+    private const string DB_PASSWORD_DEFAULT = 'plume_app';
 
     private bool $verified = false;
 
     public function __construct(
         private readonly string $appSecret,
         private readonly string $jwtPassphrase,
+        private readonly string $dbPassword,
     ) {
     }
 
@@ -40,6 +42,9 @@ final class ProductionConfigGuard
         }
         if ('' === $this->jwtPassphrase || self::PLACEHOLDER === $this->jwtPassphrase) {
             $offenders[] = 'JWT_PASSPHRASE';
+        }
+        if ('' === $this->dbPassword || self::DB_PASSWORD_DEFAULT === $this->dbPassword) {
+            $offenders[] = 'APP_DB_PASSWORD';
         }
 
         if ([] !== $offenders) {
