@@ -203,6 +203,9 @@ async function deleteAccount(): Promise<void> {
         </form>
       </section>
 
+      <!-- Sécurité : 2FA + sessions actives -->
+      <SecuritySection />
+
       <!-- Mes données : export RGPD (portabilité) -->
       <section class="border border-default rounded-xl p-4 bg-elevated/40 flex flex-col gap-3">
         <div>

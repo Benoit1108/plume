@@ -70,6 +70,43 @@ api_account_password_reset:
     controller: App\Account\Infrastructure\Http\ResetPasswordController
     methods: [POST]
 
+# 2FA TOTP (page Compte) : statut, enrôlement en deux temps, désactivation (mot de passe exigé).
+api_account_2fa_status:
+    path: /api/v1/account/2fa
+    controller: App\Account\Infrastructure\Http\TwoFactorController::status
+    methods: [GET]
+api_account_2fa_setup:
+    path: /api/v1/account/2fa/setup
+    controller: App\Account\Infrastructure\Http\TwoFactorController::setup
+    methods: [POST]
+api_account_2fa_confirm:
+    path: /api/v1/account/2fa/confirm
+    controller: App\Account\Infrastructure\Http\TwoFactorController::confirm
+    methods: [POST]
+api_account_2fa_disable:
+    path: /api/v1/account/2fa/disable
+    controller: App\Account\Infrastructure\Http\TwoFactorController::disable
+    methods: [POST]
+
+# Sessions actives (refresh tokens) : liste, révocation unitaire, tout sauf la courante.
+# SOUS /api/v1/token/ : le cookie httpOnly `refresh_token` est PATH-RESTREINT à /api/v1/token
+# (M2.0) — c'est le seul endroit où le serveur peut le lire pour identifier la session COURANTE.
+# Firewall `api` (JWT) : seul /token/refresh a son firewall dédié.
+api_account_sessions:
+    path: /api/v1/token/sessions
+    controller: App\Account\Infrastructure\Http\SessionsController::list
+    methods: [GET]
+api_account_session_revoke:
+    path: /api/v1/token/sessions/{id}
+    controller: App\Account\Infrastructure\Http\SessionsController::revoke
+    methods: [DELETE]
+    requirements:
+        id: '\d+'
+api_account_sessions_revoke_others:
+    path: /api/v1/token/sessions/revoke-others
+    controller: App\Account\Infrastructure\Http\SessionsController::revokeOthers
+    methods: [POST]
+
 # RGPD : suppression du compte courant (soft-delete + purge différée).
 api_account_delete:
     path: /api/v1/account

@@ -6,6 +6,8 @@ const auth = useAuthStore()
 
 const email = ref('')
 const password = ref('')
+const otp = ref('')
+const otpRequired = ref(false)
 const error = ref('')
 const loading = ref(false)
 
@@ -13,11 +15,23 @@ async function onSubmit(): Promise<void> {
   error.value = ''
   loading.value = true
   try {
-    await auth.login(email.value, password.value)
+    await auth.login(email.value, password.value, otpRequired.value ? otp.value : undefined)
     await navigateTo('/')
   }
-  catch {
-    error.value = t('auth.error')
+  catch (e) {
+    // 2FA : le back répond `2fa_required` (mot de passe OK → montrer le champ code)
+    // ou `2fa_invalid` (code faux/déjà utilisé).
+    const message = (e as { data?: { message?: string } })?.data?.message ?? ''
+    if (message === '2fa_required') {
+      otpRequired.value = true
+    }
+    else if (message === '2fa_invalid') {
+      otpRequired.value = true
+      error.value = t('auth.otpInvalid')
+    }
+    else {
+      error.value = t('auth.error')
+    }
   }
   finally {
     loading.value = false
@@ -45,6 +59,10 @@ async function onSubmit(): Promise<void> {
         </UFormField>
         <UFormField :label="t('auth.password')" name="password">
           <UInput v-model="password" type="password" autocomplete="current-password" required class="w-full" />
+        </UFormField>
+
+        <UFormField v-if="otpRequired" :label="t('auth.otp')" :hint="t('auth.otpHint')" name="otp">
+          <UInput v-model="otp" inputmode="numeric" autocomplete="one-time-code" required autofocus class="w-full" />
         </UFormField>
 
         <UAlert v-if="error" color="error" variant="subtle" :description="error" />

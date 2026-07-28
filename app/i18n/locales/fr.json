@@ -35,7 +35,10 @@
       "verifying": "Vérification en cours…",
       "ok": "Email confirmé ! Vous pouvez vous connecter.",
       "error": "Ce lien de vérification est invalide ou expiré."
-    }
+    },
+    "otp": "Code de vérification",
+    "otpHint": "Le code à 6 chiffres de votre app d'authentification, ou un code de secours.",
+    "otpInvalid": "Code invalide ou déjà utilisé."
   },
   "admin": {
     "eyebrow": "Back-office",
@@ -141,7 +144,8 @@
     "edit": "Modifier",
     "delete": "Supprimer",
     "add": "Ajouter",
-    "confirm": "Confirmer"
+    "confirm": "Confirmer",
+    "copy": "Copier"
   },
   "common": {
     "loading": "Chargement…",
@@ -566,6 +570,34 @@
       "passwordLabel": "Mot de passe actuel",
       "confirm": "Supprimer définitivement",
       "done": "Compte supprimé. À bientôt."
+    },
+    "twoFactor": {
+      "title": "Double authentification (2FA)",
+      "intro": "Un code à 6 chiffres (app d'authentification) sera exigé à chaque connexion, en plus du mot de passe.",
+      "enable": "Activer la 2FA",
+      "active": "2FA active",
+      "enabled": "Double authentification activée.",
+      "disabled": "Double authentification désactivée.",
+      "invalidCode": "Code invalide — réessayez.",
+      "step1": "Installez une app d'authentification (Aegis, Google Authenticator…).",
+      "step2": "Ajoutez-y un compte avec cette clé (saisie manuelle) :",
+      "step3": "Saisissez le code à 6 chiffres affiché pour confirmer.",
+      "codeLabel": "Code à 6 chiffres",
+      "activate": "Confirmer et activer",
+      "backupTitle": "Codes de secours",
+      "backupIntro": "Conservez-les précieusement : chacun ne sert qu'une fois si vous perdez votre téléphone. Ils ne seront plus jamais affichés.",
+      "backupRemaining": "{count} code(s) de secours restant(s)",
+      "disablePassword": "Mot de passe actuel",
+      "disable": "Désactiver la 2FA"
+    },
+    "sessions": {
+      "title": "Sessions actives",
+      "intro": "Les appareils connectés à votre compte. Révoquez ce que vous ne reconnaissez pas.",
+      "expires": "Session valable jusqu'au {date}",
+      "current": "Cet appareil",
+      "revoke": "Révoquer cette session",
+      "revokeOthers": "Déconnecter les autres appareils",
+      "othersRevoked": "Les autres sessions ont été déconnectées."
     }
   },
   "settings": {

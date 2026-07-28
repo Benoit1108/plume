@@ -35,7 +35,10 @@
       "verifying": "Verifying…",
       "ok": "Email confirmed! You can now sign in.",
       "error": "This verification link is invalid or expired."
-    }
+    },
+    "otp": "Verification code",
+    "otpHint": "The 6-digit code from your authenticator app, or a backup code.",
+    "otpInvalid": "Invalid or already-used code."
   },
   "admin": {
     "eyebrow": "Back office",
@@ -141,7 +144,8 @@
     "edit": "Edit",
     "delete": "Delete",
     "add": "Add",
-    "confirm": "Confirm"
+    "confirm": "Confirm",
+    "copy": "Copy"
   },
   "common": {
     "loading": "Loading…",
@@ -566,6 +570,34 @@
       "passwordLabel": "Current password",
       "confirm": "Delete permanently",
       "done": "Account deleted. See you soon."
+    },
+    "twoFactor": {
+      "title": "Two-factor authentication (2FA)",
+      "intro": "A 6-digit code (authenticator app) will be required at every sign-in, on top of your password.",
+      "enable": "Enable 2FA",
+      "active": "2FA active",
+      "enabled": "Two-factor authentication enabled.",
+      "disabled": "Two-factor authentication disabled.",
+      "invalidCode": "Invalid code — try again.",
+      "step1": "Install an authenticator app (Aegis, Google Authenticator…).",
+      "step2": "Add an account in it using this key (manual entry):",
+      "step3": "Enter the displayed 6-digit code to confirm.",
+      "codeLabel": "6-digit code",
+      "activate": "Confirm and enable",
+      "backupTitle": "Backup codes",
+      "backupIntro": "Store them safely: each works once if you lose your phone. They will never be shown again.",
+      "backupRemaining": "{count} backup code(s) left",
+      "disablePassword": "Current password",
+      "disable": "Disable 2FA"
+    },
+    "sessions": {
+      "title": "Active sessions",
+      "intro": "Devices signed in to your account. Revoke anything you don't recognize.",
+      "expires": "Session valid until {date}",
+      "current": "This device",
+      "revoke": "Revoke this session",
+      "revokeOthers": "Sign out other devices",
+      "othersRevoked": "Other sessions have been signed out."
     }
   },
   "settings": {

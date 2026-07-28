@@ -39,5 +39,18 @@ export function useAccount() {
     /** POST /account/verify-email (PUBLIC) — confirme l'email via jeton. 422 si invalide/expiré. */
     verifyEmail: (token: string) =>
       api<unknown>('/api/v1/account/verify-email', { method: 'POST', body: { token } }),
+
+    // --- 2FA TOTP ---
+    twoFactorStatus: () => api<{ enabled: boolean, remainingBackupCodes: number }>('/api/v1/account/2fa'),
+    twoFactorSetup: () => api<{ secret: string, otpauthUri: string }>('/api/v1/account/2fa/setup', { method: 'POST', body: {} }),
+    twoFactorConfirm: (code: string) =>
+      api<{ backupCodes: string[] }>('/api/v1/account/2fa/confirm', { method: 'POST', body: { code } }),
+    twoFactorDisable: (currentPassword: string) =>
+      api<unknown>('/api/v1/account/2fa/disable', { method: 'POST', body: { currentPassword } }),
+
+    // --- Sessions actives (sous /token : le cookie refresh y est path-restreint) ---
+    sessions: () => api<{ sessions: { id: number, expiresAt: string | null, current: boolean }[] }>('/api/v1/token/sessions'),
+    revokeSession: (id: number) => api<unknown>(`/api/v1/token/sessions/${id}`, { method: 'DELETE' }),
+    revokeOtherSessions: () => api<unknown>('/api/v1/token/sessions/revoke-others', { method: 'POST', body: {} }),
   }
 }

@@ -44,6 +44,26 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?\DateTimeImmutable $deletionRequestedAt = null;
 
     /**
+     * 2FA TOTP (V2, slice sécurité). `totpSecret` non nul ⇒ 2FA ACTIVE (OTP exigé au login).
+     * Le secret est stocké tel quel (il DOIT être relu pour vérifier les codes — non hashable) :
+     * compromis documenté, la base est protégée par ailleurs (RLS, rôles, sauvegardes chiffrées).
+     */
+    #[ORM\Column(length: 128, nullable: true)]
+    private ?string $totpSecret = null;
+
+    /** Secret en cours d'enrôlement : posé au setup, promu par confirm (code valide exigé). */
+    #[ORM\Column(length: 128, nullable: true)]
+    private ?string $totpPendingSecret = null;
+
+    /** Anti-rejeu : dernier pas de temps TOTP accepté (un code ne sert qu'une fois). */
+    #[ORM\Column(nullable: true)]
+    private ?int $totpLastUsedStep = null;
+
+    /** @var list<string>|null codes de secours HASHÉS (sha256), consommés à l'usage */
+    #[ORM\Column(type: 'json', nullable: true)]
+    private ?array $backupCodes = null;
+
+    /**
      * Email vérifié (V2.1b). **Par défaut `true`** : tout compte créé par un opérateur/la CLI
      * (`app:user:create`, seed, tests) est de confiance. Seule l'INSCRIPTION PUBLIQUE en libre-service
      * exige une vérification (`requireEmailVerification()`) → l'auth est refusée tant que non vérifié.
@@ -137,6 +157,77 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function isEmailVerified(): bool
     {
         return $this->emailVerified;
+    }
+
+    // --- 2FA TOTP (V2, slice sécurité) ---
+
+    public function isTotpEnabled(): bool
+    {
+        return null !== $this->totpSecret;
+    }
+
+    public function totpSecret(): ?string
+    {
+        return $this->totpSecret;
+    }
+
+    public function totpPendingSecret(): ?string
+    {
+        return $this->totpPendingSecret;
+    }
+
+    /** Setup : pose un secret candidat (re-setup = remplace le candidat, jamais l'actif). */
+    public function startTotpEnrollment(string $secret): void
+    {
+        $this->totpPendingSecret = $secret;
+    }
+
+    /** Confirm (code valide vérifié PAR L'APPELANT) : promeut le candidat + pose les codes de secours hashés. */
+    /** @param list<string> $hashedBackupCodes */
+    public function enableTotp(array $hashedBackupCodes): void
+    {
+        if (null === $this->totpPendingSecret) {
+            throw new \LogicException('No pending TOTP enrollment to confirm.');
+        }
+        $this->totpSecret = $this->totpPendingSecret;
+        $this->totpPendingSecret = null;
+        $this->totpLastUsedStep = null;
+        $this->backupCodes = $hashedBackupCodes;
+    }
+
+    public function disableTotp(): void
+    {
+        $this->totpSecret = null;
+        $this->totpPendingSecret = null;
+        $this->totpLastUsedStep = null;
+        $this->backupCodes = null;
+    }
+
+    /** Anti-rejeu : accepte un pas de temps UNE seule fois (strictement croissant). */
+    public function acceptTotpStep(int $step): bool
+    {
+        if (null !== $this->totpLastUsedStep && $step <= $this->totpLastUsedStep) {
+            return false;
+        }
+        $this->totpLastUsedStep = $step;
+
+        return true;
+    }
+
+    /** Consomme un code de secours (comparé par hash) : true si valide, alors retiré. */
+    public function consumeBackupCode(string $hash): bool
+    {
+        if (null === $this->backupCodes || !\in_array($hash, $this->backupCodes, true)) {
+            return false;
+        }
+        $this->backupCodes = array_values(array_filter($this->backupCodes, static fn (string $c): bool => $c !== $hash));
+
+        return true;
+    }
+
+    public function remainingBackupCodes(): int
+    {
+        return null === $this->backupCodes ? 0 : \count($this->backupCodes);
     }
 
     public function deletionRequestedAt(): ?\DateTimeImmutable

@@ -34,10 +34,10 @@ export const useAuthStore = defineStore('auth', () => {
 
   const isAuthenticated = computed(() => Boolean(email.value))
 
-  async function login(mail: string, password: string): Promise<void> {
+  async function login(mail: string, password: string, otp?: string): Promise<void> {
     await $fetch('/api/v1/login_check', {
       method: 'POST',
-      body: { email: mail, password },
+      body: otp ? { email: mail, password, otp } : { email: mail, password },
     })
     // Les cookies httpOnly sont posés par la réponse ; on demande à l'API qui on est.
     const me = await $fetch<{ email: string, isAdmin?: boolean }>('/api/v1/me')
