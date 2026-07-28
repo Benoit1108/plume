@@ -6,23 +6,19 @@ namespace App\Account\Infrastructure\Scheduler;
 
 use App\Shared\Application\Clock;
 use Doctrine\DBAL\Connection;
-use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Messenger\Stamp\TransportNamesStamp;
 
 /**
- * RGPD — purge physique des comptes en soft-delete (V2.0-a2). Un compte dont la suppression a été
- * demandée (`app_user.deletion_requested_at`) est effacé DÉFINITIVEMENT après un délai de grâce
- * (30 j) : ce délai laisse un filet contre l'erreur/le regret et s'aligne sur les sauvegardes.
+ * RGPD — fan-out de la purge (V2.0-a2, revue V2.0 P1). Ce tick énumère les comptes dont la
+ * suppression a été demandée il y a plus du délai de grâce (30 j) et émet UN message `PurgeAccount`
+ * par compte sur `async` — chacun est ensuite traité dans SA PROPRE transaction (command.bus),
+ * isolant les pannes : l'échec de la purge d'un compte ne bloque plus les autres (le défaut de la
+ * boucle imbriquée sous `doctrine_transaction`, corrigé ici).
  *
- * Tâche de maintenance GLOBALE, exécutée par le scheduler (rôle propriétaire `plume` → contourne la
- * RLS, seul chemin cross-tenant légitime, ADR-0023). Pour chaque compte expiré, on efface TOUTES
- * les tables portant `tenant_id` (découvertes dynamiquement dans `pg_class` — aucune table oubliée
- * quand le schéma grandit, même philosophie que le garde-fou de couverture RLS), puis les refresh
- * tokens de l'email et enfin l'`app_user`, le tout dans UNE transaction par compte (tout ou rien).
- *
- * Le design est sans clé étrangère inter-tables (références par ID) → l'ordre de suppression est libre.
- * Limite connue (backlog) : la révocation OAuth CÔTÉ FOURNISSEUR n'est pas faite ici ; les tokens
- * chiffrés sont détruits (on ne peut plus accéder à la boîte), la révocation distante reste à ajouter.
+ * Le fan-out lui-même ne fait QUE énumérer + dispatcher (aucune logique tenantée) ; il tourne sur le
+ * scheduler propriétaire. `app_user` n'est pas sous RLS → l'énumération cross-tenant y est légitime.
  */
 #[AsMessageHandler]
 final class PurgeDeletedAccountsHandler
@@ -32,7 +28,7 @@ final class PurgeDeletedAccountsHandler
     public function __construct(
         private readonly Connection $connection,
         private readonly Clock $clock,
-        private readonly LoggerInterface $logger,
+        private readonly MessageBusInterface $commandBus,
     ) {
     }
 
@@ -47,52 +43,11 @@ final class PurgeDeletedAccountsHandler
             ['cutoff' => $cutoff],
         );
 
-        if ([] === $expired) {
-            return;
-        }
-
-        $tenantTables = $this->tenantScopedTables();
-
         foreach ($expired as $account) {
-            $this->connection->transactional(function (Connection $c) use ($account, $tenantTables): void {
-                foreach ($tenantTables as $table) {
-                    $c->executeStatement(
-                        \sprintf('DELETE FROM %s WHERE tenant_id = :tenant', $c->quoteIdentifier($table)),
-                        ['tenant' => $account['tenant_id']],
-                    );
-                }
-                $c->executeStatement('DELETE FROM refresh_tokens WHERE username = :email', ['email' => $account['email']]);
-                $c->executeStatement('DELETE FROM app_user WHERE tenant_id = :tenant', ['tenant' => $account['tenant_id']]);
-            });
-
-            // Traçabilité RGPD (sans PII : on ne journalise que l'identifiant technique du tenant).
-            $this->logger->info('Purged deleted account after grace period.', ['tenant_id' => $account['tenant_id']]);
+            $this->commandBus->dispatch(
+                new PurgeAccount($account['tenant_id'], $account['email']),
+                [new TransportNamesStamp(['async'])],
+            );
         }
-    }
-
-    /**
-     * Toutes les tables applicatives portant une colonne `tenant_id` (hors `app_user`, effacée à part).
-     *
-     * @return list<string>
-     */
-    private function tenantScopedTables(): array
-    {
-        /** @var list<string> $tables */
-        $tables = $this->connection->fetchFirstColumn(
-            <<<'SQL'
-                SELECT c.relname
-                FROM pg_class c
-                JOIN pg_namespace n ON n.oid = c.relnamespace
-                WHERE n.nspname = 'public'
-                  AND c.relkind = 'r'
-                  AND c.relname <> 'app_user'
-                  AND EXISTS (
-                      SELECT 1 FROM information_schema.columns col
-                      WHERE col.table_schema = 'public' AND col.table_name = c.relname AND col.column_name = 'tenant_id'
-                  )
-                SQL,
-        );
-
-        return $tables;
     }
 }
