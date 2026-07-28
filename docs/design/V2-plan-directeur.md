@@ -89,21 +89,22 @@ Nouveau contexte `Notification` (in-app d'abord, digests email ensuite) :
 
 ---
 
-## Mes propositions supplémentaires (force de proposition)
+## Propositions — arbitrage Benoit (2026-07-28)
 
-À intégrer où c'est pertinent — dites lesquelles retenir :
-1. 🟩 **Observabilité** : logs structurés JSON + corrélation par tenant, **error-tracking** (Sentry
-   self-hostable ⚖️), métriques. *Indispensable dès qu'il y a de vrais utilisateurs.*
-2. 🟩 **Sauvegardes DB** automatisées + chiffrées + test de restauration (checklist ops). 🟦 dépend de l'hébergeur.
-3. 🟩 **Journal d'audit** hors-tenant (connexions, suppressions, actions admin) — comble le trou
-   RGPD noté à l'ADR-0025 + trace les actions du back-office.
-4. 🟩 **2FA / TOTP** (option de sécurité du compte) — *Futur, mais à prévoir tôt dans le modèle auth.*
-5. 🟩 **Gestion des sessions** (voir/révoquer ses sessions actives) — complète l'auth.
-6. 🟩 **A11y + responsive mobile web** : passe d'audit avant l'app native (WCAG, navigation clavier).
-7. 🟩 **Page de statut publique** (uptime) — confiance SaaS. 🟦 dépend hébergement.
-8. 🟩 **Alertes de quota / d'usage** (ancrées sur les notifications + V2.2).
-9. 🟩 **Reprise sur erreur boîte email** : reconnexion guidée quand un token OAuth expire (lié aux notifs).
-10. 🟩 **Cookie/consent RGPD** minimal (pas de tracking tiers → léger).
+**RETENUES pour la V2** (décidées) :
+1. 🟩 **Observabilité** : logs structurés JSON + corrélation par tenant, **error-tracking** (⚖️ Sentry
+   self-hostable), métriques. Indispensable dès qu'il y a de vrais utilisateurs.
+2. 🟩 **Journal d'audit** hors-tenant (connexions, suppressions, actions admin) — comble le trou
+   RGPD noté à l'ADR-0025 + trace le back-office. *Va de pair avec le jalon back-office.*
+3. 🟩 **2FA / TOTP + gestion des sessions** (« OTP » demandé par Benoit) — **slice de sécurité dédiée**
+   dans V2.1 : enrôlement TOTP (app d'authentification), **codes de secours**, voir/révoquer ses
+   sessions actives. Après le socle + l'inscription.
+4. 🟩 **Page de statut publique** (uptime, 🟦 dépend hébergement) + **reprise de boîte email** :
+   reconnexion guidée quand un token OAuth expire (lié au centre de notifications).
+
+**Gardées mais plus tard / au fil de l'eau** (non prioritaires) :
+5. 🟩 Sauvegardes DB auto + test de restauration (🟦 dépend hébergeur) · 🟩 a11y + responsive mobile
+   web · 🟩 alertes de quota (avec V2.2) · 🟩 consentement RGPD minimal (léger, pas de tracking tiers).
 
 ## Dette technique tracée (ADR-0022, à rouvrir si besoin)
 - §3 patrons d'adaptateurs · §4 tables hors ORM (doc) · §5 `RawAlert`/`rawRef`.

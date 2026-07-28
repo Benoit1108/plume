@@ -22,6 +22,18 @@ api_account_password:
     controller: App\Account\Infrastructure\Http\ChangePasswordController
     methods: [POST]
 
+# Mot de passe oublié (PUBLIC) : demande de lien de réinitialisation.
+api_account_password_forgot:
+    path: /api/v1/account/password/forgot
+    controller: App\Account\Infrastructure\Http\ForgotPasswordController
+    methods: [POST]
+
+# Mot de passe oublié (PUBLIC) : réinitialisation via jeton.
+api_account_password_reset:
+    path: /api/v1/account/password/reset
+    controller: App\Account\Infrastructure\Http\ResetPasswordController
+    methods: [POST]
+
 # RGPD : suppression du compte courant (soft-delete + purge différée).
 api_account_delete:
     path: /api/v1/account

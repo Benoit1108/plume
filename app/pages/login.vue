@@ -52,6 +52,10 @@ async function onSubmit(): Promise<void> {
         <UButton type="submit" :loading="loading" block>
           {{ t('auth.signIn') }}
         </UButton>
+
+        <NuxtLink to="/forgot-password" class="text-sm text-muted hover:text-default text-center">
+          {{ t('auth.forgotPassword') }}
+        </NuxtLink>
       </form>
     </UCard>
   </div>

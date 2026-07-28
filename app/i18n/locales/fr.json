@@ -5,7 +5,20 @@
     "password": "Mot de passe",
     "signIn": "Se connecter",
     "error": "Identifiants incorrects.",
-    "logout": "Se déconnecter"
+    "logout": "Se déconnecter",
+    "forgotPassword": "Mot de passe oublié ?",
+    "backToLogin": "Retour à la connexion",
+    "forgot": {
+      "intro": "Réinitialiser votre mot de passe.",
+      "submit": "Envoyer le lien",
+      "sent": "Si un compte existe pour cet email, un lien de réinitialisation vient d'être envoyé."
+    },
+    "reset": {
+      "intro": "Choisissez un nouveau mot de passe.",
+      "submit": "Réinitialiser le mot de passe",
+      "done": "Mot de passe réinitialisé. Connectez-vous.",
+      "invalidToken": "Ce lien de réinitialisation est invalide ou expiré. Refaites une demande."
+    }
   },
   "theme": {
     "toLight": "Passer au thème clair",

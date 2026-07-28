@@ -5,7 +5,20 @@
     "password": "Password",
     "signIn": "Sign in",
     "error": "Invalid credentials.",
-    "logout": "Sign out"
+    "logout": "Sign out",
+    "forgotPassword": "Forgot password?",
+    "backToLogin": "Back to sign in",
+    "forgot": {
+      "intro": "Reset your password.",
+      "submit": "Send the link",
+      "sent": "If an account exists for this email, a reset link has just been sent."
+    },
+    "reset": {
+      "intro": "Choose a new password.",
+      "submit": "Reset password",
+      "done": "Password reset. Please sign in.",
+      "invalidToken": "This reset link is invalid or expired. Please request a new one."
+    }
   },
   "theme": {
     "toLight": "Switch to light theme",

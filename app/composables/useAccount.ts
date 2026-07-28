@@ -23,5 +23,13 @@ export function useAccount() {
         responseType: 'blob',
         headers: { Accept: 'application/zip' },
       }),
+
+    /** POST /account/password/forgot (PUBLIC) — demande un lien de réinitialisation. Toujours 204. */
+    requestPasswordReset: (email: string) =>
+      api<unknown>('/api/v1/account/password/forgot', { method: 'POST', body: { email } }),
+
+    /** POST /account/password/reset (PUBLIC) — réinitialise via jeton. 422 si jeton/mot de passe invalide. */
+    resetPassword: (token: string, newPassword: string) =>
+      api<unknown>('/api/v1/account/password/reset', { method: 'POST', body: { token, newPassword } }),
   }
 }

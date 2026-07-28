@@ -12,6 +12,12 @@ framework:
             policy: sliding_window
             limit: 5
             interval: '15 minutes'
+        # Mot de passe oublié (endpoint PUBLIC) : borne l'envoi d'emails et l'énumération, PAR IP.
+        # 5 demandes / 15 min (large pour un usage humain, casse le spam de reset).
+        password_reset:
+            policy: sliding_window
+            limit: 5
+            interval: '15 minutes'
         # Génération IA (drafts) : chaque appel peut coûter de l'argent (API Anthropic)
         # et occuper le worker ~30 s. 30 générations / heure par tenant : large pour un
         # usage réel, borne la facture et protège les projections des autres tenants.
