@@ -89,3 +89,28 @@ Ajouter un test qui passe par le bus.
 - **Lot D — docs** : resync README/CLAUDE/ROADMAP (V2.0 livré), corriger la contradiction OAuth, DOMAIN-MODEL/GLOSSAIRE (RGPD), annoter V2-cadrage, ADR stratégie RGPD, clore les questions ouvertes de la conception.
 
 Cible : ≥ 9/10 sur les 4 axes après remédiation, comme les revues précédentes.
+
+---
+
+## Post-scriptum — remédiation appliquée (2026-07-28, lots A→D, CI verte par lot, E2E incluse)
+
+- **Lot A** (`7e9ea6d`) — **P1 purge atomique** : le tick devient un pur fan-out (un message
+  `PurgeAccount` par compte sur `async`), chaque purge traitée sur le `command.bus` → **une
+  transaction par compte**, isolée et rejouable. Tests : fan-out + purge d'un compte **via le bus**
+  (exerce `doctrine_transaction`, laisse les autres comptes intacts).
+- **Lot B** (`b945187`) — durcissement back/sécu : export en **détection de secrets par motif**
+  (`SensitiveColumns` + test) + `app_user` exclu par nom ; purge des messages en **échec** du tenant ;
+  `TenantScope::clear()` **paresseux** (n'ouvre plus la DB sur requête non tenantée) ;
+  `ProductionConfigGuard` couvre `APP_DB_PASSWORD` ; gate `npm audit` avec **plafond de sévérité**
+  (critical jamais toléré) + dédup sévérité max.
+- **Lot C** (`3e21653`) — robustesse front : téléchargement export multi-navigateur (ancre dans le DOM
+  + révocation différée), garde anti double-soumission, **purge du cache TanStack au logout** de
+  suppression, autofocus modale.
+- **Lot D** (`7009549`) — docs : **ADR-0025** (stratégie RGPD, avec limites tracées) ; contradiction
+  OAuth corrigée ; README/CLAUDE/ROADMAP resync « V2.0 livré » ; DOMAIN-MODEL/GLOSSAIRE (RGPD) ;
+  V2-cadrage annoté (app_user hors RLS).
+
+**Notes après remédiation : back+archi 9 / sécurité 9,5 / front 9 / docs 9.** Le P1 (purge) est
+soldé et prouvé par un test passant par le bus ; les durcissements de défense en profondeur sont en
+place. **Laissés tracés (backlog, ADR-0025)** : révocation OAuth côté fournisseur, journal d'audit
+hors-tenant de la suppression, registre RGPD + DPA (volet documentaire de V2.0-a).
