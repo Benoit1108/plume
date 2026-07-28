@@ -86,6 +86,7 @@ async function changePassword(): Promise<void> {
 // --- Export des données (RGPD, portabilité) ---
 const exporting = ref(false)
 async function exportData(): Promise<void> {
+  if (exporting.value) return
   exporting.value = true
   try {
     const blob = await accountApi.exportData()
@@ -93,8 +94,12 @@ async function exportData(): Promise<void> {
     const link = document.createElement('a')
     link.href = url
     link.download = `plume-export-${new Date().toISOString().slice(0, 10)}.zip`
+    // Ancre insérée dans le DOM (requis par WebKit/Safari) + révocation DIFFÉRÉE : révoquer
+    // synchroniquement peut annuler un téléchargement d'archive volumineuse en cours de lecture.
+    document.body.appendChild(link)
     link.click()
-    URL.revokeObjectURL(url)
+    link.remove()
+    setTimeout(() => { URL.revokeObjectURL(url) }, 60_000)
     toast.add({ title: t('account.export.done'), color: 'success' })
   }
   catch {
@@ -116,12 +121,15 @@ function openDeleteModal(): void {
 }
 
 async function deleteAccount(): Promise<void> {
-  if (deletePassword.value === '') return
+  if (deleting.value || deletePassword.value === '') return
   deleting.value = true
   try {
     await accountApi.deleteAccount(deletePassword.value)
     deleteModalOpen.value = false
     toast.add({ title: t('account.danger.done'), color: 'success' })
+    // Purge le cache serveur (TanStack) avant la déconnexion : aucune donnée du compte supprimé
+    // ne doit subsister en mémoire après navigation SPA (poste partagé).
+    queryClient.clear()
     auth.logout()
   }
   catch (error) {
@@ -226,7 +234,7 @@ async function deleteAccount(): Promise<void> {
       <template #body>
         <form class="flex flex-col gap-4" @submit.prevent="deleteAccount">
           <UFormField :label="t('account.danger.passwordLabel')">
-            <UInput v-model="deletePassword" type="password" autocomplete="current-password" class="w-full" />
+            <UInput v-model="deletePassword" type="password" autocomplete="current-password" autofocus class="w-full" />
           </UFormField>
           <button type="submit" class="hidden" aria-hidden="true" tabindex="-1" />
         </form>
