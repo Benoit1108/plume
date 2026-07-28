@@ -37,9 +37,10 @@ Rien de public ne peut sortir sans ça.
   **apps OAuth réelles** (sortir du mode test Google/Microsoft : vérification/validation des apps),
   **nom définitif** du produit (« Plume » = code provisoire).
 - **Durcir le multi-tenant pour le vrai multi-comptes** : lever les invariants V1 mono-utilisatrice
-  (une seule boîte email/tenant → multi-boîtes ?), **`app_user` sous RLS** (aujourd'hui exclu — cf.
-  ADR-0023 §4), reset tenant `kernel.request` **si** passage FrankenPHP worker-mode, revue des
-  chemins « propriétaire » (scheduler) à l'échelle multi-tenant.
+  (une seule boîte email/tenant → multi-boîtes ?), ~~`app_user` sous RLS~~ → **TRANCHÉ EN V2.0 :
+  `app_user` reste HORS RLS** (lu par email avant le tenant ; aucune surface d'énumération en 1=1 —
+  cf. [V2.0-conception](./V2.0-conception.md) + ADR-0023 §4), reset tenant `kernel.request` **fait**
+  (V2.0-c, défensif mode worker), revue des chemins « propriétaire » (scheduler) à l'échelle multi-tenant.
 - **RGPD** : registre de traitement + **DPA** (sous-traitants : Anthropic, Google/Microsoft),
   politique de rétention, export/suppression des données d'un compte.
 - **Dettes ADR-0022 §3/§4/§5** : §3 harmonisation des adaptateurs, §4 tables hors ORM, §5 charge

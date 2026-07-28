@@ -119,6 +119,15 @@ Le vocabulaire métier ci-dessous est **contractuel** et reste en **français** 
 | Objectif hebdomadaire | `Profile.weeklyGoal` (Account) — un acte = contact ou relance faite |
 | Série | `streak` : semaines ISO consécutives ≥ objectif (calculée sur le journal) |
 
+### Compte — RGPD (V2.0, ADR-0025)
+| Métier (FR) | Code (EN) |
+|---|---|
+| Suppression de compte (soft-delete) | `app_user.deletion_requested_at` — compte désactivé immédiatement |
+| Délai de grâce | 30 jours entre la demande et la purge physique (filet anti-erreur) |
+| Purge (effacement définitif) | `PurgeAccount` / `PurgeAccountHandler` — une transaction par compte |
+| Export des données (portabilité) | `GET /account/export` → archive ZIP (`export.json` + CSV) |
+| Colonne sensible (jamais exportée) | `SensitiveColumns` — détection par motif (token/secret/password/…) |
+
 ### Méthodes de l'agrégat `Lead`
 | Métier (FR) | Code (EN) |
 |---|---|

@@ -34,8 +34,13 @@ Un mini-CRM SaaS (multi-tenant dès l'architecture, mono-utilisatrice en V1) qui
 - **Phase pré-V2 : livrée** — RLS multi-tenant fail-closed (rôle runtime dédié, ADR-0023), mail
   réel (Gmail), front **SPA `ssr:false`** + **TanStack Query** + types générés OpenAPI, poll async,
   `AbstractStringIdType`.
-- **Revues de santé** appliquées à chaque jalon (`docs/reviews/`), remédiations fin M1/M2/M3 et fin pré-V2 incluses.
-- **Prochaine étape : cadrage V2** (voir [`docs/ROADMAP.md`](docs/ROADMAP.md)).
+- **V2.0 — prérequis & bascule multi-tenant : livré** — **RGPD** (suppression de compte en
+  soft-delete + purge après 30 j + export ZIP JSON/CSV, ADR-0025), **isolation de charge** (transport
+  Messenger `io` dédié aux relèves + worker séparé, ADR-0022 §5), **préparation déploiement agnostique**
+  (store rate-limiters Redis-ready, reset tenant `kernel.request`, fail-fast secrets prod, le conteneur
+  prod compile — voir [`docs/ops/deployment-checklist.md`](docs/ops/deployment-checklist.md)).
+- **Revues de santé** appliquées à chaque jalon (`docs/reviews/`), remédiations fin M1/M2/M3, fin pré-V2 et fin V2.0 incluses.
+- **Prochaine étape : V2.1 (ouverture des comptes)** + volet documentaire RGPD (registre + DPA) — voir [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 ## Stack
 
@@ -48,7 +53,7 @@ Un mini-CRM SaaS (multi-tenant dès l'architecture, mono-utilisatrice en V1) qui
 | Auth       | JWT access + refresh avec rotation (Lexik + Gesdinet)         |
 | IA         | API Claude (derrière une couche anti-corruption)             |
 | Email      | Gmail API + Microsoft Graph (OAuth), tokens chiffrés          |
-| Runtime    | FrankenPHP + worker Messenger + Scheduler, via Docker Compose |
+| Runtime    | FrankenPHP + workers Messenger (`async` + `io`) + Scheduler, via Docker Compose |
 
 ## Structure du dépôt (monorepo)
 

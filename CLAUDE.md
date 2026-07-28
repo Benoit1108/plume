@@ -56,7 +56,7 @@ Cœur métier = **pipeline de prospection + relances**. Voir `README.md` et `doc
 ## Commandes
 
 ```bash
-make up             # stack dev (Postgres + API https://localhost:8443 + worker — le journal en dépend)
+make up             # stack dev (Postgres + API https://localhost:8443 + workers async & io — le journal en dépend)
 make provision-app-role # rôle runtime plume_app (RLS) — 1re install / nouveau cluster
 make migrate        # migrations Doctrine (+ messenger:setup-transports, en propriétaire)
 make jwt-keys       # génère les clés JWT locales (une fois)
@@ -112,4 +112,15 @@ aussi été livrées.
 - **Chantier 4 + divers** : `AbstractStringIdType` (dédup id-VO), **poll manuel async**, durcissement
   OpenAPI (enums de statut). Revue de santé fin pré-V2 remédiée (lots A→D).
 
-**Prochaine grande étape : cadrage V2** (rouvrir ADR-0022 §3/§4/§5 + points D et Futur).
+**V2.0 — prérequis & bascule multi-tenant : LIVRÉ** (cadrage `docs/design/V2-cadrage.md`, conception
+`docs/design/V2.0-conception.md`, revue `docs/reviews/2026-07-27-revue-sante-v2.0.md`) :
+- **V2.0-a RGPD** ([ADR-0025](docs/architecture/decisions/0025-rgpd-suppression-export.md)) : suppression
+  de compte en **soft-delete + purge après 30 j** (fan-out, une transaction par compte) + **export** ZIP
+  JSON/CSV (scopé tenant, secrets exclus par motif). `app_user` reste **hors RLS** (décidé, pas une dette).
+- **V2.0-b isolation de charge** (ADR-0022 §5) : transport Messenger **`io`** dédié aux relèves
+  (RSS/IMAP/Graph) + **worker `worker_io`** séparé du worker `async` (events/projections légers).
+- **V2.0-c déploiement agnostique** : store rate-limiters **Redis-ready** (paramètre `app.cache_adapter`),
+  reset tenant `kernel.request`, **fail-fast secrets prod** (`ProductionConfigGuard`), **le conteneur prod
+  compile** ; checklist `docs/ops/deployment-checklist.md`.
+
+**Prochaine grande étape : V2.1 (ouverture des comptes)** + volet documentaire RGPD (registre + DPA).

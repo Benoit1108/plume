@@ -193,6 +193,14 @@ Consommateurs : journal d'Interactions, KPIs du tableau de bord, progression/sé
   **changement de mot de passe révoque tous les refresh tokens** du compte (expulse une session
   détournée — remédiation revue M3.0). Préoccupation d'infrastructure (Symfony Security), hors
   agrégat de domaine.
+- **RGPD — suppression & export de compte** (V2.0, [ADR-0025](decisions/0025-rgpd-suppression-export.md),
+  préoccupation d'infrastructure) :
+  - **Suppression** en **soft-delete** : `app_user.deletion_requested_at` désactive le compte
+    IMMÉDIATEMENT (auth refusée, relèves de fond stoppées, sessions révoquées), puis **purge physique
+    après un délai de grâce de 30 j** (fan-out d'un message `PurgeAccount` par compte → une
+    transaction par compte : toutes les tables tenantées + refresh tokens + `app_user`).
+  - **Export** (droit à la portabilité) : archive ZIP `export.json` + CSV, scopée au tenant
+    (RLS + prédicat explicite), secrets exclus par motif (`SensitiveColumns`).
 
 ### Gestion de mission (futur)
 - **`Mission`** : volume, deadline, tarif, livrables, statut. Lien `PisteGagnee` → `Mission`.
