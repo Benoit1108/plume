@@ -18,6 +18,23 @@
       "submit": "Reset password",
       "done": "Password reset. Please sign in.",
       "invalidToken": "This reset link is invalid or expired. Please request a new one."
+    },
+    "register": {
+      "cta": "Create an account",
+      "intro": "Create your account.",
+      "submit": "Create my account",
+      "haveAccount": "I already have an account",
+      "acceptTerms": "I accept the {terms} and {privacy}.",
+      "mustAccept": "You must accept the terms.",
+      "emailTaken": "An account already exists with this email.",
+      "error": "Registration failed. Please try again.",
+      "checkEmailTitle": "Check your email",
+      "checkEmail": "A confirmation email has just been sent. Click the link to activate your account."
+    },
+    "verify": {
+      "verifying": "Verifying…",
+      "ok": "Email confirmed! You can now sign in.",
+      "error": "This verification link is invalid or expired."
     }
   },
   "legal": {

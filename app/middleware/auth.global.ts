@@ -1,5 +1,5 @@
-// Pages accessibles SANS être connecté (login + mot de passe oublié + pages légales).
-const PUBLIC_PAGES = new Set(['/login', '/forgot-password', '/reset-password'])
+// Pages accessibles SANS être connecté (login, inscription, mot de passe oublié, vérif email, légales).
+const PUBLIC_PAGES = new Set(['/login', '/register', '/verify-email', '/forgot-password', '/reset-password'])
 
 export default defineNuxtRouteMiddleware((to) => {
   const auth = useAuthStore()

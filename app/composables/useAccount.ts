@@ -31,5 +31,13 @@ export function useAccount() {
     /** POST /account/password/reset (PUBLIC) — réinitialise via jeton. 422 si jeton/mot de passe invalide. */
     resetPassword: (token: string, newPassword: string) =>
       api<unknown>('/api/v1/account/password/reset', { method: 'POST', body: { token, newPassword } }),
+
+    /** POST /register (PUBLIC) — inscription. 409 si email pris, 422 si entrée invalide. */
+    register: (email: string, password: string, acceptTerms: boolean) =>
+      api<unknown>('/api/v1/register', { method: 'POST', body: { email, password, acceptTerms } }),
+
+    /** POST /account/verify-email (PUBLIC) — confirme l'email via jeton. 422 si invalide/expiré. */
+    verifyEmail: (token: string) =>
+      api<unknown>('/api/v1/account/verify-email', { method: 'POST', body: { token } }),
   }
 }

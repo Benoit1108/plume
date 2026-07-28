@@ -18,8 +18,15 @@ final class AccountStatusChecker implements UserCheckerInterface
 {
     public function checkPreAuth(UserInterface $user): void
     {
-        if ($user instanceof User && $user->isDeletionRequested()) {
+        if (!$user instanceof User) {
+            return;
+        }
+        if ($user->isDeletionRequested()) {
             throw new CustomUserMessageAccountStatusException('Account scheduled for deletion.');
+        }
+        // Inscription publique : pas d'accès tant que l'email n'est pas vérifié (V2.1b).
+        if (!$user->isEmailVerified()) {
+            throw new CustomUserMessageAccountStatusException('Email address not verified.');
         }
     }
 

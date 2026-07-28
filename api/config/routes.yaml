@@ -28,6 +28,18 @@ api_account_password:
     controller: App\Account\Infrastructure\Http\ChangePasswordController
     methods: [POST]
 
+# Inscription publique (PUBLIC) : crée un compte non vérifié + envoie l'email de vérification.
+api_register:
+    path: /api/v1/register
+    controller: App\Account\Infrastructure\Http\RegisterController
+    methods: [POST]
+
+# Vérification d'email (PUBLIC) : confirme l'adresse via le jeton signé.
+api_account_verify_email:
+    path: /api/v1/account/verify-email
+    controller: App\Account\Infrastructure\Http\VerifyEmailController
+    methods: [POST]
+
 # Mot de passe oublié (PUBLIC) : demande de lien de réinitialisation.
 api_account_password_forgot:
     path: /api/v1/account/password/forgot

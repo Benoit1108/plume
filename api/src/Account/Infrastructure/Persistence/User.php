@@ -43,6 +43,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?\DateTimeImmutable $deletionRequestedAt = null;
 
+    /**
+     * Email vérifié (V2.1b). **Par défaut `true`** : tout compte créé par un opérateur/la CLI
+     * (`app:user:create`, seed, tests) est de confiance. Seule l'INSCRIPTION PUBLIQUE en libre-service
+     * exige une vérification (`requireEmailVerification()`) → l'auth est refusée tant que non vérifié.
+     */
+    #[ORM\Column]
+    private bool $emailVerified = true;
+
     public function __construct(Uuid $id, Uuid $tenantId, string $email)
     {
         if ('' === $email) {
@@ -112,6 +120,23 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function isDeletionRequested(): bool
     {
         return null !== $this->deletionRequestedAt;
+    }
+
+    /** Inscription publique : le compte doit vérifier son email avant de pouvoir se connecter. */
+    public function requireEmailVerification(): void
+    {
+        $this->emailVerified = false;
+    }
+
+    /** Vérification réussie (lien email cliqué). Idempotent. */
+    public function verifyEmail(): void
+    {
+        $this->emailVerified = true;
+    }
+
+    public function isEmailVerified(): bool
+    {
+        return $this->emailVerified;
     }
 
     public function deletionRequestedAt(): ?\DateTimeImmutable

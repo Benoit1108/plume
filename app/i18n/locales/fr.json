@@ -18,6 +18,23 @@
       "submit": "Réinitialiser le mot de passe",
       "done": "Mot de passe réinitialisé. Connectez-vous.",
       "invalidToken": "Ce lien de réinitialisation est invalide ou expiré. Refaites une demande."
+    },
+    "register": {
+      "cta": "Créer un compte",
+      "intro": "Créez votre compte.",
+      "submit": "Créer mon compte",
+      "haveAccount": "J'ai déjà un compte",
+      "acceptTerms": "J'accepte les {terms} et la {privacy}.",
+      "mustAccept": "Vous devez accepter les conditions.",
+      "emailTaken": "Un compte existe déjà avec cet email.",
+      "error": "L'inscription a échoué. Réessayez.",
+      "checkEmailTitle": "Vérifiez votre email",
+      "checkEmail": "Un email de confirmation vient d'être envoyé. Cliquez le lien pour activer votre compte."
+    },
+    "verify": {
+      "verifying": "Vérification en cours…",
+      "ok": "Email confirmé ! Vous pouvez vous connecter.",
+      "error": "Ce lien de vérification est invalide ou expiré."
     }
   },
   "legal": {

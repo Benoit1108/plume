@@ -26,8 +26,18 @@ final class AccountStatusCheckerTest extends TestCase
         (new AccountStatusChecker())->checkPreAuth($user);
     }
 
-    public function testAllowsActiveUser(): void
+    public function testRejectsUnverifiedEmail(): void
     {
+        $user = new User(Uuid::v7(), Uuid::v7(), 'unverified@plume.test');
+        $user->requireEmailVerification();
+
+        $this->expectException(CustomUserMessageAccountStatusException::class);
+        (new AccountStatusChecker())->checkPreAuth($user);
+    }
+
+    public function testAllowsActiveVerifiedUser(): void
+    {
+        // Par défaut un User est vérifié (création opérateur/CLI/test).
         $user = new User(Uuid::v7(), Uuid::v7(), 'active@plume.test');
 
         (new AccountStatusChecker())->checkPreAuth($user);

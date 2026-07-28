@@ -25,6 +25,27 @@ final class AccountMailer
     ) {
     }
 
+    public function sendEmailVerification(string $email, string $token): void
+    {
+        $url = rtrim($this->frontendUrl, '/').'/verify-email?token='.rawurlencode($token);
+
+        $this->mailer->send(
+            (new Email())
+                ->from($this->from)
+                ->to($email)
+                ->subject('Confirmez votre adresse email / Confirm your email')
+                ->text(
+                    "Bienvenue !\n\n"
+                    ."Confirmez votre adresse email pour activer votre compte (lien valable 24 h) :\n"
+                    .$url."\n\n"
+                    ."— \n\n"
+                    ."Welcome!\n\n"
+                    ."Confirm your email address to activate your account (link valid for 24h):\n"
+                    .$url."\n",
+                ),
+        );
+    }
+
     public function sendPasswordReset(string $email, string $token): void
     {
         $url = rtrim($this->frontendUrl, '/').'/reset-password?token='.rawurlencode($token);

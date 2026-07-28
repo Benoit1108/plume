@@ -53,9 +53,14 @@ async function onSubmit(): Promise<void> {
           {{ t('auth.signIn') }}
         </UButton>
 
-        <NuxtLink to="/forgot-password" class="text-sm text-muted hover:text-default text-center">
-          {{ t('auth.forgotPassword') }}
-        </NuxtLink>
+        <div class="flex flex-col gap-1.5 text-center">
+          <NuxtLink to="/forgot-password" class="text-sm text-muted hover:text-default">
+            {{ t('auth.forgotPassword') }}
+          </NuxtLink>
+          <NuxtLink to="/register" class="text-sm text-muted hover:text-default">
+            {{ t('auth.register.cta') }}
+          </NuxtLink>
+        </div>
       </form>
 
       <div class="mt-4 flex justify-center gap-3 text-xs text-muted">
