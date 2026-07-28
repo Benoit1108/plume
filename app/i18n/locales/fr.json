@@ -37,6 +37,18 @@
       "error": "Ce lien de vérification est invalide ou expiré."
     }
   },
+  "notifications": {
+    "title": "Notifications",
+    "aria": "Notifications",
+    "ariaUnread": "Notifications — {count} non lue(s)",
+    "empty": "Rien à signaler pour l'instant.",
+    "markAllRead": "Tout marquer lu",
+    "types": {
+      "replyReceived": "Vous avez reçu une réponse",
+      "emailSendFailed": "Un envoi d'email a échoué",
+      "followupDue": "Relance due aujourd'hui — {org}"
+    }
+  },
   "onboarding": {
     "title": "Bien démarrer",
     "intro": "{done}/{total} étapes faites — votre atelier sera prêt en quelques minutes.",

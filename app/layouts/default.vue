@@ -48,6 +48,7 @@ watch(() => route.path, () => {
           <PlumeMark :size="18" />
         </NuxtLink>
         <div class="flex-1" />
+        <NotificationBell />
         <LocaleSwitcher />
         <ThemeToggle />
         <UButton

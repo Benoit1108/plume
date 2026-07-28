@@ -10,6 +10,7 @@ export const queryKeys = {
   feeds: ['feeds'] as const,
   templates: ['templates'] as const,
   candidateQueue: ['candidate-queue'] as const,
+  notifications: ['notifications'] as const,
   organizations: ['organizations'] as const,
   leads: ['leads'] as const,
   organization: (id: string) => ['organization', id] as const,

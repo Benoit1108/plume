@@ -7,6 +7,7 @@ namespace App;
 use App\Account\Infrastructure\Scheduler\PurgeDeletedAccountsTick;
 use App\Mailbox\Infrastructure\Scheduler\FetchAllAlertEmailsTick;
 use App\Mailbox\Infrastructure\Scheduler\FetchAllRepliesTick;
+use App\Notification\Infrastructure\Scheduler\NotifyDueFollowUpsTick;
 use App\Sourcing\Infrastructure\Scheduler\PollAllSourcesTick;
 use App\Sourcing\Infrastructure\Scheduler\PurgeRawAlertsTick;
 use Symfony\Component\Console\Messenger\RunCommandMessage;
@@ -46,6 +47,10 @@ class Schedule implements ScheduleProviderInterface
             ->add(RecurringMessage::every('1 day', new PurgeRawAlertsTick()))
 
             // Purge quotidienne des comptes en soft-delete au-delà du délai de grâce (RGPD, V2.0-a2).
-            ->add(RecurringMessage::every('1 day', new PurgeDeletedAccountsTick()));
+            ->add(RecurringMessage::every('1 day', new PurgeDeletedAccountsTick()))
+
+            // Notifications « relance due aujourd'hui » — horaire (passage de minuit par fuseau),
+            // idempotent (une notification par relance et par échéance).
+            ->add(RecurringMessage::every('1 hour', new NotifyDueFollowUpsTick()));
     }
 }

@@ -7,7 +7,8 @@ doctrine:
         #   - interaction        : projection append-only (journal), écrite/lue en DBAL pur
         #   - messenger_messages : transport Messenger (outbox transactionnel)
         #   - raw_alert          : brut des annonces ingérées (support Sourcing, DBAL pur)
-        schema_filter: '~^(?!(messenger_messages|interaction|raw_alert)$)~'
+        #   - notification       : projection du centre de notifications (DBAL pur, V2)
+        schema_filter: '~^(?!(messenger_messages|interaction|raw_alert|notification)$)~'
         types:
             lead_id: App\Prospecting\Infrastructure\Persistence\Doctrine\Type\LeadIdType
             tenant_id: App\Shared\Infrastructure\Persistence\Doctrine\Type\TenantIdType

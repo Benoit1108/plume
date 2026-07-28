@@ -632,6 +632,66 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/notifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Retrieves the collection of Notification resources.
+         * @description Retrieves the collection of Notification resources.
+         */
+        get: operations["api_notifications_get_collection"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/notifications/read-all": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Creates a Notification resource.
+         * @description Creates a Notification resource.
+         */
+        post: operations["api_notificationsread-all_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/notifications/{id}/read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Creates a Notification resource.
+         * @description Creates a Notification resource.
+         */
+        post: operations["api_notifications_idread_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/organizations": {
         parameters: {
             query?: never;
@@ -1790,6 +1850,44 @@ export interface components {
             connectedAt?: string | null;
             lastSyncAt?: string | null;
             authorizationUrl?: string | null;
+        };
+        /**
+         * @description Centre de notifications (V2) : les 50 dernières du tenant courant + marquage lu.
+         *     Projection pure (aucune écriture métier) — le front dérive le compteur non-lu de la liste.
+         */
+        "Notification-notification.read": {
+            /** @default  */
+            id: string;
+            /**
+             * @default
+             * @enum {string}
+             */
+            type: "reply_received" | "email_send_failed" | "followup_due";
+            payload?: {
+                [key: string]: string | null;
+            };
+            readAt?: string | null;
+            /** @default  */
+            occurredOn: string;
+        };
+        /**
+         * @description Centre de notifications (V2) : les 50 dernières du tenant courant + marquage lu.
+         *     Projection pure (aucune écriture métier) — le front dérive le compteur non-lu de la liste.
+         */
+        "Notification.jsonld-notification.read": components["schemas"]["HydraItemBaseSchema"] & {
+            /** @default  */
+            id: string;
+            /**
+             * @default
+             * @enum {string}
+             */
+            type: "reply_received" | "email_send_failed" | "followup_due";
+            payload?: {
+                [key: string]: string | null;
+            };
+            readAt?: string | null;
+            /** @default  */
+            occurredOn: string;
         };
         /** @description Resource API (DTO) du Répertoire — jamais l'agrégat/entité Doctrine. */
         "Organization-org.read": {
@@ -3711,6 +3809,115 @@ export interface operations {
                     "application/ld+json": components["schemas"]["Mailbox.jsonld-mailbox.read"];
                     "application/json": components["schemas"]["Mailbox-mailbox.read"];
                 };
+            };
+            /** @description Invalid input */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/ld+json": components["schemas"]["Error.jsonld"];
+                    "application/problem+json": components["schemas"]["Error"];
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description An error occurred */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/ld+json": components["schemas"]["ConstraintViolation.jsonld"];
+                    "application/problem+json": components["schemas"]["ConstraintViolation"];
+                    "application/json": components["schemas"]["ConstraintViolation"];
+                };
+            };
+        };
+    };
+    api_notifications_get_collection: {
+        parameters: {
+            query?: {
+                /** @description The collection page number */
+                page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Notification collection */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/ld+json": components["schemas"]["HydraCollectionBaseSchema"] & {
+                        member: components["schemas"]["Notification.jsonld-notification.read"][];
+                    };
+                    "application/json": components["schemas"]["Notification-notification.read"][];
+                };
+            };
+        };
+    };
+    "api_notificationsread-all_post": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Notification resource created */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid input */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/ld+json": components["schemas"]["Error.jsonld"];
+                    "application/problem+json": components["schemas"]["Error"];
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description An error occurred */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/ld+json": components["schemas"]["ConstraintViolation.jsonld"];
+                    "application/problem+json": components["schemas"]["ConstraintViolation"];
+                    "application/json": components["schemas"]["ConstraintViolation"];
+                };
+            };
+        };
+    };
+    api_notifications_idread_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Notification identifier */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Notification resource created */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Invalid input */
             400: {

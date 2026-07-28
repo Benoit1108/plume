@@ -2967,6 +2967,202 @@
                 }
             }
         },
+        "/api/v1/notifications": {
+            "get": {
+                "operationId": "api_notifications_get_collection",
+                "tags": [
+                    "Notification"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Notification collection",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "type": "object",
+                                    "description": "Notification.jsonld-notification.read collection.",
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/HydraCollectionBaseSchema"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "required": [
+                                                "member"
+                                            ],
+                                            "properties": {
+                                                "member": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/Notification.jsonld-notification.read"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Notification-notification.read"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "Retrieves the collection of Notification resources.",
+                "description": "Retrieves the collection of Notification resources.",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "The collection page number",
+                        "required": false,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 1
+                        },
+                        "style": "form",
+                        "explode": true
+                    }
+                ]
+            }
+        },
+        "/api/v1/notifications/read-all": {
+            "post": {
+                "operationId": "api_notificationsread-all_post",
+                "tags": [
+                    "Notification"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Notification resource created",
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Creates a Notification resource.",
+                "description": "Creates a Notification resource.",
+                "parameters": []
+            }
+        },
+        "/api/v1/notifications/{id}/read": {
+            "post": {
+                "operationId": "api_notifications_idread_post",
+                "tags": [
+                    "Notification"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Notification resource created",
+                        "links": {}
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        },
+                        "links": {}
+                    },
+                    "422": {
+                        "description": "An error occurred",
+                        "content": {
+                            "application/ld+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation.jsonld"
+                                }
+                            },
+                            "application/problem+json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConstraintViolation"
+                                }
+                            }
+                        },
+                        "links": {}
+                    }
+                },
+                "summary": "Creates a Notification resource.",
+                "description": "Creates a Notification resource.",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Notification identifier",
+                        "required": true,
+                        "deprecated": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "style": "simple",
+                        "explode": false
+                    }
+                ]
+            }
+        },
         "/api/v1/organizations": {
             "get": {
                 "operationId": "api_organizations_get_collection",
@@ -7069,6 +7265,89 @@
                 ],
                 "description": "La bo\u00eete email connect\u00e9e du tenant (une seule en V1 \u2014 D6).\nLe flux OAuth : POST /mailbox/oauth/start \u2192 URL de consentement \u2192\nle navigateur revient sur le front avec code+state \u2192 POST /mailbox/connect.\nJamais un token dans une r\u00e9ponse."
             },
+            "Notification-notification.read": {
+                "type": "object",
+                "description": "Centre de notifications (V2) : les 50 derni\u00e8res du tenant courant + marquage lu.\nProjection pure (aucune \u00e9criture m\u00e9tier) \u2014 le front d\u00e9rive le compteur non-lu de la liste.",
+                "properties": {
+                    "id": {
+                        "default": "",
+                        "type": "string"
+                    },
+                    "type": {
+                        "default": "",
+                        "type": "string",
+                        "enum": [
+                            "reply_received",
+                            "email_send_failed",
+                            "followup_due"
+                        ]
+                    },
+                    "payload": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": [
+                                "string",
+                                "null"
+                            ]
+                        }
+                    },
+                    "readAt": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "occurredOn": {
+                        "default": "",
+                        "type": "string"
+                    }
+                }
+            },
+            "Notification.jsonld-notification.read": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/HydraItemBaseSchema"
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "default": "",
+                                "type": "string"
+                            },
+                            "type": {
+                                "default": "",
+                                "type": "string",
+                                "enum": [
+                                    "reply_received",
+                                    "email_send_failed",
+                                    "followup_due"
+                                ]
+                            },
+                            "payload": {
+                                "type": "object",
+                                "additionalProperties": {
+                                    "type": [
+                                        "string",
+                                        "null"
+                                    ]
+                                }
+                            },
+                            "readAt": {
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "occurredOn": {
+                                "default": "",
+                                "type": "string"
+                            }
+                        }
+                    }
+                ],
+                "description": "Centre de notifications (V2) : les 50 derni\u00e8res du tenant courant + marquage lu.\nProjection pure (aucune \u00e9criture m\u00e9tier) \u2014 le front d\u00e9rive le compteur non-lu de la liste."
+            },
             "Organization-org.read": {
                 "type": "object",
                 "description": "Resource API (DTO) du R\u00e9pertoire \u2014 jamais l'agr\u00e9gat/entit\u00e9 Doctrine.",
@@ -8113,6 +8392,10 @@
         {
             "name": "SendDraft",
             "description": "Envoi d'un brouillon relu (draft-first : READY uniquement). Asynchrone :\nla r\u00e9ponse est l'ACCUS\u00c9 (SENDING) ; le journal de la piste raconte la suite\n(email_sent / email_send_failed)."
+        },
+        {
+            "name": "Notification",
+            "description": "Centre de notifications (V2) : les 50 derni\u00e8res du tenant courant + marquage lu.\nProjection pure (aucune \u00e9criture m\u00e9tier) \u2014 le front d\u00e9rive le compteur non-lu de la liste."
         },
         {
             "name": "Dashboard",

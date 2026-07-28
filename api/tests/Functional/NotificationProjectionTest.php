@@ -1,0 +1,108 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Tests\Functional;
+
+use App\Mailbox\Domain\Outbound\Event\EmailSendFailed;
+use App\Mailbox\Domain\Outbound\Event\ReplyCaptured;
+use App\Notification\Infrastructure\Projection\NotificationProjector;
+use App\Notification\Infrastructure\Scheduler\NotifyDueFollowUpsHandler;
+use App\Notification\Infrastructure\Scheduler\NotifyDueFollowUpsTick;
+use Doctrine\DBAL\Connection;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\Uid\Uuid;
+
+/**
+ * Centre de notifications — les producteurs : projection des events (idempotente, retries Messenger
+ * absorbés) et tick « relance due aujourd'hui » (déterministe : une notification par relance et par
+ * échéance, re-run sans doublon, comptes en suppression exclus).
+ */
+final class NotificationProjectionTest extends KernelTestCase
+{
+    private Connection $connection;
+
+    protected function setUp(): void
+    {
+        $connection = static::getContainer()->get(Connection::class);
+        \assert($connection instanceof Connection);
+        $this->connection = $connection;
+        $this->connection->executeStatement('TRUNCATE TABLE notification, lead, organization, profile, app_user RESTART IDENTITY CASCADE');
+    }
+
+    private function countFor(string $tenantId): int
+    {
+        $value = $this->connection->fetchOne('SELECT COUNT(*) FROM notification WHERE tenant_id = ?', [$tenantId]);
+
+        return is_numeric($value) ? (int) $value : -1;
+    }
+
+    public function testProjectsReplyAndFailureEventsIdempotently(): void
+    {
+        $tenant = Uuid::v7()->toRfc4122();
+        $projector = new NotificationProjector($this->connection);
+
+        $reply = new ReplyCaptured($tenant, 'lead-1', 'thread-1', 'Merci pour votre message, ça m\'intéresse !', new \DateTimeImmutable('2026-07-28 09:00:00'));
+        $projector->onReplyCaptured($reply);
+        $projector->onReplyCaptured($reply); // redélivrance Messenger → aucun doublon
+
+        $failure = new EmailSendFailed($tenant, 'msg-1', 'lead-1', 'token_expired', new \DateTimeImmutable('2026-07-28 10:00:00'));
+        $projector->onEmailSendFailed($failure);
+
+        self::assertSame(2, $this->countFor($tenant));
+        $types = $this->connection->fetchFirstColumn('SELECT type FROM notification WHERE tenant_id = ? ORDER BY occurred_on', [$tenant]);
+        self::assertSame(['reply_received', 'email_send_failed'], $types);
+    }
+
+    public function testNotifiesFollowUpsDueTodayOncePerDeadline(): void
+    {
+        $tenant = Uuid::v7()->toRfc4122();
+        $deleting = Uuid::v7()->toRfc4122();
+        $today = new \DateTimeImmutable('today 09:00');
+        $tomorrow = $today->modify('+1 day');
+
+        foreach ([[$tenant, 'lead-due', $today], [$tenant, 'lead-later', $tomorrow], [$deleting, 'lead-gone', $today]] as [$t, $leadId, $dueAt]) {
+            $this->seedLeadWithFollowUp($t, $leadId, $dueAt);
+        }
+        // Le tenant `deleting` a demandé sa suppression → plus aucune notification.
+        $this->connection->executeStatement(
+            "INSERT INTO app_user (id, tenant_id, email, password, roles, deletion_requested_at) VALUES (?, ?, 'gone@plume.test', 'x', '[]', NOW())",
+            [Uuid::v7()->toRfc4122(), $deleting],
+        );
+
+        $handler = new NotifyDueFollowUpsHandler($this->connection);
+        $handler(new NotifyDueFollowUpsTick());
+        $handler(new NotifyDueFollowUpsTick()); // tick horaire → re-run sans doublon
+
+        self::assertSame(1, $this->countFor($tenant));
+        self::assertSame(0, $this->countFor($deleting));
+
+        /** @var array{type: string, payload: string} $row */
+        $row = $this->connection->fetchAssociative('SELECT type, payload FROM notification WHERE tenant_id = ?', [$tenant]);
+        self::assertSame('followup_due', $row['type']);
+        self::assertStringContainsString('lead-due', $row['payload']);
+        self::assertStringContainsString('Maison lead-due', $row['payload']); // orgName joint
+    }
+
+    private function seedLeadWithFollowUp(string $tenantId, string $leadId, \DateTimeImmutable $dueAt): void
+    {
+        // Profil au fuseau UTC : « aujourd'hui » du tick == « today » PHP quel que soit le moment
+        // du run (sinon la fenêtre 22 h-minuit UTC ferait diverger Europe/Paris — test flaky).
+        $this->connection->executeStatement(
+            "INSERT INTO profile (tenant_id, weekly_goal, timezone) VALUES (?, 5, 'UTC') ON CONFLICT (tenant_id) DO NOTHING",
+            [$tenantId],
+        );
+        $orgId = 'org-'.$leadId;
+        // Nom unique par piste (index unique tenant_id + lower(name) sur organization).
+        $this->connection->executeStatement(
+            "INSERT INTO organization (id, tenant_id, name, type, working_languages, segments, do_not_contact, contacts)
+             VALUES (?, ?, ?, 'publisher', '[]', '[]', false, '[]')",
+            [$orgId, $tenantId, 'Maison '.$leadId],
+        );
+        $this->connection->executeStatement(
+            "INSERT INTO lead (id, tenant_id, organization_id, segment, status, language_pair, source, priority, created_at, follow_ups, next_follow_up_at, next_follow_up_label)
+             VALUES (?, ?, ?, 'EDITION', 'FOLLOWED_UP', 'en>fr', 'DIRECT', 'MEDIUM', NOW(), '[]', ?, 'Relance 1')",
+            [$leadId, $tenantId, $orgId, $dueAt->format('Y-m-d H:i:s')],
+        );
+    }
+}

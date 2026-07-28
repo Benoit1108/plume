@@ -37,6 +37,18 @@
       "error": "This verification link is invalid or expired."
     }
   },
+  "notifications": {
+    "title": "Notifications",
+    "aria": "Notifications",
+    "ariaUnread": "Notifications — {count} unread",
+    "empty": "Nothing to report yet.",
+    "markAllRead": "Mark all as read",
+    "types": {
+      "replyReceived": "You received a reply",
+      "emailSendFailed": "An email failed to send",
+      "followupDue": "Follow-up due today — {org}"
+    }
+  },
   "onboarding": {
     "title": "Getting started",
     "intro": "{done}/{total} steps done — your studio will be ready in minutes.",
