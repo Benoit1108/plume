@@ -62,6 +62,9 @@ function isOverdue(lead: Lead): boolean {
       </template>
     </PageHeader>
 
+    <!-- Onboarding (V2.1) : checklist « Bien démarrer », disparaît d'elle-même une fois complétée. -->
+    <OnboardingChecklist />
+
     <div v-if="loading" role="status" class="mt-6 flex flex-col gap-6">
       <span class="sr-only">{{ t('common.loading') }}</span>
       <USkeleton class="h-20 rounded-xl" />

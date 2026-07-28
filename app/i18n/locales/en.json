@@ -37,6 +37,23 @@
       "error": "This verification link is invalid or expired."
     }
   },
+  "onboarding": {
+    "title": "Getting started",
+    "intro": "{done}/{total} steps done — your studio will be ready in minutes.",
+    "dismiss": "Hide this guide",
+    "steps": {
+      "presentation": "Introduce yourself (bio, specialties, signature) — the raw material of your drafts",
+      "mailbox": "Connect your email inbox to send and track your messages",
+      "feed": "Add a job-alert feed to receive offers to triage",
+      "directory": "Fill your directory (CSV import or manual entry)"
+    },
+    "actions": {
+      "presentation": "Complete my presentation",
+      "mailbox": "Connect my inbox",
+      "feed": "Add a feed",
+      "directory": "Open the directory"
+    }
+  },
   "legal": {
     "draft": "⚠️ Draft content — to be completed before public launch.",
     "terms": {
