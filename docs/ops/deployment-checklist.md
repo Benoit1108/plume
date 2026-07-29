@@ -56,6 +56,18 @@ Créer le (ou les) **administrateur du back-office** : `php bin/console app:admi
 - **`scheduler`** → `messenger:consume scheduler_default`, rôle **propriétaire**, **UNE seule
   instance** (maintenance cross-tenant : fan-out, purges RGPD/brut).
 
+## 4bis. Performance runtime (au 1er déploiement — revue globale perf)
+
+- **OPcache prod** : `opcache.validate_timestamps=0` + `opcache.preload` (préchargement Symfony) —
+  installé mais non configuré (`Dockerfile`). Premier levier de latence.
+- **FrankenPHP worker mode** : `frankenphp { worker ... }` (boot Symfony réutilisé entre requêtes,
+  latence ÷2-5). ⚠️ si activé, le reset tenant `kernel.request` (déjà en place, V2.0-c) devient
+  critique — il est déjà là.
+- **Pooler** : pgbouncer si le churn de connexions grimpe (Doctrine non persistant).
+- **`worker_io`** : à ~100+ boîtes email, le fan-out (5 min) dépasse un worker séquentiel → prévoir
+  des **réplicas** de `worker_io` (le transport doctrine gère les consommateurs concurrents via
+  `FOR UPDATE SKIP LOCKED`). Surveiller la profondeur de la file `io` (exposée dans le back-office).
+
 ## 5. Multi-instances (scale horizontal) — sinon ignorer
 
 Si l'API tourne sur **plusieurs instances**, les compteurs de rate-limiting DOIVENT être partagés,

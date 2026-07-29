@@ -8,6 +8,7 @@ use App\Account\Infrastructure\Scheduler\PurgeDeletedAccountsTick;
 use App\Mailbox\Infrastructure\Scheduler\FetchAllAlertEmailsTick;
 use App\Mailbox\Infrastructure\Scheduler\FetchAllRepliesTick;
 use App\Notification\Infrastructure\Scheduler\NotifyDueFollowUpsTick;
+use App\Notification\Infrastructure\Scheduler\PurgeOldNotificationsTick;
 use App\Sourcing\Infrastructure\Scheduler\PollAllSourcesTick;
 use App\Sourcing\Infrastructure\Scheduler\PurgeRawAlertsTick;
 use Symfony\Component\Console\Messenger\RunCommandMessage;
@@ -51,6 +52,9 @@ class Schedule implements ScheduleProviderInterface
 
             // Notifications « relance due aujourd'hui » — horaire (passage de minuit par fuseau),
             // idempotent (une notification par relance et par échéance).
-            ->add(RecurringMessage::every('1 hour', new NotifyDueFollowUpsTick()));
+            ->add(RecurringMessage::every('1 hour', new NotifyDueFollowUpsTick()))
+
+            // Rétention du centre de notifications (lues > 90 j) + jetons de reset expirés (revue globale).
+            ->add(RecurringMessage::every('1 day', new PurgeOldNotificationsTick()));
     }
 }

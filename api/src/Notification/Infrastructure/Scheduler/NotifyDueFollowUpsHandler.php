@@ -39,7 +39,14 @@ final class NotifyDueFollowUpsHandler
             JOIN organization o ON o.id = l.organization_id AND o.tenant_id = l.tenant_id
             LEFT JOIN profile p ON p.tenant_id = l.tenant_id
             WHERE l.next_follow_up_at IS NOT NULL
-              AND l.next_follow_up_at::date = (NOW() AT TIME ZONE COALESCE(p.timezone, 'Europe/Paris'))::date
+              -- RATTRAPAGE (revue globale) : fenêtre [échéance ≤ aujourd'hui ET > il y a 7 j] au lieu
+              -- d'une égalité stricte sur la date → une relance n'est plus PERDUE si le scheduler a
+              -- été indisponible ou si l'échéance tombe la nuit. L'event_id déterministe
+              -- `followup_due:<lead>:<date>` garantit UNE seule notification par échéance.
+              AND l.next_follow_up_at::date <= (NOW() AT TIME ZONE COALESCE(p.timezone, 'Europe/Paris'))::date
+              AND l.next_follow_up_at::date > (NOW() AT TIME ZONE COALESCE(p.timezone, 'Europe/Paris'))::date - 7
+              -- Aligné sur le tableau « Aujourd'hui » : pas de relance sur une piste close/en pause.
+              AND l.status NOT IN ('WON', 'LOST', 'PAUSED')
               AND l.tenant_id NOT IN (SELECT tenant_id FROM app_user WHERE deletion_requested_at IS NOT NULL)
             ON CONFLICT (event_id) DO NOTHING
             SQL);
