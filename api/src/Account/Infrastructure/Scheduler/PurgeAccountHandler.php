@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Account\Infrastructure\Scheduler;
 
+use App\Account\Application\Gateway\MailboxRevoker;
 use App\Shared\Infrastructure\Audit\AuditLogger;
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
@@ -27,11 +28,17 @@ final class PurgeAccountHandler
         private readonly Connection $connection,
         private readonly LoggerInterface $logger,
         private readonly AuditLogger $audit,
+        private readonly MailboxRevoker $mailboxRevoker,
     ) {
     }
 
     public function __invoke(PurgeAccount $message): void
     {
+        // Droit à l'effacement complet : on révoque le consentement OAuth CÔTÉ FOURNISSEUR AVANT
+        // d'effacer les tables (sinon la ligne `connected_mailbox` — et le token chiffré — a déjà
+        // disparu). Best-effort par contrat du port : ne fait jamais échouer la purge.
+        $this->mailboxRevoker->revokeForTenant($message->tenantId);
+
         // Pas de transaction explicite ici : le command.bus en ouvre déjà une pour ce message
         // (une par compte). Une exception remonte → rollback de CE message + retry Messenger.
         foreach ($this->tenantScopedTables() as $table) {

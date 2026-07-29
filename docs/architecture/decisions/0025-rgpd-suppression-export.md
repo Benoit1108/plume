@@ -39,9 +39,15 @@
 ## Conséquences
 - ✅ Droits d'effacement et de portabilité couverts, testés (endpoint + purge via bus + anti-fuite export).
 - ✅ Isolation renforcée : la purge par compte s'exécute sous le rôle runtime, tenant activé → RLS appliquée.
+- ✅ **Révocation OAuth CÔTÉ FOURNISSEUR (faite — clôture V2.0)** : à la purge, avant d'effacer les
+  tables, on révoque le consentement chez Google/Microsoft via le port `MailboxRevoker`
+  (Account/Application) implémenté par `MailboxTokenRevoker` (Mailbox/Infrastructure) — best-effort
+  total (une boîte absente, un token indéchiffrable ou une panne réseau ne bloque jamais l'effacement).
+  Choix de timing : à la **purge** (pas au soft-delete) car c'est le seul point qui couvre uniformément
+  les deux voies (self-service ET support) avec le bon tenant activé, et c'est cohérent avec le modèle
+  de délai de grâce (données ET consentement effacés à l'expiration). Microsoft n'expose pas de
+  révocation par refresh token côté app (documenté dans `OutlookConnector`).
 - ⚠️ **Limites connues (backlog, à tracer au registre RGPD)** :
-  - **Révocation OAuth CÔTÉ FOURNISSEUR non faite** : la purge détruit les tokens chiffrés (plus
-    d'accès possible à la boîte), mais ne révoque pas l'autorisation chez Google/Microsoft — à ajouter.
   - **Piste d'audit** : la purge efface le journal `interaction` (intra-tenant) ; seule une ligne de log
     applicative (identifiant technique du tenant) subsiste. Un journal d'audit hors-tenant reste à concevoir.
   - **`messenger_messages`** hors file `failed` (messages en régime nominal) n'est pas balayé (consommé).
