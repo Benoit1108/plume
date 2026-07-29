@@ -20,4 +20,7 @@ export default defineNuxtPlugin((nuxtApp) => {
     },
   })
   nuxtApp.vueApp.use(VueQueryPlugin, { queryClient })
+
+  // Exposé pour purger le cache à la déconnexion (anti-fuite inter-comptes sur poste partagé, revue globale).
+  return { provide: { queryClient } }
 })

@@ -7,7 +7,7 @@ const { statusLabel } = useLeadLabels()
 const { segmentLabel } = useDirectoryLabels()
 const dashboardApi = useDashboard()
 
-const { data, isPending: loading } = useQuery({
+const { data, isPending: loading, isError, refetch } = useQuery({
   queryKey: queryKeys.dashboard,
   queryFn: () => dashboardApi.get(),
 })
@@ -57,6 +57,8 @@ const hasActivity = computed(() =>
       <USkeleton class="h-44 rounded-xl" />
       <USkeleton class="h-48 rounded-xl" />
     </div>
+
+    <QueryError v-else-if="isError" class="mt-6" @retry="() => { void refetch() }" />
 
     <template v-else-if="board">
       <div

@@ -158,7 +158,8 @@
     "error": "Something went wrong. Try again.",
     "conflict": "This action conflicts with the current state — the page may have just changed.",
     "loadError": "Loading failed.",
-    "retry": "Retry"
+    "retry": "Retry",
+    "loadErrorHint": "Check your connection and try again."
   },
   "directory": {
     "eyebrow": "Studio · targets",

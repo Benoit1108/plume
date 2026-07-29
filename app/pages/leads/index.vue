@@ -10,7 +10,7 @@ const leadsApi = useLeads()
 const toast = useToast()
 
 const queryClient = useQueryClient()
-const { data: allLeadsData, isPending: loading } = useQuery({ queryKey: queryKeys.leads, queryFn: () => leadsApi.list() })
+const { data: allLeadsData, isPending: loading, isError, refetch } = useQuery({ queryKey: queryKeys.leads, queryFn: () => leadsApi.list() })
 const allLeads = computed<Lead[]>(() => allLeadsData.value ?? [])
 
 /** Colonnes du kanban (tous les statuts du pipeline). */
@@ -124,6 +124,8 @@ async function onDrop(targetStatus: LeadStatus): Promise<void> {
         <USkeleton class="h-24 rounded-xl" />
       </div>
     </div>
+
+    <QueryError v-else-if="isError" class="mt-6" @retry="() => { void refetch() }" />
 
     <div v-else-if="!allLeads.length" class="mt-6 py-16 flex flex-col items-center gap-3 text-center border border-default rounded-xl">
       <p class="text-muted max-w-md">{{ t('pipeline.empty') }}</p>

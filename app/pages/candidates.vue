@@ -19,7 +19,7 @@ function focusTop(): void {
 
 const queryClient = useQueryClient()
 // queryFn appelle sourcing.queue() qui met aussi à jour le compteur partagé du badge de nav.
-const { data: candidatesData, isPending: loading } = useQuery({ queryKey: queryKeys.candidateQueue, queryFn: () => sourcing.queue() })
+const { data: candidatesData, isPending: loading, isError, refetch } = useQuery({ queryKey: queryKeys.candidateQueue, queryFn: () => sourcing.queue() })
 const candidates = computed<CandidateLead[]>(() => candidatesData.value ?? [])
 async function refresh(): Promise<void> { await queryClient.invalidateQueries({ queryKey: queryKeys.candidateQueue }) }
 
@@ -197,6 +197,8 @@ function safeUrl(url?: string | null): string | null {
       <span class="sr-only">{{ t('common.loading') }}</span>
       <USkeleton v-for="i in 3" :key="i" class="h-28 rounded-xl" />
     </div>
+
+    <QueryError v-else-if="isError" class="mt-6" @retry="() => { void refetch() }" />
 
     <div v-else-if="!candidates.length" class="mt-6 py-16 flex flex-col items-center gap-3 text-center border border-default rounded-xl">
       <UIcon name="i-lucide-inbox" class="size-8 text-dimmed" aria-hidden="true" />

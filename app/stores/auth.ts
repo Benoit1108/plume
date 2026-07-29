@@ -72,6 +72,14 @@ export const useAuthStore = defineStore('auth', () => {
     void $fetch('/api/v1/token/invalidate', { method: 'POST', body: {} })
       .catch(() => { /* déjà expiré/révoqué : rien à faire */ })
 
+    // Purge le cache serveur (TanStack) : aucune donnée du compte quitté ne doit rester en mémoire
+    // pour le suivant (poste partagé, revue globale front P1). Défensif (absent en test).
+    try {
+      const client = (useNuxtApp() as { $queryClient?: { clear: () => void } }).$queryClient
+      client?.clear()
+    }
+    catch { /* hors contexte Nuxt (test) : rien à purger */ }
+
     email.value = null
     isAdmin.value = false
     void navigateTo('/login')

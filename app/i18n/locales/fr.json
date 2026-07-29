@@ -158,7 +158,8 @@
     "error": "Une erreur est survenue. Réessaie.",
     "conflict": "Action impossible dans l'état actuel — la page vient peut-être de changer.",
     "loadError": "Le chargement a échoué.",
-    "retry": "Réessayer"
+    "retry": "Réessayer",
+    "loadErrorHint": "Vérifiez votre connexion et réessayez."
   },
   "directory": {
     "eyebrow": "Atelier · cibles",

@@ -10,7 +10,7 @@ const toast = useToast()
 
 const queryClient = useQueryClient()
 
-const { data: boardData, isPending: loading } = useQuery({ queryKey: queryKeys.today, queryFn: () => todayApi.get() })
+const { data: boardData, isPending: loading, isError, refetch } = useQuery({ queryKey: queryKeys.today, queryFn: () => todayApi.get() })
 const board = computed<Today | null>(() => boardData.value ?? null)
 
 // Accueil personnalisé (« Bonjour {prénom} ») — le nom vient du profil (page Compte).
@@ -77,6 +77,8 @@ function isOverdue(lead: Lead): boolean {
         <USkeleton class="h-20 rounded-xl" />
       </div>
     </div>
+
+    <QueryError v-else-if="isError" class="mt-6" @retry="() => { void refetch() }" />
 
     <template v-else-if="board">
       <!-- Objectif hebdo + série -->
