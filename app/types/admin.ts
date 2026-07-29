@@ -14,6 +14,27 @@ export interface AdminOverview {
   queues: Record<string, number>
 }
 
+/** Statut opérationnel interne (distinct de la sonde publique /health). */
+export interface AdminStatus {
+  db: string
+  /** Profondeur EN ATTENTE par queue Messenger. */
+  queues: Record<string, number>
+  /** Messages dans la file `failed` (à rejouer). */
+  failed: number
+  /** Âge du plus vieux message en attente (hors failed) — un backlog qui vieillit = worker bloqué. */
+  backlogAgeSeconds: number
+  mailboxesError: number
+}
+
+/** KPIs produit (comptages/répartitions, sans PII). */
+export interface AdminMetrics {
+  accounts: { total: number, verified: number, active30d: number }
+  /** Inscriptions par semaine (8 dernières), semaines sans inscription omises. */
+  signups: Array<{ week: string, count: number }>
+  leadsByStatus: Record<string, number>
+  totals: { organizations: number, leads: number, messagesSent: number }
+}
+
 export interface AdminAccount {
   tenantId: string
   email: string

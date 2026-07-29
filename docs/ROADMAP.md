@@ -120,8 +120,9 @@ Fondations techniques.
       vérifié, provider insensible à la casse) → **onboarding** ; **2FA TOTP** + gestion des **sessions**
       (ADR-0027). *Reste : QR code d'enrôlement, chiffrement du secret TOTP au repos (dette tracée).*
 - [x] **Back-office / Admin** (livré) : contexte `Admin` **hors tenant** (`ROLE_ADMIN`, CLI), **connexion
-      propriétaire** cross-tenant (ADR-0026), 2FA obligatoire ; vue d'ensemble (comptages), comptes
-      (recherche), demande de suppression RGPD support + reset 2FA, **journal d'audit hors-tenant**.
+      propriétaire** cross-tenant (ADR-0026), 2FA obligatoire ; vue d'ensemble, comptes (recherche),
+      suppression RGPD support + reset 2FA, **journal d'audit hors-tenant**, **statut système**
+      (files/backlog/boîtes en erreur) + **métriques produit** (actifs, inscriptions, pistes par statut).
 - [x] **Centre de notifications** (livré, ADR-0028) : projection DBAL sur événements — réponse reçue,
       envoi échoué, relance due, **boîte déconnectée** (reprise OAuth guidée) ; badge cloche, purge 90 j ;
       **digests email** (préférence NONE/DAILY/WEEKLY, défaut DAILY). *Reste : « à trier ».*

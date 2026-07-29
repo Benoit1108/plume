@@ -125,6 +125,56 @@ final class AdminApiTest extends ApiTestCase
         self::assertArrayHasKey('queues', $data);
     }
 
+    public function testSystemStatusReportsOperationalHealth(): void
+    {
+        $this->createAdmin();
+        $client = static::createClient();
+        $token = $this->adminToken($client);
+
+        $response = $client->request('GET', '/api/v1/admin/status', ['auth_bearer' => $token]);
+        self::assertResponseIsSuccessful();
+
+        /** @var array{db: string, queues: array<string, int>, failed: int, backlogAgeSeconds: int, mailboxesError: int} $data */
+        $data = $response->toArray();
+        self::assertSame('ok', $data['db']);
+        self::assertSame(0, $data['mailboxesError']);
+        self::assertArrayHasKey('failed', $data);
+        self::assertArrayHasKey('backlogAgeSeconds', $data);
+    }
+
+    public function testSystemStatusIsForbiddenToRegularUsers(): void
+    {
+        $this->createUser('regular@plume.test');
+        $client = static::createClient();
+        $token = $this->tokenFor($client, 'regular@plume.test');
+        $client->request('GET', '/api/v1/admin/status', ['auth_bearer' => $token]);
+        self::assertResponseStatusCodeSame(403);
+        $client->request('GET', '/api/v1/admin/metrics', ['auth_bearer' => $token]);
+        self::assertResponseStatusCodeSame(403);
+    }
+
+    public function testMetricsReportsAccountsAndSignups(): void
+    {
+        // Base de test partagée : on isole le signal d'activité (sinon des interactions d'autres tests
+        // fausseraient active30d).
+        $this->connection->executeStatement('TRUNCATE TABLE interaction');
+        $this->createAdmin();
+        $this->createUser('translator@plume.test'); // vérifié par défaut, créé « maintenant »
+
+        $client = static::createClient();
+        $response = $client->request('GET', '/api/v1/admin/metrics', ['auth_bearer' => $this->adminToken($client)]);
+        self::assertResponseIsSuccessful();
+
+        /** @var array{accounts: array{total: int, verified: int, active30d: int}, signups: list<array{week: string, count: int}>, leadsByStatus: array<string, int>, totals: array{leads: int}} $data */
+        $data = $response->toArray();
+        self::assertSame(1, $data['accounts']['total']); // l'admin est exclu
+        self::assertSame(1, $data['accounts']['verified']);
+        self::assertSame(0, $data['accounts']['active30d']); // aucune interaction seedée
+        // La traductrice vient d'être créée → 1 inscription cette semaine.
+        self::assertSame(1, array_sum(array_map(static fn (array $w): int => $w['count'], $data['signups'])));
+        self::assertArrayHasKey('leadsByStatus', $data);
+    }
+
     public function testAccountsListExcludesAdminsAndSearches(): void
     {
         $this->createAdmin();

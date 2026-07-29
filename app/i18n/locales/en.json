@@ -58,6 +58,31 @@
       "queues": "Failed queue",
       "queuesDetail": "Failed Messenger messages (0 = healthy)"
     },
+    "status": {
+      "title": "System status",
+      "healthy": "All good",
+      "attention": "Needs attention",
+      "failed": "Failed queue",
+      "backlog": "Backlog age",
+      "backlogFresh": "< 1 min",
+      "backlogMinutes": "{count} min",
+      "backlogHours": "{count} h",
+      "mailboxesError": "Inboxes in error",
+      "db": "Database",
+      "dbOk": "OK"
+    },
+    "metrics": {
+      "title": "Product metrics",
+      "total": "Accounts",
+      "verified": "{count} verified",
+      "active": "Active (30d)",
+      "activeHint": "At least one prospecting action",
+      "messagesSent": "Emails sent",
+      "totalsHint": "{orgs} organizations · {leads} leads",
+      "signups": "Signups (8 weeks)",
+      "signupsEmpty": "No recent signups.",
+      "leadsByStatus": "Leads by status"
+    },
     "accounts": {
       "title": "Accounts",
       "search": "Search by email",

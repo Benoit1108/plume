@@ -58,6 +58,31 @@
       "queues": "File en échec",
       "queuesDetail": "Messages Messenger en échec (0 = sain)"
     },
+    "status": {
+      "title": "Statut système",
+      "healthy": "Tout va bien",
+      "attention": "À surveiller",
+      "failed": "File en échec",
+      "backlog": "Âge du backlog",
+      "backlogFresh": "< 1 min",
+      "backlogMinutes": "{count} min",
+      "backlogHours": "{count} h",
+      "mailboxesError": "Boîtes en erreur",
+      "db": "Base de données",
+      "dbOk": "OK"
+    },
+    "metrics": {
+      "title": "Métriques produit",
+      "total": "Comptes",
+      "verified": "{count} vérifiés",
+      "active": "Actifs (30 j)",
+      "activeHint": "Au moins une action de démarchage",
+      "messagesSent": "Emails envoyés",
+      "totalsHint": "{orgs} organisations · {leads} pistes",
+      "signups": "Inscriptions (8 semaines)",
+      "signupsEmpty": "Aucune inscription récente.",
+      "leadsByStatus": "Pistes par statut"
+    },
     "accounts": {
       "title": "Comptes",
       "search": "Rechercher par email",

@@ -29,6 +29,18 @@ describe('useAdmin', () => {
     expect(empty.query).toEqual({})
   })
 
+  it('status lit l\'état opérationnel', async () => {
+    apiMock.mockResolvedValueOnce({ db: 'ok', queues: {}, failed: 0, backlogAgeSeconds: 0, mailboxesError: 0 })
+    await expect(useAdmin().status()).resolves.toMatchObject({ db: 'ok' })
+    expect((apiMock.mock.calls[0] as [string])[0]).toBe('/api/v1/admin/status')
+  })
+
+  it('metrics lit les KPIs produit', async () => {
+    apiMock.mockResolvedValueOnce({ accounts: { total: 3, verified: 2, active30d: 1 }, signups: [], leadsByStatus: {}, totals: {} })
+    await expect(useAdmin().metrics()).resolves.toMatchObject({ accounts: { active30d: 1 } })
+    expect((apiMock.mock.calls[0] as [string])[0]).toBe('/api/v1/admin/metrics')
+  })
+
   it('requestDeletion poste sur le bon tenant', async () => {
     apiMock.mockResolvedValueOnce({})
     await useAdmin().requestDeletion('t-42')

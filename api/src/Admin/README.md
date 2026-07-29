@@ -12,6 +12,10 @@ propriétaire) et [ADR-0027](../../../docs/architecture/decisions/0027-2fa-totp.
   administrateur (tenant généré jamais peuplé, `ROLE_ADMIN`).
 - **`Infrastructure/Http/`** (routes `^/api/v1/admin`, réservées `ROLE_ADMIN`) :
   - `AdminOverviewController` — comptages cross-tenant (jamais de contenu métier).
+  - `AdminStatusController` — **statut système** : profondeur des files Messenger, âge du backlog
+    (worker bloqué ?), file `failed`, boîtes en erreur. Distinct de `/health` (sonde publique LB).
+  - `AdminMetricsController` — **métriques produit** (sans PII) : comptes actifs (30 j), inscriptions
+    par semaine, répartition des pistes par statut, totaux.
   - `AdminAccountsController` — liste des comptes des traductrices (admins exclus), recherche par email,
     bornée à 100 ; **comptages** organisations/pistes + statut de boîte.
   - `AdminRequestAccountDeletionController` — demande de suppression RGPD **côté support** (soft-delete +

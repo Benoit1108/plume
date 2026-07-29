@@ -58,8 +58,10 @@ Nouveau contexte `Admin` + rôle `ROLE_ADMIN` (auth séparée) :
 - 🟩 **Comptes & tenants** : liste, recherche, détail, statut (actif / en suppression / suspendu).
 - 🟩 **Demandes RGPD** : déclencher export / suppression pour le compte d'une utilisatrice (support).
 - 🟩 **Abonnements** (quand V2.2 sera là) : voir plan, quotas, incidents de paiement.
-- 🟩 **Métriques produit** (respectueuses vie privée) : nb comptes, actifs, pistes créées, etc.
-- 🟩 **Statut système** : santé workers/scheduler, files Messenger, boîtes en erreur.
+- ✅ **Métriques produit (livré)** (sans PII) : comptes total/vérifiés/**actifs 30 j**, **inscriptions par
+  semaine**, répartition des pistes par statut, totaux — `GET /admin/metrics`.
+- ✅ **Statut système (livré)** : files Messenger, **âge du backlog** (worker bloqué ?), file `failed`,
+  boîtes en erreur — `GET /admin/status` (distinct de la sonde publique `/health`).
 - 🟩 **Impersonation support** (se connecter « en tant que », tracé) — ⚖️ à valider (sensible RGPD).
 - 🟩 **Feature flags** simples.
 - ✅ **Auth admin TRANCHÉE (2026-07-28)** : **compte admin dédié HORS tenant** (ROLE_ADMIN, créé par

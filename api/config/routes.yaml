@@ -9,6 +9,16 @@ api_admin_accounts:
     controller: App\Admin\Infrastructure\Http\AdminAccountsController
     methods: [GET]
 
+api_admin_status:
+    path: /api/v1/admin/status
+    controller: App\Admin\Infrastructure\Http\AdminStatusController
+    methods: [GET]
+
+api_admin_metrics:
+    path: /api/v1/admin/metrics
+    controller: App\Admin\Infrastructure\Http\AdminMetricsController
+    methods: [GET]
+
 api_admin_account_request_deletion:
     path: /api/v1/admin/accounts/{tenantId}/request-deletion
     controller: App\Admin\Infrastructure\Http\AdminRequestAccountDeletionController

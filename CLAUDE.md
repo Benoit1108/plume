@@ -157,5 +157,9 @@ corrélés **tenant + request_id** (HTTP via `CorrelationIdListener` + async via
 (cas actionnable uniquement) → reconnexion guidée (Réglages). **Digests email LIVRÉS** : préférence
 `profile.digest_frequency` (NONE/DAILY/WEEKLY, défaut DAILY, réglable), tick quotidien, email bilingue sans PII.
 
-**Prochaine grande étape** : V2.2 abonnement (décision paiement) ; page de statut (dépend hébergement) ;
-métriques produit ; QR code 2FA + chiffrement du secret TOTP au repos (dettes tracées).
+**Back-office étendu : LIVRÉ** — **statut système** (`/admin/status` : files Messenger, âge du backlog,
+`failed`, boîtes en erreur ; distinct de `/health`) + **métriques produit** (`/admin/metrics` : actifs 30 j,
+inscriptions/semaine via `app_user.created_at`, pistes par statut ; sans PII).
+
+**Prochaine grande étape** : V2.2 abonnement (décision paiement Benoit) ; page de statut PUBLIQUE (uptime,
+dépend hébergement) ; QR code 2FA + chiffrement du secret TOTP au repos (dettes tracées).

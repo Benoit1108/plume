@@ -14,6 +14,8 @@ export const queryKeys = {
   twoFactor: ['two-factor'] as const,
   sessions: ['sessions'] as const,
   adminOverview: ['admin', 'overview'] as const,
+  adminStatus: ['admin', 'status'] as const,
+  adminMetrics: ['admin', 'metrics'] as const,
   adminAccounts: ['admin', 'accounts'] as const,
   organizations: ['organizations'] as const,
   leads: ['leads'] as const,
