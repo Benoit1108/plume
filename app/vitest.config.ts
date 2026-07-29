@@ -9,7 +9,10 @@ export default defineConfig({
       include: ['composables/**', 'stores/**', 'utils/**'],
       reporter: ['text', 'clover'],
       // Seuils bloquants : la CI échoue si la couverture régresse.
+      // perFile : chaque fichier doit tenir le seuil — un module non testé ne peut
+      // plus se cacher derrière la moyenne des modules bien couverts.
       thresholds: {
+        perFile: true,
         statements: 85,
         branches: 80,
         functions: 75,

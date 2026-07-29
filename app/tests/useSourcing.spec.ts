@@ -25,6 +25,13 @@ describe('useSourcing', () => {
     await expect(useSourcing().queue()).resolves.toHaveLength(1)
   })
 
+  it('queue tolère une collection vide et remet le compteur à zéro', async () => {
+    apiMock.mockResolvedValueOnce({})
+    const sourcing = useSourcing()
+    await expect(sourcing.queue()).resolves.toEqual([])
+    expect(sourcing.pendingCount.value).toBe(0)
+  })
+
   it('refreshCount avale les erreurs (badge best-effort)', async () => {
     apiMock.mockRejectedValueOnce(new Error('boom'))
     await expect(useSourcing().refreshCount()).resolves.toBeUndefined()
@@ -54,11 +61,16 @@ describe('useSourcing', () => {
     expect(options.method).toBe('POST')
   })
 
-  it('feeds liste les flux configurés', async () => {
+  it('feeds liste les flux configurés (member / hydra:member / vide)', async () => {
     apiMock.mockResolvedValueOnce({ member: [{ id: 'f1' }, { id: 'f2' }] })
-
     await expect(useSourcing().feeds()).resolves.toHaveLength(2)
     expect((apiMock.mock.calls[0] as [string])[0]).toBe('/api/v1/sources')
+
+    apiMock.mockResolvedValueOnce({ 'hydra:member': [{ id: 'f1' }] })
+    await expect(useSourcing().feeds()).resolves.toHaveLength(1)
+
+    apiMock.mockResolvedValueOnce({})
+    await expect(useSourcing().feeds()).resolves.toEqual([])
   })
 
   it('addFeed / setFeedActive / removeFeed ciblent les bons endpoints', async () => {

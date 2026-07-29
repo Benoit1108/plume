@@ -22,6 +22,14 @@ describe('useDrafts', () => {
     await expect(useDrafts().forLead('l1')).resolves.toEqual([])
   })
 
+  it('get lit un brouillon isolé en JSON-LD', async () => {
+    apiMock.mockResolvedValueOnce({ id: 'd1', status: 'READY' })
+    await expect(useDrafts().get('d1')).resolves.toMatchObject({ status: 'READY' })
+    const [path, options] = apiMock.mock.calls[0] as [string, { headers: Record<string, string> }]
+    expect(path).toBe('/api/v1/drafts/d1')
+    expect(options.headers.Accept).toBe('application/ld+json')
+  })
+
   it('generate poste type, langue cible et modèle optionnel sous la piste', async () => {
     apiMock.mockResolvedValueOnce({ id: 'd1', status: 'GENERATING' })
 
@@ -69,17 +77,23 @@ describe('useDrafts', () => {
     await expect(drafts.templates()).resolves.toHaveLength(1)
     expect((apiMock.mock.calls[0] as [string])[0]).toBe('/api/v1/templates')
 
+    // Compat hydra:member + collection vide (mêmes fallbacks que forLead).
+    apiMock.mockResolvedValueOnce({ 'hydra:member': [{ id: 't1' }] })
+    await expect(drafts.templates()).resolves.toHaveLength(1)
+    apiMock.mockResolvedValueOnce({})
+    await expect(drafts.templates()).resolves.toEqual([])
+
     apiMock.mockResolvedValue({ id: 't2' })
     const input = { name: 'N', type: 'APPLICATION_EMAIL', segment: 'PUBLISHING', language: 'fr', subject: null, body: 'B' } as const
     await drafts.createTemplate(input)
-    expect((apiMock.mock.calls[1] as [string, { method: string }])[1].method).toBe('POST')
+    expect((apiMock.mock.calls[3] as [string, { method: string }])[1].method).toBe('POST')
 
     await drafts.updateTemplate('t2', input)
-    const [updatePath, updateOptions] = apiMock.mock.calls[2] as [string, { method: string }]
+    const [updatePath, updateOptions] = apiMock.mock.calls[4] as [string, { method: string }]
     expect(updatePath).toBe('/api/v1/templates/t2')
     expect(updateOptions.method).toBe('PATCH')
 
     await drafts.removeTemplate('t2')
-    expect((apiMock.mock.calls[3] as [string, { method: string }])[1].method).toBe('DELETE')
+    expect((apiMock.mock.calls[5] as [string, { method: string }])[1].method).toBe('DELETE')
   })
 })

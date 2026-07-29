@@ -10,8 +10,10 @@ vi.stubGlobal('$fetch', fetchMock)
 vi.stubGlobal('navigateTo', navigateToMock)
 vi.stubGlobal('computed', computed)
 vi.stubGlobal('useRuntimeConfig', () => ({ public: { apiBase: '' } }))
-vi.stubGlobal('useCookie', (name: string) => {
-  if (!cookies.has(name)) cookies.set(name, ref<string | null>(null))
+vi.stubGlobal('useCookie', (name: string, opts?: { default?: () => unknown }) => {
+  // Honore la fabrique `default` comme le vrai useCookie : sans ça, les valeurs
+  // par défaut (email null, isAdmin false) ne seraient jamais exercées.
+  if (!cookies.has(name)) cookies.set(name, ref(opts?.default ? opts.default() : null))
   return cookies.get(name)
 })
 
@@ -42,11 +44,26 @@ describe('auth store (cookies httpOnly — M2.0)', () => {
   })
 
   it('purge les anciens cookies de tokens lisibles (migration M2.0)', () => {
-    const legacy = ref<string | null>('vieux-jwt')
-    cookies.set('plume_token', legacy)
+    const legacyToken = ref<string | null>('vieux-jwt')
+    const legacyRefresh = ref<string | null>('vieux-refresh')
+    cookies.set('plume_token', legacyToken)
+    cookies.set('plume_refresh', legacyRefresh)
     useAuthStore()
 
-    expect(legacy.value).toBeNull()
+    expect(legacyToken.value).toBeNull()
+    expect(legacyRefresh.value).toBeNull()
+  })
+
+  it('login transmet l\'OTP quand fourni et retient le témoin admin', async () => {
+    fetchMock.mockResolvedValueOnce(undefined) // login_check
+    fetchMock.mockResolvedValueOnce({ email: 'admin@plume.fr', isAdmin: true }) // /me
+    const auth = useAuthStore()
+
+    await auth.login('admin@plume.fr', 'secret', '123456')
+
+    const [, options] = fetchMock.mock.calls[0] as [string, { body: { otp?: string } }]
+    expect(options.body.otp).toBe('123456')
+    expect(cookies.get('plume_admin')?.value).toBe(true)
   })
 
   it('tryRefresh mutualise les appels concurrents (rotation single_use)', async () => {
