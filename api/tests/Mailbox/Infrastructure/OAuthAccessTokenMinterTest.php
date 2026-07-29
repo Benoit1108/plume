@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Mailbox\Infrastructure;
 
+use App\Mailbox\Application\Exception\MailboxReauthRequired;
 use App\Mailbox\Application\Exception\MailSendFailed;
 use App\Mailbox\Infrastructure\Token\OAuthAccessTokenMinter;
 use PHPUnit\Framework\TestCase;
@@ -36,13 +37,31 @@ final class OAuthAccessTokenMinterTest extends TestCase
         self::assertSame('refresh-plain', $capturedBody['refresh_token']);
     }
 
-    public function testHttpErrorIsAMailSendFailure(): void
+    public function testInvalidGrantRequiresReconnection(): void
     {
+        // Refresh token mort côté fournisseur → reconnexion requise (distinct d'un incident transitoire).
         $client = new MockHttpClient(new MockResponse('{"error":"invalid_grant"}', ['http_code' => 400]));
         $minter = new OAuthAccessTokenMinter($client, 'https://token.example/oauth', 'cid', 'csecret');
 
-        $this->expectException(MailSendFailed::class);
+        $this->expectException(MailboxReauthRequired::class);
         $minter->mint('revoked');
+    }
+
+    public function testTransientErrorIsAPlainMailSendFailure(): void
+    {
+        // 5xx (corps non-JSON) : échec transitoire, surtout PAS « reconnectez » — et le décodage
+        // protégé ne masque pas l'échec d'origine.
+        $client = new MockHttpClient(new MockResponse('<html>oops</html>', ['http_code' => 503]));
+        $minter = new OAuthAccessTokenMinter($client, 'https://token.example/oauth', 'cid', 'csecret');
+
+        try {
+            $minter->mint('refresh');
+            self::fail('Expected a failure.');
+        } catch (MailboxReauthRequired) {
+            self::fail('A transient 5xx must not be treated as reconnection required.');
+        } catch (MailSendFailed) {
+            $this->addToAssertionCount(1);
+        }
     }
 
     public function testMissingAccessTokenIsAMailSendFailure(): void

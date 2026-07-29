@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Mailbox\Infrastructure\Token;
 
+use App\Mailbox\Application\Exception\MailboxReauthRequired;
 use App\Mailbox\Application\Exception\MailSendFailed;
 use Symfony\Contracts\HttpClient\Exception\ExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\HttpExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
@@ -36,6 +38,22 @@ final class OAuthAccessTokenMinter implements AccessTokenMinter
                 'timeout' => 15,
             ])->toArray();
         } catch (ExceptionInterface $e) {
+            // `invalid_grant` (400) = refresh token mort côté fournisseur : rafraîchir est vain,
+            // il faut RECONNECTER. Les autres échecs (réseau, 5xx) sont transitoires. Le décodage du
+            // corps est protégé : une réponse d'erreur non-JSON (HTML d'un 5xx…) ne doit pas masquer
+            // l'échec d'origine.
+            $error = null;
+            if ($e instanceof HttpExceptionInterface) {
+                try {
+                    $error = $e->getResponse()->toArray(false)['error'] ?? null;
+                } catch (ExceptionInterface) {
+                    $error = null;
+                }
+            }
+            if ('invalid_grant' === $error) {
+                throw MailboxReauthRequired::reauthRequired($e);
+            }
+
             throw MailSendFailed::because('OAuth token refresh failed.', $e);
         }
 

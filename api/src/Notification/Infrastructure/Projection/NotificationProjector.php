@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Notification\Infrastructure\Projection;
 
+use App\Mailbox\Domain\Mailbox\Event\MailboxSyncFailed;
 use App\Mailbox\Domain\Outbound\Event\EmailSendFailed;
 use App\Mailbox\Domain\Outbound\Event\ReplyCaptured;
 use App\Shared\Domain\DomainEvent;
@@ -42,6 +43,19 @@ final class NotificationProjector
             'leadId' => $event->leadId,
             'reason' => $event->reason,
         ]);
+    }
+
+    /** La boîte email nécessite une RECONNEXION (token OAuth mort) : l'utilisatrice doit agir. */
+    #[AsMessageHandler(bus: 'event.bus')]
+    public function onMailboxSyncFailed(MailboxSyncFailed $event): void
+    {
+        // On ne notifie QUE le cas actionnable : un incident transitoire (sync_failed) se résout
+        // au prochain tick, inutile d'alarmer. `reauth_required` = seule une reconnexion relance la boîte.
+        if ('reauth_required' !== $event->reason) {
+            return;
+        }
+
+        $this->record($event, $event->tenantId, 'mailbox_disconnected', ['reason' => $event->reason]);
     }
 
     /** @param array<string, mixed> $payload */

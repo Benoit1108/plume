@@ -95,7 +95,8 @@
     "types": {
       "replyReceived": "Vous avez reçu une réponse",
       "emailSendFailed": "Un envoi d'email a échoué",
-      "followupDue": "Relance due aujourd'hui — {org}"
+      "followupDue": "Relance due aujourd'hui — {org}",
+      "mailboxDisconnected": "Votre boîte email doit être reconnectée"
     }
   },
   "onboarding": {
@@ -688,6 +689,7 @@
     },
     "failures": {
       "sync_failed": "La synchronisation a échoué — reconnectez la boîte.",
+      "reauth_required": "L’autorisation n’est plus valable — reconnectez la boîte.",
       "token_expired": "L’autorisation a expiré — reconnectez la boîte.",
       "send_failed": "L’envoi a échoué — réessayez ou vérifiez la boîte dans les Réglages.",
       "mailbox_unavailable": "Boîte indisponible — reconnectez-la dans les Réglages.",

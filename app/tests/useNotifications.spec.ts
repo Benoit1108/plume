@@ -38,10 +38,15 @@ describe('useNotifications', () => {
 
 describe('notificationTarget', () => {
   it('mène à la fiche piste quand le payload la connaît, sinon à l\'accueil', () => {
-    expect(notificationTarget({ payload: { leadId: 'L42' } })).toBe('/leads/L42')
-    expect(notificationTarget({ payload: {} })).toBe('/today')
-    expect(notificationTarget({ payload: { leadId: '' } })).toBe('/today')
-    expect(notificationTarget({ payload: { leadId: 12 } })).toBe('/today')
+    expect(notificationTarget({ type: 'reply_received', payload: { leadId: 'L42' } })).toBe('/leads/L42')
+    expect(notificationTarget({ type: 'followup_due', payload: {} })).toBe('/today')
+    expect(notificationTarget({ type: 'reply_received', payload: { leadId: '' } })).toBe('/today')
+    expect(notificationTarget({ type: 'reply_received', payload: { leadId: 12 } })).toBe('/today')
+  })
+
+  it('mène aux Réglages pour une reconnexion de boîte (peu importe le payload)', () => {
+    expect(notificationTarget({ type: 'mailbox_disconnected', payload: { leadId: 'L42' } })).toBe('/settings')
+    expect(notificationTarget({ type: 'mailbox_disconnected', payload: {} })).toBe('/settings')
   })
 })
 

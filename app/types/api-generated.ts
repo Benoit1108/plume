@@ -1862,7 +1862,7 @@ export interface components {
              * @default
              * @enum {string}
              */
-            type: "reply_received" | "email_send_failed" | "followup_due";
+            type: "reply_received" | "email_send_failed" | "followup_due" | "mailbox_disconnected";
             payload?: {
                 [key: string]: string | null;
             };
@@ -1881,7 +1881,7 @@ export interface components {
              * @default
              * @enum {string}
              */
-            type: "reply_received" | "email_send_failed" | "followup_due";
+            type: "reply_received" | "email_send_failed" | "followup_due" | "mailbox_disconnected";
             payload?: {
                 [key: string]: string | null;
             };

@@ -58,6 +58,8 @@ function label(notification: AppNotification): string {
       return t('notifications.types.replyReceived')
     case 'email_send_failed':
       return t('notifications.types.emailSendFailed')
+    case 'mailbox_disconnected':
+      return t('notifications.types.mailboxDisconnected')
     case 'followup_due':
       return t('notifications.types.followupDue', { org: typeof p.orgName === 'string' ? p.orgName : '?' })
     default:

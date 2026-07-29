@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional;
 
+use App\Mailbox\Domain\Mailbox\Event\MailboxSyncFailed;
 use App\Mailbox\Domain\Outbound\Event\EmailSendFailed;
 use App\Mailbox\Domain\Outbound\Event\ReplyCaptured;
 use App\Notification\Infrastructure\Projection\NotificationProjector;
@@ -52,6 +53,21 @@ final class NotificationProjectionTest extends KernelTestCase
         self::assertSame(2, $this->countFor($tenant));
         $types = $this->connection->fetchFirstColumn('SELECT type FROM notification WHERE tenant_id = ? ORDER BY occurred_on', [$tenant]);
         self::assertSame(['reply_received', 'email_send_failed'], $types);
+    }
+
+    public function testNotifiesOnlyWhenTheMailboxNeedsReconnection(): void
+    {
+        $tenant = Uuid::v7()->toRfc4122();
+        $projector = new NotificationProjector($this->connection);
+
+        // Incident transitoire (réseau/5xx) : la boîte est ERROR mais se rétablira → PAS de notification.
+        $projector->onMailboxSyncFailed(new MailboxSyncFailed($tenant, 'mbx-1', 'sync_failed', new \DateTimeImmutable('2026-07-28 08:00:00')));
+        self::assertSame(0, $this->countFor($tenant));
+
+        // Token mort → RECONNEXION requise : une notification actionnable.
+        $projector->onMailboxSyncFailed(new MailboxSyncFailed($tenant, 'mbx-1', 'reauth_required', new \DateTimeImmutable('2026-07-28 08:05:00')));
+        self::assertSame(1, $this->countFor($tenant));
+        self::assertSame('mailbox_disconnected', $this->connection->fetchOne('SELECT type FROM notification WHERE tenant_id = ?', [$tenant]));
     }
 
     public function testNotifiesFollowUpsDueTodayOncePerDeadline(): void

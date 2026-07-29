@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Mailbox\Application\Command\FetchReplies;
 
+use App\Mailbox\Application\Exception\MailboxReauthRequired;
 use App\Mailbox\Application\Exception\MailSendFailed;
 use App\Mailbox\Application\Exception\TokenCipherFailure;
 use App\Mailbox\Application\OpenThreads;
@@ -54,7 +55,16 @@ final class FetchRepliesHandler implements CommandHandler
 
         try {
             $replies = $this->fetchers->fetcherFor($mailbox->provider()->value)->fetch($this->cipher->decrypt($refresh->ciphertext()), $mailbox->emailAddress()->toString(), $threads);
-        } catch (MailSendFailed|TokenCipherFailure) {
+        } catch (MailboxReauthRequired|TokenCipherFailure) {
+            // Token mort / indéchiffrable → RECONNEXION requise (notifie l'utilisatrice).
+            $mailbox->markSyncFailed('reauth_required', $now);
+            $this->mailboxes->save($mailbox);
+            $this->eventBus->publish(...$mailbox->pullDomainEvents());
+
+            return;
+        } catch (MailSendFailed) {
+            // Incident transitoire (réseau/5xx) : la boîte passe ERROR mais on ne crie pas
+            // « reconnectez » — le prochain tick la remettra CONNECTED si ça se rétablit.
             $mailbox->markSyncFailed('sync_failed', $now);
             $this->mailboxes->save($mailbox);
             $this->eventBus->publish(...$mailbox->pullDomainEvents());

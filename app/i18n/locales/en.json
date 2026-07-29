@@ -95,7 +95,8 @@
     "types": {
       "replyReceived": "You received a reply",
       "emailSendFailed": "An email failed to send",
-      "followupDue": "Follow-up due today — {org}"
+      "followupDue": "Follow-up due today — {org}",
+      "mailboxDisconnected": "Your email mailbox needs reconnecting"
     }
   },
   "onboarding": {
@@ -688,6 +689,7 @@
     },
     "failures": {
       "sync_failed": "Sync failed — reconnect the mailbox.",
+      "reauth_required": "Authorization is no longer valid — reconnect the mailbox.",
       "token_expired": "Authorization expired — reconnect the mailbox.",
       "send_failed": "Send failed — retry or check the mailbox in Settings.",
       "mailbox_unavailable": "Mailbox unavailable — reconnect it in Settings.",
