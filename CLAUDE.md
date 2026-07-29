@@ -153,5 +153,9 @@ rate-limit, coverage `perFile`, E2E compte + garde admin) + F (resync docs) + G 
 corrélés **tenant + request_id** (HTTP via `CorrelationIdListener` + async via `CorrelationMiddleware`/
 `CorrelationStamp`) + **error-tracking Sentry** prod-only, env-gated (`SENTRY_DSN` vide = inerte), sans PII.
 
-**Prochaine grande étape** : V2.2 abonnement (décision paiement) ; page de statut + reprise boîte OAuth ;
-métriques produit ; digests email + QR code 2FA + chiffrement du secret TOTP au repos (dettes tracées).
+**Reprise de boîte OAuth LIVRÉE** : `invalid_grant` → `MailboxReauthRequired` → notif `mailbox_disconnected`
+(cas actionnable uniquement) → reconnexion guidée (Réglages). **Digests email LIVRÉS** : préférence
+`profile.digest_frequency` (NONE/DAILY/WEEKLY, défaut DAILY, réglable), tick quotidien, email bilingue sans PII.
+
+**Prochaine grande étape** : V2.2 abonnement (décision paiement) ; page de statut (dépend hébergement) ;
+métriques produit ; QR code 2FA + chiffrement du secret TOTP au repos (dettes tracées).

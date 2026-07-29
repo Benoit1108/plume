@@ -33,5 +33,9 @@
 - ✅ Table hors ORM → migrations explicites, jamais de `DROP` proposé par le diff.
 - ⚠️ Projection **asynchrone** = cohérence à terme : une notification peut apparaître avec un léger délai
   (acceptable pour un centre de notifications).
-- 🔭 Types couverts au départ : `reply_received`, `email_send_failed`, relances dues. « Boîte déconnectée »,
-  « candidats à trier », **digests email** restent à brancher (mêmes patrons : un abonnement / un tick).
+- Types couverts : `reply_received`, `email_send_failed`, relances dues, **`mailbox_disconnected`** (reconnexion
+  requise — filtrée au cas actionnable). « Candidats à trier » reste à brancher (même patron).
+- ✅ **Digests email (livré)** : préférence par tenant `profile.digest_frequency` (NONE/DAILY/WEEKLY, défaut
+  DAILY) ; tick quotidien `SendNotificationDigests` → email bilingue récapitulant les notifications **non
+  lues de la période** (fenêtre 24 h / 7 j calée sur la fréquence — aucun état « dernier envoi » à stocker),
+  comptes en suppression/non vérifiés exclus, rien envoyé si rien à résumer. Sans PII (comptages par type).

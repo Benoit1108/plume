@@ -21,7 +21,8 @@ côté, on tranchera plus tard.** Tests : **grosse recette manuelle plus tard** 
 - [ ] **Paiement / abonnement** (V2.2) : fournisseur (**Stripe** probable ?), plans, prix, essai/gratuité.
 - [x] **Auth admin** (back-office) : ✅ tranché 2026-07-28 — compte admin dédié hors tenant (CLI,
       ROLE_ADMIN, 2FA obligatoire à terme). Reste ⚖️ : impersonation support autorisée (RGPD) ?
-- [ ] **Notifications** : fréquence des digests email (quotidien / hebdo / off par défaut ?).
+- [~] **Notifications** : digests email **livrés** (préférence par compte NONE/DAILY/WEEKLY, défaut DAILY,
+      réglable dans Réglages). Reste ⚖️ : garder DAILY par défaut ou passer à off/opt-in par défaut ?
 - [ ] **Inscription** : captcha/anti-abus (lequel), double opt-in email (oui a priori).
 - [ ] **Mes propositions** (cf. [plan directeur](../design/V2-plan-directeur.md) §« propositions ») :
       lesquelles retenir (observabilité, 2FA, journal d'audit, page de statut, etc.).

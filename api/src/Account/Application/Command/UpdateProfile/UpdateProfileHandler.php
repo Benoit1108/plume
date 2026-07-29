@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Account\Application\Command\UpdateProfile;
 
+use App\Account\Domain\Profile\DigestFrequency;
 use App\Account\Domain\Profile\Profile;
 use App\Account\Domain\Profile\ProfileRepository;
 use App\Shared\Application\Clock;
@@ -30,6 +31,7 @@ final class UpdateProfileHandler implements CommandHandler
         $profile->changeWeeklyGoal($command->weeklyGoal, $now);
         $profile->changePresentation($command->bio, $command->specialties, $command->signature, $now);
         $profile->changeIdentity($command->firstName, $command->lastName, $now);
+        $profile->changeDigestFrequency(DigestFrequency::tryFrom($command->digestFrequency) ?? DigestFrequency::DAILY, $now);
 
         $this->profiles->save($profile);
         $this->eventBus->publish(...$profile->pullDomainEvents());

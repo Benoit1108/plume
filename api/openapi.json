@@ -7752,6 +7752,15 @@
                         "default": "Europe/Paris",
                         "type": "string"
                     },
+                    "digestFrequency": {
+                        "enum": [
+                            "NONE",
+                            "DAILY",
+                            "WEEKLY"
+                        ],
+                        "default": "DAILY",
+                        "type": "string"
+                    },
                     "bio": {
                         "maxLength": 2000,
                         "type": [
@@ -7798,6 +7807,15 @@
                         "maximum": 99,
                         "default": 5,
                         "type": "integer"
+                    },
+                    "digestFrequency": {
+                        "enum": [
+                            "NONE",
+                            "DAILY",
+                            "WEEKLY"
+                        ],
+                        "default": "DAILY",
+                        "type": "string"
                     },
                     "bio": {
                         "maxLength": 2000,
@@ -7856,6 +7874,15 @@
                             },
                             "timezone": {
                                 "default": "Europe/Paris",
+                                "type": "string"
+                            },
+                            "digestFrequency": {
+                                "enum": [
+                                    "NONE",
+                                    "DAILY",
+                                    "WEEKLY"
+                                ],
+                                "default": "DAILY",
                                 "type": "string"
                             },
                             "bio": {

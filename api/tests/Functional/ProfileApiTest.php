@@ -83,6 +83,35 @@ final class ProfileApiTest extends ApiTestCase
         self::assertSame('Lefèvre', $after['lastName'] ?? null);
     }
 
+    public function testUpdatesDigestFrequencyAndRejectsInvalidValue(): void
+    {
+        $this->createUser('a@plume.test');
+        $client = static::createClient();
+        $token = $this->tokenFor($client, 'a@plume.test');
+
+        // Défaut DAILY.
+        $before = $client->request('GET', '/api/v1/profile', ['auth_bearer' => $token, 'headers' => ['Accept' => 'application/ld+json']])->toArray();
+        self::assertSame('DAILY', $before['digestFrequency'] ?? null);
+
+        // On coupe le digest.
+        $client->request('PATCH', '/api/v1/profile', [
+            'auth_bearer' => $token,
+            'headers' => ['Content-Type' => 'application/merge-patch+json'],
+            'json' => ['digestFrequency' => 'NONE'],
+        ]);
+        self::assertResponseIsSuccessful();
+        $after = $client->request('GET', '/api/v1/profile', ['auth_bearer' => $token, 'headers' => ['Accept' => 'application/ld+json']])->toArray();
+        self::assertSame('NONE', $after['digestFrequency'] ?? null);
+
+        // Valeur hors enum → 422 (Assert\Choice).
+        $client->request('PATCH', '/api/v1/profile', [
+            'auth_bearer' => $token,
+            'headers' => ['Content-Type' => 'application/merge-patch+json'],
+            'json' => ['digestFrequency' => 'HOURLY'],
+        ]);
+        self::assertResponseStatusCodeSame(422);
+    }
+
     public function testIdentityIsIsolatedPerTenant(): void
     {
         $this->createUser('a@plume.test');

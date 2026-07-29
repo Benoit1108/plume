@@ -625,6 +625,14 @@
       "label": "Actes de démarchage par semaine",
       "hint": "Un acte = un contact ou une relance faite."
     },
+    "digest": {
+      "title": "Digest email",
+      "label": "Recevoir un récap des notifications",
+      "hint": "Résumé des notifications non lues, envoyé par email. Le centre in-app reste actif quoi qu'il arrive.",
+      "daily": "Chaque jour",
+      "weekly": "Chaque lundi",
+      "none": "Jamais (in-app uniquement)"
+    },
     "presentation": {
       "title": "Présentation",
       "intro": "La matière première des brouillons générés — plus c’est précis, meilleure est la plume.",

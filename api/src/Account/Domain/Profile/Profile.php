@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Account\Domain\Profile;
 
+use App\Account\Domain\Profile\Event\DigestFrequencyChanged;
 use App\Account\Domain\Profile\Event\ProfileCreated;
 use App\Account\Domain\Profile\Event\ProfileIdentityChanged;
 use App\Account\Domain\Profile\Event\ProfilePresentationChanged;
@@ -31,6 +32,7 @@ final class Profile extends AggregateRoot
         private ?string $signature = null,
         private ?string $firstName = null,
         private ?string $lastName = null,
+        private DigestFrequency $digestFrequency = DigestFrequency::DAILY,
     ) {
     }
 
@@ -40,6 +42,17 @@ final class Profile extends AggregateRoot
         $profile->recordEvent(new ProfileCreated($tenantId->toString(), $now));
 
         return $profile;
+    }
+
+    /** Fréquence du digest email — sans changement, aucun event. */
+    public function changeDigestFrequency(DigestFrequency $frequency, \DateTimeImmutable $now): void
+    {
+        if ($frequency === $this->digestFrequency) {
+            return;
+        }
+
+        $this->digestFrequency = $frequency;
+        $this->recordEvent(new DigestFrequencyChanged($this->tenantId->toString(), $frequency->value, $now));
     }
 
     public function changeWeeklyGoal(int $weeklyGoal, \DateTimeImmutable $now): void
@@ -135,5 +148,10 @@ final class Profile extends AggregateRoot
     public function lastName(): ?string
     {
         return $this->lastName;
+    }
+
+    public function digestFrequency(): DigestFrequency
+    {
+        return $this->digestFrequency;
     }
 }

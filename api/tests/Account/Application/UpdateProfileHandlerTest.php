@@ -6,6 +6,8 @@ namespace App\Tests\Account\Application;
 
 use App\Account\Application\Command\UpdateProfile\UpdateProfile;
 use App\Account\Application\Command\UpdateProfile\UpdateProfileHandler;
+use App\Account\Domain\Profile\DigestFrequency;
+use App\Account\Domain\Profile\Event\DigestFrequencyChanged;
 use App\Account\Domain\Profile\Event\ProfileCreated;
 use App\Account\Domain\Profile\Event\ProfileIdentityChanged;
 use App\Account\Domain\Profile\Event\ProfilePresentationChanged;
@@ -47,6 +49,17 @@ final class UpdateProfileHandlerTest extends TestCase
         self::assertSame(1, $this->eventBus->countOf(ProfileCreated::class));
         self::assertSame(1, $this->eventBus->countOf(WeeklyGoalChanged::class));
         self::assertSame(1, $this->eventBus->countOf(ProfilePresentationChanged::class));
+    }
+
+    public function testChangesDigestFrequency(): void
+    {
+        // Défaut DAILY à la création → passer WEEKLY émet un event ; repasser WEEKLY est un no-op.
+        ($this->handler)(new UpdateProfile('tenant-1', 5, null, null, null, null, null, 'WEEKLY'));
+        self::assertSame(DigestFrequency::WEEKLY, $this->profiles->find(TenantId::fromString('tenant-1'))?->digestFrequency());
+        self::assertSame(1, $this->eventBus->countOf(DigestFrequencyChanged::class));
+
+        ($this->handler)(new UpdateProfile('tenant-1', 5, null, null, null, null, null, 'WEEKLY'));
+        self::assertSame(1, $this->eventBus->countOf(DigestFrequencyChanged::class));
     }
 
     public function testUpdatesExistingProfileWithoutRecreating(): void

@@ -18,6 +18,7 @@ const weeklyGoal = ref(5)
 const bio = ref('')
 const specialties = ref('')
 const signature = ref('')
+const digestFrequency = ref<'NONE' | 'DAILY' | 'WEEKLY'>('DAILY')
 
 watch(profile, (value) => {
   if (!value) return
@@ -25,7 +26,14 @@ watch(profile, (value) => {
   bio.value = value.bio ?? ''
   specialties.value = value.specialties ?? ''
   signature.value = value.signature ?? ''
+  digestFrequency.value = value.digestFrequency
 }, { immediate: true })
+
+const digestOptions = computed(() => [
+  { value: 'DAILY', label: t('settings.digest.daily') },
+  { value: 'WEEKLY', label: t('settings.digest.weekly') },
+  { value: 'NONE', label: t('settings.digest.none') },
+])
 
 // ----- Boîte email (M2.1) -----
 const { data: mailboxData, isPending: mailboxLoading } = useQuery({ queryKey: queryKeys.mailbox, queryFn: () => mailboxApi.get() })
@@ -174,6 +182,7 @@ async function save(): Promise<void> {
       bio: bio.value.trim() || null,
       specialties: specialties.value.trim() || null,
       signature: signature.value.trim() || null,
+      digestFrequency: digestFrequency.value,
     })
     await refresh()
     toast.add({ title: t('settings.toasts.saved'), color: 'success' })
@@ -203,6 +212,14 @@ async function save(): Promise<void> {
         <h2 class="text-sm font-semibold">{{ t('settings.goal.title') }}</h2>
         <UFormField :label="t('settings.goal.label')" :hint="t('settings.goal.hint')" class="mt-3">
           <UInput v-model.number="weeklyGoal" type="number" min="1" max="99" class="w-32" />
+        </UFormField>
+      </section>
+
+      <!-- Digest email des notifications -->
+      <section class="border border-default rounded-xl p-4 bg-elevated/40">
+        <h2 class="text-sm font-semibold">{{ t('settings.digest.title') }}</h2>
+        <UFormField :label="t('settings.digest.label')" :hint="t('settings.digest.hint')" class="mt-3">
+          <USelect v-model="digestFrequency" :items="digestOptions" value-key="value" class="w-56" />
         </UFormField>
       </section>
 

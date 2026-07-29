@@ -68,4 +68,48 @@ final class AccountMailer
                 ),
         );
     }
+
+    /**
+     * Digest des notifications non lues de la période (récap bilingue). Le contenu est un simple
+     * comptage par type — jamais de contenu de piste/message dans l'email (minimisation).
+     *
+     * @param array<string, int> $counts type de notification => nombre, non vide
+     */
+    public function sendNotificationDigest(string $email, array $counts): void
+    {
+        $app = rtrim($this->frontendUrl, '/');
+        $fr = [];
+        $en = [];
+        foreach ($counts as $type => $count) {
+            [$labelFr, $labelEn] = self::DIGEST_LABELS[$type] ?? [$type, $type];
+            $fr[] = '• '.$count.' '.$labelFr;
+            $en[] = '• '.$count.' '.$labelEn;
+        }
+
+        $this->mailer->send(
+            (new Email())
+                ->from($this->from)
+                ->to($email)
+                ->subject('Votre récap Plume / Your Plume digest')
+                ->text(
+                    "Bonjour,\n\nVoici ce qui s'est passé récemment :\n"
+                    .implode("\n", $fr)."\n\n"
+                    .'Ouvrir Plume : '.$app."\n\n"
+                    ."(Pour changer la fréquence ou couper ces emails : Réglages.)\n\n"
+                    ."— \n\n"
+                    ."Hello,\n\nHere's what happened recently:\n"
+                    .implode("\n", $en)."\n\n"
+                    .'Open Plume: '.$app."\n\n"
+                    ."(To change the frequency or turn these off: Settings.)\n",
+                ),
+        );
+    }
+
+    /** @var array<string, array{0: string, 1: string}> type => [libellé FR, libellé EN] */
+    private const array DIGEST_LABELS = [
+        'reply_received' => ['réponse(s) reçue(s)', 'reply(ies) received'],
+        'followup_due' => ['relance(s) due(s)', 'follow-up(s) due'],
+        'email_send_failed' => ["échec(s) d'envoi d'email", 'email send failure(s)'],
+        'mailbox_disconnected' => ['boîte email à reconnecter', 'mailbox to reconnect'],
+    ];
 }

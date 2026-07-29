@@ -37,6 +37,7 @@ final class ProfileProcessor implements ProcessorInterface
             $data->signature,
             $data->firstName,
             $data->lastName,
+            $data->digestFrequency,
         ));
 
         return $data;

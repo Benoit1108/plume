@@ -625,6 +625,14 @@
       "label": "Prospecting actions per week",
       "hint": "One action = one contact or one follow-up done."
     },
+    "digest": {
+      "title": "Email digest",
+      "label": "Receive a notifications summary",
+      "hint": "A summary of unread notifications, sent by email. The in-app center stays active regardless.",
+      "daily": "Every day",
+      "weekly": "Every Monday",
+      "none": "Never (in-app only)"
+    },
     "presentation": {
       "title": "Presentation",
       "intro": "The raw material of generated drafts — the more precise, the better the writing.",

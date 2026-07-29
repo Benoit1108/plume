@@ -122,9 +122,9 @@ Fondations techniques.
 - [x] **Back-office / Admin** (livré) : contexte `Admin` **hors tenant** (`ROLE_ADMIN`, CLI), **connexion
       propriétaire** cross-tenant (ADR-0026), 2FA obligatoire ; vue d'ensemble (comptages), comptes
       (recherche), demande de suppression RGPD support + reset 2FA, **journal d'audit hors-tenant**.
-- [x] **Centre de notifications** (livré, in-app) : projection DBAL sur événements (ADR-0028) —
-      réponse reçue, envoi échoué, relance due ; badge cloche, purge 90 j. *Reste : boîte déconnectée,
-      à trier, **digests email** (mêmes patrons).*
+- [x] **Centre de notifications** (livré, ADR-0028) : projection DBAL sur événements — réponse reçue,
+      envoi échoué, relance due, **boîte déconnectée** (reprise OAuth guidée) ; badge cloche, purge 90 j ;
+      **digests email** (préférence NONE/DAILY/WEEKLY, défaut DAILY). *Reste : « à trier ».*
 - [x] **Revue de santé globale (7 axes) + remédiation A→G** (2026-07-29) : cf.
       [`docs/reviews/2026-07-29-revue-sante-globale.md`](reviews/2026-07-29-revue-sante-globale.md).
 - [x] **Observabilité** (ADR-0030) : logs JSON corrélés **tenant + request_id** (HTTP + worker) +

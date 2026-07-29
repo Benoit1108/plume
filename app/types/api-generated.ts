@@ -2019,6 +2019,11 @@ export interface components {
             weeklyGoal: number;
             /** @default Europe/Paris */
             timezone: string;
+            /**
+             * @default DAILY
+             * @enum {string}
+             */
+            digestFrequency: "NONE" | "DAILY" | "WEEKLY";
             bio?: string | null;
             specialties?: string | null;
             signature?: string | null;
@@ -2032,6 +2037,11 @@ export interface components {
         "Profile-profile.write.jsonMergePatch": {
             /** @default 5 */
             weeklyGoal: number;
+            /**
+             * @default DAILY
+             * @enum {string}
+             */
+            digestFrequency: "NONE" | "DAILY" | "WEEKLY";
             bio?: string | null;
             specialties?: string | null;
             signature?: string | null;
@@ -2049,6 +2059,11 @@ export interface components {
             weeklyGoal: number;
             /** @default Europe/Paris */
             timezone: string;
+            /**
+             * @default DAILY
+             * @enum {string}
+             */
+            digestFrequency: "NONE" | "DAILY" | "WEEKLY";
             bio?: string | null;
             specialties?: string | null;
             signature?: string | null;

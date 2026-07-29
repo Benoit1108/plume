@@ -40,6 +40,11 @@ final class ProfileResource
     #[Groups(['profile:read'])]
     public string $timezone = 'Europe/Paris';
 
+    /** Fréquence du digest email des notifications (NONE = désactivé). */
+    #[Assert\Choice(['NONE', 'DAILY', 'WEEKLY'])]
+    #[Groups(['profile:read', 'profile:write'])]
+    public string $digestFrequency = 'DAILY';
+
     /** Présentation courte, matière première des brouillons générés. */
     #[Assert\Length(max: 2000)]
     #[Groups(['profile:read', 'profile:write'])]

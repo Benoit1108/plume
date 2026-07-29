@@ -15,6 +15,7 @@ final class ProfileView
         public readonly ?string $signature = null,
         public readonly ?string $firstName = null,
         public readonly ?string $lastName = null,
+        public readonly string $digestFrequency = 'DAILY',
     ) {
     }
 }

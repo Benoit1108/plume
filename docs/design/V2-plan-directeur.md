@@ -73,7 +73,9 @@ Nouveau contexte `Notification` (in-app d'abord, digests email ensuite) :
 - 🟩 **Événements notifiés** : relance due aujourd'hui · réponse reçue · **boîte email déconnectée /
   en erreur** · nouveau candidat à trier · objectif hebdo (série) · (plus tard) quota bientôt atteint,
   incident de paiement.
-- 🟩 **Préférences** par canal/type (in-app / email) + **digest email** (quotidien/hebdo, ⚖️ fréquence).
+- ✅ **Digest email (livré)** : préférence `digest_frequency` par tenant (NONE/DAILY/WEEKLY, **défaut
+  DAILY** — Benoit peut changer le défaut/UX ou l'off-par-défaut ⚖️), tick quotidien, email bilingue sans
+  PII. 🔭 Reste : préférences fines par type/canal (au-delà de la fréquence globale).
 - Réutilise l'outbox d'events existant (projection Notification sur les domain events).
 
 ## Jalon V2.2 — Abonnement SaaS (billing d'ACCÈS)

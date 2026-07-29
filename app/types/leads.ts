@@ -59,4 +59,5 @@ export interface Profile {
   signature?: string | null
   firstName?: string | null
   lastName?: string | null
+  digestFrequency: 'NONE' | 'DAILY' | 'WEEKLY'
 }
