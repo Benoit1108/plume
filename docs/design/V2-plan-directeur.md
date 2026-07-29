@@ -21,11 +21,14 @@ traiter les demandes RGPD) ; puis les notifications, l'abonnement, l'enrichissem
 
 ---
 
-## Jalon 0 — Clôture V2.0 (presque fini)
+## Jalon 0 — Clôture V2.0 ✅
 
-- 🟦 **Registre de traitement RGPD + DPA** (Claude fournit une trame ; Benoit valide/signe).
-- 🟩 *(optionnel, backlog ADR-0025)* révocation OAuth côté fournisseur à la suppression ; journal
-  d'audit hors-tenant de la suppression.
+- ✅ **Trames RGPD fournies** : [registre de traitement](../legal/registre-traitements-rgpd.md) +
+  [DPA](../legal/DPA-sous-traitance.md) (coquilles ancrées sur l'archi réelle) ; 🟦 reste la
+  validation/signature par Benoit (identité, hébergeur, DPF/CCT, relecture pro).
+- ✅ **Révocation OAuth côté fournisseur à la suppression** (port `MailboxRevoker` appelé à la purge,
+  best-effort — ADR-0025 amendé). Le **journal d'audit hors-tenant** de la suppression était déjà livré
+  avec le back-office.
 
 ## Jalon V2.1a — Socle d'ouverture publique (fondations 100 % codables)
 

@@ -11,10 +11,10 @@ côté, on tranchera plus tard.** Tests : **grosse recette manuelle plus tard** 
   - [ ] Google (Gmail) — process de vérification (peut prendre des semaines).
   - [ ] Microsoft (Outlook).
 - [ ] **Contenu juridique** (Claude fournit les coquilles / trames, tu fournis/valides le fond) :
-  - [ ] CGU (conditions générales d'utilisation).
-  - [ ] Politique de confidentialité.
-  - [ ] **Registre de traitement RGPD**.
-  - [ ] **DPA** (accord de sous-traitance) — sous-traitants : Anthropic, Google, Microsoft, hébergeur.
+  - [ ] CGU (conditions générales d'utilisation) — coquille front à préciser.
+  - [ ] Politique de confidentialité — coquille front à préciser.
+  - [~] **Registre de traitement RGPD** — ✅ **trame fournie** ([`docs/legal/registre-traitements-rgpd.md`](../legal/registre-traitements-rgpd.md)) ; reste à **valider/compléter** (points 🟦 : identité éditeur, durées, transferts).
+  - [~] **DPA** (accord de sous-traitance) — ✅ **trame fournie** ([`docs/legal/DPA-sous-traitance.md`](../legal/DPA-sous-traitance.md)) ; reste à **signer les DPA** des sous-traitants (Anthropic, Google, Microsoft, hébergeur) + vérifier DPF/CCT.
 
 ## 🟠 Décisions produit à trancher (quand on arrivera au jalon)
 

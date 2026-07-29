@@ -112,7 +112,9 @@ Fondations techniques.
   (soft-delete + purge 30 j) + **export** ZIP JSON/CSV (ADR-0025) ; **isolation de charge** transport
   `io` + worker dédié (ADR-0022 §5) ; **préparation déploiement agnostique** (Redis-ready, fail-fast
   secrets prod, compilation prod — `docs/ops/deployment-checklist.md`). Revue de santé fin V2.0 appliquée.
-- [ ] RGPD (volet documentaire) : **registre de traitement + DPA** (sous-traitants Anthropic/Google/Microsoft/hébergeur).
+- [~] RGPD (volet documentaire) : **trames registre de traitement + DPA fournies**
+  ([`docs/legal/`](legal/)) ; reste la validation/signature par Benoit (identité, hébergeur, DPF/CCT).
+  Révocation OAuth côté fournisseur à la suppression **livrée** (ADR-0025 amendé).
 - [x] **V2.1 — Ouverture des comptes** (livré) : socle (mot de passe oublié, emails transactionnels,
       vérif email **sans état** ADR-0029, health, pages légales) → **inscription publique** (compte non
       vérifié, provider insensible à la casse) → **onboarding** ; **2FA TOTP** + gestion des **sessions**
