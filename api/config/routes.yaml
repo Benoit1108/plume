@@ -14,7 +14,14 @@ api_admin_account_request_deletion:
     controller: App\Admin\Infrastructure\Http\AdminRequestAccountDeletionController
     methods: [POST]
     requirements:
-        tenantId: '[0-9a-f\-]{36}'
+        tenantId: '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
+
+api_admin_account_reset_2fa:
+    path: /api/v1/admin/accounts/{tenantId}/reset-2fa
+    controller: App\Admin\Infrastructure\Http\AdminResetTwoFactorController
+    methods: [POST]
+    requirements:
+        tenantId: '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
 
 # Sonde de santé (PUBLIC) pour l'hébergeur / le monitoring.
 api_health:
@@ -56,6 +63,12 @@ api_register:
 api_account_verify_email:
     path: /api/v1/account/verify-email
     controller: App\Account\Infrastructure\Http\VerifyEmailController
+    methods: [POST]
+
+# Renvoi de l'email de vérification (PUBLIC, anti-énumération) — compte non confirmé.
+api_account_verify_email_resend:
+    path: /api/v1/account/verify-email/resend
+    controller: App\Account\Infrastructure\Http\ResendVerificationController
     methods: [POST]
 
 # Mot de passe oublié (PUBLIC) : demande de lien de réinitialisation.

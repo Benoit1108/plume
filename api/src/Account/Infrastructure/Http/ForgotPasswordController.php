@@ -44,7 +44,9 @@ final class ForgotPasswordController
         }
 
         $payload = json_decode($request->getContent(), true);
-        $email = \is_array($payload) && \is_string($payload['email'] ?? null) ? trim($payload['email']) : '';
+        // Normalisée en minuscules comme à l'inscription (revue globale P0-2) : sinon un email saisi
+        // avec une autre casse ne matcherait pas et le 204 anti-énumération masquerait le blocage.
+        $email = \is_array($payload) && \is_string($payload['email'] ?? null) ? mb_strtolower(trim($payload['email'])) : '';
 
         if ('' !== $email) {
             $user = $this->em->getRepository(User::class)->findOneBy(['email' => $email]);

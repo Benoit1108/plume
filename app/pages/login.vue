@@ -3,24 +3,27 @@ definePageMeta({ layout: false })
 
 const { t } = useI18n()
 const auth = useAuthStore()
+const accountApi = useAccount()
+const toast = useToast()
 
 const email = ref('')
 const password = ref('')
 const otp = ref('')
 const otpRequired = ref(false)
+const needsVerification = ref(false)
 const error = ref('')
 const loading = ref(false)
 
 async function onSubmit(): Promise<void> {
   error.value = ''
+  needsVerification.value = false
   loading.value = true
   try {
     await auth.login(email.value, password.value, otpRequired.value ? otp.value : undefined)
     await navigateTo('/')
   }
   catch (e) {
-    // 2FA : le back répond `2fa_required` (mot de passe OK → montrer le champ code)
-    // ou `2fa_invalid` (code faux/déjà utilisé).
+    // Codes stables renvoyés par l'API (AccountStatusChecker + listener 2FA).
     const message = (e as { data?: { message?: string } })?.data?.message ?? ''
     if (message === '2fa_required') {
       otpRequired.value = true
@@ -29,12 +32,28 @@ async function onSubmit(): Promise<void> {
       otpRequired.value = true
       error.value = t('auth.otpInvalid')
     }
+    else if (message === 'email_not_verified') {
+      needsVerification.value = true // mot de passe BON, email à confirmer → proposer le renvoi
+    }
+    else if (message === 'account_deleted') {
+      error.value = t('auth.accountDeleted')
+    }
     else {
       error.value = t('auth.error')
     }
   }
   finally {
     loading.value = false
+  }
+}
+
+async function resendVerification(): Promise<void> {
+  try {
+    await accountApi.resendVerification(email.value.trim())
+    toast.add({ title: t('auth.verify.resent'), color: 'success' })
+  }
+  catch {
+    toast.add({ title: t('common.error'), color: 'error' })
   }
 }
 </script>
@@ -66,6 +85,12 @@ async function onSubmit(): Promise<void> {
         </UFormField>
 
         <UAlert v-if="error" color="error" variant="subtle" :description="error" />
+
+        <UAlert v-if="needsVerification" color="warning" variant="subtle" :description="t('auth.verify.needed')">
+          <template #actions>
+            <UButton size="xs" variant="soft" @click="resendVerification">{{ t('auth.verify.resend') }}</UButton>
+          </template>
+        </UAlert>
 
         <UButton type="submit" :loading="loading" block>
           {{ t('auth.signIn') }}

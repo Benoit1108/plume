@@ -21,12 +21,13 @@ final class AccountStatusChecker implements UserCheckerInterface
         if (!$user instanceof User) {
             return;
         }
+        // Messages = codes STABLES : le front les distingue (email non vérifié → propose le renvoi).
         if ($user->isDeletionRequested()) {
-            throw new CustomUserMessageAccountStatusException('Account scheduled for deletion.');
+            throw new CustomUserMessageAccountStatusException('account_deleted');
         }
         // Inscription publique : pas d'accès tant que l'email n'est pas vérifié (V2.1b).
         if (!$user->isEmailVerified()) {
-            throw new CustomUserMessageAccountStatusException('Email address not verified.');
+            throw new CustomUserMessageAccountStatusException('email_not_verified');
         }
     }
 

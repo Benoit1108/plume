@@ -3,6 +3,7 @@ definePageMeta({ layout: false })
 
 const { t } = useI18n()
 const accountApi = useAccount()
+const toast = useToast()
 
 const email = ref('')
 const password = ref('')
@@ -38,6 +39,16 @@ async function onSubmit(): Promise<void> {
     loading.value = false
   }
 }
+
+async function resend(): Promise<void> {
+  try {
+    await accountApi.resendVerification(email.value.trim())
+    toast.add({ title: t('auth.verify.resent'), color: 'success' })
+  }
+  catch {
+    toast.add({ title: t('common.error'), color: 'error' })
+  }
+}
 </script>
 
 <template>
@@ -54,9 +65,14 @@ async function onSubmit(): Promise<void> {
 
       <div v-if="done" class="mt-6 flex flex-col gap-4">
         <UAlert color="success" variant="subtle" :title="t('auth.register.checkEmailTitle')" :description="t('auth.register.checkEmail')" />
-        <NuxtLink to="/login" class="text-sm text-muted hover:text-default text-center">
-          {{ t('auth.backToLogin') }}
-        </NuxtLink>
+        <div class="flex flex-col gap-1.5 text-center">
+          <button type="button" class="text-sm text-muted hover:text-default" @click="resend">
+            {{ t('auth.verify.resend') }}
+          </button>
+          <NuxtLink to="/login" class="text-sm text-muted hover:text-default">
+            {{ t('auth.backToLogin') }}
+          </NuxtLink>
+        </div>
       </div>
 
       <form v-else method="post" class="mt-6 flex flex-col gap-4" @submit.prevent="onSubmit">

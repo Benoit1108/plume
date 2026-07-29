@@ -51,6 +51,16 @@ async function confirmDeletion(): Promise<void> {
   }
 }
 
+async function resetTwoFactor(account: AdminAccount): Promise<void> {
+  try {
+    await adminApi.resetTwoFactor(account.tenantId)
+    toast.add({ title: t('admin.accounts.twoFactorReset'), color: 'success' })
+  }
+  catch {
+    toast.add({ title: t('common.error'), color: 'error' })
+  }
+}
+
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString(locale.value, { day: 'numeric', month: 'short', year: 'numeric' })
 }
@@ -147,7 +157,14 @@ const failedDepth = computed(() => overview.value?.queues.failed ?? 0)
               <td class="px-3 py-2 text-right font-mono tabular-nums">{{ account.organizations }}</td>
               <td class="px-3 py-2 text-right font-mono tabular-nums">{{ account.leads }}</td>
               <td class="px-3 py-2 text-muted">{{ account.mailboxStatus }}</td>
-              <td class="px-3 py-2 text-right">
+              <td class="px-3 py-2 text-right whitespace-nowrap">
+                <UButton
+                  size="xs"
+                  variant="ghost"
+                  icon="i-lucide-shield-off"
+                  :aria-label="t('admin.accounts.resetTwoFactor', { email: account.email })"
+                  @click="resetTwoFactor(account)"
+                />
                 <UButton
                   v-if="!account.deletionRequestedAt"
                   size="xs"

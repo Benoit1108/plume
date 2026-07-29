@@ -17,5 +17,9 @@ export function useAdmin() {
     /** POST /admin/accounts/{tenantId}/request-deletion — suppression RGPD côté support (soft-delete). */
     requestDeletion: (tenantId: string) =>
       api<unknown>(`/api/v1/admin/accounts/${tenantId}/request-deletion`, { method: 'POST', body: {} }),
+
+    /** POST /admin/accounts/{tenantId}/reset-2fa — dernier recours : désactive la 2FA (support). */
+    resetTwoFactor: (tenantId: string) =>
+      api<unknown>(`/api/v1/admin/accounts/${tenantId}/reset-2fa`, { method: 'POST', body: {} }),
   }
 }

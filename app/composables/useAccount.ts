@@ -40,6 +40,10 @@ export function useAccount() {
     verifyEmail: (token: string) =>
       api<unknown>('/api/v1/account/verify-email', { method: 'POST', body: { token } }),
 
+    /** POST /account/verify-email/resend (PUBLIC) — renvoie le lien de vérification. Toujours 204. */
+    resendVerification: (email: string) =>
+      api<unknown>('/api/v1/account/verify-email/resend', { method: 'POST', body: { email } }),
+
     // --- 2FA TOTP ---
     twoFactorStatus: () => api<{ enabled: boolean, remainingBackupCodes: number }>('/api/v1/account/2fa'),
     twoFactorSetup: () => api<{ secret: string, otpauthUri: string }>('/api/v1/account/2fa/setup', { method: 'POST', body: {} }),

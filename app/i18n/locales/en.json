@@ -34,11 +34,15 @@
     "verify": {
       "verifying": "Verifying…",
       "ok": "Email confirmed! You can now sign in.",
-      "error": "This verification link is invalid or expired."
+      "error": "This verification link is invalid or expired.",
+      "needed": "Your email isn't verified yet. Check your inbox, or resend the link.",
+      "resend": "Resend the verification email",
+      "resent": "Verification email resent."
     },
     "otp": "Verification code",
     "otpHint": "The 6-digit code from your authenticator app, or a backup code.",
-    "otpInvalid": "Invalid or already-used code."
+    "otpInvalid": "Invalid or already-used code.",
+    "accountDeleted": "This account is being deleted."
   },
   "admin": {
     "eyebrow": "Back office",
@@ -71,7 +75,9 @@
       "deletionRequested": "Deletion requested (purge after 30 days).",
       "confirmTitle": "Request account deletion?",
       "confirmBody": "The account {email} will be deactivated immediately and purged after 30 days (support-side GDPR request). This action is recorded in the audit log.",
-      "confirmAction": "Request deletion"
+      "confirmAction": "Request deletion",
+      "resetTwoFactor": "Reset 2FA for {email}",
+      "twoFactorReset": "2FA reset (last resort)."
     }
   },
   "notifications": {
@@ -588,7 +594,8 @@
       "backupIntro": "Store them safely: each works once if you lose your phone. They will never be shown again.",
       "backupRemaining": "{count} backup code(s) left",
       "disablePassword": "Current password",
-      "disable": "Disable 2FA"
+      "disable": "Disable 2FA",
+      "copied": "Backup codes copied."
     },
     "sessions": {
       "title": "Active sessions",

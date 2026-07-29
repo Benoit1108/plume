@@ -34,11 +34,15 @@
     "verify": {
       "verifying": "Vérification en cours…",
       "ok": "Email confirmé ! Vous pouvez vous connecter.",
-      "error": "Ce lien de vérification est invalide ou expiré."
+      "error": "Ce lien de vérification est invalide ou expiré.",
+      "needed": "Votre email n'est pas encore vérifié. Vérifiez votre boîte, ou renvoyez le lien.",
+      "resend": "Renvoyer l'email de vérification",
+      "resent": "Email de vérification renvoyé."
     },
     "otp": "Code de vérification",
     "otpHint": "Le code à 6 chiffres de votre app d'authentification, ou un code de secours.",
-    "otpInvalid": "Code invalide ou déjà utilisé."
+    "otpInvalid": "Code invalide ou déjà utilisé.",
+    "accountDeleted": "Ce compte est en cours de suppression."
   },
   "admin": {
     "eyebrow": "Back-office",
@@ -71,7 +75,9 @@
       "deletionRequested": "Suppression demandée (purge après 30 jours).",
       "confirmTitle": "Demander la suppression du compte ?",
       "confirmBody": "Le compte {email} sera désactivé immédiatement et purgé après 30 jours (demande RGPD côté support). Cette action est tracée au journal d'audit.",
-      "confirmAction": "Demander la suppression"
+      "confirmAction": "Demander la suppression",
+      "resetTwoFactor": "Réinitialiser la 2FA de {email}",
+      "twoFactorReset": "2FA réinitialisée (dernier recours)."
     }
   },
   "notifications": {
@@ -588,7 +594,8 @@
       "backupIntro": "Conservez-les précieusement : chacun ne sert qu'une fois si vous perdez votre téléphone. Ils ne seront plus jamais affichés.",
       "backupRemaining": "{count} code(s) de secours restant(s)",
       "disablePassword": "Mot de passe actuel",
-      "disable": "Désactiver la 2FA"
+      "disable": "Désactiver la 2FA",
+      "copied": "Codes de secours copiés."
     },
     "sessions": {
       "title": "Sessions actives",

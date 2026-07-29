@@ -3,10 +3,9 @@ security:
         Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
 
     providers:
+        # Provider insensible à la casse de l'email (revue globale P0-2) — cf. AppUserProvider.
         app_users:
-            entity:
-                class: App\Account\Infrastructure\Persistence\User
-                property: email
+            id: App\Account\Infrastructure\Security\AppUserProvider
 
     firewalls:
         dev:
@@ -55,7 +54,7 @@ when@dev:
             - { path: ^/api/v1/login_check$, roles: PUBLIC_ACCESS }
             - { path: ^/api/v1/token/(refresh|invalidate)$, roles: PUBLIC_ACCESS }
             - { path: ^/api/v1/account/password/(forgot|reset)$, roles: PUBLIC_ACCESS }
-            - { path: ^/api/v1/(register|account/verify-email)$, roles: PUBLIC_ACCESS }
+            - { path: ^/api/v1/(register|account/verify-email(/resend)?)$, roles: PUBLIC_ACCESS }
             - { path: ^/api/v1/admin, roles: ROLE_ADMIN }
             - { path: ^/api/(v1/)?docs, roles: PUBLIC_ACCESS }
             - { path: ^/api/v1, roles: ROLE_USER }
@@ -71,7 +70,7 @@ when@test:
             - { path: ^/api/v1/login_check$, roles: PUBLIC_ACCESS }
             - { path: ^/api/v1/token/(refresh|invalidate)$, roles: PUBLIC_ACCESS }
             - { path: ^/api/v1/account/password/(forgot|reset)$, roles: PUBLIC_ACCESS }
-            - { path: ^/api/v1/(register|account/verify-email)$, roles: PUBLIC_ACCESS }
+            - { path: ^/api/v1/(register|account/verify-email(/resend)?)$, roles: PUBLIC_ACCESS }
             - { path: ^/api/v1/admin, roles: ROLE_ADMIN }
             - { path: ^/api/(v1/)?docs, roles: PUBLIC_ACCESS }
             - { path: ^/api/v1, roles: ROLE_USER }
@@ -84,7 +83,7 @@ when@prod:
             - { path: ^/api/v1/login_check$, roles: PUBLIC_ACCESS }
             - { path: ^/api/v1/token/(refresh|invalidate)$, roles: PUBLIC_ACCESS }
             - { path: ^/api/v1/account/password/(forgot|reset)$, roles: PUBLIC_ACCESS }
-            - { path: ^/api/v1/(register|account/verify-email)$, roles: PUBLIC_ACCESS }
+            - { path: ^/api/v1/(register|account/verify-email(/resend)?)$, roles: PUBLIC_ACCESS }
             - { path: ^/api/v1/admin, roles: ROLE_ADMIN }
             - { path: ^/api/(v1/)?docs, roles: ROLE_USER }
             - { path: ^/api/v1, roles: ROLE_USER }

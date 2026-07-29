@@ -152,6 +152,28 @@ final class AdminApiTest extends ApiTestCase
         self::assertResponseStatusCodeSame(401);
     }
 
+    public function testResetTwoFactorDisablesItAndAudits(): void
+    {
+        $this->createUser('admin@plume.test', ['ROLE_ADMIN']);
+        $tenant = $this->createUser('locked@plume.test');
+        // La traductrice a la 2FA active (secret + codes de secours en base).
+        $this->connection->executeStatement(
+            "UPDATE app_user SET totp_secret = 'SECRET', backup_codes = '[\"h\"]' WHERE tenant_id = ?",
+            [$tenant],
+        );
+
+        $client = static::createClient();
+        $token = $this->tokenFor($client, 'admin@plume.test');
+        $client->request('POST', '/api/v1/admin/accounts/'.$tenant.'/reset-2fa', ['auth_bearer' => $token, 'json' => []]);
+        self::assertResponseStatusCodeSame(204);
+
+        self::assertNull($this->connection->fetchOne('SELECT totp_secret FROM app_user WHERE tenant_id = ?', [$tenant]));
+        /** @var array{actor: string, action: string} $audit */
+        $audit = $this->connection->fetchAssociative('SELECT actor, action FROM audit_log ORDER BY occurred_at DESC LIMIT 1');
+        self::assertSame('admin.2fa_reset', $audit['action']);
+        self::assertSame('admin@plume.test', $audit['actor']);
+    }
+
     public function testAdminAccountCannotBeDeletedThroughSupportRoute(): void
     {
         $adminTenant = $this->createUser('admin@plume.test', ['ROLE_ADMIN']);
