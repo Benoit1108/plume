@@ -7,6 +7,7 @@ namespace App\Account\Infrastructure\Http;
 use App\Account\Infrastructure\Mail\AccountMailer;
 use App\Account\Infrastructure\Persistence\User;
 use App\Account\Infrastructure\Security\EmailVerificationSigner;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -71,7 +72,12 @@ final class RegisterController
         $user->setPassword($this->hasher->hashPassword($user, $password));
         $user->requireEmailVerification();
         $this->em->persist($user);
-        $this->em->flush();
+        try {
+            $this->em->flush();
+        } catch (UniqueConstraintViolationException) {
+            // Course entre le findOneBy et le flush (deux inscriptions simultanées) → 409, pas 500.
+            return new JsonResponse(['detail' => 'email_taken'], Response::HTTP_CONFLICT);
+        }
 
         $this->mailer->sendEmailVerification($email, $this->signer->sign($email));
 

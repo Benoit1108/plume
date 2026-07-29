@@ -83,7 +83,8 @@ final class TotpService
         $plain = [];
         $hashed = [];
         for ($i = 0; $i < 8; ++$i) {
-            $code = bin2hex(random_bytes(2)).'-'.bin2hex(random_bytes(2));
+            // 64 bits d'entropie (revue globale) : anti-brute-force offline sur un dump hashé.
+            $code = bin2hex(random_bytes(4)).'-'.bin2hex(random_bytes(4));
             $plain[] = $code;
             $hashed[] = self::hashBackupCode($code);
         }

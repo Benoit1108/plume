@@ -19,6 +19,7 @@
 		Referrer-Policy "strict-origin-when-cross-origin"
 		Content-Security-Policy "default-src 'none'; frame-ancestors 'none'"
 		Permissions-Policy "camera=(), microphone=(), geolocation=()"
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
 		-Server
 		-X-Powered-By
 	}

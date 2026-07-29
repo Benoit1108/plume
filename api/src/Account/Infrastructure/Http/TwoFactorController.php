@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Account\Infrastructure\Http;
 
+use App\Account\Infrastructure\Auth\RefreshToken;
 use App\Account\Infrastructure\Persistence\User;
 use App\Account\Infrastructure\Security\TotpService;
 use App\Shared\Infrastructure\Audit\AuditLogger;
@@ -77,6 +78,9 @@ final class TwoFactorController
 
         $backupCodes = $this->totp->generateBackupCodes();
         $user->enableTotp($backupCodes['hashed']);
+        // Activer la 2FA « ferme la porte » : on révoque les sessions existantes (revue globale sécu)
+        // — une session déjà ouverte (ex. attaquant) ne survit pas au durcissement.
+        $this->revokeSessions($user);
         $this->em->flush();
         $this->audit->record($user->getUserIdentifier(), 'account.2fa_enabled', $user->getTenantId()->toRfc4122());
 
@@ -94,10 +98,18 @@ final class TwoFactorController
         }
 
         $user->disableTotp();
+        $this->revokeSessions($user);
         $this->em->flush();
         $this->audit->record($user->getUserIdentifier(), 'account.2fa_disabled', $user->getTenantId()->toRfc4122());
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+    }
+
+    private function revokeSessions(User $user): void
+    {
+        foreach ($this->em->getRepository(RefreshToken::class)->findBy(['username' => $user->getUserIdentifier()]) as $token) {
+            $this->em->remove($token);
+        }
     }
 
     private function currentUser(): User

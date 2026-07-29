@@ -136,6 +136,29 @@ final class TwoFactorApiTest extends ApiTestCase
         self::assertResponseIsSuccessful();
     }
 
+    public function testEnablingTwoFactorRevokesExistingSessions(): void
+    {
+        $this->createUser('revoke2fa@plume.test');
+        $client = static::createClient();
+        $token = $this->tokenFor($client, 'revoke2fa@plume.test'); // pose un refresh token (session)
+        self::assertSame(1, $this->refreshCount('revoke2fa@plume.test'));
+
+        $secret = $client->request('POST', '/api/v1/account/2fa/setup', ['auth_bearer' => $token, 'json' => []])->toArray()['secret'];
+        \assert(\is_string($secret));
+        $client->request('POST', '/api/v1/account/2fa/confirm', ['auth_bearer' => $token, 'json' => ['code' => $this->totp->currentCode($secret)]]);
+        self::assertResponseIsSuccessful();
+
+        // Activer la 2FA ferme les sessions déjà ouvertes.
+        self::assertSame(0, $this->refreshCount('revoke2fa@plume.test'));
+    }
+
+    private function refreshCount(string $username): int
+    {
+        $value = $this->connection->fetchOne('SELECT COUNT(*) FROM refresh_tokens WHERE username = ?', [$username]);
+
+        return is_numeric($value) ? (int) $value : -1;
+    }
+
     public function testSessionsListAndRevokeOthers(): void
     {
         $this->createUser('sess@plume.test');

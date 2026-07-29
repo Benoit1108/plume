@@ -7,6 +7,7 @@ namespace App\Tests\Functional;
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use ApiPlatform\Symfony\Bundle\Test\Client;
 use App\Account\Infrastructure\Persistence\User;
+use App\Account\Infrastructure\Security\TotpService;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -36,8 +37,11 @@ final class AdminApiTest extends ApiTestCase
         $tokenLimiter->create('127.0.0.1')->reset();
     }
 
+    /** Secret TOTP connu (Base32 valide) : les admins ont la 2FA obligatoire. */
+    private const ADMIN_TOTP_SECRET = 'JBSWY3DPEHPK3PXP';
+
     /** @param list<string> $roles */
-    private function createUser(string $email, array $roles = []): string
+    private function createUser(string $email, array $roles = [], ?string $totpSecret = null): string
     {
         $container = static::getContainer();
         /** @var EntityManagerInterface $em */
@@ -53,19 +57,38 @@ final class AdminApiTest extends ApiTestCase
         $em->flush();
         $em->clear();
 
+        if (null !== $totpSecret) {
+            $this->connection->executeStatement('UPDATE app_user SET totp_secret = ? WHERE tenant_id = ?', [$totpSecret, $tenant->toRfc4122()]);
+        }
+
         return $tenant->toRfc4122();
     }
 
-    private function tokenFor(Client $client, string $email): string
+    /** Crée un admin avec 2FA (obligatoire pour le back-office). */
+    private function createAdmin(string $email = 'admin@plume.test'): string
     {
-        $response = $client->request('POST', '/api/v1/login_check', [
-            'json' => ['email' => $email, 'password' => self::PASSWORD],
-        ]);
+        return $this->createUser($email, ['ROLE_ADMIN'], self::ADMIN_TOTP_SECRET);
+    }
+
+    private function tokenFor(Client $client, string $email, ?string $otpSecret = null): string
+    {
+        $body = ['email' => $email, 'password' => self::PASSWORD];
+        if (null !== $otpSecret) {
+            $totp = static::getContainer()->get(TotpService::class);
+            \assert($totp instanceof TotpService);
+            $body['otp'] = $totp->currentCode($otpSecret);
+        }
 
         /** @var array{token: string} $data */
-        $data = $response->toArray();
+        $data = $client->request('POST', '/api/v1/login_check', ['json' => $body])->toArray();
 
         return $data['token'];
+    }
+
+    /** Token d'un admin (login avec OTP calculé depuis le secret connu). */
+    private function adminToken(Client $client, string $email = 'admin@plume.test'): string
+    {
+        return $this->tokenFor($client, $email, self::ADMIN_TOTP_SECRET);
     }
 
     public function testAdminRoutesAreForbiddenToRegularUsers(): void
@@ -82,7 +105,7 @@ final class AdminApiTest extends ApiTestCase
 
     public function testOverviewCountsAccountsAndBusiness(): void
     {
-        $this->createUser('admin@plume.test', ['ROLE_ADMIN']);
+        $this->createAdmin();
         $tenant = $this->createUser('translator@plume.test');
         $this->connection->executeStatement(
             "INSERT INTO organization (id, tenant_id, name, type, working_languages, segments, do_not_contact, contacts)
@@ -91,7 +114,7 @@ final class AdminApiTest extends ApiTestCase
         );
 
         $client = static::createClient();
-        $token = $this->tokenFor($client, 'admin@plume.test');
+        $token = $this->adminToken($client);
         $response = $client->request('GET', '/api/v1/admin/overview', ['auth_bearer' => $token]);
         self::assertResponseIsSuccessful();
 
@@ -104,12 +127,12 @@ final class AdminApiTest extends ApiTestCase
 
     public function testAccountsListExcludesAdminsAndSearches(): void
     {
-        $this->createUser('admin@plume.test', ['ROLE_ADMIN']);
+        $this->createAdmin();
         $this->createUser('alice@plume.test');
         $this->createUser('bob@plume.test');
 
         $client = static::createClient();
-        $token = $this->tokenFor($client, 'admin@plume.test');
+        $token = $this->adminToken($client);
 
         $response = $client->request('GET', '/api/v1/admin/accounts', ['auth_bearer' => $token]);
         /** @var array{accounts: list<array{email: string}>} $data */
@@ -126,13 +149,13 @@ final class AdminApiTest extends ApiTestCase
 
     public function testSupportDeletionRequestSoftDeletesRevokesAndAudits(): void
     {
-        $this->createUser('admin@plume.test', ['ROLE_ADMIN']);
+        $this->createAdmin();
         $tenant = $this->createUser('leaving@plume.test');
 
         $client = static::createClient();
         // La traductrice a une session ouverte (refresh token posé au login).
         $this->tokenFor($client, 'leaving@plume.test');
-        $token = $this->tokenFor($client, 'admin@plume.test');
+        $token = $this->adminToken($client);
 
         $client->request('POST', '/api/v1/admin/accounts/'.$tenant.'/request-deletion', ['auth_bearer' => $token, 'json' => []]);
         self::assertResponseStatusCodeSame(204);
@@ -154,7 +177,7 @@ final class AdminApiTest extends ApiTestCase
 
     public function testResetTwoFactorDisablesItAndAudits(): void
     {
-        $this->createUser('admin@plume.test', ['ROLE_ADMIN']);
+        $this->createAdmin();
         $tenant = $this->createUser('locked@plume.test');
         // La traductrice a la 2FA active (secret + codes de secours en base).
         $this->connection->executeStatement(
@@ -163,7 +186,7 @@ final class AdminApiTest extends ApiTestCase
         );
 
         $client = static::createClient();
-        $token = $this->tokenFor($client, 'admin@plume.test');
+        $token = $this->adminToken($client);
         $client->request('POST', '/api/v1/admin/accounts/'.$tenant.'/reset-2fa', ['auth_bearer' => $token, 'json' => []]);
         self::assertResponseStatusCodeSame(204);
 
@@ -176,11 +199,22 @@ final class AdminApiTest extends ApiTestCase
 
     public function testAdminAccountCannotBeDeletedThroughSupportRoute(): void
     {
-        $adminTenant = $this->createUser('admin@plume.test', ['ROLE_ADMIN']);
+        $adminTenant = $this->createAdmin();
         $client = static::createClient();
-        $token = $this->tokenFor($client, 'admin@plume.test');
+        $token = $this->adminToken($client);
 
         $client->request('POST', '/api/v1/admin/accounts/'.$adminTenant.'/request-deletion', ['auth_bearer' => $token, 'json' => []]);
         self::assertResponseStatusCodeSame(404);
+    }
+
+    public function testAdminWithoutTwoFactorIsBlocked(): void
+    {
+        // Admin SANS 2FA (pas de secret) : peut se connecter, mais le back-office exige la 2FA.
+        $this->createUser('noadmin2fa@plume.test', ['ROLE_ADMIN']);
+        $client = static::createClient();
+        $token = $this->tokenFor($client, 'noadmin2fa@plume.test'); // pas d'OTP : pas de 2FA active
+
+        $client->request('GET', '/api/v1/admin/overview', ['auth_bearer' => $token]);
+        self::assertResponseStatusCodeSame(403);
     }
 }

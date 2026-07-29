@@ -67,6 +67,10 @@ framework:
         routing:
             # Les domain events (marqueur) partent en asynchrone.
             'App\Shared\Domain\DomainEvent': async
+            # Emails SYSTÈME en asynchrone (revue globale) : supprime l'oracle temporel du « mot de
+            # passe oublié » (réponse 204 constante quel que soit l'existence du compte) et fiabilise
+            # l'envoi (retries worker). En test, `async` = sync:// → envoi inline, assertions déterministes.
+            'Symfony\Component\Mailer\Messenger\SendEmailMessage': async
 
 when@test:
     framework:

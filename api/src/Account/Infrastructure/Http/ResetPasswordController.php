@@ -8,6 +8,7 @@ use App\Account\Infrastructure\Auth\RefreshToken;
 use App\Account\Infrastructure\Persistence\PasswordResetToken;
 use App\Account\Infrastructure\Persistence\User;
 use App\Shared\Application\Clock;
+use App\Shared\Infrastructure\Audit\AuditLogger;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -31,6 +32,7 @@ final class ResetPasswordController
         private readonly EntityManagerInterface $em,
         private readonly UserPasswordHasherInterface $hasher,
         private readonly Clock $clock,
+        private readonly AuditLogger $audit,
     ) {
     }
 
@@ -78,6 +80,9 @@ final class ResetPasswordController
             $this->em->remove($used);
         }
         $this->em->flush();
+
+        // Vecteur classique de prise de compte → tracé (forensics), sans PII au-delà du tenant.
+        $this->audit->record('system', 'account.password_reset', $user->getTenantId()->toRfc4122());
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
