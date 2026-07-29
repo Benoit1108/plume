@@ -13,7 +13,7 @@ vi.stubGlobal('useRuntimeConfig', () => ({ public: { apiBase: '' } }))
 vi.stubGlobal('useCookie', (name: string, opts?: { default?: () => unknown }) => {
   // Honore la fabrique `default` comme le vrai useCookie : sans ça, les valeurs
   // par défaut (email null, isAdmin false) ne seraient jamais exercées.
-  if (!cookies.has(name)) cookies.set(name, ref(opts?.default ? opts.default() : null))
+  if (!cookies.has(name)) cookies.set(name, ref((opts?.default?.() ?? null) as string | null))
   return cookies.get(name)
 })
 
