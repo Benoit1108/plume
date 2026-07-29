@@ -11,4 +11,7 @@ return [
     Symfony\Bundle\MonologBundle\MonologBundle::class => ['all' => true],
     Symfony\Bundle\MakerBundle\MakerBundle::class => ['dev' => true],
     Nelmio\CorsBundle\NelmioCorsBundle::class => ['all' => true],
+    // Error-tracking : chargé UNIQUEMENT en prod, et inerte tant que SENTRY_DSN est vide
+    // (dev/test ne touchent jamais Sentry). Compatible SaaS ET Sentry self-hosted (juste le DSN).
+    Sentry\SentryBundle\SentryBundle::class => ['prod' => true],
 ];

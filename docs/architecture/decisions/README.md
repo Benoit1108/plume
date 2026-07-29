@@ -34,3 +34,4 @@ Ne pas contredire un ADR accepté sans en écrire un nouveau qui le remplace (st
 | [0027](0027-2fa-totp.md) | Double authentification TOTP (librairie éprouvée, anti-rejeu, codes de secours) | Accepté |
 | [0028](0028-centre-notifications-projection.md) | Centre de notifications : projection DBAL sur événements, hors ORM | Accepté |
 | [0029](0029-verification-email-sans-etat.md) | Vérification d'email sans état (HMAC) vs reset mot de passe avec état | Accepté |
+| [0030](0030-observabilite.md) | Observabilité : logs JSON corrélés (tenant + request_id) + error-tracking Sentry (prod-only, env-gated) | Accepté |

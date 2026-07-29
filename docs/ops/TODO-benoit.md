@@ -31,7 +31,8 @@ côté, on tranchera plus tard.** Tests : **grosse recette manuelle plus tard** 
 - [ ] Domaine + (plus tard) hébergeur.
 - [ ] Stripe (si retenu) — compte + clés.
 - [ ] Service d'emails transactionnels si SMTP tiers (⚖️ dépend hébergement) — ex. compte SMTP/API.
-- [ ] Error-tracking si retenu (ex. Sentry) — compte + DSN.
+- [~] Error-tracking : ✅ **Sentry câblé** (prod-only, inerte sans DSN, sans PII — ADR-0030) ; reste à
+      **créer un projet Sentry** (SaaS ou self-hosté) et fournir le **`SENTRY_DSN`** en prod pour l'activer.
 
 ## 🟢 À fournir à Claude quand disponible (non bloquant)
 

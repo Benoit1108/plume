@@ -32,6 +32,16 @@ V2.0-c : la config est prête, cette page dit **quoi surcharger** avant d'ouvrir
   `null://null` (aucun envoi) → **obligatoire en prod** (SMTP/API, ex. `smtp://…`), + `MAIL_FROM`.
 - **Sonde de santé** : `GET /api/v1/health` (public, 200/503) pour le load-balancer / monitoring.
 
+## 2bis. Observabilité (ADR-0030)
+
+- **Logs** : en prod, sortie **JSON structurée sur stderr** (à récupérer par la plateforme). Chaque ligne
+  porte `extra.tenant_id` + `extra.request_id` (corrélation par compte et par requête, HTTP **et** worker).
+- **`X-Request-Id`** : réutilisé s'il est fourni par le proxy en amont (forme sûre), sinon généré ;
+  renvoyé dans la réponse. Configurer le proxy pour le poser/propager si un id de trace existe déjà.
+- **`SENTRY_DSN`** : **vide = error-tracking désactivé** (le bundle n'est même chargé qu'en prod). Pour
+  activer : renseigner le DSN d'un projet **Sentry** (SaaS ou self-hosté). `send_default_pii` est à
+  `false` (aucune PII envoyée) ; les événements sont tagués `tenant_id` + `request_id`.
+
 ## 3. Base de données (deux rôles, RLS — ADR-0023)
 
 Dans l'ordre, en tant que **propriétaire `plume`** :

@@ -97,8 +97,9 @@ Nouveau contexte `Notification` (in-app d'abord, digests email ensuite) :
 ## Propositions — arbitrage Benoit (2026-07-28)
 
 **RETENUES pour la V2** (décidées) :
-1. 🟩 **Observabilité** : logs structurés JSON + corrélation par tenant, **error-tracking** (⚖️ Sentry
-   self-hostable), métriques. Indispensable dès qu'il y a de vrais utilisateurs.
+1. ✅ **Observabilité (LIVRÉ, ADR-0030)** : logs JSON + corrélation **tenant + request_id** (HTTP et
+   worker), **error-tracking Sentry** prod-only/env-gated/sans PII (reste 🟦 fournir le `SENTRY_DSN`).
+   *Reste : métriques produit (avec le back-office/monitoring).*
 2. 🟩 **Journal d'audit** hors-tenant (connexions, suppressions, actions admin) — comble le trou
    RGPD noté à l'ADR-0025 + trace le back-office. *Va de pair avec le jalon back-office.*
 3. 🟩 **2FA / TOTP + gestion des sessions** (« OTP » demandé par Benoit) — **slice de sécurité dédiée**

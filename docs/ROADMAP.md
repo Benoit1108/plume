@@ -127,6 +127,8 @@ Fondations techniques.
       à trier, **digests email** (mêmes patrons).*
 - [x] **Revue de santé globale (7 axes) + remédiation A→G** (2026-07-29) : cf.
       [`docs/reviews/2026-07-29-revue-sante-globale.md`](reviews/2026-07-29-revue-sante-globale.md).
+- [x] **Observabilité** (ADR-0030) : logs JSON corrélés **tenant + request_id** (HTTP + worker) +
+      **error-tracking Sentry** prod-only/env-gated/sans PII (reste : fournir le `SENTRY_DSN`).
 - [ ] **V2.2** Abonnement SaaS : plans + quotas + paiement (≠ facturation client).
 - [ ] **V2.3** Enrichissement : pipeline **configurable**, **séquences** de relance, **annuaire**
       pré-rempli, parsers ProZ/TC + Outlook réel, dashboard enrichi.

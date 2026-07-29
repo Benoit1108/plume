@@ -1,0 +1,12 @@
+# Error-tracking (proposition V2 « observabilité »). Chargé prod-only (cf. bundles.php) et INERTE
+# tant que SENTRY_DSN est vide → prêt, mais ne s'active qu'une fois le DSN fourni (compte Sentry
+# SaaS ou instance self-hosted — décision + fourniture par Benoit, cf. TODO-benoit).
+when@prod:
+    sentry:
+        dsn: '%env(SENTRY_DSN)%'
+        # RGPD : JAMAIS de PII par défaut (pas d'email/IP/corps de message dans les événements).
+        # La corrélation utile (tenant_id + request_id) est ajoutée SANS PII par SentryScopeListener.
+        options:
+            send_default_pii: false
+            # Traces de perf désactivées par défaut (coût/volume) — à activer plus tard si besoin.
+            traces_sample_rate: 0.0

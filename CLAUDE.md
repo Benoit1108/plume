@@ -146,5 +146,12 @@ suppression RGPD support + reset 2FA, **journal d'audit hors-tenant** (`AuditLog
 lots A→D (lifecycle compte, sécu, front) + E (tests : chaîne email, TOTP/signer/health, 3 plafonds
 rate-limit, coverage `perFile`, E2E compte + garde admin) + F (resync docs) + G (polish UX/a11y).
 
-**Prochaine grande étape** : volet documentaire RGPD (registre + DPA) ; V2.2 abonnement (décision paiement) ;
-digests email + QR code 2FA + chiffrement du secret TOTP au repos (dettes tracées).
+**V2.0 CLÔTURÉE** : révocation OAuth côté fournisseur à la purge (port `MailboxRevoker`, ADR-0025 amendé) ;
+**trames RGPD** fournies (`docs/legal/` registre Art.30 + DPA Art.28, reste validation Benoit).
+
+**Observabilité : LIVRÉE** ([ADR-0030](docs/architecture/decisions/0030-observabilite.md)) : logs JSON
+corrélés **tenant + request_id** (HTTP via `CorrelationIdListener` + async via `CorrelationMiddleware`/
+`CorrelationStamp`) + **error-tracking Sentry** prod-only, env-gated (`SENTRY_DSN` vide = inerte), sans PII.
+
+**Prochaine grande étape** : V2.2 abonnement (décision paiement) ; page de statut + reprise boîte OAuth ;
+métriques produit ; digests email + QR code 2FA + chiffrement du secret TOTP au repos (dettes tracées).
