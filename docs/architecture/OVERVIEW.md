@@ -15,7 +15,9 @@ Conséquence structurante : **monolithe modulaire hexagonal**, découpé par bou
 | **Rédaction assistée**| Supporting      | Génération IA + Modèles. ACL → API Claude. |
 | **Sourcing**          | Supporting      | Annonces candidates → file de tri → promotion en Pistes. **M3 complet** : socle + tri (M3.0), ingestion RSS (M3.1), alertes email (M3.2, plomberie). |
 | **Passerelle email**  | Generic (tech.) | Envoi + lecture. ACL → Gmail/Outlook. Sert Prospection ET Sourcing. |
-| **Compte & Tenancy**  | Generic         | Tenants, auth, profil. |
+| **Compte & Tenancy**  | Generic         | Tenants, auth, **inscription + vérif email + 2FA + sessions** (V2.1), profil, **RGPD** (suppression/export). |
+| **Notification**      | Generic         | Centre de notifications in-app : **projection** DBAL sur domain events (V2, ADR-0028). |
+| **Admin**             | Generic (hors tenant) | Back-office `ROLE_ADMIN` : comptes, RGPD support, audit. **Connexion propriétaire** cross-tenant (V2, ADR-0026). |
 | **Gestion de mission**| Core n°2 (futur)| Missions décrochées. |
 | **Facturation**       | Generic (futur) | Devis/factures. |
 

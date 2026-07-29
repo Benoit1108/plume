@@ -29,3 +29,8 @@ Ne pas contredire un ADR accepté sans en écrire un nouveau qui le remplace (st
 | [0022](0022-dettes-architecture-v2.md) | Dettes d'architecture à trancher en V2 (revue fin M3) | Proposé |
 | [0023](0023-rls-multi-tenant.md) | Row-Level Security multi-tenant (rôle runtime dédié, var de session, fail-closed) | Accepté |
 | [0024](0024-spa-ssr-false.md) | Front en SPA (ssr:false), serveur Nitro conservé pour le proxy (cookies) | Accepté |
+| [0025](0025-rgpd-suppression-export.md) | RGPD : suppression (soft-delete + purge 30 j) et export ZIP JSON/CSV | Accepté |
+| [0026](0026-connexion-admin-proprietaire.md) | Back-office : connexion propriétaire dédiée (lecteur cross-tenant, amende 0023) | Accepté |
+| [0027](0027-2fa-totp.md) | Double authentification TOTP (librairie éprouvée, anti-rejeu, codes de secours) | Accepté |
+| [0028](0028-centre-notifications-projection.md) | Centre de notifications : projection DBAL sur événements, hors ORM | Accepté |
+| [0029](0029-verification-email-sans-etat.md) | Vérification d'email sans état (HMAC) vs reset mot de passe avec état | Accepté |

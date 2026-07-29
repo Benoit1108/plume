@@ -39,8 +39,15 @@ Un mini-CRM SaaS (multi-tenant dès l'architecture, mono-utilisatrice en V1) qui
   Messenger `io` dédié aux relèves + worker séparé, ADR-0022 §5), **préparation déploiement agnostique**
   (store rate-limiters Redis-ready, reset tenant `kernel.request`, fail-fast secrets prod, le conteneur
   prod compile — voir [`docs/ops/deployment-checklist.md`](docs/ops/deployment-checklist.md)).
-- **Revues de santé** appliquées à chaque jalon (`docs/reviews/`), remédiations fin M1/M2/M3, fin pré-V2 et fin V2.0 incluses.
-- **Prochaine étape : V2.1 (ouverture des comptes)** + volet documentaire RGPD (registre + DPA) — voir [`docs/ROADMAP.md`](docs/ROADMAP.md).
+- **V2.1 — ouverture des comptes : livré** — socle (mot de passe oublié, emails transactionnels, **vérif
+  email sans état** ADR-0029, `/health`, pages légales), **inscription publique** + onboarding, **2FA TOTP**
+  + gestion des **sessions** (ADR-0027).
+- **Back-office / Admin : livré** — contexte `Admin` **hors tenant** (`ROLE_ADMIN`, CLI), **connexion
+  propriétaire** cross-tenant (ADR-0026), 2FA obligatoire, suppression RGPD support + **journal d'audit**.
+- **Centre de notifications : livré** (in-app) — projection DBAL sur domain events (ADR-0028).
+- **Revues de santé** appliquées à chaque jalon (`docs/reviews/`), y compris une **revue globale 7 axes**
+  (2026-07-29) remédiée A→G (lifecycle, sécu, front, tests, docs, UX).
+- **Prochaine étape** : volet documentaire RGPD (registre + DPA) + V2.2 abonnement — voir [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 ## Stack
 

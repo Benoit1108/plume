@@ -123,4 +123,28 @@ aussi été livrées.
   reset tenant `kernel.request`, **fail-fast secrets prod** (`ProductionConfigGuard`), **le conteneur prod
   compile** ; checklist `docs/ops/deployment-checklist.md`.
 
-**Prochaine grande étape : V2.1 (ouverture des comptes)** + volet documentaire RGPD (registre + DPA).
+**V2.1 — ouverture des comptes : LIVRÉ** (plan directeur `docs/design/V2-plan-directeur.md`) :
+- **Socle** : mot de passe oublié (jeton **avec état**, hachage sha256), emails transactionnels, **vérif
+  email sans état** (HMAC `kernel.secret`, [ADR-0029](docs/architecture/decisions/0029-verification-email-sans-etat.md)),
+  sonde `/health`, pages légales.
+- **Inscription publique** : compte **non vérifié** (login refusé avant confirmation), provider **insensible
+  à la casse** (`AppUserProvider`), `email_verified` défaut `true` (zéro-ripple CLI/seed/tests) + **onboarding**.
+- **2FA TOTP + sessions** ([ADR-0027](docs/architecture/decisions/0027-2fa-totp.md)) : lib `spomky-labs/otphp`,
+  enrôlement 2 temps, anti-rejeu `totp_last_used_step`, codes de secours sha256, codes stables
+  `2fa_required`/`2fa_invalid`. Sessions actives (liste/révocation) ; activation/désactivation révoque les sessions.
+
+**Back-office / Admin : LIVRÉ** — contexte `Admin` **hors tenant** (`ROLE_ADMIN`, créé par CLI), **connexion
+propriétaire cross-tenant** ([ADR-0026](docs/architecture/decisions/0026-connexion-admin-proprietaire.md), amende
+0023), **2FA obligatoire** (`AdminTwoFactorRequiredListener`) ; vue d'ensemble (comptages), comptes (recherche),
+suppression RGPD support + reset 2FA, **journal d'audit hors-tenant** (`AuditLogger`, survit à la purge).
+
+**Centre de notifications : LIVRÉ** (in-app) — projection DBAL sur domain events
+([ADR-0028](docs/architecture/decisions/0028-centre-notifications-projection.md)) : `reply_received`,
+`email_send_failed`, relances dues (fenêtre de rattrapage 7 j) ; badge cloche, purge 90 j.
+
+**Revue de santé GLOBALE (7 axes) + remédiation A→G** (`docs/reviews/2026-07-29-revue-sante-globale.md`) :
+lots A→D (lifecycle compte, sécu, front) + E (tests : chaîne email, TOTP/signer/health, 3 plafonds
+rate-limit, coverage `perFile`, E2E compte + garde admin) + F (resync docs) + G (polish UX/a11y).
+
+**Prochaine grande étape** : volet documentaire RGPD (registre + DPA) ; V2.2 abonnement (décision paiement) ;
+digests email + QR code 2FA + chiffrement du secret TOTP au repos (dettes tracées).

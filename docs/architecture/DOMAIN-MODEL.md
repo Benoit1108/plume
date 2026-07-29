@@ -201,6 +201,21 @@ Consommateurs : journal d'Interactions, KPIs du tableau de bord, progression/sé
     transaction par compte : toutes les tables tenantées + refresh tokens + `app_user`).
   - **Export** (droit à la portabilité) : archive ZIP `export.json` + CSV, scopée au tenant
     (RLS + prédicat explicite), secrets exclus par motif (`SensitiveColumns`).
+- **Ouverture des comptes & sécurité** (V2.1, préoccupations d'**infrastructure** — pas d'agrégat riche) :
+  inscription publique (compte non vérifié), **vérification d'email sans état** (HMAC —
+  [ADR-0029](decisions/0029-verification-email-sans-etat.md)), mot de passe oublié (jeton avec état),
+  **2FA TOTP** + codes de secours + gestion des **sessions** ([ADR-0027](decisions/0027-2fa-totp.md)).
+
+### Notification (contexte `Notification`, livré V2 — cf. [ADR-0028](decisions/0028-centre-notifications-projection.md))
+Centre de notifications in-app. **Aucun agrégat** : c'est une **projection** (table `notification`, DBAL pur
+hors ORM, RLS activée) alimentée par `NotificationProjector` sur des domain events publiés (`ReplyCaptured`,
+`EmailSendFailed`) + un tick planifié (relances dues, fenêtre de rattrapage 7 j). Idempotente (`event_id`
+unique). Purge des notifications lues > 90 j.
+
+### Admin (contexte `Admin`, livré V2 — cf. [ADR-0026](decisions/0026-connexion-admin-proprietaire.md))
+Back-office `ROLE_ADMIN` **hors tenant**. **Aucun agrégat** : lectures/actions cross-tenant via une
+**connexion propriétaire dédiée** (contourne la RLS, injectée uniquement ici), 2FA obligatoire, actions
+support tracées au **journal d'audit hors-tenant** (`audit_log`, survit à la purge RGPD).
 
 ### Gestion de mission (futur)
 - **`Mission`** : volume, deadline, tarif, livrables, statut. Lien `PisteGagnee` → `Mission`.

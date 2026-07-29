@@ -264,6 +264,40 @@ Le vocabulaire métier ci-dessous est **contractuel** et reste en **français** 
 | **Alerte email** (`AlertEmailReceived`, M3.2) | Email d'offres lu sous le label dédié « Plume/Alertes » ; la Passerelle le publie, le Sourcing le parse (`AlertEmailParser`, provenance par domaine) et l'ingère. |
 | **Relève des alertes** (`FetchAlertEmails`, `AlertEmailFetcher`) | Lecture du label dédié (factice par défaut ; adaptateurs réels Gmail/Outlook = suivi). Scheduler `FetchAllAlertEmailsTick`. |
 
+## Compte : ouverture & sécurité (V2.1)
+
+| Terme             | Définition |
+|-------------------|------------|
+| **Inscription** (`POST /register`) | Crée un compte **non vérifié** (login refusé avant confirmation). Email normalisé ; provider **insensible à la casse** (`AppUserProvider`). |
+| **Vérification d'email** (`EmailVerificationSigner`) | Jeton **SANS état** : HMAC (`kernel.secret`) de `email + expiration`, TTL 24 h. Aucune table (ADR-0029). Renvoi anti-énumération (`ResendVerification`, 204). |
+| **Mot de passe oublié** (`password_reset_token`) | Jeton **AVEC état** : hash sha256, usage unique, expiration. Anti-énumération (204 constant). Le reset **révoque les sessions**. |
+| **Email vérifié** (`email_verified`) | Défaut **`true`** (zéro-ripple : CLI/seed/tests de confiance) ; seule l'inscription publique appelle `requireEmailVerification()`. Refus de login : code stable `email_not_verified`. |
+| **2FA / Double authentification** (TOTP) | Librairie `spomky-labs/otphp`. **Enrôlement 2 temps** (setup → confirm). **Anti-rejeu** (`totp_last_used_step`). Codes stables `2fa_required` / `2fa_invalid` (ADR-0027). |
+| **Codes de secours** (`backup codes`) | Repli si perte de l'appareil : entropie 64 bits, usage unique, stockés en **sha256**. Affichés une seule fois. |
+| **Session active** | Un refresh token = une session. L'utilisatrice les liste et **révoque** (unitaire / les autres). Activation/désactivation 2FA **révoque** les sessions. |
+| **Suppression de compte** | Soft-delete immédiat (accès coupé, relèves stoppées) + **purge à 30 j** (ADR-0025). Code de refus login : `account_deleted`. |
+| **Export des données** (`GET /account/export`) | Archive ZIP (`export.json` + CSV), scopée tenant, **secrets exclus par motif** (portabilité RGPD). |
+
+## Contexte Notification (centre de notifications in-app, V2 — ADR-0028)
+
+| Terme             | Définition |
+|-------------------|------------|
+| **Notification** (`notification`) | Ligne d'une **projection** DBAL (hors ORM, RLS activée), matérialisée depuis un domain event. **Idempotente** via `event_id` unique. |
+| **Projecteur** (`NotificationProjector`) | S'abonne aux events sur `event.bus` : `ReplyCaptured` → `reply_received`, `EmailSendFailed` → `email_send_failed`. Aucun agrégat, aucun couplage inverse. |
+| **Relance due** (`NotifyDueFollowUps`) | Notification planifiée (scheduler) : **fenêtre de rattrapage** 7 j + filtre de statut (`NOT IN WON/LOST/PAUSED`). |
+| **Purge des notifications** (`PurgeOldNotifications`) | Quotidien : efface les notifications **lues** de plus de 90 j (+ jetons de reset expirés). |
+
+## Contexte Admin (back-office, hors tenant, V2 — ADR-0026)
+
+| Terme             | Définition |
+|-------------------|------------|
+| **Administrateur** (`ROLE_ADMIN`) | Compte dédié **hors tenant métier**, créé **par CLI** (`app:admin:create`) — jamais par l'inscription. **2FA obligatoire** (`admin_2fa_required`, 403). |
+| **Connexion propriétaire** (`admin`) | Connexion DBAL dédiée (rôle propriétaire, `ADMIN_DATABASE_URL`) **contournant la RLS** — lecteur cross-tenant légitime. Injectée uniquement dans `Admin/`. |
+| **Vue d'ensemble** (`AdminOverview`) | Comptages cross-tenant (jamais de contenu métier — minimisation). |
+| **Comptes** (`AdminAccounts`) | Liste des traductrices (admins exclus), recherche par email, comptages org/pistes + statut boîte. |
+| **Suppression RGPD support** (`AdminRequestAccountDeletion`) | Même sémantique que le self-service, quand la demande arrive par email. Idempotente, **tracée au journal d'audit**. |
+| **Journal d'audit** (`audit_log`, `AuditLogger`) | Trace **hors-tenant** (sans `tenant_id`) qui a fait quoi côté support ; **survit à la purge RGPD**. |
+
 ## Concepts futurs
 
 | Terme       | Définition |

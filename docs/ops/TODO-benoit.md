@@ -19,7 +19,8 @@ côté, on tranchera plus tard.** Tests : **grosse recette manuelle plus tard** 
 ## 🟠 Décisions produit à trancher (quand on arrivera au jalon)
 
 - [ ] **Paiement / abonnement** (V2.2) : fournisseur (**Stripe** probable ?), plans, prix, essai/gratuité.
-- [ ] **Auth admin** (back-office) : compte admin dédié ? MFA obligatoire ? Impersonation support autorisée (RGPD) ?
+- [x] **Auth admin** (back-office) : ✅ tranché 2026-07-28 — compte admin dédié hors tenant (CLI,
+      ROLE_ADMIN, 2FA obligatoire à terme). Reste ⚖️ : impersonation support autorisée (RGPD) ?
 - [ ] **Notifications** : fréquence des digests email (quotidien / hebdo / off par défaut ?).
 - [ ] **Inscription** : captcha/anti-abus (lequel), double opt-in email (oui a priori).
 - [ ] **Mes propositions** (cf. [plan directeur](../design/V2-plan-directeur.md) §« propositions ») :

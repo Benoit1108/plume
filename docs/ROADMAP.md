@@ -113,10 +113,18 @@ Fondations techniques.
   `io` + worker dédié (ADR-0022 §5) ; **préparation déploiement agnostique** (Redis-ready, fail-fast
   secrets prod, compilation prod — `docs/ops/deployment-checklist.md`). Revue de santé fin V2.0 appliquée.
 - [ ] RGPD (volet documentaire) : **registre de traitement + DPA** (sous-traitants Anthropic/Google/Microsoft/hébergeur).
-- [ ] **V2.1** Ouverture des comptes : socle (mot de passe oublié, emails transactionnels, vérif
-      email, health, pages légales) → inscription publique + onboarding (1 compte = 1 traductrice).
-- [ ] **Back-office / Admin** : gestion des comptes/tenants, demandes RGPD, métriques, statut système.
-- [ ] **Centre de notifications** : in-app (relance due, réponse, boîte déconnectée, à trier…) + digests email.
+- [x] **V2.1 — Ouverture des comptes** (livré) : socle (mot de passe oublié, emails transactionnels,
+      vérif email **sans état** ADR-0029, health, pages légales) → **inscription publique** (compte non
+      vérifié, provider insensible à la casse) → **onboarding** ; **2FA TOTP** + gestion des **sessions**
+      (ADR-0027). *Reste : QR code d'enrôlement, chiffrement du secret TOTP au repos (dette tracée).*
+- [x] **Back-office / Admin** (livré) : contexte `Admin` **hors tenant** (`ROLE_ADMIN`, CLI), **connexion
+      propriétaire** cross-tenant (ADR-0026), 2FA obligatoire ; vue d'ensemble (comptages), comptes
+      (recherche), demande de suppression RGPD support + reset 2FA, **journal d'audit hors-tenant**.
+- [x] **Centre de notifications** (livré, in-app) : projection DBAL sur événements (ADR-0028) —
+      réponse reçue, envoi échoué, relance due ; badge cloche, purge 90 j. *Reste : boîte déconnectée,
+      à trier, **digests email** (mêmes patrons).*
+- [x] **Revue de santé globale (7 axes) + remédiation A→G** (2026-07-29) : cf.
+      [`docs/reviews/2026-07-29-revue-sante-globale.md`](reviews/2026-07-29-revue-sante-globale.md).
 - [ ] **V2.2** Abonnement SaaS : plans + quotas + paiement (≠ facturation client).
 - [ ] **V2.3** Enrichissement : pipeline **configurable**, **séquences** de relance, **annuaire**
       pré-rempli, parsers ProZ/TC + Outlook réel, dashboard enrichi.

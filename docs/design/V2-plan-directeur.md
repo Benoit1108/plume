@@ -59,7 +59,9 @@ Nouveau contexte `Admin` + rôle `ROLE_ADMIN` (auth séparée) :
 - 🟩 **Statut système** : santé workers/scheduler, files Messenger, boîtes en erreur.
 - 🟩 **Impersonation support** (se connecter « en tant que », tracé) — ⚖️ à valider (sensible RGPD).
 - 🟩 **Feature flags** simples.
-- ⚖️ Modèle d'auth admin (compte admin dédié hors tenant ? MFA ?).
+- ✅ **Auth admin TRANCHÉE (2026-07-28)** : **compte admin dédié HORS tenant** (ROLE_ADMIN, créé par
+  CLI — jamais par inscription), routes `/api/v1/admin/*` réservées, UI admin dans l'app existante ;
+  2FA obligatoire dès que la slice 2FA existe.
 
 ## Jalon V2.x — Centre de notifications *(proposé par Benoit)*
 
