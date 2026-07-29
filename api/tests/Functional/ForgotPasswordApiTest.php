@@ -19,6 +19,8 @@ use Symfony\Component\Uid\Uuid;
  */
 final class ForgotPasswordApiTest extends ApiTestCase
 {
+    use \Symfony\Bundle\FrameworkBundle\Test\MailerAssertionsTrait;
+
     private const PASSWORD = 'secret-Test-123';
 
     private Connection $connection;
@@ -106,6 +108,29 @@ final class ForgotPasswordApiTest extends ApiTestCase
         $client->request('POST', '/api/v1/login_check', ['json' => ['email' => 'reset@plume.test', 'password' => self::PASSWORD]]);
         self::assertResponseStatusCodeSame(401);
         $client->request('POST', '/api/v1/login_check', ['json' => ['email' => 'reset@plume.test', 'password' => 'secret-Test-NEW']]);
+        self::assertResponseIsSuccessful();
+    }
+
+    public function testForgotEmailCarriesAWorkingResetToken(): void
+    {
+        $this->createUser('chain@plume.test');
+        $client = static::createClient();
+
+        $client->request('POST', '/api/v1/account/password/forgot', ['json' => ['email' => 'chain@plume.test']]);
+        self::assertResponseStatusCodeSame(204);
+
+        // Chaîne complète : un email est parti et le jeton qu'il contient réinitialise réellement.
+        self::assertEmailCount(1);
+        $message = self::getMailerMessage();
+        self::assertInstanceOf(\Symfony\Component\Mime\Email::class, $message);
+        $body = $message->getTextBody();
+        \assert(\is_string($body));
+        self::assertSame(1, preg_match('#/reset-password\?token=([^\s]+)#', $body, $m));
+        $token = urldecode($m[1] ?? '');
+
+        $client->request('POST', '/api/v1/account/password/reset', ['json' => ['token' => $token, 'newPassword' => 'secret-Test-NEW']]);
+        self::assertResponseStatusCodeSame(204);
+        $client->request('POST', '/api/v1/login_check', ['json' => ['email' => 'chain@plume.test', 'password' => 'secret-Test-NEW']]);
         self::assertResponseIsSuccessful();
     }
 

@@ -7,6 +7,7 @@ namespace App\Tests\Functional;
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use App\Account\Infrastructure\Security\EmailVerificationSigner;
 use Doctrine\DBAL\Connection;
+use Symfony\Bundle\FrameworkBundle\Test\MailerAssertionsTrait;
 use Symfony\Component\RateLimiter\RateLimiterFactory;
 
 /**
@@ -16,6 +17,8 @@ use Symfony\Component\RateLimiter\RateLimiterFactory;
  */
 final class RegisterApiTest extends ApiTestCase
 {
+    use MailerAssertionsTrait;
+
     protected function setUp(): void
     {
         $connection = static::getContainer()->get(Connection::class);
@@ -103,6 +106,28 @@ final class RegisterApiTest extends ApiTestCase
 
         // Login avec ENCORE une autre casse → doit fonctionner (provider insensible à la casse).
         $client->request('POST', '/api/v1/login_check', ['json' => ['email' => 'JANE.DOE@example.com', 'password' => 'secret-Test-123']]);
+        self::assertResponseIsSuccessful();
+    }
+
+    public function testVerificationEmailCarriesAWorkingToken(): void
+    {
+        $client = static::createClient();
+        $client->request('POST', '/api/v1/register', ['json' => ['email' => 'chain@plume.test', 'password' => 'secret-Test-123', 'acceptTerms' => true]]);
+        self::assertResponseStatusCodeSame(201);
+
+        // La chaîne complète est vérifiée : un email EST parti, et le jeton QU'IL CONTIENT active bien
+        // le compte (un contrôleur qui n'enverrait rien, ou le mauvais jeton, ferait échouer ce test).
+        self::assertEmailCount(1);
+        $message = self::getMailerMessage();
+        self::assertInstanceOf(\Symfony\Component\Mime\Email::class, $message);
+        $body = $message->getTextBody();
+        \assert(\is_string($body));
+        self::assertSame(1, preg_match('#/verify-email\?token=([^\s]+)#', $body, $m));
+        $token = urldecode($m[1] ?? '');
+
+        $client->request('POST', '/api/v1/account/verify-email', ['json' => ['token' => $token]]);
+        self::assertResponseStatusCodeSame(204);
+        $client->request('POST', '/api/v1/login_check', ['json' => ['email' => 'chain@plume.test', 'password' => 'secret-Test-123']]);
         self::assertResponseIsSuccessful();
     }
 

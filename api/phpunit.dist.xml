@@ -9,6 +9,9 @@
     <php>
         <ini name="display_errors" value="1"/>
         <ini name="error_reporting" value="-1"/>
+        <!-- Fuseau épinglé (revue globale tests) : les ticks calculent « aujourd'hui » en UTC ;
+             sans ça, un run local PHP en Europe/Paris entre 00 h et 02 h ferait diverger la date. -->
+        <ini name="date.timezone" value="UTC"/>
         <server name="APP_ENV" value="test" force="true"/>
         <server name="SHELL_VERBOSITY" value="-1"/>
 
