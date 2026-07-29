@@ -24,6 +24,7 @@ const DYNAMIC_PREFIXES = [
   'onboarding.steps.', 'onboarding.actions.', 'notifications.types.',
   'directory.types.', 'directory.segments.', 'mailbox.statuses.', 'mailbox.failures.',
   'drafts.failures.', 'pipeline.statuses.', 'pipeline.actions.', 'draft.types.', 'segments.',
+  'admin.accounts.mailboxStatus.',
 ]
 
 describe('clés i18n utilisées', () => {

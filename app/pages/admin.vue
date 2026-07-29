@@ -156,7 +156,7 @@ const failedDepth = computed(() => overview.value?.queues.failed ?? 0)
               </td>
               <td class="px-3 py-2 text-right font-mono tabular-nums">{{ account.organizations }}</td>
               <td class="px-3 py-2 text-right font-mono tabular-nums">{{ account.leads }}</td>
-              <td class="px-3 py-2 text-muted">{{ account.mailboxStatus }}</td>
+              <td class="px-3 py-2 text-muted">{{ t(`admin.accounts.mailboxStatus.${account.mailboxStatus}`, account.mailboxStatus) }}</td>
               <td class="px-3 py-2 text-right whitespace-nowrap">
                 <UButton
                   size="xs"

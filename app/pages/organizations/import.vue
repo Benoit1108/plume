@@ -66,10 +66,12 @@ async function submit(): Promise<void> {
     </div>
 
     <div class="flex items-center gap-3 flex-wrap mt-6">
-      <label class="inline-flex items-center gap-2 px-4 py-2 rounded-md border border-default bg-default text-sm font-medium cursor-pointer hover:bg-elevated">
+      <!-- L'input est `sr-only` (et non `hidden`) : il reste focusable au clavier ; le label porte
+           l'anneau de focus visible via `focus-within` (sinon la sélection de fichier est inaccessible). -->
+      <label class="inline-flex items-center gap-2 px-4 py-2 rounded-md border border-default bg-default text-sm font-medium cursor-pointer hover:bg-elevated focus-within:ring-2 focus-within:ring-primary focus-within:outline-none">
         <UIcon name="i-lucide-file-up" aria-hidden="true" />
         {{ t('directory.import.chooseFile') }}
-        <input type="file" accept=".csv,text/csv,text/plain" class="hidden" @change="onFile">
+        <input type="file" accept=".csv,text/csv,text/plain" class="sr-only" @change="onFile">
       </label>
       <span v-if="fileName" class="text-sm text-muted font-mono truncate">{{ fileName }}</span>
     </div>

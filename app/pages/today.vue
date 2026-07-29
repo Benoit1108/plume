@@ -174,7 +174,8 @@ function isOverdue(lead: Lead): boolean {
               <UButton
                 size="sm"
                 variant="outline"
-                icon="i-lucide-send"
+                icon="i-lucide-user-check"
+                :title="t('today.contactHint')"
                 :loading="actingOn === lead.id"
                 @click="() => quickAction(lead, 'contact')"
               >

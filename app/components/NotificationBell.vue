@@ -84,7 +84,7 @@ function formatWhen(iso: string): string {
       variant="ghost"
       size="sm"
       icon="i-lucide-bell"
-      :aria-label="unread > 0 ? t('notifications.ariaUnread', { count: unread }) : t('notifications.aria')"
+      :aria-label="unread > 0 ? t('notifications.ariaUnread', { count: unread }, unread) : t('notifications.aria')"
       class="relative"
     >
       <template #trailing>
@@ -98,6 +98,11 @@ function formatWhen(iso: string): string {
         </UBadge>
       </template>
     </UButton>
+
+    <!-- Le badge est visuel ; cette région annonce le compteur aux lecteurs d'écran quand il change. -->
+    <span class="sr-only" role="status" aria-live="polite">
+      {{ unread > 0 ? t('notifications.ariaUnread', { count: unread }, unread) : '' }}
+    </span>
 
     <template #content>
       <div class="w-80 max-h-96 overflow-y-auto p-2">

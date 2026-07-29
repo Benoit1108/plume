@@ -141,7 +141,7 @@ const hasActivity = computed(() =>
             <div class="absolute inset-x-0 top-0 h-24 pointer-events-none" aria-hidden="true">
               <div class="absolute inset-x-0 border-t border-dashed border-primary/60" :style="{ bottom: `${goalLinePercent}%` }" />
             </div>
-            <ol class="grid grid-cols-8 gap-2 items-end">
+            <ol class="grid grid-cols-8 gap-1 sm:gap-2 items-end">
               <li v-for="(week, i) in board.weeklyActivity" :key="week.weekStart" class="flex flex-col items-center gap-1">
                 <div class="h-24 w-full flex items-end">
                   <div

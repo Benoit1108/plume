@@ -200,6 +200,15 @@ async function sendDraft(): Promise<void> {
           >
             {{ t('drafts.editor.send') }}
           </UButton>
+          <!-- Boîte non connectée : plutôt que faire disparaître « Envoyer » sans explication,
+               on montre pourquoi et où agir (Réglages). -->
+          <span
+            v-else-if="draft.status === 'READY' && !canSend"
+            class="inline-flex items-center gap-1.5 text-xs text-muted"
+          >
+            <UIcon name="i-lucide-mail-x" class="size-4 shrink-0" aria-hidden="true" />
+            {{ t('drafts.editor.sendDisabledHint') }}
+          </span>
           <UButton
             v-if="draft.status === 'READY'"
             :loading="savingDraft"

@@ -50,7 +50,7 @@
     "overview": {
       "title": "Vue d'ensemble",
       "accounts": "Comptes",
-      "accountsDetail": "{unverified} non vérifié(s) · {deleting} en suppression",
+      "accountsDetail": "Non vérifiés : {unverified} · en suppression : {deleting}",
       "activity": "Pistes",
       "activityDetail": "{orgs} organisations · {sent} emails envoyés",
       "mailboxes": "Boîtes connectées",
@@ -77,13 +77,19 @@
       "confirmBody": "Le compte {email} sera désactivé immédiatement et purgé après 30 jours (demande RGPD côté support). Cette action est tracée au journal d'audit.",
       "confirmAction": "Demander la suppression",
       "resetTwoFactor": "Réinitialiser la 2FA de {email}",
-      "twoFactorReset": "2FA réinitialisée (dernier recours)."
+      "twoFactorReset": "2FA réinitialisée (dernier recours).",
+      "mailboxStatus": {
+        "NONE": "—",
+        "CONNECTED": "Connectée",
+        "ERROR": "En erreur",
+        "REVOKED": "Révoquée"
+      }
     }
   },
   "notifications": {
     "title": "Notifications",
     "aria": "Notifications",
-    "ariaUnread": "Notifications — {count} non lue(s)",
+    "ariaUnread": "Notifications — {count} non lue | Notifications — {count} non lue | Notifications — {count} non lues",
     "empty": "Rien à signaler pour l'instant.",
     "markAllRead": "Tout marquer lu",
     "types": {
@@ -155,7 +161,7 @@
   },
   "common": {
     "loading": "Chargement…",
-    "error": "Une erreur est survenue. Réessaie.",
+    "error": "Une erreur est survenue. Veuillez réessayer.",
     "conflict": "Action impossible dans l'état actuel — la page vient peut-être de changer.",
     "loadError": "Le chargement a échoué.",
     "retry": "Réessayer",
@@ -186,7 +192,7 @@
       "colSegments": "Segments",
       "colLanguages": "Langues",
       "colContacts": "Contacts",
-      "empty": "Aucune organisation. Crée ta première cible.",
+      "empty": "Aucune organisation. Créez votre première cible.",
       "contactsCount": "aucun contact | {count} contact | {count} contacts",
       "openOrganization": "Ouvrir {name}"
     },
@@ -204,7 +210,7 @@
     },
     "new": {
       "title": "Nouvelle organisation",
-      "error": "Création impossible. Vérifie les champs (le nom est requis, unique par compte)."
+      "error": "Création impossible. Vérifiez les champs (le nom est requis, unique par compte)."
     },
     "detail": {
       "editTitle": "Modifier l'organisation",
@@ -269,7 +275,7 @@
     "dnd": {
       "illegal": "Déplacement non autorisé pour cette piste."
     },
-    "empty": "Aucune piste. Crée ta première piste ici ou depuis une organisation du Répertoire.",
+    "empty": "Aucune piste. Créez votre première piste ici ou depuis une organisation du Répertoire.",
     "statuses": {
       "TO_CONTACT": "À contacter",
       "CONTACTED": "Contactée",
@@ -378,9 +384,10 @@
     "eyebrow": "Atelier · quotidien",
     "title": "Aujourd'hui",
     "greeting": "Bonjour {name} 👋",
-    "empty": "Rien à faire aujourd'hui — profite-en pour ajouter des cibles au Répertoire.",
+    "empty": "Rien à faire aujourd'hui — profitez-en pour ajouter des cibles au Répertoire.",
     "followUpsDue": "Relances dues",
     "toContact": "À contacter",
+    "contactHint": "Marque la piste comme contactée — n'envoie pas d'email.",
     "dueOn": "Échéance {date}",
     "overdueSince": "En retard ({date})",
     "goal": {
@@ -433,6 +440,7 @@
       "copySubject": "Copier l'objet",
       "copyBody": "Copier le message",
       "send": "Envoyer",
+      "sendDisabledHint": "Connectez une boîte email (Réglages) pour envoyer ce message.",
       "confirmSendTitle": "Envoyer ce message ?",
       "confirmSendBody": "Le message relu part au contact de la piste, depuis {mailbox}. L’envoi fait avancer la piste (contact ou relance faite)."
     },
@@ -593,7 +601,7 @@
       "activate": "Confirmer et activer",
       "backupTitle": "Codes de secours",
       "backupIntro": "Conservez-les précieusement : chacun ne sert qu'une fois si vous perdez votre téléphone. Ils ne seront plus jamais affichés.",
-      "backupRemaining": "{count} code(s) de secours restant(s)",
+      "backupRemaining": "{count} code de secours restant | {count} code de secours restant | {count} codes de secours restants",
       "disablePassword": "Mot de passe actuel",
       "disable": "Désactiver la 2FA",
       "copied": "Codes de secours copiés."
@@ -638,7 +646,7 @@
       "responseRate": "Taux de réponse",
       "responseRateDetail": "{replied} / {contacted} pistes contactées",
       "conversion": "Conversion",
-      "conversionDetail": "{won} gagnée(s) / {decided} décidée(s)",
+      "conversionDetail": "Gagnées : {won} / décidées : {decided}",
       "noneDecided": "aucune piste décidée",
       "noneContacted": "aucune piste contactée",
       "outreachThisMonth": "Actes ce mois-ci",

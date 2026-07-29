@@ -77,7 +77,13 @@
       "confirmBody": "The account {email} will be deactivated immediately and purged after 30 days (support-side GDPR request). This action is recorded in the audit log.",
       "confirmAction": "Request deletion",
       "resetTwoFactor": "Reset 2FA for {email}",
-      "twoFactorReset": "2FA reset (last resort)."
+      "twoFactorReset": "2FA reset (last resort).",
+      "mailboxStatus": {
+        "NONE": "—",
+        "CONNECTED": "Connected",
+        "ERROR": "Error",
+        "REVOKED": "Revoked"
+      }
     }
   },
   "notifications": {
@@ -381,6 +387,7 @@
     "empty": "Nothing due today — a good time to add targets to the Directory.",
     "followUpsDue": "Follow-ups due",
     "toContact": "To contact",
+    "contactHint": "Marks the lead as contacted — does not send an email.",
     "dueOn": "Due {date}",
     "overdueSince": "Overdue ({date})",
     "goal": {
@@ -433,6 +440,7 @@
       "copySubject": "Copy the subject",
       "copyBody": "Copy the message",
       "send": "Send",
+      "sendDisabledHint": "Connect an email mailbox (Settings) to send this message.",
       "confirmSendTitle": "Send this message?",
       "confirmSendBody": "The reviewed message goes to the lead’s contact, from {mailbox}. Sending advances the lead (contact or follow-up done)."
     },
@@ -593,7 +601,7 @@
       "activate": "Confirm and enable",
       "backupTitle": "Backup codes",
       "backupIntro": "Store them safely: each works once if you lose your phone. They will never be shown again.",
-      "backupRemaining": "{count} backup code(s) left",
+      "backupRemaining": "{count} backup code left | {count} backup code left | {count} backup codes left",
       "disablePassword": "Current password",
       "disable": "Disable 2FA",
       "copied": "Backup codes copied."

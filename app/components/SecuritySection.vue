@@ -105,7 +105,7 @@ function formatDate(iso: string | null): string {
     <template v-if="twoFactor?.enabled">
       <div class="flex items-center gap-2">
         <UBadge color="success" variant="soft">{{ t('account.twoFactor.active') }}</UBadge>
-        <span class="text-xs text-muted">{{ t('account.twoFactor.backupRemaining', { count: twoFactor.remainingBackupCodes }) }}</span>
+        <span class="text-xs text-muted">{{ t('account.twoFactor.backupRemaining', { count: twoFactor.remainingBackupCodes }, twoFactor.remainingBackupCodes) }}</span>
       </div>
       <form class="flex items-end gap-3 flex-wrap" @submit.prevent="disable">
         <UFormField :label="t('account.twoFactor.disablePassword')">
