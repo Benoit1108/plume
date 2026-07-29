@@ -34,6 +34,11 @@ test('l\'enrôlement 2FA révèle une clé secrète et reste abandonnable', asyn
   await page.goto('/account')
   await waitForHydration(page)
 
+  // Attendre que la section Sécurité soit RENDUE avant de tester la présence du bouton : son contenu
+  // est derrière le chargement (async) du profil, et count() — contrairement à toBeVisible() —
+  // n'attend pas (sinon course → faux négatif sur le bouton « Activer »).
+  await expect(page.getByText(/Double authentification|Two-factor authentication/i)).toBeVisible()
+
   const enableName = /Activer la 2FA|Enable 2FA/i
   const enable = page.getByRole('button', { name: enableName })
   // Si un run précédent a laissé la 2FA active, le bouton n'existe pas : on vérifie alors l'état actif.
