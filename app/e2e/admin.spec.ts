@@ -16,7 +16,8 @@ test('un compte ordinaire ne voit pas l\'entrée back-office', async ({ page }) 
   await waitForHydration(page)
 
   // L'entrée de navigation n'existe pas dans le DOM pour un non-admin (témoin isAdmin=false).
-  await expect(page.getByRole('link', { name: /Back-office/i })).toHaveCount(0)
+  // Bilingue (le build E2E peut rendre en fr OU en en).
+  await expect(page.getByRole('link', { name: /Back-office|Back office/i })).toHaveCount(0)
 
   expect(errors).toEqual([])
 })

@@ -17,11 +17,12 @@ test('la page Compte affiche toutes ses sections de sécurité sans erreur conso
   await waitForHydration(page)
 
   // Rendu complet : identité, 2FA, sessions, export RGPD, zone dangereuse.
+  // Sélecteurs BILINGUES : le build E2E peut rendre en fr OU en en (locale du navigateur).
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
-  await expect(page.getByText(/Double authentification/i)).toBeVisible()
-  await expect(page.getByText(/Sessions actives/i)).toBeVisible()
-  await expect(page.getByRole('button', { name: /Exporter mes données/i })).toBeVisible()
-  await expect(page.getByRole('button', { name: /Supprimer mon compte/i })).toBeVisible()
+  await expect(page.getByText(/Double authentification|Two-factor authentication/i)).toBeVisible()
+  await expect(page.getByText(/Sessions actives|Active sessions/i)).toBeVisible()
+  await expect(page.getByRole('button', { name: /Exporter mes données|Export my data/i })).toBeVisible()
+  await expect(page.getByRole('button', { name: /Supprimer mon compte|Delete my account/i })).toBeVisible()
 
   expect(errors).toEqual([])
 })
@@ -33,23 +34,24 @@ test('l\'enrôlement 2FA révèle une clé secrète et reste abandonnable', asyn
   await page.goto('/account')
   await waitForHydration(page)
 
-  const enable = page.getByRole('button', { name: /Activer la 2FA/i })
+  const enableName = /Activer la 2FA|Enable 2FA/i
+  const enable = page.getByRole('button', { name: enableName })
   // Si un run précédent a laissé la 2FA active, le bouton n'existe pas : on vérifie alors l'état actif.
   if (await enable.count() > 0) {
     await enable.click()
 
     // L'enrôlement affiche la clé à saisir dans l'app d'authentification.
-    await expect(page.getByText(/saisie manuelle/i)).toBeVisible()
+    await expect(page.getByText(/saisie manuelle|manual entry/i)).toBeVisible()
     // Le bouton de confirmation reste désactivé tant que le code (6 chiffres) n'est pas saisi.
-    await expect(page.getByRole('button', { name: /Confirmer et activer/i })).toBeDisabled()
+    await expect(page.getByRole('button', { name: /Confirmer et activer|Confirm and enable/i })).toBeDisabled()
 
     // On abandonne (on ne confirme jamais) : recharger la page ne laisse aucune 2FA active.
     await page.reload()
     await waitForHydration(page)
-    await expect(page.getByRole('button', { name: /Activer la 2FA/i })).toBeVisible()
+    await expect(page.getByRole('button', { name: enableName })).toBeVisible()
   }
   else {
-    await expect(page.getByText(/2FA active|active/i).first()).toBeVisible()
+    await expect(page.getByText(/2FA active/i).first()).toBeVisible()
   }
 
   expect(errors).toEqual([])
