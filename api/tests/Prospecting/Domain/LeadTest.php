@@ -291,6 +291,21 @@ final class LeadTest extends TestCase
         self::assertSame(2, \count(array_filter($events, static fn (object $e): bool => $e instanceof FollowUpScheduled)));
     }
 
+    public function testEstimatedValueCanBeSetClearedAndValidated(): void
+    {
+        $lead = $this->aLeadIn(PipelineStatus::TO_CONTACT);
+
+        $lead->changeEstimatedValue(2000, $this->now);
+        self::assertSame(2000, $lead->estimatedValue());
+        self::assertInstanceOf(\App\Prospecting\Domain\Lead\Event\LeadEstimatedValueChanged::class, $lead->pullDomainEvents()[0] ?? null);
+
+        $lead->changeEstimatedValue(null, $this->now); // efface
+        self::assertNull($lead->estimatedValue());
+
+        $this->expectException(InvalidValue::class);
+        $lead->changeEstimatedValue(0, $this->now); // hors bornes (< 1)
+    }
+
     public function testContactWithCustomCadenceSchedulesFirstFollowUpAtConfiguredDelay(): void
     {
         $lead = $this->aLeadIn(PipelineStatus::TO_CONTACT);

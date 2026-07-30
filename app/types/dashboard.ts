@@ -11,6 +11,9 @@ export interface Dashboard {
   weeklyTarget: number
   /** Délai moyen (jours) entre 1er contact et 1re réponse ; null si aucune réponse encore. */
   firstResponseDelayDays: number | null
+  /** Somme des valeurs estimées : pistes actives (pipeline) et gagnées, en euros. */
+  pipelineValue: number
+  wonValue: number
   pipeline: { status: LeadStatus, count: number }[]
   weeklyActivity: { weekStart: string, acts: number }[]
   segments: { segment: string, contacted: number, replied: number, won: number }[]

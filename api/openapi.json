@@ -5503,6 +5503,14 @@
                             "null"
                         ]
                     },
+                    "pipelineValue": {
+                        "default": 0,
+                        "type": "integer"
+                    },
+                    "wonValue": {
+                        "default": 0,
+                        "type": "integer"
+                    },
                     "pipeline": {
                         "type": "array",
                         "items": {
@@ -5598,6 +5606,14 @@
                                     "number",
                                     "null"
                                 ]
+                            },
+                            "pipelineValue": {
+                                "default": 0,
+                                "type": "integer"
+                            },
+                            "wonValue": {
+                                "default": 0,
+                                "type": "integer"
                             },
                             "pipeline": {
                                 "type": "array",
@@ -6287,6 +6303,12 @@
                         "default": false,
                         "type": "boolean"
                     },
+                    "estimatedValue": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
                     "createdAt": {
                         "type": [
                             "string",
@@ -6485,6 +6507,12 @@
                         "default": false,
                         "type": "boolean"
                     },
+                    "estimatedValue": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
                     "createdAt": {
                         "type": [
                             "string",
@@ -6620,6 +6648,12 @@
                             "hasReachableContact": {
                                 "default": false,
                                 "type": "boolean"
+                            },
+                            "estimatedValue": {
+                                "type": [
+                                    "integer",
+                                    "null"
+                                ]
                             },
                             "createdAt": {
                                 "type": [
@@ -6759,6 +6793,12 @@
                             "hasReachableContact": {
                                 "default": false,
                                 "type": "boolean"
+                            },
+                            "estimatedValue": {
+                                "type": [
+                                    "integer",
+                                    "null"
+                                ]
                             },
                             "createdAt": {
                                 "type": [
@@ -6916,6 +6956,12 @@
                         "default": false,
                         "type": "boolean"
                     },
+                    "estimatedValue": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
+                    },
                     "createdAt": {
                         "type": [
                             "string",
@@ -7051,6 +7097,12 @@
                             "hasReachableContact": {
                                 "default": false,
                                 "type": "boolean"
+                            },
+                            "estimatedValue": {
+                                "type": [
+                                    "integer",
+                                    "null"
+                                ]
                             },
                             "createdAt": {
                                 "type": [

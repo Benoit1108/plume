@@ -1237,6 +1237,10 @@ export interface components {
             /** @default 0 */
             weeklyTarget: number;
             firstResponseDelayDays?: number | null;
+            /** @default 0 */
+            pipelineValue: number;
+            /** @default 0 */
+            wonValue: number;
             pipeline?: {
                 [key: string]: number | string;
             }[];
@@ -1269,6 +1273,10 @@ export interface components {
             /** @default 0 */
             weeklyTarget: number;
             firstResponseDelayDays?: number | null;
+            /** @default 0 */
+            pipelineValue: number;
+            /** @default 0 */
+            wonValue: number;
             pipeline?: {
                 [key: string]: number | string;
             }[];
@@ -1505,6 +1513,7 @@ export interface components {
             allowedActions?: string[];
             /** @default false */
             hasReachableContact: boolean;
+            estimatedValue?: number | null;
             createdAt?: string | null;
             lastContactedAt?: string | null;
             lastReplyAt?: string | null;
@@ -1582,6 +1591,7 @@ export interface components {
             allowedActions?: string[];
             /** @default false */
             hasReachableContact: boolean;
+            estimatedValue?: number | null;
             createdAt?: string | null;
             lastContactedAt?: string | null;
             lastReplyAt?: string | null;
@@ -1628,6 +1638,7 @@ export interface components {
             allowedActions?: string[];
             /** @default false */
             hasReachableContact: boolean;
+            estimatedValue?: number | null;
             createdAt?: string | null;
             lastContactedAt?: string | null;
             lastReplyAt?: string | null;
@@ -1674,6 +1685,7 @@ export interface components {
             allowedActions?: string[];
             /** @default false */
             hasReachableContact: boolean;
+            estimatedValue?: number | null;
             createdAt?: string | null;
             lastContactedAt?: string | null;
             lastReplyAt?: string | null;
@@ -1722,6 +1734,7 @@ export interface components {
             allowedActions?: string[];
             /** @default false */
             hasReachableContact: boolean;
+            estimatedValue?: number | null;
             createdAt?: string | null;
             lastContactedAt?: string | null;
             lastReplyAt?: string | null;
@@ -1764,6 +1777,7 @@ export interface components {
             allowedActions?: string[];
             /** @default false */
             hasReachableContact: boolean;
+            estimatedValue?: number | null;
             createdAt?: string | null;
             lastContactedAt?: string | null;
             lastReplyAt?: string | null;

@@ -98,6 +98,10 @@ final class LeadResource
     #[Groups(['lead:read'])]
     public bool $hasReachableContact = false;
 
+    /** Valeur estimée du deal en euros (null = non estimée) ; se fixe via /leads/{id}/estimated-value. */
+    #[Groups(['lead:read'])]
+    public ?int $estimatedValue = null;
+
     #[Groups(['lead:read'])]
     public ?string $createdAt = null;
 

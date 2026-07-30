@@ -100,9 +100,9 @@ Nouveau contexte `Notification` (in-app d'abord, digests email ensuite) :
   fournit les **vraies données** (éditeurs FR, labos AV via ATAA, agences) en éditant le JSON.
 - 🟩 **Parsers fins ProZ / TranslatorsCafe** — 🟦 Benoit fournit des **échantillons réels**.
 - 🟩 **Outlook réel** (envoi/réponse) — validation en recette.
-- 🟩 Dashboard enrichi : ✅ **délai moyen de 1re réponse** (lu sur le journal) + ✅ **export CSV** ;
-  reste 🟩 **filtres de période** (change la sémantique des taux → slice dédiée) et 🟩 **valeur estimée**
-  (nécessite un champ `estimatedValue` sur la piste = changement de domaine, différé).
+- 🟩 Dashboard enrichi : ✅ **délai moyen de 1re réponse** + ✅ **export CSV** + ✅ **valeur estimée**
+  (champ `estimatedValue` sur la piste, saisie sur la fiche, sommes pipeline/gagné au dashboard) ;
+  reste 🟩 **filtres de période** (change la sémantique des taux cumulés → slice dédiée).
 
 ---
 

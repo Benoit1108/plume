@@ -405,6 +405,12 @@
       "followUpCancelled": "Relance annulée."
     },
     "createFromOrg": "Créer une piste",
+    "estimatedValue": {
+      "title": "Valeur estimée du deal",
+      "hint": "Montant potentiel en euros — alimente la valeur du pipeline (tableau de bord). Vide = non estimée.",
+      "placeholder": "ex. 2000",
+      "saved": "Valeur estimée mise à jour."
+    },
     "followUpBlock": {
       "title": "Prochaine relance",
       "none": "Aucune relance planifiée.",
@@ -713,7 +719,9 @@
       "activeLeads": "Pistes actives",
       "firstResponse": "Délai de 1re réponse",
       "firstResponseDays": "{days} j",
-      "firstResponseHint": "moyenne, du 1er contact à la réponse"
+      "firstResponseHint": "moyenne, du 1er contact à la réponse",
+      "pipelineValue": "Valeur du pipeline",
+      "wonValue": "gagné : {value}"
     },
     "pipeline": {
       "title": "Pipeline",

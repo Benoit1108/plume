@@ -25,6 +25,8 @@ export interface Lead {
   lastReplyAt?: string | null
   nextFollowUpAt?: string | null
   nextFollowUpLabel?: string | null
+  /** Valeur estimée du deal en euros (null = non estimée). */
+  estimatedValue?: number | null
 }
 
 export type LeadInput = Pick<Lead, 'organizationId' | 'contactId' | 'languagePair' | 'source' | 'priority' | 'segment'>

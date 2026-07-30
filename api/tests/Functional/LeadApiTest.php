@@ -95,6 +95,39 @@ final class LeadApiTest extends ApiTestCase
         return $lead['id'];
     }
 
+    public function testEstimatedValueCanBeSetClearedAndRejected(): void
+    {
+        $this->createUser('a@plume.test');
+        $client = static::createClient();
+        $token = $this->tokenFor($client, 'a@plume.test');
+        $leadId = $this->aLead($client, $token, $this->anOrganization($client, $token));
+
+        $set = static fn (mixed $value) => $client->request('PATCH', '/api/v1/leads/'.$leadId.'/estimated-value', [
+            'auth_bearer' => $token,
+            'headers' => ['Content-Type' => 'application/json'],
+            'json' => ['estimatedValue' => $value],
+        ]);
+        $read = static fn (): mixed => $client->request('GET', '/api/v1/leads/'.$leadId, [
+            'auth_bearer' => $token, 'headers' => ['Accept' => 'application/ld+json'],
+        ])->toArray()['estimatedValue'] ?? null;
+
+        $set(2000);
+        self::assertResponseStatusCodeSame(204);
+        self::assertSame(2000, $read());
+
+        $set(null); // efface
+        self::assertResponseStatusCodeSame(204);
+        self::assertNull($read());
+
+        $set(0); // hors bornes → 422
+        self::assertResponseStatusCodeSame(422);
+
+        $client->request('PATCH', '/api/v1/leads/00000000-0000-7000-8000-000000000000/estimated-value', [
+            'auth_bearer' => $token, 'headers' => ['Content-Type' => 'application/json'], 'json' => ['estimatedValue' => 100],
+        ]);
+        self::assertResponseStatusCodeSame(404);
+    }
+
     public function testLeadLifecycleToWonWithTimeline(): void
     {
         $this->createUser('a@plume.test');

@@ -14,6 +14,7 @@ const { data, isPending: loading, isError, refetch } = useQuery({
 const board = computed<Dashboard | null>(() => data.value ?? null)
 
 const percentFormat = computed(() => new Intl.NumberFormat(locale.value, { style: 'percent', maximumFractionDigits: 0 }))
+const euroFormat = computed(() => new Intl.NumberFormat(locale.value, { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }))
 
 // Calculs testés à part (décisions M1.5 n°1 et 2 : conversion = gagnées/décidées, taux par piste).
 const { decided, conversion, responseRate, totalLeads, barHeightPercent, goalLinePercent, segmentRatio } = useDashboardMetrics(board)
@@ -142,6 +143,11 @@ const hasActivity = computed(() =>
               {{ firstResponseDelay === null ? '—' : t('dashboard.kpis.firstResponseDays', { days: firstResponseDelay }) }}
             </p>
             <p class="text-xs text-muted mt-1">{{ t('dashboard.kpis.firstResponseHint') }}</p>
+          </div>
+          <div class="border border-default rounded-xl p-4 bg-elevated/40">
+            <p class="text-xs text-dimmed font-semibold uppercase tracking-wide">{{ t('dashboard.kpis.pipelineValue') }}</p>
+            <p class="mt-1 font-serif text-3xl font-semibold tabular-nums">{{ euroFormat.format(board.pipelineValue) }}</p>
+            <p class="text-xs text-muted mt-1">{{ t('dashboard.kpis.wonValue', { value: euroFormat.format(board.wonValue) }) }}</p>
           </div>
         </section>
 

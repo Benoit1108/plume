@@ -79,6 +79,7 @@ final class LeadProvider implements ProviderInterface
         $resource->status = $view->status;
         $resource->allowedActions = $view->allowedActions;
         $resource->hasReachableContact = $view->hasReachableContact;
+        $resource->estimatedValue = $view->estimatedValue;
         $resource->createdAt = $view->createdAt->format(\DateTimeInterface::ATOM);
         $resource->lastContactedAt = $view->lastContactedAt?->format(\DateTimeInterface::ATOM);
         $resource->lastReplyAt = $view->lastReplyAt?->format(\DateTimeInterface::ATOM);

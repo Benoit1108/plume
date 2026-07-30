@@ -25,6 +25,27 @@ async function refreshTimeline(): Promise<void> {
   await queryClient.invalidateQueries({ queryKey: queryKeys.leadTimeline(id) })
 }
 
+// Valeur estimée du deal (euros) — saisie inline.
+const estimatedValueInput = ref<number | null>(null)
+watch(() => lead.value?.estimatedValue, (v) => { estimatedValueInput.value = v ?? null }, { immediate: true })
+const savingValue = ref(false)
+async function saveEstimatedValue(): Promise<void> {
+  if (savingValue.value) return
+  savingValue.value = true
+  try {
+    const v = estimatedValueInput.value
+    await leads.setEstimatedValue(id, typeof v === 'number' && v >= 1 ? Math.round(v) : null)
+    await refresh()
+    toast.add({ title: t('pipeline.estimatedValue.saved'), color: 'success' })
+  }
+  catch {
+    toast.add({ title: t('common.error'), color: 'error' })
+  }
+  finally {
+    savingValue.value = false
+  }
+}
+
 const transitioning = ref(false)
 const confirmLose = ref(false)
 const confirmContactWithoutContact = ref(false)
@@ -240,6 +261,27 @@ const canScheduleFollowUp = computed(() =>
           </UButton>
         </div>
       </div>
+
+      <!-- Valeur estimée du deal -->
+      <section class="mt-8 border border-default rounded-xl p-4 bg-elevated/40">
+        <div class="flex items-center gap-3 flex-wrap">
+          <UIcon name="i-lucide-euro" class="text-primary shrink-0" aria-hidden="true" />
+          <div class="min-w-0 flex-1">
+            <p class="text-sm font-semibold">{{ t('pipeline.estimatedValue.title') }}</p>
+            <p class="text-xs text-muted">{{ t('pipeline.estimatedValue.hint') }}</p>
+          </div>
+          <UInput
+            v-model.number="estimatedValueInput"
+            type="number"
+            min="1"
+            max="100000000"
+            class="w-40"
+            :placeholder="t('pipeline.estimatedValue.placeholder')"
+            :aria-label="t('pipeline.estimatedValue.title')"
+          />
+          <UButton size="sm" variant="soft" :loading="savingValue" @click="saveEstimatedValue">{{ t('actions.save') }}</UButton>
+        </div>
+      </section>
 
       <!-- Prochaine relance -->
       <section v-if="canScheduleFollowUp" class="mt-8 border border-default rounded-xl p-4 bg-elevated/40">

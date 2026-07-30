@@ -42,6 +42,18 @@ describe('useLeads', () => {
     await expect(useLeads().timeline('l1')).resolves.toHaveLength(1)
   })
 
+  it('setEstimatedValue PATCH la valeur (ou null pour effacer)', async () => {
+    apiMock.mockResolvedValue(undefined)
+    await useLeads().setEstimatedValue('l1', 2000)
+    const [path, options] = apiMock.mock.calls[0] as [string, { method: string, body: { estimatedValue: number | null } }]
+    expect(path).toBe('/api/v1/leads/l1/estimated-value')
+    expect(options.method).toBe('PATCH')
+    expect(options.body.estimatedValue).toBe(2000)
+
+    await useLeads().setEstimatedValue('l1', null)
+    expect((apiMock.mock.calls[1] as [string, { body: { estimatedValue: number | null } }])[1].body.estimatedValue).toBeNull()
+  })
+
   it('list et timeline retombent proprement sans member', async () => {
     apiMock.mockResolvedValueOnce({})
     await expect(useLeads().list()).resolves.toEqual([])

@@ -33,6 +33,12 @@ api_admin_account_reset_2fa:
     requirements:
         tenantId: '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
 
+# Valeur estimée d'une piste (authentifié) : action dédiée (pas de PATCH générique sur le pipeline).
+api_lead_estimated_value:
+    path: /api/v1/leads/{id}/estimated-value
+    controller: App\Prospecting\Infrastructure\Http\SetEstimatedValueController
+    methods: [PATCH]
+
 # Export CSV du tableau de bord (authentifié).
 api_dashboard_export:
     path: /api/v1/dashboard/export

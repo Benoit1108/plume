@@ -32,5 +32,6 @@
         </field>
         <field name="nextFollowUpAt" type="datetime_immutable" column="next_follow_up_at" nullable="true"/>
         <field name="nextFollowUpLabel" type="string" column="next_follow_up_label" nullable="true"/>
+        <field name="estimatedValue" type="integer" column="estimated_value" nullable="true"/>
     </entity>
 </doctrine-mapping>

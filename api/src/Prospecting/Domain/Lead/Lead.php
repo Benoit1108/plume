@@ -9,6 +9,7 @@ use App\Prospecting\Domain\Lead\Event\FollowUpScheduled;
 use App\Prospecting\Domain\Lead\Event\FollowUpSent;
 use App\Prospecting\Domain\Lead\Event\LeadContacted;
 use App\Prospecting\Domain\Lead\Event\LeadCreated;
+use App\Prospecting\Domain\Lead\Event\LeadEstimatedValueChanged;
 use App\Prospecting\Domain\Lead\Event\LeadLost;
 use App\Prospecting\Domain\Lead\Event\LeadMovedToSampleTest;
 use App\Prospecting\Domain\Lead\Event\LeadPaused;
@@ -54,6 +55,8 @@ final class Lead extends AggregateRoot
         private array $followUps,
         private ?\DateTimeImmutable $nextFollowUpAt,
         private ?string $nextFollowUpLabel,
+        /** Valeur estimée du deal en euros (null = non estimée). */
+        private ?int $estimatedValue = null,
     ) {
     }
 
@@ -231,6 +234,20 @@ final class Lead extends AggregateRoot
         $this->recordEvent(new NoteAdded($this->tenantId->toString(), $this->id->toString(), $trimmed, $now));
     }
 
+    /** Valeur estimée du deal (euros). null = efface l'estimation. Sans changement, aucun event. */
+    public function changeEstimatedValue(?int $estimatedValue, \DateTimeImmutable $now): void
+    {
+        if (null !== $estimatedValue && ($estimatedValue < 1 || $estimatedValue > 100_000_000)) {
+            throw InvalidValue::because('Estimated value must be between 1 and 100000000 euros.');
+        }
+        if ($estimatedValue === $this->estimatedValue) {
+            return;
+        }
+
+        $this->estimatedValue = $estimatedValue;
+        $this->recordEvent(new LeadEstimatedValueChanged($this->tenantId->toString(), $this->id->toString(), $estimatedValue, $now));
+    }
+
     // ----- Relances : mécanique interne -----
 
     /** Planifie la relance suivante selon la SÉQUENCE (défaut [7,21,45] si non fournie). */
@@ -360,6 +377,11 @@ final class Lead extends AggregateRoot
     public function priority(): Priority
     {
         return $this->priority;
+    }
+
+    public function estimatedValue(): ?int
+    {
+        return $this->estimatedValue;
     }
 
     public function segment(): Segment

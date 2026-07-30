@@ -57,6 +57,13 @@ final class DashboardResource
     #[Groups(['dashboard:read'])]
     public ?float $firstResponseDelayDays = null;
 
+    /** Somme des valeurs estimées des pistes actives (pipeline) et gagnées, en euros. */
+    #[Groups(['dashboard:read'])]
+    public int $pipelineValue = 0;
+
+    #[Groups(['dashboard:read'])]
+    public int $wonValue = 0;
+
     /** @var array<array{status: string, count: int}> répartition par statut (ordre kanban) */
     #[Groups(['dashboard:read'])]
     public array $pipeline = [];

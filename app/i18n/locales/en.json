@@ -405,6 +405,12 @@
       "followUpCancelled": "Follow-up cancelled."
     },
     "createFromOrg": "Create a lead",
+    "estimatedValue": {
+      "title": "Estimated deal value",
+      "hint": "Potential amount in euros — feeds the pipeline value (dashboard). Empty = not estimated.",
+      "placeholder": "e.g. 2000",
+      "saved": "Estimated value updated."
+    },
     "followUpBlock": {
       "title": "Next follow-up",
       "none": "No follow-up scheduled.",
@@ -713,7 +719,9 @@
       "activeLeads": "Active leads",
       "firstResponse": "First-response time",
       "firstResponseDays": "{days} d",
-      "firstResponseHint": "average, from first contact to reply"
+      "firstResponseHint": "average, from first contact to reply",
+      "pipelineValue": "Pipeline value",
+      "wonValue": "won: {value}"
     },
     "pipeline": {
       "title": "Pipeline",

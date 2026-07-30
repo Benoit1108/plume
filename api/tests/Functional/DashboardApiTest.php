@@ -84,21 +84,14 @@ final class DashboardApiTest extends ApiTestCase
     }
 
     /**
-     * @return array{contacted: int, replied: int, won: int, lost: int, activeLeads: int,
-     *               outreachThisMonth: int, weeklyTarget: int,
-     *               pipeline: list<array{status: string, count: int}>,
-     *               weeklyActivity: list<array{weekStart: string, acts: int}>,
-     *               segments: list<array{segment: string, contacted: int, replied: int, won: int}>}
-     */
-    /**
-     * @return array{contacted: int, replied: int, won: int, lost: int, activeLeads: int, outreachThisMonth: int, weeklyTarget: int, firstResponseDelayDays: float|null, pipeline: list<array{status: string, count: int}>, weeklyActivity: list<array{weekStart: string, acts: int}>, segments: list<array{segment: string, contacted: int, replied: int, won: int}>}
+     * @return array{contacted: int, replied: int, won: int, lost: int, activeLeads: int, outreachThisMonth: int, weeklyTarget: int, firstResponseDelayDays: float|null, pipelineValue: int, wonValue: int, pipeline: list<array{status: string, count: int}>, weeklyActivity: list<array{weekStart: string, acts: int}>, segments: list<array{segment: string, contacted: int, replied: int, won: int}>}
      */
     private function dashboard(Client $client, string $token): array
     {
         $response = $client->request('GET', '/api/v1/dashboard', ['auth_bearer' => $token]);
         self::assertResponseIsSuccessful();
 
-        /** @var array{contacted: int, replied: int, won: int, lost: int, activeLeads: int, outreachThisMonth: int, weeklyTarget: int, firstResponseDelayDays: float|null, pipeline: list<array{status: string, count: int}>, weeklyActivity: list<array{weekStart: string, acts: int}>, segments: list<array{segment: string, contacted: int, replied: int, won: int}>} $data */
+        /** @var array{contacted: int, replied: int, won: int, lost: int, activeLeads: int, outreachThisMonth: int, weeklyTarget: int, firstResponseDelayDays: float|null, pipelineValue: int, wonValue: int, pipeline: list<array{status: string, count: int}>, weeklyActivity: list<array{weekStart: string, acts: int}>, segments: list<array{segment: string, contacted: int, replied: int, won: int}>} $data */
         $data = $response->toArray();
 
         return $data;
@@ -140,6 +133,30 @@ final class DashboardApiTest extends ApiTestCase
         $dashboard = $this->dashboard($client, $this->tokenFor($client, 'a@plume.test'));
 
         self::assertSame(3.0, (float) $dashboard['firstResponseDelayDays']); // 3 jours (JSON peut rendre 3 ou 3.0)
+    }
+
+    public function testEstimatedValuesFeedPipelineAndWonTotals(): void
+    {
+        $this->createUser('a@plume.test');
+        $client = static::createClient();
+        $token = $this->tokenFor($client, 'a@plume.test');
+
+        $active = $this->aLead($client, $token, 'Active Org');
+        $won = $this->aLead($client, $token, 'Won Org');
+
+        foreach ([[$active, 2000], [$won, 5000]] as [$leadId, $value]) {
+            $client->request('PATCH', '/api/v1/leads/'.$leadId.'/estimated-value', [
+                'auth_bearer' => $token, 'headers' => ['Content-Type' => 'application/json'], 'json' => ['estimatedValue' => $value],
+            ]);
+        }
+        // Gagne la 2e piste (contact → réponse → gagnée) : elle sort du pipeline, entre en « gagné ».
+        $this->post($client, $token, '/api/v1/leads/'.$won.'/contact');
+        $this->post($client, $token, '/api/v1/leads/'.$won.'/reply');
+        $this->post($client, $token, '/api/v1/leads/'.$won.'/win');
+
+        $dashboard = $this->dashboard($client, $token);
+        self::assertSame(2000, $dashboard['pipelineValue']);
+        self::assertSame(5000, $dashboard['wonValue']);
     }
 
     public function testDashboardExportsCsv(): void

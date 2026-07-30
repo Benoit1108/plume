@@ -26,6 +26,8 @@ final class LeadView
         public readonly ?string $nextFollowUpLabel,
         /** L'organisation a-t-elle au moins un contact avec email (envoi/relance possibles) ? */
         public readonly bool $hasReachableContact = false,
+        /** Valeur estimée du deal en euros (null = non estimée). */
+        public readonly ?int $estimatedValue = null,
     ) {
     }
 }

@@ -39,6 +39,8 @@ final class DashboardProvider implements ProviderInterface
         $resource->outreachThisMonth = $view->outreachThisMonth;
         $resource->weeklyTarget = $view->weeklyTarget;
         $resource->firstResponseDelayDays = $view->firstResponseDelayDays;
+        $resource->pipelineValue = $view->pipelineValue;
+        $resource->wonValue = $view->wonValue;
         $resource->pipeline = array_map(
             static fn (PipelineSlice $slice): array => ['status' => $slice->status, 'count' => $slice->count],
             $view->pipeline,

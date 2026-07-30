@@ -43,6 +43,8 @@ final class DashboardExportController
         fputcsv($csv, ['Actes de démarchage (mois en cours)', $view->outreachThisMonth], $sep, $enc, $esc);
         fputcsv($csv, ['Objectif hebdomadaire', $view->weeklyTarget], $sep, $enc, $esc);
         fputcsv($csv, ['Délai moyen 1re réponse (jours)', $view->firstResponseDelayDays ?? ''], $sep, $enc, $esc);
+        fputcsv($csv, ['Valeur estimée du pipeline (€)', $view->pipelineValue], $sep, $enc, $esc);
+        fputcsv($csv, ['Valeur estimée gagnée (€)', $view->wonValue], $sep, $enc, $esc);
 
         fputcsv($csv, ['', ''], $sep, $enc, $esc);
         fputcsv($csv, ['Statut', 'Nombre'], $sep, $enc, $esc);

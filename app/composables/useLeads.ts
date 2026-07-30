@@ -28,6 +28,9 @@ export function useLeads() {
       api<unknown>(`/api/v1/leads/${id}/follow-up`, { method: 'DELETE' }),
     addNote: (id: string, text: string) =>
       api<{ text: string }>(`/api/v1/leads/${id}/notes`, { method: 'POST', body: { text }, headers: ldWrite }),
+    /** Fixe (ou efface avec null) la valeur estimée du deal, en euros. */
+    setEstimatedValue: (id: string, estimatedValue: number | null) =>
+      api<unknown>(`/api/v1/leads/${id}/estimated-value`, { method: 'PATCH', body: { estimatedValue } }),
     async timeline(id: string): Promise<Interaction[]> {
       const res = await api<JsonLdCollection<Interaction>>(`/api/v1/leads/${id}/interactions`, { headers: ld })
       return res.member ?? res['hydra:member'] ?? []

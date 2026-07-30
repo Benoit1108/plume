@@ -180,5 +180,9 @@ source unique `useLeadLabels.statusLabel` (custom → sinon i18n) ; réglables d
 Différés : **filtres de période** (change la sémantique des taux) et **valeur estimée** (champ `estimatedValue`
 sur la piste = changement de domaine).
 
-**Prochaine grande étape** : V2.3 restant (valeur estimée + filtres période dashboard, Outlook réel,
-parsers ProZ/TC) ; V2.2 abonnement (décision paiement Benoit) ; dettes (QR 2FA, chiffrement secret TOTP).
+**Valeur estimée des pistes : LIVRÉE** : champ `Lead.estimatedValue` (euros, nullable) + event
+`LeadEstimatedValueChanged` ; fixé par action dédiée `PATCH /leads/{id}/estimated-value` (contrôleur simple)
++ saisie sur la fiche ; sommes au dashboard (`pipelineValue` actif / `wonValue`) + KPI + export CSV.
+
+**Prochaine grande étape** : V2.3 restant (Outlook réel, filtres de période dashboard, parsers ProZ/TC) ;
+V2.2 abonnement (décision paiement Benoit) ; dettes (QR 2FA, chiffrement secret TOTP au repos).

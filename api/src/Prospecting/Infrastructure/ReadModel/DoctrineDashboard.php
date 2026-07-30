@@ -62,7 +62,20 @@ final class DoctrineDashboard implements Dashboard
             weeklyActivity: $this->weeklyActivity($tenantId, $timezone, $localNow),
             segments: $this->segments($tenantId),
             firstResponseDelayDays: $this->firstResponseDelayDays($tenantId),
+            pipelineValue: $this->sumEstimatedValue($tenantId, "status NOT IN ('WON', 'LOST')"),
+            wonValue: $this->sumEstimatedValue($tenantId, "status = 'WON'"),
         );
+    }
+
+    /** Somme des valeurs estimées des pistes d'un sous-ensemble (pipeline actif / gagnées). */
+    private function sumEstimatedValue(string $tenantId, string $statusPredicate): int
+    {
+        $sum = $this->connection->fetchOne(
+            \sprintf('SELECT COALESCE(SUM(estimated_value), 0) FROM lead WHERE tenant_id = :tenant AND %s', $statusPredicate),
+            ['tenant' => $tenantId],
+        );
+
+        return is_numeric($sum) ? (int) $sum : 0;
     }
 
     /**
