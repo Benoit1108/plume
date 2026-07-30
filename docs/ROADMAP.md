@@ -134,7 +134,9 @@ Fondations techniques.
 - [~] **V2.3** Enrichissement : **séquences de relance configurables** ✅ + **annuaire pré-rempli** ✅ +
       **pipeline personnalisable** ✅ (libellés d'étapes, machine à états figée — ADR-0031) +
       **dashboard enrichi** ✅ (délai moyen de 1re réponse + export CSV + **valeur estimée** des pistes :
-      pipeline/gagné) ; reste filtres de période (dashboard), parsers ProZ/TC + **Outlook réel**.
+      pipeline/gagné) + **Outlook réel** ✅ (envoi/réponse/alertes Microsoft Graph à parité avec Gmail,
+      tests MockHttpClient — reste 🟦 identifiants Azure + recette) ; reste filtres de période (dashboard)
+      + parsers ProZ/TC.
 
 > Détail + découpage complet + propositions + TODO Benoit : [`docs/design/V2-plan-directeur.md`](design/V2-plan-directeur.md)
 > et [`docs/ops/TODO-benoit.md`](ops/TODO-benoit.md).

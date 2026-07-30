@@ -194,9 +194,10 @@ Après `make seed`, le tenant `recette@plume.fr` contient :
       refusée (409) — une annonce triée est figée.
 - [ ] **H7 — Gérer les flux RSS.** Réglages → **Sources** : ajouter un flux RSS (URL + nom),
       l'**activer/désactiver**, le **retirer**. Seuls les flux **actifs** sont relevés.
-- [ ] **H8 — Alertes email.** *(plomberie livrée)* La Passerelle lit un **label dédié**
-      « Plume/Alertes » et fait entrer les emails d'alerte dans « À trier » (provenance déduite de
-      l'expéditeur). En dev, une alerte de démonstration est injectée par la relève factice.
+- [ ] **H8 — Alertes email.** *(plomberie livrée)* La Passerelle lit un **emplacement dédié**
+      « Plume/Alertes » (label Gmail **ou** dossier Outlook, même nom) et fait entrer les emails
+      d'alerte dans « À trier » (provenance déduite de l'expéditeur). En dev, une alerte de
+      démonstration est injectée par la relève factice.
 
 ### I. Transverses (à vérifier tout du long)
 

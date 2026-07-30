@@ -99,7 +99,13 @@ Nouveau contexte `Notification` (in-app d'abord, digests email ensuite) :
   échantillons fictifs) parcourable + « ajouter à mon Répertoire » en un clic (dédup par nom). 🟦 Benoit
   fournit les **vraies données** (éditeurs FR, labos AV via ATAA, agences) en éditant le JSON.
 - 🟩 **Parsers fins ProZ / TranslatorsCafe** — 🟦 Benoit fournit des **échantillons réels**.
-- 🟩 **Outlook réel** (envoi/réponse) — validation en recette.
+- ✅ **Outlook réel (livré)** : les 3 adaptateurs Microsoft Graph sont réels et câblés — **envoi**
+  (`OutlookMailSender` : brouillon → `createReply` pour une relance dans le fil → `/send`),
+  **relève des réponses** (`OutlookReplyFetcher` : `conversationId`, `bodyPreview` texte), et **relève
+  d'alertes/Sourcing** (`OutlookAlertEmailFetcher` : dossier `Plume/Alertes`, corps forcé en texte via
+  `Prefer`) — à parité avec Gmail, chacun routé vers le réel dès que `MICROSOFT_CLIENT_ID` est présent,
+  factice sinon. Tests unitaires MockHttpClient prouvant les formes de requêtes Graph. 🟦 reste :
+  identifiants d'app Azure + validation en recette sur une vraie boîte Outlook.
 - 🟩 Dashboard enrichi : ✅ **délai moyen de 1re réponse** + ✅ **export CSV** + ✅ **valeur estimée**
   (champ `estimatedValue` sur la piste, saisie sur la fiche, sommes pipeline/gagné au dashboard) ;
   reste 🟩 **filtres de période** (change la sémantique des taux cumulés → slice dédiée).

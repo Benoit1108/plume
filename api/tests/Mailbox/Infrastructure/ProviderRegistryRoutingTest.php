@@ -4,9 +4,13 @@ declare(strict_types=1);
 
 namespace App\Tests\Mailbox\Infrastructure;
 
+use App\Mailbox\Infrastructure\Fetcher\FakeAlertEmailFetcher;
 use App\Mailbox\Infrastructure\Fetcher\FakeReplyFetcher;
+use App\Mailbox\Infrastructure\Fetcher\GmailAlertEmailFetcher;
 use App\Mailbox\Infrastructure\Fetcher\GmailReplyFetcher;
+use App\Mailbox\Infrastructure\Fetcher\OutlookAlertEmailFetcher;
 use App\Mailbox\Infrastructure\Fetcher\OutlookReplyFetcher;
+use App\Mailbox\Infrastructure\Fetcher\ProviderAlertEmailFetcherRegistry;
 use App\Mailbox\Infrastructure\Fetcher\ProviderReplyFetcherRegistry;
 use App\Mailbox\Infrastructure\OAuth\FakeMailboxConnector;
 use App\Mailbox\Infrastructure\OAuth\GmailConnector;
@@ -64,5 +68,22 @@ final class ProviderRegistryRoutingTest extends TestCase
         // Gmail sans identifiants → factice ; Outlook configuré → ACL Graph.
         self::assertInstanceOf(FakeReplyFetcher::class, $registry->fetcherFor('GMAIL'));
         self::assertInstanceOf(OutlookReplyFetcher::class, $registry->fetcherFor('OUTLOOK'));
+    }
+
+    public function testAlertFetcherRegistryRoutesByProviderCredentials(): void
+    {
+        $http = new MockHttpClient();
+        $registry = new ProviderAlertEmailFetcherRegistry(
+            new FakeAlertEmailFetcher(),
+            new GmailAlertEmailFetcher($http, new FakeAccessTokenMinter()),
+            new OutlookAlertEmailFetcher($http, new FakeAccessTokenMinter()),
+            googleClientId: '',
+            microsoftClientId: 'm-id',
+        );
+
+        // Gmail sans identifiants → factice ; Outlook configuré → ACL Graph ; inconnu → factice.
+        self::assertInstanceOf(FakeAlertEmailFetcher::class, $registry->fetcherFor('GMAIL'));
+        self::assertInstanceOf(OutlookAlertEmailFetcher::class, $registry->fetcherFor('OUTLOOK'));
+        self::assertInstanceOf(FakeAlertEmailFetcher::class, $registry->fetcherFor('UNKNOWN'));
     }
 }

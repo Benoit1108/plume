@@ -115,15 +115,20 @@ services:
     App\Mailbox\Application\DraftGateway: '@App\Mailbox\Infrastructure\Gateway\DoctrineDraftGateway'
     App\Mailbox\Application\RecipientResolver: '@App\Mailbox\Infrastructure\Gateway\DoctrineRecipientResolver'
     App\Mailbox\Application\OpenThreads: '@App\Mailbox\Infrastructure\ReadModel\DoctrineOpenThreads'
-    # M3.2 — alertes email : relève du label dédié, registre par fournisseur (Gmail réel si
-    # GOOGLE_CLIENT_ID présent, sinon factice ; Outlook factice tant qu'aucun adaptateur réel).
+    # M3.2 — alertes email : relève du dossier/label dédié, registre par fournisseur (réel dès que
+    # les identifiants du fournisseur sont présents : Gmail via GOOGLE_CLIENT_ID, Outlook via
+    # MICROSOFT_CLIENT_ID ; factice sinon).
     App\Mailbox\Application\AlertEmailFetcherRegistry: '@App\Mailbox\Infrastructure\Fetcher\ProviderAlertEmailFetcherRegistry'
     App\Mailbox\Infrastructure\Fetcher\ProviderAlertEmailFetcherRegistry:
         arguments:
             $googleClientId: '%env(string:GOOGLE_CLIENT_ID)%'
+            $microsoftClientId: '%env(string:MICROSOFT_CLIENT_ID)%'
     App\Mailbox\Infrastructure\Fetcher\GmailAlertEmailFetcher:
         arguments:
             $tokenMinter: '@mailbox.google_token_minter'
+    App\Mailbox\Infrastructure\Fetcher\OutlookAlertEmailFetcher:
+        arguments:
+            $tokenMinter: '@mailbox.microsoft_token_minter'
     App\Mailbox\Application\ReplyFetcherRegistry: '@App\Mailbox\Infrastructure\Fetcher\ProviderReplyFetcherRegistry'
     App\Mailbox\Infrastructure\Fetcher\ProviderReplyFetcherRegistry:
         arguments:

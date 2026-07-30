@@ -105,8 +105,11 @@ aussi été livrées.
   HTTP + worker, scheduler propriétaire pour la maintenance cross-tenant.
 - **Chantier 2 — mail réel** : `RssAlertSource` via laminas-feed (RSS 2.0 **+ Atom**),
   `GmailAlertEmailFetcher` réel (lecture du label), `LinkedInAlertEmailParser` fin (1 offre =
-  1 candidat), relève manuelle des alertes (bouton). Validé en réel (relève + envoi + réponse).
-  *Reste : parsers fins ProZ/TranslatorsCafe (échantillons), envoi/réponse Outlook réel.*
+  1 candidat), relève manuelle des alertes (bouton). Gmail validé en réel (relève + envoi + réponse).
+  **Outlook réel LIVRÉ** : les 3 adaptateurs Microsoft Graph (envoi `OutlookMailSender`, réponses
+  `OutlookReplyFetcher`, alertes `OutlookAlertEmailFetcher` sur le dossier `Plume/Alertes`) sont réels,
+  câblés et testés (MockHttpClient), à parité avec Gmail — routés vers le réel dès `MICROSOFT_CLIENT_ID`
+  présent. *Reste : parsers fins ProZ/TranslatorsCafe (échantillons) ; 🟦 identifiants Azure + recette Outlook.*
 - **Chantier 3 — front** : **SPA `ssr:false`** (ADR-0024), **TanStack Query** (cache + invalidation),
   **types générés depuis OpenAPI** (drift CI), parité i18n testée.
 - **Chantier 4 + divers** : `AbstractStringIdType` (dédup id-VO), **poll manuel async**, durcissement
@@ -184,5 +187,7 @@ sur la piste = changement de domaine).
 `LeadEstimatedValueChanged` ; fixé par action dédiée `PATCH /leads/{id}/estimated-value` (contrôleur simple)
 + saisie sur la fiche ; sommes au dashboard (`pipelineValue` actif / `wonValue`) + KPI + export CSV.
 
-**Prochaine grande étape** : V2.3 restant (Outlook réel, filtres de période dashboard, parsers ProZ/TC) ;
+**Outlook réel : LIVRÉ** (envoi/réponse/alertes Microsoft Graph à parité Gmail — cf. Chantier 2 mail réel).
+
+**Prochaine grande étape** : V2.3 restant (filtres de période dashboard, parsers ProZ/TC) ;
 V2.2 abonnement (décision paiement Benoit) ; dettes (QR 2FA, chiffrement secret TOTP au repos).
