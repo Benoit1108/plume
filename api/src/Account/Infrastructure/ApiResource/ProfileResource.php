@@ -55,6 +55,17 @@ final class ProfileResource
     #[Groups(['profile:read', 'profile:write'])]
     public array $followUpCadence = [7, 21, 45];
 
+    /**
+     * Libellés d'étapes du pipeline personnalisés (statut → libellé). Cosmétique (ADR-0031) : n'altère
+     * ni le comportement ni l'API/export (qui restent sur les codes de statut).
+     *
+     * @var array<string, string>
+     */
+    #[Assert\Count(max: 20)]
+    #[Assert\All([new Assert\Type('string'), new Assert\Length(max: 40)])]
+    #[Groups(['profile:read', 'profile:write'])]
+    public array $pipelineLabels = [];
+
     /** Présentation courte, matière première des brouillons générés. */
     #[Assert\Length(max: 2000)]
     #[Groups(['profile:read', 'profile:write'])]

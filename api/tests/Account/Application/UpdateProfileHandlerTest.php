@@ -9,6 +9,7 @@ use App\Account\Application\Command\UpdateProfile\UpdateProfileHandler;
 use App\Account\Domain\Profile\DigestFrequency;
 use App\Account\Domain\Profile\Event\DigestFrequencyChanged;
 use App\Account\Domain\Profile\Event\FollowUpCadenceChanged;
+use App\Account\Domain\Profile\Event\PipelineLabelsChanged;
 use App\Account\Domain\Profile\Event\ProfileCreated;
 use App\Account\Domain\Profile\Event\ProfileIdentityChanged;
 use App\Account\Domain\Profile\Event\ProfilePresentationChanged;
@@ -68,6 +69,14 @@ final class UpdateProfileHandlerTest extends TestCase
         ($this->handler)(new UpdateProfile('tenant-1', 5, null, null, null, null, null, 'DAILY', [3, 14]));
         self::assertSame([3, 14], $this->profiles->find(TenantId::fromString('tenant-1'))?->followUpCadence());
         self::assertSame(1, $this->eventBus->countOf(FollowUpCadenceChanged::class));
+    }
+
+    public function testChangesPipelineLabels(): void
+    {
+        // Les libellés vides sont ignorés (retour au défaut) ; seuls les overrides non vides restent.
+        ($this->handler)(new UpdateProfile('tenant-1', 5, null, null, null, null, null, 'DAILY', [7, 21, 45], ['WON' => 'Signée', 'LOST' => '   ']));
+        self::assertSame(['WON' => 'Signée'], $this->profiles->find(TenantId::fromString('tenant-1'))?->pipelineLabels());
+        self::assertSame(1, $this->eventBus->countOf(PipelineLabelsChanged::class));
     }
 
     public function testUpdatesExistingProfileWithoutRecreating(): void

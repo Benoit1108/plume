@@ -170,5 +170,10 @@ inscriptions/semaine via `app_user.created_at`, pistes par statut ; sans PII).
 échantillons fictifs — Benoit met les vraies données sans toucher au code) via port `DirectoryCatalog` ;
 `GET /directory/catalog` + `POST /directory/catalog/import` (crée l'Organisation, dédup par nom).
 
-**Prochaine grande étape** : V2.3 restant (pipeline configurable, Outlook réel, dashboard enrichi,
-parsers ProZ/TC) ; V2.2 abonnement (décision paiement Benoit) ; dettes (QR 2FA, chiffrement secret TOTP).
+**Pipeline personnalisable : LIVRÉ** ([ADR-0031](docs/architecture/decisions/0031-pipeline-labels-configurables.md),
+amende 0008) : libellés d'étapes configurables par tenant (`profile.pipeline_labels` JSON) résolus par la
+source unique `useLeadLabels.statusLabel` (custom → sinon i18n) ; réglables dans Réglages. **La machine à
+états reste FIGÉE** (la logique métier — cadence, terminaux, métriques — en dépend) : états arbitraires reportés.
+
+**Prochaine grande étape** : V2.3 restant (dashboard enrichi, Outlook réel, parsers ProZ/TC) ;
+V2.2 abonnement (décision paiement Benoit) ; dettes (QR 2FA, chiffrement secret TOTP au repos).

@@ -4,11 +4,16 @@ export const LEAD_STATUSES: LeadStatus[] = ['TO_CONTACT', 'CONTACTED', 'FOLLOWED
 export const LEAD_PRIORITIES: LeadPriority[] = ['LOW', 'MEDIUM', 'HIGH']
 export const LEAD_SOURCES: LeadSource[] = ['DIRECT', 'REFERRAL', 'JOB_BOARD', 'OTHER']
 
-/** Terminologie du pipeline — source unique (i18n) pour statuts, priorités, origines, actions. */
+/** Terminologie du pipeline — source unique pour statuts, priorités, origines, actions.
+ *  Les LIBELLÉS DE STATUT peuvent être personnalisés par tenant (ADR-0031) : override du profil,
+ *  sinon i18n. Le profil est lu via une query partagée (cache TanStack — un seul fetch réutilisé). */
 export function useLeadLabels() {
   const { t } = useI18n()
+  const profileApi = useProfile()
+  const { data: profile } = useQuery({ queryKey: queryKeys.profile, queryFn: () => profileApi.get() })
+  const customStatusLabels = computed<Record<string, string>>(() => profile.value?.pipelineLabels ?? {})
 
-  const statusLabel = (status: string): string => t(`pipeline.statuses.${status}`, status)
+  const statusLabel = (status: string): string => customStatusLabels.value[status] || t(`pipeline.statuses.${status}`, status)
   const priorityLabel = (priority: string): string => t(`pipeline.priorities.${priority}`, priority)
   const sourceLabel = (source: string): string => t(`pipeline.sources.${source}`, source)
   const actionLabel = (action: string): string => t(`pipeline.actions.${action}`, action)

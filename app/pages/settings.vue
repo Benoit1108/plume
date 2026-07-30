@@ -21,6 +21,8 @@ const signature = ref('')
 const digestFrequency = ref<'NONE' | 'DAILY' | 'WEEKLY'>('DAILY')
 /** Saisie libre « 7, 21, 45 » ; parsée en jours à l'enregistrement. */
 const cadenceInput = ref('')
+/** Libellés d'étapes personnalisés (ADR-0031) : un champ par statut, vide = libellé par défaut. */
+const pipelineLabels = ref<Record<string, string>>({})
 
 watch(profile, (value) => {
   if (!value) return
@@ -30,6 +32,7 @@ watch(profile, (value) => {
   signature.value = value.signature ?? ''
   digestFrequency.value = value.digestFrequency
   cadenceInput.value = value.followUpCadence.join(', ')
+  pipelineLabels.value = Object.fromEntries(LEAD_STATUSES.map(s => [s, value.pipelineLabels[s] ?? '']))
 }, { immediate: true })
 
 /** « 7, 21, 45 » → [7, 21, 45] (entiers positifs uniquement ; vide = pas de relance auto). */
@@ -195,6 +198,7 @@ async function save(): Promise<void> {
       signature: signature.value.trim() || null,
       digestFrequency: digestFrequency.value,
       followUpCadence: parsedCadence.value,
+      pipelineLabels: Object.fromEntries(Object.entries(pipelineLabels.value).filter(([, v]) => v.trim() !== '')),
     })
     await refresh()
     toast.add({ title: t('settings.toasts.saved'), color: 'success' })
@@ -244,6 +248,17 @@ async function save(): Promise<void> {
         <UFormField :label="t('settings.digest.label')" :hint="t('settings.digest.hint')" class="mt-3">
           <USelect v-model="digestFrequency" :items="digestOptions" value-key="value" class="w-56" />
         </UFormField>
+      </section>
+
+      <!-- Libellés d'étapes du pipeline (ADR-0031 : cosmétique, la logique ne change pas) -->
+      <section class="border border-default rounded-xl p-4 bg-elevated/40">
+        <h2 class="text-sm font-semibold">{{ t('settings.pipeline.title') }}</h2>
+        <p class="text-xs text-muted mt-1">{{ t('settings.pipeline.hint') }}</p>
+        <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <UFormField v-for="status in LEAD_STATUSES" :key="status" :label="t(`pipeline.statuses.${status}`)">
+            <UInput v-model="pipelineLabels[status]" :placeholder="t(`pipeline.statuses.${status}`)" maxlength="40" class="w-full" />
+          </UFormField>
+        </div>
       </section>
 
       <!-- Présentation (matière première de la rédaction assistée) -->

@@ -670,6 +670,10 @@
       "preview": "Automatic follow-ups: D+{days}",
       "none": "No automatic follow-ups — you'll schedule them manually."
     },
+    "pipeline": {
+      "title": "Pipeline stage names",
+      "hint": "Customise the displayed name of each stage (kanban, lead, dashboard). Leave empty for the default. Display only — does not change behaviour."
+    },
     "digest": {
       "title": "Email digest",
       "label": "Receive a notifications summary",

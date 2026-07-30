@@ -2032,6 +2032,9 @@ export interface components {
              *     ]
              */
             followUpCadence: number[];
+            pipelineLabels?: {
+                [key: string]: string;
+            };
             bio?: string | null;
             specialties?: string | null;
             signature?: string | null;
@@ -2058,6 +2061,9 @@ export interface components {
              *     ]
              */
             followUpCadence: number[];
+            pipelineLabels?: {
+                [key: string]: string;
+            };
             bio?: string | null;
             specialties?: string | null;
             signature?: string | null;
@@ -2088,6 +2094,9 @@ export interface components {
              *     ]
              */
             followUpCadence: number[];
+            pipelineLabels?: {
+                [key: string]: string;
+            };
             bio?: string | null;
             specialties?: string | null;
             signature?: string | null;

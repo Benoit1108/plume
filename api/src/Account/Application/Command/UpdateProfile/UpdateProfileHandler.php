@@ -33,6 +33,7 @@ final class UpdateProfileHandler implements CommandHandler
         $profile->changeIdentity($command->firstName, $command->lastName, $now);
         $profile->changeDigestFrequency(DigestFrequency::tryFrom($command->digestFrequency) ?? DigestFrequency::DAILY, $now);
         $profile->changeFollowUpCadence($command->followUpCadence, $now);
+        $profile->changePipelineLabels($command->pipelineLabels, $now);
 
         $this->profiles->save($profile);
         $this->eventBus->publish(...$profile->pullDomainEvents());

@@ -141,6 +141,28 @@ final class ProfileApiTest extends ApiTestCase
         self::assertResponseStatusCodeSame(422);
     }
 
+    public function testUpdatesPipelineLabels(): void
+    {
+        $this->createUser('a@plume.test');
+        $client = static::createClient();
+        $token = $this->tokenFor($client, 'a@plume.test');
+
+        // Défaut : aucun override.
+        $before = $client->request('GET', '/api/v1/profile', ['auth_bearer' => $token, 'headers' => ['Accept' => 'application/ld+json']])->toArray();
+        self::assertSame([], $before['pipelineLabels'] ?? null);
+
+        // On renomme deux étapes (un libellé vide est ignoré côté domaine).
+        $client->request('PATCH', '/api/v1/profile', [
+            'auth_bearer' => $token,
+            'headers' => ['Content-Type' => 'application/merge-patch+json'],
+            'json' => ['pipelineLabels' => ['WON' => 'Signée', 'SAMPLE_TEST' => 'Essai', 'LOST' => '']],
+        ]);
+        self::assertResponseIsSuccessful();
+
+        $after = $client->request('GET', '/api/v1/profile', ['auth_bearer' => $token, 'headers' => ['Accept' => 'application/ld+json']])->toArray();
+        self::assertSame(['WON' => 'Signée', 'SAMPLE_TEST' => 'Essai'], $after['pipelineLabels'] ?? null);
+    }
+
     public function testIdentityIsIsolatedPerTenant(): void
     {
         $this->createUser('a@plume.test');

@@ -18,6 +18,8 @@ final class ProfileView
         public readonly string $digestFrequency = 'DAILY',
         /** @var int[] séquence de relance (délais en jours entre étapes) */
         public readonly array $followUpCadence = [7, 21, 45],
+        /** @var array<string, string> overrides de libellés d'étapes du pipeline */
+        public readonly array $pipelineLabels = [],
     ) {
     }
 }

@@ -670,6 +670,10 @@
       "preview": "Relances automatiques : J+{days}",
       "none": "Aucune relance automatique — vous planifierez à la main."
     },
+    "pipeline": {
+      "title": "Noms des étapes du pipeline",
+      "hint": "Personnalisez le nom affiché de chaque étape (kanban, fiche, tableau de bord). Laisser vide = nom par défaut. N'affecte que l'affichage, pas le fonctionnement."
+    },
     "digest": {
       "title": "Digest email",
       "label": "Recevoir un récap des notifications",

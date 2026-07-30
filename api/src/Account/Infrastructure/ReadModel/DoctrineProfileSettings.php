@@ -27,7 +27,7 @@ final class DoctrineProfileSettings implements ProfileSettings
         $tenant = $this->tenantContext->require();
 
         $row = $this->connection->fetchAssociative(
-            'SELECT weekly_goal, timezone, bio, specialties, signature, first_name, last_name, digest_frequency, follow_up_cadence FROM profile WHERE tenant_id = :tenant',
+            'SELECT weekly_goal, timezone, bio, specialties, signature, first_name, last_name, digest_frequency, follow_up_cadence, pipeline_labels FROM profile WHERE tenant_id = :tenant',
             ['tenant' => $tenant->toString()],
         );
 
@@ -45,7 +45,29 @@ final class DoctrineProfileSettings implements ProfileSettings
             $this->strOrNull($row, 'last_name'),
             \is_string($row['digest_frequency'] ?? null) && '' !== $row['digest_frequency'] ? $row['digest_frequency'] : 'DAILY',
             $this->cadenceOf($row['follow_up_cadence'] ?? null),
+            $this->labelsOf($row['pipeline_labels'] ?? null),
         );
+    }
+
+    /** @return array<string, string> */
+    private function labelsOf(mixed $raw): array
+    {
+        if (!\is_string($raw) || '' === $raw) {
+            return [];
+        }
+        $decoded = json_decode($raw, true);
+        if (!\is_array($decoded)) {
+            return [];
+        }
+
+        $labels = [];
+        foreach ($decoded as $status => $label) {
+            if (\is_string($label) && '' !== $label) {
+                $labels[(string) $status] = $label;
+            }
+        }
+
+        return $labels;
     }
 
     /** @return int[] */

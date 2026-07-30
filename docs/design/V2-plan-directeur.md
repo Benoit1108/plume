@@ -89,7 +89,9 @@ Nouveau contexte `Notification` (in-app d'abord, digests email ensuite) :
 
 ## Jalon V2.3 — Enrichissement produit
 
-- 🟩 **Pipeline configurable** (statuts personnalisables — ADR-0008 le prévoit).
+- ✅ **Pipeline personnalisable (livré, ADR-0031)** : libellés d'étapes configurables par tenant
+  (`profile.pipeline_labels`), résolus par `useLeadLabels` (custom → sinon i18n). La MACHINE À ÉTATS
+  reste figée (la logique métier en dépend) — les états/transitions arbitraires restent reportés.
 - ✅ **Séquences de relance configurables (livré)** : cadence par tenant (`profile.follow_up_cadence`,
   délais en jours entre étapes, défaut J+7/21/45), lue par le domaine via un port `FollowUpCadenceProvider` ;
   réglable dans Réglages (« 7, 21, 45 »). Vide = pas de relance auto.

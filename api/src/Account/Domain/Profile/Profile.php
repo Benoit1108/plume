@@ -6,6 +6,7 @@ namespace App\Account\Domain\Profile;
 
 use App\Account\Domain\Profile\Event\DigestFrequencyChanged;
 use App\Account\Domain\Profile\Event\FollowUpCadenceChanged;
+use App\Account\Domain\Profile\Event\PipelineLabelsChanged;
 use App\Account\Domain\Profile\Event\ProfileCreated;
 use App\Account\Domain\Profile\Event\ProfileIdentityChanged;
 use App\Account\Domain\Profile\Event\ProfilePresentationChanged;
@@ -41,6 +42,8 @@ final class Profile extends AggregateRoot
         private ?string $lastName = null,
         private DigestFrequency $digestFrequency = DigestFrequency::DAILY,
         private array $followUpCadence = self::DEFAULT_FOLLOW_UP_CADENCE,
+        /** @var array<string, string> overrides de libellés d'étapes du pipeline (statut → libellé) */
+        private array $pipelineLabels = [],
     ) {
     }
 
@@ -87,6 +90,34 @@ final class Profile extends AggregateRoot
 
         $this->followUpCadence = $days;
         $this->recordEvent(new FollowUpCadenceChanged($this->tenantId->toString(), $days, $now));
+    }
+
+    /**
+     * Libellés d'étapes du pipeline personnalisés (statut → libellé). PUREMENT COSMÉTIQUE (ADR-0031) :
+     * la machine à états ne change pas. On ne garde que des overrides non vides (≤ 40 car.), 20 max ;
+     * vider un libellé = retour au défaut. Sans changement, aucun event.
+     *
+     * @param array<string, string> $labels
+     */
+    public function changePipelineLabels(array $labels, \DateTimeImmutable $now): void
+    {
+        $clean = [];
+        foreach ($labels as $status => $label) {
+            $trimmed = trim($label);
+            if ('' !== $trimmed) {
+                $clean[(string) $status] = mb_substr($trimmed, 0, 40);
+            }
+        }
+        if (\count($clean) > 20) {
+            throw InvalidValue::because('At most 20 pipeline labels can be customised.');
+        }
+
+        if ($clean === $this->pipelineLabels) {
+            return;
+        }
+
+        $this->pipelineLabels = $clean;
+        $this->recordEvent(new PipelineLabelsChanged($this->tenantId->toString(), $now));
     }
 
     public function changeWeeklyGoal(int $weeklyGoal, \DateTimeImmutable $now): void
@@ -193,5 +224,11 @@ final class Profile extends AggregateRoot
     public function followUpCadence(): array
     {
         return $this->followUpCadence;
+    }
+
+    /** @return array<string, string> */
+    public function pipelineLabels(): array
+    {
+        return $this->pipelineLabels;
     }
 }

@@ -131,9 +131,9 @@ Fondations techniques.
 - [x] **Observabilité** (ADR-0030) : logs JSON corrélés **tenant + request_id** (HTTP + worker) +
       **error-tracking Sentry** prod-only/env-gated/sans PII (reste : fournir le `SENTRY_DSN`).
 - [ ] **V2.2** Abonnement SaaS : plans + quotas + paiement (≠ facturation client).
-- [~] **V2.3** Enrichissement : **séquences de relance configurables** ✅ (cadence par tenant, défaut
-      J+7/21/45) + **annuaire pré-rempli** ✅ (catalogue JSON de cibles → ajout au Répertoire ; données
-      réelles = 🟦 Benoit) ; reste pipeline **configurable**, parsers ProZ/TC + Outlook réel, dashboard enrichi.
+- [~] **V2.3** Enrichissement : **séquences de relance configurables** ✅ + **annuaire pré-rempli** ✅ +
+      **pipeline personnalisable** ✅ (libellés d'étapes par tenant, machine à états figée — ADR-0031) ;
+      reste **dashboard enrichi**, parsers ProZ/TC + Outlook réel.
 
 > Détail + découpage complet + propositions + TODO Benoit : [`docs/design/V2-plan-directeur.md`](design/V2-plan-directeur.md)
 > et [`docs/ops/TODO-benoit.md`](ops/TODO-benoit.md).

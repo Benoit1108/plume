@@ -62,4 +62,6 @@ export interface Profile {
   digestFrequency: 'NONE' | 'DAILY' | 'WEEKLY'
   /** Délais (jours) entre étapes de relance, ex. [7, 21, 45] ; vide = pas de relance auto. */
   followUpCadence: number[]
+  /** Libellés d'étapes du pipeline personnalisés (statut → libellé), overrides uniquement. */
+  pipelineLabels: Record<string, string>
 }
