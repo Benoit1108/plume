@@ -31,6 +31,9 @@ const organizations = computed<Organization[]>(() => orgsData.value ?? [])
   <PageContainer width="atelier">
     <PageHeader :eyebrow="t('directory.eyebrow')" :title="t('directory.title')">
       <template #actions>
+        <UButton color="neutral" variant="outline" icon="i-lucide-sparkles" to="/organizations/catalog">
+          {{ t('directory.list.catalog') }}
+        </UButton>
         <UButton color="neutral" variant="outline" icon="i-lucide-upload" to="/organizations/import">
           {{ t('directory.list.importCsv') }}
         </UButton>

@@ -33,6 +33,17 @@ api_admin_account_reset_2fa:
     requirements:
         tenantId: '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
 
+# Annuaire suggéré (authentifié) : catalogue de cibles de référence + ajout au Répertoire.
+api_directory_catalog:
+    path: /api/v1/directory/catalog
+    controller: App\Directory\Infrastructure\Http\CatalogController
+    methods: [GET]
+
+api_directory_catalog_import:
+    path: /api/v1/directory/catalog/import
+    controller: App\Directory\Infrastructure\Http\ImportCatalogEntryController
+    methods: [POST]
+
 # Sonde de santé (PUBLIC) pour l'hébergeur / le monitoring.
 api_health:
     path: /api/v1/health

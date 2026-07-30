@@ -209,6 +209,7 @@
       "OTHER": "Other"
     },
     "list": {
+      "catalog": "Suggested directory",
       "importCsv": "Import CSV",
       "newOrganization": "Organization",
       "typeAll": "Type — all",
@@ -221,6 +222,18 @@
       "empty": "No organizations yet. Create your first target.",
       "contactsCount": "no contacts | {count} contact | {count} contacts",
       "openOrganization": "Open {name}"
+    },
+    "catalog": {
+      "title": "Suggested directory",
+      "intro": "Pre-identified targets to add to your Directory in one click. Then add contacts and create a lead.",
+      "searchPlaceholder": "Search the directory…",
+      "empty": "No suggestion for this search.",
+      "website": "Website",
+      "add": "Add",
+      "inDirectory": "Already in Directory",
+      "added": "\"{name}\" added to your Directory.",
+      "alreadyImported": "This organization is already in your Directory.",
+      "backToDirectory": "Directory"
     },
     "form": {
       "name": "Name",

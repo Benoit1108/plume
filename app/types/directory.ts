@@ -4,6 +4,19 @@ import type { Schemas } from './api-schemas'
 export type OrganizationType = Schemas['Organization-org.read']['type']
 export type Segment = 'PUBLISHING' | 'AUDIOVISUAL' | 'TECHNICAL' | 'OTHER'
 
+/** Entrée de l'annuaire suggéré (données de référence + drapeau « déjà dans mon Répertoire »). */
+export interface CatalogEntry {
+  id: string
+  name: string
+  type: OrganizationType
+  country?: string | null
+  website?: string | null
+  languages: string[]
+  segments: string[]
+  note?: string | null
+  alreadyImported: boolean
+}
+
 /** Contact tel que retourné par l'API (persisté : id garanti). */
 export interface Contact {
   id: string

@@ -10,3 +10,7 @@ Organisations (maisons d'édition, labos AV, agences) et Contacts. **Livré en M
 - `Infrastructure/` : repository Doctrine (mapping XML, collections JSONB — ADR-0012),
   read model SQL direct fail-closed (ADR-0013), resources API Platform (DTO),
   parseur CSV tolérant.
+- **Annuaire suggéré (V2.3)** : catalogue de cibles de référence (`data/directory-catalog.json`,
+  ÉCHANTILLONS FICTIFS — Benoit y met de vraies données sans toucher au code) lu par
+  `DirectoryCatalog`/`JsonDirectoryCatalog` ; `GET /directory/catalog` (liste + `alreadyImported`),
+  `POST /directory/catalog/import` (crée l'Organisation via `CreateOrganization`, dédup par nom → 409).

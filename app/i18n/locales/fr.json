@@ -209,6 +209,7 @@
       "OTHER": "Autre"
     },
     "list": {
+      "catalog": "Annuaire suggéré",
       "importCsv": "Importer CSV",
       "newOrganization": "Organisation",
       "typeAll": "Type — tous",
@@ -221,6 +222,18 @@
       "empty": "Aucune organisation. Créez votre première cible.",
       "contactsCount": "aucun contact | {count} contact | {count} contacts",
       "openOrganization": "Ouvrir {name}"
+    },
+    "catalog": {
+      "title": "Annuaire suggéré",
+      "intro": "Des cibles pré-identifiées à ajouter à votre Répertoire en un clic. Vous complétez ensuite les contacts et créez une piste.",
+      "searchPlaceholder": "Rechercher dans l'annuaire…",
+      "empty": "Aucune suggestion pour cette recherche.",
+      "website": "Site web",
+      "add": "Ajouter",
+      "inDirectory": "Déjà dans le Répertoire",
+      "added": "« {name} » ajoutée au Répertoire.",
+      "alreadyImported": "Cette organisation est déjà dans votre Répertoire.",
+      "backToDirectory": "Répertoire"
     },
     "form": {
       "name": "Nom",

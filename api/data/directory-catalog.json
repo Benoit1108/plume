@@ -1,0 +1,11 @@
+{
+  "_note": "Annuaire suggéré — ÉCHANTILLONS FICTIFS de démonstration. Benoit remplace/enrichit ce fichier avec de vraies cibles curées (éditeurs FR, labos AV via ATAA, agences). Aucun code à changer : le provider relit ce JSON. Champs : id (stable), name, type (PUBLISHER|AV_STUDIO|AGENCY|OTHER), country (ISO2), website, languages (codes), segments (PUBLISHING|AUDIOVISUAL|TECHNICAL|OTHER), note.",
+  "entries": [
+    { "id": "sample-editions-exemple", "name": "Éditions Exemple", "type": "PUBLISHER", "country": "FR", "website": "https://editions-exemple.test", "languages": ["en", "fr"], "segments": ["PUBLISHING"], "note": "Maison d'édition (exemple)." },
+    { "id": "sample-editions-modele", "name": "Éditions Modèle", "type": "PUBLISHER", "country": "FR", "website": "https://editions-modele.test", "languages": ["es", "fr"], "segments": ["PUBLISHING"], "note": "Éditeur littérature étrangère (exemple)." },
+    { "id": "sample-studio-av-demo", "name": "Studio AV Démo", "type": "AV_STUDIO", "country": "FR", "website": "https://studio-av-demo.test", "languages": ["en", "fr"], "segments": ["AUDIOVISUAL"], "note": "Labo doublage / sous-titrage (exemple)." },
+    { "id": "sample-labo-sous-titres", "name": "Labo Sous-titres Exemple", "type": "AV_STUDIO", "country": "FR", "website": "https://labo-soustitres-exemple.test", "languages": ["en", "fr"], "segments": ["AUDIOVISUAL"], "note": "Sous-titrage séries/documentaires (exemple)." },
+    { "id": "sample-agence-modele", "name": "Agence Modèle Traduction", "type": "AGENCY", "country": "FR", "website": "https://agence-modele.test", "languages": ["en", "fr", "es"], "segments": ["TECHNICAL"], "note": "Agence de traduction / LSP (exemple)." },
+    { "id": "sample-agence-demo", "name": "Agence Démo Localisation", "type": "AGENCY", "country": "BE", "website": "https://agence-demo.test", "languages": ["en", "fr"], "segments": ["TECHNICAL"], "note": "Localisation logicielle (exemple)." }
+  ]
+}

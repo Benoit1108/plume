@@ -93,7 +93,9 @@ Nouveau contexte `Notification` (in-app d'abord, digests email ensuite) :
 - ✅ **Séquences de relance configurables (livré)** : cadence par tenant (`profile.follow_up_cadence`,
   délais en jours entre étapes, défaut J+7/21/45), lue par le domaine via un port `FollowUpCadenceProvider` ;
   réglable dans Réglages (« 7, 21, 45 »). Vide = pas de relance auto.
-- 🟩 **Annuaire pré-rempli** (éditeurs FR, labos AV via ATAA, agences) — 🟦 sources de données.
+- ✅ **Annuaire pré-rempli (livré)** : catalogue de cibles de référence (fichier `data/directory-catalog.json`,
+  échantillons fictifs) parcourable + « ajouter à mon Répertoire » en un clic (dédup par nom). 🟦 Benoit
+  fournit les **vraies données** (éditeurs FR, labos AV via ATAA, agences) en éditant le JSON.
 - 🟩 **Parsers fins ProZ / TranslatorsCafe** — 🟦 Benoit fournit des **échantillons réels**.
 - 🟩 **Outlook réel** (envoi/réponse) — validation en recette.
 - 🟩 Dashboard enrichi : délais de réponse, valeur estimée, filtres de période, export.

@@ -18,6 +18,7 @@ export const queryKeys = {
   adminMetrics: ['admin', 'metrics'] as const,
   adminAccounts: ['admin', 'accounts'] as const,
   organizations: ['organizations'] as const,
+  directoryCatalog: ['directory', 'catalog'] as const,
   leads: ['leads'] as const,
   organization: (id: string) => ['organization', id] as const,
   lead: (id: string) => ['lead', id] as const,

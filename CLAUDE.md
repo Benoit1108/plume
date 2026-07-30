@@ -166,5 +166,9 @@ inscriptions/semaine via `app_user.created_at`, pistes par statut ; sans PII).
 (adaptateur SQL profil, comme le tick lit `timezone`) ; `Lead::contact/recordFollowUp` reçoivent une
 `FollowUpCadence` (param optionnel → défaut) ; réglable dans Réglages. Vide = pas de relance auto.
 
-**Prochaine grande étape** : V2.3 (annuaire pré-rempli, pipeline configurable, Outlook réel, dashboard
-enrichi) ; V2.2 abonnement (décision paiement Benoit) ; dettes (QR 2FA, chiffrement secret TOTP au repos).
+**Annuaire pré-rempli : LIVRÉ** : catalogue de cibles de référence (`data/directory-catalog.json`,
+échantillons fictifs — Benoit met les vraies données sans toucher au code) via port `DirectoryCatalog` ;
+`GET /directory/catalog` + `POST /directory/catalog/import` (crée l'Organisation, dédup par nom).
+
+**Prochaine grande étape** : V2.3 restant (pipeline configurable, Outlook réel, dashboard enrichi,
+parsers ProZ/TC) ; V2.2 abonnement (décision paiement Benoit) ; dettes (QR 2FA, chiffrement secret TOTP).
