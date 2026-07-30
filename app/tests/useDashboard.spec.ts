@@ -32,4 +32,12 @@ describe('useDashboard', () => {
     expect(path).toBe('/api/v1/dashboard')
     expect(options.headers.Accept).toBe('application/ld+json')
   })
+
+  it('exporte le CSV en blob', async () => {
+    apiMock.mockResolvedValueOnce(new Blob())
+    await useDashboard().exportCsv()
+    const [path, options] = apiMock.mock.calls[0] as [string, { responseType: string }]
+    expect(path).toBe('/api/v1/dashboard/export')
+    expect(options.responseType).toBe('blob')
+  })
 })

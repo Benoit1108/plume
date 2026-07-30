@@ -699,6 +699,7 @@
   "dashboard": {
     "eyebrow": "Insights",
     "title": "Dashboard",
+    "export": "Export (CSV)",
     "empty": "Numbers show up with your first leads — create a lead and contact it.",
     "kpis": {
       "responseRate": "Response rate",
@@ -709,7 +710,10 @@
       "noneContacted": "no contacted lead yet",
       "outreachThisMonth": "Actions this month",
       "outreachHint": "contacts + follow-ups",
-      "activeLeads": "Active leads"
+      "activeLeads": "Active leads",
+      "firstResponse": "First-response time",
+      "firstResponseDays": "{days} d",
+      "firstResponseHint": "average, from first contact to reply"
     },
     "pipeline": {
       "title": "Pipeline",

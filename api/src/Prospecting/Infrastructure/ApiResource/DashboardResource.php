@@ -53,6 +53,10 @@ final class DashboardResource
     #[Groups(['dashboard:read'])]
     public int $weeklyTarget = 0;
 
+    /** Délai moyen (jours) entre 1er contact et 1re réponse ; null si aucune réponse encore. */
+    #[Groups(['dashboard:read'])]
+    public ?float $firstResponseDelayDays = null;
+
     /** @var array<array{status: string, count: int}> répartition par statut (ordre kanban) */
     #[Groups(['dashboard:read'])]
     public array $pipeline = [];

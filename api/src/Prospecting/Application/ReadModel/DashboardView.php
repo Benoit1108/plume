@@ -28,6 +28,8 @@ final class DashboardView
         public readonly array $pipeline,
         public readonly array $weeklyActivity,
         public readonly array $segments,
+        /** Délai moyen (en jours) entre le 1er contact et la 1re réponse ; null si aucune réponse. */
+        public readonly ?float $firstResponseDelayDays = null,
     ) {
     }
 }

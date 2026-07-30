@@ -16,6 +16,7 @@ function aBoard(overrides: Partial<Dashboard> = {}): Dashboard {
     activeLeads: 0,
     outreachThisMonth: 0,
     weeklyTarget: 5,
+    firstResponseDelayDays: null,
     pipeline: [],
     weeklyActivity: [],
     segments: [],

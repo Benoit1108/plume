@@ -33,6 +33,12 @@ api_admin_account_reset_2fa:
     requirements:
         tenantId: '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
 
+# Export CSV du tableau de bord (authentifié).
+api_dashboard_export:
+    path: /api/v1/dashboard/export
+    controller: App\Prospecting\Infrastructure\Http\DashboardExportController
+    methods: [GET]
+
 # Annuaire suggéré (authentifié) : catalogue de cibles de référence + ajout au Répertoire.
 api_directory_catalog:
     path: /api/v1/directory/catalog

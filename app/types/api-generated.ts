@@ -1236,6 +1236,7 @@ export interface components {
             outreachThisMonth: number;
             /** @default 0 */
             weeklyTarget: number;
+            firstResponseDelayDays?: number | null;
             pipeline?: {
                 [key: string]: number | string;
             }[];
@@ -1267,6 +1268,7 @@ export interface components {
             outreachThisMonth: number;
             /** @default 0 */
             weeklyTarget: number;
+            firstResponseDelayDays?: number | null;
             pipeline?: {
                 [key: string]: number | string;
             }[];

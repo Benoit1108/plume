@@ -5497,6 +5497,12 @@
                         "default": 0,
                         "type": "integer"
                     },
+                    "firstResponseDelayDays": {
+                        "type": [
+                            "number",
+                            "null"
+                        ]
+                    },
                     "pipeline": {
                         "type": "array",
                         "items": {
@@ -5586,6 +5592,12 @@
                             "weeklyTarget": {
                                 "default": 0,
                                 "type": "integer"
+                            },
+                            "firstResponseDelayDays": {
+                                "type": [
+                                    "number",
+                                    "null"
+                                ]
                             },
                             "pipeline": {
                                 "type": "array",

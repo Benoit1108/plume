@@ -175,5 +175,10 @@ amende 0008) : libellés d'étapes configurables par tenant (`profile.pipeline_l
 source unique `useLeadLabels.statusLabel` (custom → sinon i18n) ; réglables dans Réglages. **La machine à
 états reste FIGÉE** (la logique métier — cadence, terminaux, métriques — en dépend) : états arbitraires reportés.
 
-**Prochaine grande étape** : V2.3 restant (dashboard enrichi, Outlook réel, parsers ProZ/TC) ;
-V2.2 abonnement (décision paiement Benoit) ; dettes (QR 2FA, chiffrement secret TOTP au repos).
+**Dashboard enrichi : LIVRÉ (partiel)** : **délai moyen de 1re réponse** (lu sur le journal : MIN contact
+→ MIN reply, moyenné) exposé en KPI, + **export CSV** (`GET /dashboard/export`, contrôleur simple, BOM UTF-8).
+Différés : **filtres de période** (change la sémantique des taux) et **valeur estimée** (champ `estimatedValue`
+sur la piste = changement de domaine).
+
+**Prochaine grande étape** : V2.3 restant (valeur estimée + filtres période dashboard, Outlook réel,
+parsers ProZ/TC) ; V2.2 abonnement (décision paiement Benoit) ; dettes (QR 2FA, chiffrement secret TOTP).

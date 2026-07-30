@@ -18,6 +18,33 @@ const percentFormat = computed(() => new Intl.NumberFormat(locale.value, { style
 // Calculs testés à part (décisions M1.5 n°1 et 2 : conversion = gagnées/décidées, taux par piste).
 const { decided, conversion, responseRate, totalLeads, barHeightPercent, goalLinePercent, segmentRatio } = useDashboardMetrics(board)
 
+// L'API omet la valeur null (aucune réponse encore) → on normalise en null (jamais undefined).
+const firstResponseDelay = computed<number | null>(() => board.value?.firstResponseDelayDays ?? null)
+
+const toast = useToast()
+const exporting = ref(false)
+async function exportCsv(): Promise<void> {
+  if (exporting.value) return
+  exporting.value = true
+  try {
+    const blob = await dashboardApi.exportCsv()
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `plume-tableau-de-bord-${new Date().toISOString().slice(0, 10)}.csv`
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+    setTimeout(() => { URL.revokeObjectURL(url) }, 60_000)
+  }
+  catch {
+    toast.add({ title: t('common.error'), color: 'error' })
+  }
+  finally {
+    exporting.value = false
+  }
+}
+
 /** Teintes par statut — mêmes familles que les badges du kanban. */
 const STATUS_TINTS: Record<LeadStatus, string> = {
   TO_CONTACT: 'bg-neutral-400 dark:bg-neutral-500',
@@ -46,7 +73,13 @@ const hasActivity = computed(() =>
 
 <template>
   <PageContainer width="atelier">
-    <PageHeader :eyebrow="t('dashboard.eyebrow')" :title="t('dashboard.title')" />
+    <PageHeader :eyebrow="t('dashboard.eyebrow')" :title="t('dashboard.title')">
+      <template #actions>
+        <UButton color="neutral" variant="outline" icon="i-lucide-download" :loading="exporting" @click="exportCsv">
+          {{ t('dashboard.export') }}
+        </UButton>
+      </template>
+    </PageHeader>
 
     <div v-if="loading" role="status" class="mt-6 flex flex-col gap-4">
       <span class="sr-only">{{ t('common.loading') }}</span>
@@ -102,6 +135,13 @@ const hasActivity = computed(() =>
             <p class="text-xs text-dimmed font-semibold uppercase tracking-wide">{{ t('dashboard.kpis.activeLeads') }}</p>
             <p class="mt-1 font-serif text-3xl font-semibold tabular-nums">{{ board.activeLeads }}</p>
             <p class="text-xs text-muted mt-1">{{ t('dashboard.pipeline.total', { count: totalLeads }, totalLeads) }}</p>
+          </div>
+          <div class="border border-default rounded-xl p-4 bg-elevated/40">
+            <p class="text-xs text-dimmed font-semibold uppercase tracking-wide">{{ t('dashboard.kpis.firstResponse') }}</p>
+            <p class="mt-1 font-serif text-3xl font-semibold tabular-nums">
+              {{ firstResponseDelay === null ? '—' : t('dashboard.kpis.firstResponseDays', { days: firstResponseDelay }) }}
+            </p>
+            <p class="text-xs text-muted mt-1">{{ t('dashboard.kpis.firstResponseHint') }}</p>
           </div>
         </section>
 

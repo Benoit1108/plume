@@ -699,6 +699,7 @@
   "dashboard": {
     "eyebrow": "Pilotage",
     "title": "Tableau de bord",
+    "export": "Exporter (CSV)",
     "empty": "Les chiffres arrivent avec les premières pistes — créez une piste et contactez-la.",
     "kpis": {
       "responseRate": "Taux de réponse",
@@ -709,7 +710,10 @@
       "noneContacted": "aucune piste contactée",
       "outreachThisMonth": "Actes ce mois-ci",
       "outreachHint": "contacts + relances",
-      "activeLeads": "Pistes actives"
+      "activeLeads": "Pistes actives",
+      "firstResponse": "Délai de 1re réponse",
+      "firstResponseDays": "{days} j",
+      "firstResponseHint": "moyenne, du 1er contact à la réponse"
     },
     "pipeline": {
       "title": "Pipeline",

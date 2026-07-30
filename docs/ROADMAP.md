@@ -132,8 +132,9 @@ Fondations techniques.
       **error-tracking Sentry** prod-only/env-gated/sans PII (reste : fournir le `SENTRY_DSN`).
 - [ ] **V2.2** Abonnement SaaS : plans + quotas + paiement (≠ facturation client).
 - [~] **V2.3** Enrichissement : **séquences de relance configurables** ✅ + **annuaire pré-rempli** ✅ +
-      **pipeline personnalisable** ✅ (libellés d'étapes par tenant, machine à états figée — ADR-0031) ;
-      reste **dashboard enrichi**, parsers ProZ/TC + Outlook réel.
+      **pipeline personnalisable** ✅ (libellés d'étapes, machine à états figée — ADR-0031) +
+      **dashboard enrichi** ✅ partiel (délai moyen de 1re réponse + export CSV) ; reste dashboard
+      (valeur estimée = champ piste, filtres de période), parsers ProZ/TC + Outlook réel.
 
 > Détail + découpage complet + propositions + TODO Benoit : [`docs/design/V2-plan-directeur.md`](design/V2-plan-directeur.md)
 > et [`docs/ops/TODO-benoit.md`](ops/TODO-benoit.md).

@@ -6,5 +6,6 @@ export function useDashboard() {
 
   return {
     get: () => api<Dashboard>('/api/v1/dashboard', { headers: { Accept: 'application/ld+json' } }),
+    exportCsv: () => api<Blob>('/api/v1/dashboard/export', { responseType: 'blob' }),
   }
 }

@@ -61,7 +61,30 @@ final class DoctrineDashboard implements Dashboard
             pipeline: $this->pipeline($tenantId),
             weeklyActivity: $this->weeklyActivity($tenantId, $timezone, $localNow),
             segments: $this->segments($tenantId),
+            firstResponseDelayDays: $this->firstResponseDelayDays($tenantId),
         );
+    }
+
+    /**
+     * Délai MOYEN (jours) entre le 1er contact et la 1re réponse, sur les pistes qui ont répondu —
+     * un indicateur de réactivité du marché. Tout se lit sur le journal (horodatages), aucune
+     * projection dédiée. Null si aucune piste n'a encore répondu.
+     */
+    private function firstResponseDelayDays(string $tenantId): ?float
+    {
+        $avg = $this->connection->fetchOne(
+            <<<'SQL'
+                SELECT AVG(EXTRACT(EPOCH FROM (r.first_reply - c.first_contact)) / 86400.0)
+                FROM (SELECT lead_id, MIN(occurred_on) AS first_contact FROM interaction
+                      WHERE tenant_id = :tenant AND type = 'contacted' GROUP BY lead_id) c
+                JOIN (SELECT lead_id, MIN(occurred_on) AS first_reply FROM interaction
+                      WHERE tenant_id = :tenant AND type = 'reply' GROUP BY lead_id) r ON r.lead_id = c.lead_id
+                WHERE r.first_reply >= c.first_contact
+                SQL,
+            ['tenant' => $tenantId],
+        );
+
+        return is_numeric($avg) ? round((float) $avg, 1) : null;
     }
 
     /** @return array{contacted: int, replied: int, won: int, lost: int} */

@@ -90,16 +90,15 @@ final class DashboardApiTest extends ApiTestCase
      *               weeklyActivity: list<array{weekStart: string, acts: int}>,
      *               segments: list<array{segment: string, contacted: int, replied: int, won: int}>}
      */
+    /**
+     * @return array{contacted: int, replied: int, won: int, lost: int, activeLeads: int, outreachThisMonth: int, weeklyTarget: int, firstResponseDelayDays: float|null, pipeline: list<array{status: string, count: int}>, weeklyActivity: list<array{weekStart: string, acts: int}>, segments: list<array{segment: string, contacted: int, replied: int, won: int}>}
+     */
     private function dashboard(Client $client, string $token): array
     {
         $response = $client->request('GET', '/api/v1/dashboard', ['auth_bearer' => $token]);
         self::assertResponseIsSuccessful();
 
-        /** @var array{contacted: int, replied: int, won: int, lost: int, activeLeads: int,
-         *             outreachThisMonth: int, weeklyTarget: int,
-         *             pipeline: list<array{status: string, count: int}>,
-         *             weeklyActivity: list<array{weekStart: string, acts: int}>,
-         *             segments: list<array{segment: string, contacted: int, replied: int, won: int}>} $data */
+        /** @var array{contacted: int, replied: int, won: int, lost: int, activeLeads: int, outreachThisMonth: int, weeklyTarget: int, firstResponseDelayDays: float|null, pipeline: list<array{status: string, count: int}>, weeklyActivity: list<array{weekStart: string, acts: int}>, segments: list<array{segment: string, contacted: int, replied: int, won: int}>} $data */
         $data = $response->toArray();
 
         return $data;
@@ -121,6 +120,38 @@ final class DashboardApiTest extends ApiTestCase
         self::assertCount(8, $dashboard['weeklyActivity']);
         $acts = array_column($dashboard['weeklyActivity'], 'acts');
         self::assertSame([0, 0, 0, 0, 0, 0, 0, 0], $acts);
+        self::assertNull($dashboard['firstResponseDelayDays'] ?? null); // aucune réponse encore (API omet le null)
+    }
+
+    public function testFirstResponseDelayIsAveragedFromTheJournal(): void
+    {
+        $tenant = $this->createUser('a@plume.test');
+        $connection = static::getContainer()->get(Connection::class);
+        \assert($connection instanceof Connection);
+        // Contact le 1er, réponse le 4 → délai de 3 jours (lu sur les horodatages du journal).
+        $connection->executeStatement(
+            "INSERT INTO interaction (id, event_id, tenant_id, lead_id, type, payload, occurred_on) VALUES
+             (?, 'evt-c', ?, 'L1', 'contacted', '{}', '2026-07-01 10:00:00'),
+             (?, 'evt-r', ?, 'L1', 'reply', '{}', '2026-07-04 10:00:00')",
+            [Uuid::v7()->toRfc4122(), $tenant, Uuid::v7()->toRfc4122(), $tenant],
+        );
+
+        $client = static::createClient();
+        $dashboard = $this->dashboard($client, $this->tokenFor($client, 'a@plume.test'));
+
+        self::assertSame(3.0, (float) $dashboard['firstResponseDelayDays']); // 3 jours (JSON peut rendre 3 ou 3.0)
+    }
+
+    public function testDashboardExportsCsv(): void
+    {
+        $this->createUser('a@plume.test');
+        $client = static::createClient();
+        $token = $this->tokenFor($client, 'a@plume.test');
+
+        $response = $client->request('GET', '/api/v1/dashboard/export', ['auth_bearer' => $token]);
+        self::assertResponseIsSuccessful();
+        self::assertStringContainsString('text/csv', $response->getHeaders()['content-type'][0] ?? '');
+        self::assertStringContainsString('Pistes contactées', $response->getContent());
     }
 
     public function testRatesPipelineAndSegmentsFromPlayedScenario(): void
