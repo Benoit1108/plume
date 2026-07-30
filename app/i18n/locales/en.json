@@ -650,6 +650,13 @@
       "label": "Prospecting actions per week",
       "hint": "One action = one contact or one follow-up done."
     },
+    "cadence": {
+      "title": "Follow-up sequence",
+      "label": "Delays between follow-ups (days)",
+      "hint": "E.g. \"7, 21, 45\": first follow-up at D+7 after contact, then D+21, then D+45. Leave empty to disable automatic follow-ups.",
+      "preview": "Automatic follow-ups: D+{days}",
+      "none": "No automatic follow-ups — you'll schedule them manually."
+    },
     "digest": {
       "title": "Email digest",
       "label": "Receive a notifications summary",

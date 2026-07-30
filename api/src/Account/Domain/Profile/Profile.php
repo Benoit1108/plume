@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Account\Domain\Profile;
 
 use App\Account\Domain\Profile\Event\DigestFrequencyChanged;
+use App\Account\Domain\Profile\Event\FollowUpCadenceChanged;
 use App\Account\Domain\Profile\Event\ProfileCreated;
 use App\Account\Domain\Profile\Event\ProfileIdentityChanged;
 use App\Account\Domain\Profile\Event\ProfilePresentationChanged;
@@ -22,7 +23,13 @@ final class Profile extends AggregateRoot
 {
     public const int DEFAULT_WEEKLY_GOAL = 5;
     public const string DEFAULT_TIMEZONE = 'Europe/Paris';
+    /** @var int[] séquence de relance par défaut (miroir de FollowUpCadence côté Prospecting) */
+    public const array DEFAULT_FOLLOW_UP_CADENCE = [7, 21, 45];
 
+    private const int CADENCE_MAX_STEPS = 10;
+    private const int CADENCE_MAX_DAYS = 365;
+
+    /** @param int[] $followUpCadence */
     private function __construct(
         private readonly TenantId $tenantId,
         private int $weeklyGoal,
@@ -33,6 +40,7 @@ final class Profile extends AggregateRoot
         private ?string $firstName = null,
         private ?string $lastName = null,
         private DigestFrequency $digestFrequency = DigestFrequency::DAILY,
+        private array $followUpCadence = self::DEFAULT_FOLLOW_UP_CADENCE,
     ) {
     }
 
@@ -53,6 +61,32 @@ final class Profile extends AggregateRoot
 
         $this->digestFrequency = $frequency;
         $this->recordEvent(new DigestFrequencyChanged($this->tenantId->toString(), $frequency->value, $now));
+    }
+
+    /**
+     * Séquence de relance (délais en jours entre étapes). Vide = aucune relance auto.
+     * Sans changement, aucun event.
+     *
+     * @param int[] $days
+     */
+    public function changeFollowUpCadence(array $days, \DateTimeImmutable $now): void
+    {
+        $days = array_values($days);
+        if (\count($days) > self::CADENCE_MAX_STEPS) {
+            throw InvalidValue::because(\sprintf('A follow-up cadence has at most %d steps.', self::CADENCE_MAX_STEPS));
+        }
+        foreach ($days as $delay) {
+            if ($delay < 1 || $delay > self::CADENCE_MAX_DAYS) {
+                throw InvalidValue::because(\sprintf('Each follow-up delay must be between 1 and %d days.', self::CADENCE_MAX_DAYS));
+            }
+        }
+
+        if ($days === $this->followUpCadence) {
+            return;
+        }
+
+        $this->followUpCadence = $days;
+        $this->recordEvent(new FollowUpCadenceChanged($this->tenantId->toString(), $days, $now));
     }
 
     public function changeWeeklyGoal(int $weeklyGoal, \DateTimeImmutable $now): void
@@ -153,5 +187,11 @@ final class Profile extends AggregateRoot
     public function digestFrequency(): DigestFrequency
     {
         return $this->digestFrequency;
+    }
+
+    /** @return int[] */
+    public function followUpCadence(): array
+    {
+        return $this->followUpCadence;
     }
 }

@@ -45,6 +45,16 @@ final class ProfileResource
     #[Groups(['profile:read', 'profile:write'])]
     public string $digestFrequency = 'DAILY';
 
+    /**
+     * Séquence de relance : délais en jours entre étapes (ex. [7, 21, 45]). Vide = aucune relance auto.
+     *
+     * @var int[]
+     */
+    #[Assert\Count(max: 10)]
+    #[Assert\All([new Assert\Type('integer'), new Assert\Range(min: 1, max: 365)])]
+    #[Groups(['profile:read', 'profile:write'])]
+    public array $followUpCadence = [7, 21, 45];
+
     /** Présentation courte, matière première des brouillons générés. */
     #[Assert\Length(max: 2000)]
     #[Groups(['profile:read', 'profile:write'])]

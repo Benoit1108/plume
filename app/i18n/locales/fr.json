@@ -650,6 +650,13 @@
       "label": "Actes de démarchage par semaine",
       "hint": "Un acte = un contact ou une relance faite."
     },
+    "cadence": {
+      "title": "Séquence de relance",
+      "label": "Délais entre relances (jours)",
+      "hint": "Ex. « 7, 21, 45 » : 1re relance à J+7 après le contact, puis J+21, puis J+45. Laisser vide pour ne pas relancer automatiquement.",
+      "preview": "Relances automatiques : J+{days}",
+      "none": "Aucune relance automatique — vous planifierez à la main."
+    },
     "digest": {
       "title": "Digest email",
       "label": "Recevoir un récap des notifications",

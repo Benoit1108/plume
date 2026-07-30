@@ -161,5 +161,10 @@ corrélés **tenant + request_id** (HTTP via `CorrelationIdListener` + async via
 `failed`, boîtes en erreur ; distinct de `/health`) + **métriques produit** (`/admin/metrics` : actifs 30 j,
 inscriptions/semaine via `app_user.created_at`, pistes par statut ; sans PII).
 
-**Prochaine grande étape** : V2.2 abonnement (décision paiement Benoit) ; page de statut PUBLIQUE (uptime,
-dépend hébergement) ; QR code 2FA + chiffrement du secret TOTP au repos (dettes tracées).
+**V2.3 en cours** — **Séquences de relance configurables : LIVRÉ** : cadence par tenant
+(`profile.follow_up_cadence`, JSON, défaut J+7/21/45) lue par le domaine via port `FollowUpCadenceProvider`
+(adaptateur SQL profil, comme le tick lit `timezone`) ; `Lead::contact/recordFollowUp` reçoivent une
+`FollowUpCadence` (param optionnel → défaut) ; réglable dans Réglages. Vide = pas de relance auto.
+
+**Prochaine grande étape** : V2.3 (annuaire pré-rempli, pipeline configurable, Outlook réel, dashboard
+enrichi) ; V2.2 abonnement (décision paiement Benoit) ; dettes (QR 2FA, chiffrement secret TOTP au repos).

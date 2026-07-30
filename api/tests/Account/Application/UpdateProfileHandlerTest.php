@@ -8,6 +8,7 @@ use App\Account\Application\Command\UpdateProfile\UpdateProfile;
 use App\Account\Application\Command\UpdateProfile\UpdateProfileHandler;
 use App\Account\Domain\Profile\DigestFrequency;
 use App\Account\Domain\Profile\Event\DigestFrequencyChanged;
+use App\Account\Domain\Profile\Event\FollowUpCadenceChanged;
 use App\Account\Domain\Profile\Event\ProfileCreated;
 use App\Account\Domain\Profile\Event\ProfileIdentityChanged;
 use App\Account\Domain\Profile\Event\ProfilePresentationChanged;
@@ -60,6 +61,13 @@ final class UpdateProfileHandlerTest extends TestCase
 
         ($this->handler)(new UpdateProfile('tenant-1', 5, null, null, null, null, null, 'WEEKLY'));
         self::assertSame(1, $this->eventBus->countOf(DigestFrequencyChanged::class));
+    }
+
+    public function testChangesFollowUpCadence(): void
+    {
+        ($this->handler)(new UpdateProfile('tenant-1', 5, null, null, null, null, null, 'DAILY', [3, 14]));
+        self::assertSame([3, 14], $this->profiles->find(TenantId::fromString('tenant-1'))?->followUpCadence());
+        self::assertSame(1, $this->eventBus->countOf(FollowUpCadenceChanged::class));
     }
 
     public function testUpdatesExistingProfileWithoutRecreating(): void

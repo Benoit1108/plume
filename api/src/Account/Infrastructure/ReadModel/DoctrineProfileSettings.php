@@ -27,7 +27,7 @@ final class DoctrineProfileSettings implements ProfileSettings
         $tenant = $this->tenantContext->require();
 
         $row = $this->connection->fetchAssociative(
-            'SELECT weekly_goal, timezone, bio, specialties, signature, first_name, last_name, digest_frequency FROM profile WHERE tenant_id = :tenant',
+            'SELECT weekly_goal, timezone, bio, specialties, signature, first_name, last_name, digest_frequency, follow_up_cadence FROM profile WHERE tenant_id = :tenant',
             ['tenant' => $tenant->toString()],
         );
 
@@ -44,6 +44,24 @@ final class DoctrineProfileSettings implements ProfileSettings
             $this->strOrNull($row, 'first_name'),
             $this->strOrNull($row, 'last_name'),
             \is_string($row['digest_frequency'] ?? null) && '' !== $row['digest_frequency'] ? $row['digest_frequency'] : 'DAILY',
+            $this->cadenceOf($row['follow_up_cadence'] ?? null),
         );
+    }
+
+    /** @return int[] */
+    private function cadenceOf(mixed $raw): array
+    {
+        if (!\is_string($raw) || '' === $raw) {
+            return Profile::DEFAULT_FOLLOW_UP_CADENCE;
+        }
+        $decoded = json_decode($raw, true);
+        if (!\is_array($decoded)) {
+            return Profile::DEFAULT_FOLLOW_UP_CADENCE;
+        }
+
+        return array_values(array_filter(array_map(
+            static fn (mixed $d): ?int => is_numeric($d) ? (int) $d : null,
+            $decoded,
+        ), static fn (?int $d): bool => null !== $d));
     }
 }

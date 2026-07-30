@@ -7761,6 +7761,18 @@
                         "default": "DAILY",
                         "type": "string"
                     },
+                    "followUpCadence": {
+                        "maxItems": 10,
+                        "default": [
+                            7,
+                            21,
+                            45
+                        ],
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
+                    },
                     "bio": {
                         "maxLength": 2000,
                         "type": [
@@ -7816,6 +7828,18 @@
                         ],
                         "default": "DAILY",
                         "type": "string"
+                    },
+                    "followUpCadence": {
+                        "maxItems": 10,
+                        "default": [
+                            7,
+                            21,
+                            45
+                        ],
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
                     },
                     "bio": {
                         "maxLength": 2000,
@@ -7884,6 +7908,18 @@
                                 ],
                                 "default": "DAILY",
                                 "type": "string"
+                            },
+                            "followUpCadence": {
+                                "maxItems": 10,
+                                "default": [
+                                    7,
+                                    21,
+                                    45
+                                ],
+                                "type": "array",
+                                "items": {
+                                    "type": "integer"
+                                }
                             },
                             "bio": {
                                 "maxLength": 2000,

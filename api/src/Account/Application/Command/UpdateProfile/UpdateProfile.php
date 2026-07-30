@@ -18,6 +18,8 @@ final class UpdateProfile implements Command
         public readonly ?string $firstName = null,
         public readonly ?string $lastName = null,
         public readonly string $digestFrequency = 'DAILY',
+        /** @var int[] séquence de relance (délais en jours) */
+        public readonly array $followUpCadence = [7, 21, 45],
     ) {
     }
 }

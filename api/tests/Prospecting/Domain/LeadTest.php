@@ -19,6 +19,7 @@ use App\Prospecting\Domain\Lead\Event\NoteAdded;
 use App\Prospecting\Domain\Lead\Event\ReplyReceived;
 use App\Prospecting\Domain\Lead\Exception\FollowUpNotAllowed;
 use App\Prospecting\Domain\Lead\Exception\IllegalStatusTransition;
+use App\Prospecting\Domain\Lead\FollowUpCadence;
 use App\Prospecting\Domain\Lead\FollowUpStatus;
 use App\Prospecting\Domain\Lead\Lead;
 use App\Prospecting\Domain\Lead\LeadId;
@@ -288,6 +289,16 @@ final class LeadTest extends TestCase
         $events = $lead->pullDomainEvents();
         self::assertSame(3, \count(array_filter($events, static fn (object $e): bool => $e instanceof FollowUpSent)));
         self::assertSame(2, \count(array_filter($events, static fn (object $e): bool => $e instanceof FollowUpScheduled)));
+    }
+
+    public function testContactWithCustomCadenceSchedulesFirstFollowUpAtConfiguredDelay(): void
+    {
+        $lead = $this->aLeadIn(PipelineStatus::TO_CONTACT);
+
+        $lead->contact($this->now, FollowUpCadence::fromDays([3, 10]));
+
+        // 1re relance à J+3 (au lieu du J+7 par défaut).
+        self::assertSame('2026-07-16', $lead->nextFollowUpAt()?->format('Y-m-d'));
     }
 
     public function testReplyCancelsPendingFollowUp(): void

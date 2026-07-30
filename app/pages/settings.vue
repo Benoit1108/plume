@@ -19,6 +19,8 @@ const bio = ref('')
 const specialties = ref('')
 const signature = ref('')
 const digestFrequency = ref<'NONE' | 'DAILY' | 'WEEKLY'>('DAILY')
+/** Saisie libre « 7, 21, 45 » ; parsée en jours à l'enregistrement. */
+const cadenceInput = ref('')
 
 watch(profile, (value) => {
   if (!value) return
@@ -27,7 +29,16 @@ watch(profile, (value) => {
   specialties.value = value.specialties ?? ''
   signature.value = value.signature ?? ''
   digestFrequency.value = value.digestFrequency
+  cadenceInput.value = value.followUpCadence.join(', ')
 }, { immediate: true })
+
+/** « 7, 21, 45 » → [7, 21, 45] (entiers positifs uniquement ; vide = pas de relance auto). */
+const parsedCadence = computed<number[]>(() =>
+  cadenceInput.value
+    .split(/[\s,]+/)
+    .map(part => Number.parseInt(part, 10))
+    .filter(n => Number.isInteger(n) && n >= 1 && n <= 365),
+)
 
 const digestOptions = computed(() => [
   { value: 'DAILY', label: t('settings.digest.daily') },
@@ -183,6 +194,7 @@ async function save(): Promise<void> {
       specialties: specialties.value.trim() || null,
       signature: signature.value.trim() || null,
       digestFrequency: digestFrequency.value,
+      followUpCadence: parsedCadence.value,
     })
     await refresh()
     toast.add({ title: t('settings.toasts.saved'), color: 'success' })
@@ -213,6 +225,17 @@ async function save(): Promise<void> {
         <UFormField :label="t('settings.goal.label')" :hint="t('settings.goal.hint')" class="mt-3">
           <UInput v-model.number="weeklyGoal" type="number" min="1" max="99" class="w-32" />
         </UFormField>
+      </section>
+
+      <!-- Séquence de relance -->
+      <section class="border border-default rounded-xl p-4 bg-elevated/40">
+        <h2 class="text-sm font-semibold">{{ t('settings.cadence.title') }}</h2>
+        <UFormField :label="t('settings.cadence.label')" :hint="t('settings.cadence.hint')" class="mt-3">
+          <UInput v-model="cadenceInput" placeholder="7, 21, 45" class="w-64" />
+        </UFormField>
+        <p class="text-xs text-muted mt-2">
+          {{ parsedCadence.length === 0 ? t('settings.cadence.none') : t('settings.cadence.preview', { days: parsedCadence.join(' · J+') }) }}
+        </p>
       </section>
 
       <!-- Digest email des notifications -->

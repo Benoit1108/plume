@@ -60,4 +60,6 @@ export interface Profile {
   firstName?: string | null
   lastName?: string | null
   digestFrequency: 'NONE' | 'DAILY' | 'WEEKLY'
+  /** Délais (jours) entre étapes de relance, ex. [7, 21, 45] ; vide = pas de relance auto. */
+  followUpCadence: number[]
 }

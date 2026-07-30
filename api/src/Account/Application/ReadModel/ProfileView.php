@@ -16,6 +16,8 @@ final class ProfileView
         public readonly ?string $firstName = null,
         public readonly ?string $lastName = null,
         public readonly string $digestFrequency = 'DAILY',
+        /** @var int[] séquence de relance (délais en jours entre étapes) */
+        public readonly array $followUpCadence = [7, 21, 45],
     ) {
     }
 }

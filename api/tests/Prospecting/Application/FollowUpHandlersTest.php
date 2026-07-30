@@ -57,7 +57,7 @@ final class FollowUpHandlersTest extends TestCase
 
     public function testRecordFollowUpAdvancesCadence(): void
     {
-        (new RecordFollowUpHandler($this->leads, $this->eventBus, $this->clock))(new RecordFollowUp('lead-1'));
+        (new RecordFollowUpHandler($this->leads, $this->eventBus, $this->clock, new \App\Tests\Support\FixedFollowUpCadenceProvider()))(new RecordFollowUp('lead-1'));
 
         $lead = $this->leads->get(LeadId::fromString('lead-1'));
         self::assertSame(PipelineStatus::FOLLOWED_UP, $lead->status());

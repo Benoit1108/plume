@@ -38,6 +38,7 @@ final class ProfileProcessor implements ProcessorInterface
             $data->firstName,
             $data->lastName,
             $data->digestFrequency,
+            $data->followUpCadence,
         ));
 
         return $data;

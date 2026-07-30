@@ -16,5 +16,6 @@
         <field name="firstName" type="string" column="first_name" length="100" nullable="true"/>
         <field name="lastName" type="string" column="last_name" length="100" nullable="true"/>
         <field name="digestFrequency" type="string" column="digest_frequency" length="10" enum-type="App\Account\Domain\Profile\DigestFrequency"/>
+        <field name="followUpCadence" type="json" column="follow_up_cadence"/>
     </entity>
 </doctrine-mapping>

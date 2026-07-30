@@ -2024,6 +2024,14 @@ export interface components {
              * @enum {string}
              */
             digestFrequency: "NONE" | "DAILY" | "WEEKLY";
+            /**
+             * @default [
+             *       7,
+             *       21,
+             *       45
+             *     ]
+             */
+            followUpCadence: number[];
             bio?: string | null;
             specialties?: string | null;
             signature?: string | null;
@@ -2042,6 +2050,14 @@ export interface components {
              * @enum {string}
              */
             digestFrequency: "NONE" | "DAILY" | "WEEKLY";
+            /**
+             * @default [
+             *       7,
+             *       21,
+             *       45
+             *     ]
+             */
+            followUpCadence: number[];
             bio?: string | null;
             specialties?: string | null;
             signature?: string | null;
@@ -2064,6 +2080,14 @@ export interface components {
              * @enum {string}
              */
             digestFrequency: "NONE" | "DAILY" | "WEEKLY";
+            /**
+             * @default [
+             *       7,
+             *       21,
+             *       45
+             *     ]
+             */
+            followUpCadence: number[];
             bio?: string | null;
             specialties?: string | null;
             signature?: string | null;

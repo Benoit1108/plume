@@ -112,6 +112,35 @@ final class ProfileApiTest extends ApiTestCase
         self::assertResponseStatusCodeSame(422);
     }
 
+    public function testUpdatesFollowUpCadenceAndRejectsInvalidValue(): void
+    {
+        $this->createUser('a@plume.test');
+        $client = static::createClient();
+        $token = $this->tokenFor($client, 'a@plume.test');
+
+        // Défaut historique.
+        $before = $client->request('GET', '/api/v1/profile', ['auth_bearer' => $token, 'headers' => ['Accept' => 'application/ld+json']])->toArray();
+        self::assertSame([7, 21, 45], $before['followUpCadence'] ?? null);
+
+        // On personnalise la séquence.
+        $client->request('PATCH', '/api/v1/profile', [
+            'auth_bearer' => $token,
+            'headers' => ['Content-Type' => 'application/merge-patch+json'],
+            'json' => ['followUpCadence' => [10, 30]],
+        ]);
+        self::assertResponseIsSuccessful();
+        $after = $client->request('GET', '/api/v1/profile', ['auth_bearer' => $token, 'headers' => ['Accept' => 'application/ld+json']])->toArray();
+        self::assertSame([10, 30], $after['followUpCadence'] ?? null);
+
+        // Délai hors bornes (> 365) → 422.
+        $client->request('PATCH', '/api/v1/profile', [
+            'auth_bearer' => $token,
+            'headers' => ['Content-Type' => 'application/merge-patch+json'],
+            'json' => ['followUpCadence' => [7, 400]],
+        ]);
+        self::assertResponseStatusCodeSame(422);
+    }
+
     public function testIdentityIsIsolatedPerTenant(): void
     {
         $this->createUser('a@plume.test');

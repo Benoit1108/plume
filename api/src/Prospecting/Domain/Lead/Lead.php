@@ -95,13 +95,13 @@ final class Lead extends AggregateRoot
         return $lead;
     }
 
-    /** Contact établi : la cadence démarre (1ʳᵉ relance auto-planifiée à J+7). */
-    public function contact(\DateTimeImmutable $now): void
+    /** Contact établi : la cadence démarre (1ʳᵉ relance auto-planifiée selon la séquence, défaut J+7). */
+    public function contact(\DateTimeImmutable $now, ?FollowUpCadence $cadence = null): void
     {
         $this->transitionTo(PipelineStatus::CONTACTED);
         $this->lastContactedAt = $now;
         $this->recordEvent(new LeadContacted($this->tenantId->toString(), $this->id->toString(), $now));
-        $this->autoScheduleFollowUp($now);
+        $this->autoScheduleFollowUp($now, $cadence);
     }
 
     /**
@@ -134,7 +134,7 @@ final class Lead extends AggregateRoot
     }
 
     /** Relance faite (acte manuel en M1 — l'envoi réel arrive en M2). Cadence : suivante auto. */
-    public function recordFollowUp(\DateTimeImmutable $now): void
+    public function recordFollowUp(\DateTimeImmutable $now, ?FollowUpCadence $cadence = null): void
     {
         $this->transitionTo(PipelineStatus::FOLLOWED_UP);
 
@@ -151,7 +151,7 @@ final class Lead extends AggregateRoot
 
         $this->syncNextFollowUp();
         $this->recordEvent(new FollowUpSent($this->tenantId->toString(), $this->id->toString(), $followUpId->toString(), $now));
-        $this->autoScheduleFollowUp($now);
+        $this->autoScheduleFollowUp($now, $cadence);
     }
 
     /** Planification (ou replanification) manuelle — remplace la relance en attente. */
@@ -233,10 +233,10 @@ final class Lead extends AggregateRoot
 
     // ----- Relances : mécanique interne -----
 
-    /** Cadence par défaut : J+7 après contact, puis J+21, J+45 après chaque relance faite. */
-    private function autoScheduleFollowUp(\DateTimeImmutable $now): void
+    /** Planifie la relance suivante selon la SÉQUENCE (défaut [7,21,45] si non fournie). */
+    private function autoScheduleFollowUp(\DateTimeImmutable $now, ?FollowUpCadence $cadence): void
     {
-        $delay = FollowUpCadence::nextDelayInDays($this->doneFollowUpsCount());
+        $delay = ($cadence ?? FollowUpCadence::default())->nextDelayInDays($this->doneFollowUpsCount());
         if (null === $delay || null !== $this->pendingFollowUp()) {
             return;
         }
