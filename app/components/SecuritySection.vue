@@ -15,7 +15,9 @@ async function refresh(): Promise<void> {
 }
 
 // --- Enrôlement 2FA (setup → code → codes de secours) ---
+const { toDataUrl } = useQrCode()
 const enrollment = ref<{ secret: string, otpauthUri: string } | null>(null)
+const qrDataUrl = ref<string | null>(null)
 const confirmCode = ref('')
 const backupCodes = ref<string[]>([])
 const busy = ref(false)
@@ -26,6 +28,8 @@ async function startSetup(): Promise<void> {
   try {
     enrollment.value = await accountApi.twoFactorSetup()
     confirmCode.value = ''
+    // QR rendu localement ; en cas d'échec on retombe sur la saisie manuelle de la clé.
+    qrDataUrl.value = await toDataUrl(enrollment.value.otpauthUri).catch(() => null)
   }
   catch { toast.add({ title: t('common.error'), color: 'error' }) }
   finally { busy.value = false }
@@ -118,11 +122,22 @@ function formatDate(iso: string | null): string {
     </template>
 
     <template v-else-if="enrollment">
-      <ol class="text-sm flex flex-col gap-2 list-decimal list-inside">
+      <ol class="text-sm flex flex-col gap-3 list-decimal list-inside">
         <li>{{ t('account.twoFactor.step1') }}</li>
-        <li class="flex flex-col gap-1">
+        <li class="flex flex-col gap-2">
           <span>{{ t('account.twoFactor.step2') }}</span>
-          <code class="font-mono text-xs bg-elevated rounded p-2 break-all select-all">{{ enrollment.secret }}</code>
+          <img
+            v-if="qrDataUrl"
+            :src="qrDataUrl"
+            :alt="t('account.twoFactor.qrAlt')"
+            width="200"
+            height="200"
+            class="rounded-lg bg-white p-2 self-start"
+          >
+          <div class="flex flex-col gap-1">
+            <span class="text-xs text-muted">{{ t('account.twoFactor.manualHint') }}</span>
+            <code class="font-mono text-xs bg-elevated rounded p-2 break-all select-all">{{ enrollment.secret }}</code>
+          </div>
         </li>
         <li>{{ t('account.twoFactor.step3') }}</li>
       </ol>

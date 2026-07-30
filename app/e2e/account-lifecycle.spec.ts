@@ -45,8 +45,9 @@ test('l\'enrôlement 2FA révèle une clé secrète et reste abandonnable', asyn
   if (await enable.count() > 0) {
     await enable.click()
 
-    // L'enrôlement affiche la clé à saisir dans l'app d'authentification.
-    await expect(page.getByText(/saisie manuelle|manual entry/i)).toBeVisible()
+    // L'enrôlement affiche le QR à scanner + la clé en repli (saisie manuelle).
+    await expect(page.getByRole('img', { name: /QR code/i })).toBeVisible()
+    await expect(page.getByText(/saisissez cette clé manuellement|enter this key manually/i)).toBeVisible()
     // Le bouton de confirmation reste désactivé tant que le code (6 chiffres) n'est pas saisi.
     await expect(page.getByRole('button', { name: /Confirmer et activer|Confirm and enable/i })).toBeDisabled()
 

@@ -37,7 +37,10 @@ côté, on tranchera plus tard.** Tests : **grosse recette manuelle plus tard** 
 
 ## 🟢 À fournir à Claude quand disponible (non bloquant)
 
-- [ ] **Échantillons d'emails réels ProZ / TranslatorsCafe** (pour les parsers fins — tu as LinkedIn, pas encore ceux-là).
+- [ ] **Échantillons d'emails réels d'alertes** pour les parsers fins. LinkedIn = fait (primaire).
+      **TranslatorsCafe abandonné** (site inutilisable). ProZ = secondaire (quand tu auras une vraie annonce).
+      Sources robustes suggérées à la place : **Indeed, Welcome to the Jungle, APEC, France Travail, Malt** —
+      pour chacune, crée une alerte email → route-la vers le dossier `Plume/Alertes` → envoie-moi un exemple.
 - [ ] Sources de données pour l'**annuaire pré-rempli** (éditeurs FR, labos AV via ATAA, agences) si tu en as.
 - [ ] Le moment venu : **recette manuelle** de bout en bout (Claude fournit un guide UAT complet).
 

@@ -194,6 +194,13 @@ ne fenêtrent QUE les métriques du JOURNAL (taux contacté/répondu/gagné/perd
 `occurred_on >= since`), les instantanés (pistes actives, pipeline, valeur) restent l'état ACTUEL ; passé en
 `?period=` (provider lit `$context['filters']`, export CSV idem). **→ dashboard enrichi COMPLET.**
 
-**Prochaine grande étape** : V2.3 restant = 🟦 parsers ProZ/TC (échantillons Benoit) ; puis « Planifié, pas
-commencé » : V2.2 abonnement (décision paiement Benoit), dettes (QR 2FA, chiffrement secret TOTP au repos) ;
+**QR code d'enrôlement 2FA : LIVRÉ** : rendu client (composable `useQrCode` → `qrcode` npm) du `otpauthUri`
+déjà exposé par `setup()`, dans `SecuritySection.vue` ; la clé reste affichée en repli (saisie manuelle).
+**Sources d'alertes (décision Benoit 2026-07-30)** : LinkedIn primaire (parser fin livré), ProZ secondaire
+(parser à faire sur vraie annonce), **TranslatorsCafe abandonné** (site inutilisable) ; sources robustes
+candidates : Indeed, Welcome to the Jungle, APEC, France Travail, Malt (relève email générique déjà OK).
+
+**Prochaine grande étape** : « Planifié, pas commencé » : dette 2FA restante = **chiffrement du secret TOTP
+au repos** (le QR est fait) ; préférences notif fines ; dédoublonnage suggéré Orgs/Contacts ; V2.2 abonnement
+(décision paiement Benoit) ;
 enfin « à concevoir » (back-office v2 widgets, plafond budget IA global, site vitrine/démo).

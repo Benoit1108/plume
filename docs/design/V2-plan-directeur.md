@@ -98,7 +98,11 @@ Nouveau contexte `Notification` (in-app d'abord, digests email ensuite) :
 - ✅ **Annuaire pré-rempli (livré)** : catalogue de cibles de référence (fichier `data/directory-catalog.json`,
   échantillons fictifs) parcourable + « ajouter à mon Répertoire » en un clic (dédup par nom). 🟦 Benoit
   fournit les **vraies données** (éditeurs FR, labos AV via ATAA, agences) en éditant le JSON.
-- 🟩 **Parsers fins ProZ / TranslatorsCafe** — 🟦 Benoit fournit des **échantillons réels**.
+- 🟩 **Parsers fins par source** — **LinkedIn** primaire (livré) ; **ProZ** secondaire (parser à faire dès
+  qu'une vraie annonce arrive) ; **TranslatorsCafe ABANDONNÉ** (site inutilisable, décision Benoit 2026-07-30).
+  Autres sources robustes candidates (Indeed, Welcome to the Jungle, APEC, France Travail, Malt) : la relève
+  d'alertes par email fonctionne déjà en générique ; 🟦 Benoit fournit un **échantillon réel** par source pour
+  un parser fin.
 - ✅ **Outlook réel (livré)** : les 3 adaptateurs Microsoft Graph sont réels et câblés — **envoi**
   (`OutlookMailSender` : brouillon → `createReply` pour une relance dans le fil → `/send`),
   **relève des réponses** (`OutlookReplyFetcher` : `conversationId`, `bodyPreview` texte), et **relève

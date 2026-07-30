@@ -118,7 +118,7 @@ Fondations techniques.
 - [x] **V2.1 — Ouverture des comptes** (livré) : socle (mot de passe oublié, emails transactionnels,
       vérif email **sans état** ADR-0029, health, pages légales) → **inscription publique** (compte non
       vérifié, provider insensible à la casse) → **onboarding** ; **2FA TOTP** + gestion des **sessions**
-      (ADR-0027). *Reste : QR code d'enrôlement, chiffrement du secret TOTP au repos (dette tracée).*
+      (ADR-0027). *QR code d'enrôlement ✅ livré ; reste : chiffrement du secret TOTP au repos (dette tracée).*
 - [x] **Back-office / Admin** (livré) : contexte `Admin` **hors tenant** (`ROLE_ADMIN`, CLI), **connexion
       propriétaire** cross-tenant (ADR-0026), 2FA obligatoire ; vue d'ensemble, comptes (recherche),
       suppression RGPD support + reset 2FA, **journal d'audit hors-tenant**, **statut système**
@@ -136,7 +136,10 @@ Fondations techniques.
       **dashboard enrichi** ✅ (délai moyen de 1re réponse + export CSV + **valeur estimée** des pistes +
       **filtres de période** : fenêtres 30/90 j & 12 mois sur les métriques du journal) + **Outlook réel** ✅
       (envoi/réponse/alertes Microsoft Graph à parité avec Gmail, tests MockHttpClient — reste 🟦 identifiants
-      Azure + recette) ; reste 🟦 parsers ProZ/TC (échantillons Benoit).
+      Azure + recette) ; **sources** : LinkedIn primaire (parser fin livré), ProZ secondaire (parser à faire
+      sur vraie annonce), **TranslatorsCafe abandonné** (site inutilisable). Pistes de sources robustes
+      supplémentaires (Indeed, Welcome to the Jungle, APEC, France Travail, Malt) : la relève générique par
+      email fonctionne déjà, un parser fin par site quand Benoit fournit un échantillon.
 
 > Détail + découpage complet + propositions + TODO Benoit : [`docs/design/V2-plan-directeur.md`](design/V2-plan-directeur.md)
 > et [`docs/ops/TODO-benoit.md`](ops/TODO-benoit.md).
