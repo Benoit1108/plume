@@ -33,6 +33,8 @@ final class DashboardView
         /** Somme des valeurs estimées des pistes actives (pipeline) et gagnées, en euros. */
         public readonly int $pipelineValue = 0,
         public readonly int $wonValue = 0,
+        /** Fenêtre appliquée aux métriques du journal (renvoyée pour que l'UI reflète le choix). */
+        public readonly string $period = 'all',
     ) {
     }
 }

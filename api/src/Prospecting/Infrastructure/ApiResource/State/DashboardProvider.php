@@ -7,6 +7,7 @@ namespace App\Prospecting\Infrastructure\ApiResource\State;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use App\Prospecting\Application\Query\GetDashboard\GetDashboard;
+use App\Prospecting\Application\ReadModel\DashboardPeriod;
 use App\Prospecting\Application\ReadModel\DashboardView;
 use App\Prospecting\Application\ReadModel\PipelineSlice;
 use App\Prospecting\Application\ReadModel\SegmentStats;
@@ -27,10 +28,15 @@ final class DashboardProvider implements ProviderInterface
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): DashboardResource
     {
+        $filters = $context['filters'] ?? [];
+        $rawPeriod = \is_array($filters) ? ($filters['period'] ?? null) : null;
+        $period = DashboardPeriod::fromString(\is_string($rawPeriod) ? $rawPeriod : null);
+
         /** @var DashboardView $view */
-        $view = $this->queryBus->ask(new GetDashboard());
+        $view = $this->queryBus->ask(new GetDashboard($period));
 
         $resource = new DashboardResource();
+        $resource->period = $view->period;
         $resource->contacted = $view->contacted;
         $resource->replied = $view->replied;
         $resource->won = $view->won;

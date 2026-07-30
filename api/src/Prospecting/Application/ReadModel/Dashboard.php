@@ -7,5 +7,5 @@ namespace App\Prospecting\Application\ReadModel;
 /** Port de lecture du tableau de bord (fail-closed tenant). */
 interface Dashboard
 {
-    public function view(): DashboardView;
+    public function view(DashboardPeriod $period = DashboardPeriod::ALL): DashboardView;
 }

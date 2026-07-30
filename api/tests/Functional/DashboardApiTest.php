@@ -84,17 +84,35 @@ final class DashboardApiTest extends ApiTestCase
     }
 
     /**
-     * @return array{contacted: int, replied: int, won: int, lost: int, activeLeads: int, outreachThisMonth: int, weeklyTarget: int, firstResponseDelayDays: float|null, pipelineValue: int, wonValue: int, pipeline: list<array{status: string, count: int}>, weeklyActivity: list<array{weekStart: string, acts: int}>, segments: list<array{segment: string, contacted: int, replied: int, won: int}>}
+     * @return array{contacted: int, replied: int, won: int, lost: int, activeLeads: int, outreachThisMonth: int, weeklyTarget: int, firstResponseDelayDays: float|null, pipelineValue: int, wonValue: int, period: string, pipeline: list<array{status: string, count: int}>, weeklyActivity: list<array{weekStart: string, acts: int}>, segments: list<array{segment: string, contacted: int, replied: int, won: int}>}
      */
-    private function dashboard(Client $client, string $token): array
+    private function dashboard(Client $client, string $token, ?string $period = null): array
     {
-        $response = $client->request('GET', '/api/v1/dashboard', ['auth_bearer' => $token]);
+        $url = null === $period ? '/api/v1/dashboard' : '/api/v1/dashboard?period='.$period;
+        $response = $client->request('GET', $url, ['auth_bearer' => $token]);
         self::assertResponseIsSuccessful();
 
-        /** @var array{contacted: int, replied: int, won: int, lost: int, activeLeads: int, outreachThisMonth: int, weeklyTarget: int, firstResponseDelayDays: float|null, pipelineValue: int, wonValue: int, pipeline: list<array{status: string, count: int}>, weeklyActivity: list<array{weekStart: string, acts: int}>, segments: list<array{segment: string, contacted: int, replied: int, won: int}>} $data */
+        /** @var array{contacted: int, replied: int, won: int, lost: int, activeLeads: int, outreachThisMonth: int, weeklyTarget: int, firstResponseDelayDays: float|null, pipelineValue: int, wonValue: int, period: string, pipeline: list<array{status: string, count: int}>, weeklyActivity: list<array{weekStart: string, acts: int}>, segments: list<array{segment: string, contacted: int, replied: int, won: int}>} $data */
         $data = $response->toArray();
 
         return $data;
+    }
+
+    /** Insère un acte du journal daté (occurred_on explicite en UTC) — pour tester les fenêtres. */
+    private function insertInteraction(Connection $connection, string $tenant, string $leadId, string $type, \DateTimeImmutable $when): void
+    {
+        $connection->executeStatement(
+            'INSERT INTO interaction (id, event_id, tenant_id, lead_id, type, payload, occurred_on) VALUES (?, ?, ?, ?, ?, ?, ?)',
+            [
+                Uuid::v7()->toRfc4122(),
+                Uuid::v7()->toRfc4122(),
+                $tenant,
+                $leadId,
+                $type,
+                '{}',
+                $when->setTimezone(new \DateTimeZone('UTC'))->format('Y-m-d H:i:sP'),
+            ],
+        );
     }
 
     public function testEmptyDashboardHasDefaults(): void
@@ -250,6 +268,63 @@ final class DashboardApiTest extends ApiTestCase
         self::assertSame(1, $dashboard['replied']);
         self::assertSame(1, $dashboard['won']);
         self::assertSame(0, $dashboard['activeLeads']);
+    }
+
+    public function testPeriodWindowsJournalMetrics(): void
+    {
+        $tenant = $this->createUser('a@plume.test');
+        $connection = static::getContainer()->get(Connection::class);
+        \assert($connection instanceof Connection);
+
+        $now = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
+        // Cohorte RÉCENTE (dans les 30 j) : contact J-5, réponse J-3 → délai 2 j.
+        $this->insertInteraction($connection, $tenant, 'L_recent', 'contacted', $now->modify('-5 days'));
+        $this->insertInteraction($connection, $tenant, 'L_recent', 'reply', $now->modify('-3 days'));
+        // Cohorte ANCIENNE (au-delà de 90 j) : contact J-200, réponse J-190 → délai 10 j.
+        $this->insertInteraction($connection, $tenant, 'L_old', 'contacted', $now->modify('-200 days'));
+        $this->insertInteraction($connection, $tenant, 'L_old', 'reply', $now->modify('-190 days'));
+
+        $client = static::createClient();
+        $token = $this->tokenFor($client, 'a@plume.test');
+
+        // Depuis le début : les deux pistes comptent ; délai moyen = (2 + 10) / 2 = 6 j.
+        $all = $this->dashboard($client, $token);
+        self::assertSame('all', $all['period']);
+        self::assertSame(2, $all['contacted']);
+        self::assertSame(2, $all['replied']);
+        self::assertSame(6.0, (float) $all['firstResponseDelayDays']);
+
+        // 30 derniers jours : seule la cohorte récente survit ; délai = 2 j.
+        $recent = $this->dashboard($client, $token, '30d');
+        self::assertSame('30d', $recent['period']);
+        self::assertSame(1, $recent['contacted']);
+        self::assertSame(1, $recent['replied']);
+        self::assertSame(2.0, (float) $recent['firstResponseDelayDays']);
+
+        // Valeur inconnue → tolérée, retombe sur « depuis le début ».
+        $fallback = $this->dashboard($client, $token, 'nawak');
+        self::assertSame('all', $fallback['period']);
+        self::assertSame(2, $fallback['contacted']);
+    }
+
+    public function testExportRespectsPeriod(): void
+    {
+        $tenant = $this->createUser('a@plume.test');
+        $connection = static::getContainer()->get(Connection::class);
+        \assert($connection instanceof Connection);
+        $now = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
+        $this->insertInteraction($connection, $tenant, 'L_old', 'contacted', $now->modify('-200 days'));
+
+        $client = static::createClient();
+        $token = $this->tokenFor($client, 'a@plume.test');
+
+        $response = $client->request('GET', '/api/v1/dashboard/export?period=30d', ['auth_bearer' => $token]);
+        self::assertResponseIsSuccessful();
+        $body = $response->getContent();
+        self::assertStringContainsString('30 derniers jours', $body);
+        // La piste ancienne est hors fenêtre 30 j → 0 contactée dans l'export.
+        // (fputcsv encadre les champs accentués : on tolère les guillemets éventuels.)
+        self::assertMatchesRegularExpression('/"?Pistes contactées"?,0/u', $body);
     }
 
     public function testDashboardIsTenantIsolated(): void

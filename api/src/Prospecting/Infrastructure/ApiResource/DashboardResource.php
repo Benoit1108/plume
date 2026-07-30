@@ -28,6 +28,10 @@ final class DashboardResource
     #[Groups(['dashboard:read'])]
     public string $id = 'dashboard';
 
+    /** Fenêtre appliquée aux métriques du journal : all | 30d | 90d | 12m (défaut all). */
+    #[Groups(['dashboard:read'])]
+    public string $period = 'all';
+
     /** Pistes contactées au moins une fois (journal, cumul). */
     #[Groups(['dashboard:read'])]
     public int $contacted = 0;

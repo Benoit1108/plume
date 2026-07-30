@@ -706,6 +706,14 @@
     "eyebrow": "Insights",
     "title": "Dashboard",
     "export": "Export (CSV)",
+    "period": {
+      "label": "Period",
+      "all": "All time",
+      "30d": "Last 30 days",
+      "90d": "Last 90 days",
+      "12m": "Last 12 months",
+      "scope": "Rates, segments and delay over: {period}. Pipeline and value stay current."
+    },
     "empty": "Numbers show up with your first leads — create a lead and contact it.",
     "kpis": {
       "responseRate": "Response rate",

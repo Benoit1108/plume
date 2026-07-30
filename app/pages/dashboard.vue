@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Dashboard } from '~/types/dashboard'
+import type { Dashboard, DashboardPeriod } from '~/types/dashboard'
 import type { LeadStatus } from '~/types/leads'
 
 const { t, locale } = useI18n()
@@ -7,9 +7,18 @@ const { statusLabel } = useLeadLabels()
 const { segmentLabel } = useDirectoryLabels()
 const dashboardApi = useDashboard()
 
+// Fenêtre des métriques du journal (taux, segments, délai). Change la clé de requête → refetch.
+const period = ref<DashboardPeriod>('all')
+const periodItems = computed(() => [
+  { label: t('dashboard.period.all'), value: 'all' },
+  { label: t('dashboard.period.30d'), value: '30d' },
+  { label: t('dashboard.period.90d'), value: '90d' },
+  { label: t('dashboard.period.12m'), value: '12m' },
+])
+
 const { data, isPending: loading, isError, refetch } = useQuery({
-  queryKey: queryKeys.dashboard,
-  queryFn: () => dashboardApi.get(),
+  queryKey: [...queryKeys.dashboard, period],
+  queryFn: () => dashboardApi.get(period.value),
 })
 const board = computed<Dashboard | null>(() => data.value ?? null)
 
@@ -28,7 +37,7 @@ async function exportCsv(): Promise<void> {
   if (exporting.value) return
   exporting.value = true
   try {
-    const blob = await dashboardApi.exportCsv()
+    const blob = await dashboardApi.exportCsv(period.value)
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
@@ -76,6 +85,15 @@ const hasActivity = computed(() =>
   <PageContainer width="atelier">
     <PageHeader :eyebrow="t('dashboard.eyebrow')" :title="t('dashboard.title')">
       <template #actions>
+        <USelect
+          v-model="period"
+          :items="periodItems"
+          value-key="value"
+          label-key="label"
+          icon="i-lucide-calendar-range"
+          :aria-label="t('dashboard.period.label')"
+          class="w-40"
+        />
         <UButton color="neutral" variant="outline" icon="i-lucide-download" :loading="exporting" @click="exportCsv">
           {{ t('dashboard.export') }}
         </UButton>
@@ -103,8 +121,11 @@ const hasActivity = computed(() =>
       </div>
 
       <template v-else>
+        <p v-if="period !== 'all'" class="mt-6 text-xs text-muted">
+          {{ t('dashboard.period.scope', { period: periodItems.find(p => p.value === period)?.label }) }}
+        </p>
         <!-- KPIs -->
-        <section class="mt-6 grid grid-cols-2 lg:grid-cols-4 gap-3 rise-stagger">
+        <section class="mt-4 grid grid-cols-2 lg:grid-cols-4 gap-3 rise-stagger">
           <div class="border border-default rounded-xl p-4 bg-elevated/40">
             <p class="text-xs text-dimmed font-semibold uppercase tracking-wide">{{ t('dashboard.kpis.responseRate') }}</p>
             <p class="mt-1 font-serif text-3xl font-semibold tabular-nums">

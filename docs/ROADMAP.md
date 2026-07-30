@@ -133,10 +133,10 @@ Fondations techniques.
 - [ ] **V2.2** Abonnement SaaS : plans + quotas + paiement (≠ facturation client).
 - [~] **V2.3** Enrichissement : **séquences de relance configurables** ✅ + **annuaire pré-rempli** ✅ +
       **pipeline personnalisable** ✅ (libellés d'étapes, machine à états figée — ADR-0031) +
-      **dashboard enrichi** ✅ (délai moyen de 1re réponse + export CSV + **valeur estimée** des pistes :
-      pipeline/gagné) + **Outlook réel** ✅ (envoi/réponse/alertes Microsoft Graph à parité avec Gmail,
-      tests MockHttpClient — reste 🟦 identifiants Azure + recette) ; reste filtres de période (dashboard)
-      + parsers ProZ/TC.
+      **dashboard enrichi** ✅ (délai moyen de 1re réponse + export CSV + **valeur estimée** des pistes +
+      **filtres de période** : fenêtres 30/90 j & 12 mois sur les métriques du journal) + **Outlook réel** ✅
+      (envoi/réponse/alertes Microsoft Graph à parité avec Gmail, tests MockHttpClient — reste 🟦 identifiants
+      Azure + recette) ; reste 🟦 parsers ProZ/TC (échantillons Benoit).
 
 > Détail + découpage complet + propositions + TODO Benoit : [`docs/design/V2-plan-directeur.md`](design/V2-plan-directeur.md)
 > et [`docs/ops/TODO-benoit.md`](ops/TODO-benoit.md).

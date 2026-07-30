@@ -6,6 +6,7 @@ namespace App\Prospecting\Infrastructure\ReadModel;
 
 use App\Account\Application\ReadModel\ProfileSettings;
 use App\Prospecting\Application\ReadModel\Dashboard;
+use App\Prospecting\Application\ReadModel\DashboardPeriod;
 use App\Prospecting\Application\ReadModel\DashboardView;
 use App\Prospecting\Application\ReadModel\PipelineSlice;
 use App\Prospecting\Application\ReadModel\SegmentStats;
@@ -39,16 +40,21 @@ final class DoctrineDashboard implements Dashboard
     ) {
     }
 
-    public function view(): DashboardView
+    public function view(DashboardPeriod $period = DashboardPeriod::ALL): DashboardView
     {
         $tenant = $this->tenantContext->require();
         $tenantId = $tenant->toString();
 
         $profile = $this->profile->current();
         $timezone = new \DateTimeZone($profile->timezone);
-        $localNow = $this->clock->now()->setTimezone($timezone);
+        $now = $this->clock->now();
+        $localNow = $now->setTimezone($timezone);
 
-        $rates = $this->leadRates($tenantId);
+        // Borne basse de la fenêtre en UTC avec décalage explicite (comparaison timestamptz sans
+        // ambiguïté de fuseau de session). Null = pas de fenêtre (depuis le début).
+        $since = $period->since($now)?->setTimezone(new \DateTimeZone('UTC'))->format('Y-m-d H:i:sP');
+
+        $rates = $this->leadRates($tenantId, $since);
 
         return new DashboardView(
             contacted: $rates['contacted'],
@@ -60,10 +66,11 @@ final class DoctrineDashboard implements Dashboard
             weeklyTarget: $profile->weeklyGoal,
             pipeline: $this->pipeline($tenantId),
             weeklyActivity: $this->weeklyActivity($tenantId, $timezone, $localNow),
-            segments: $this->segments($tenantId),
-            firstResponseDelayDays: $this->firstResponseDelayDays($tenantId),
+            segments: $this->segments($tenantId, $since),
+            firstResponseDelayDays: $this->firstResponseDelayDays($tenantId, $since),
             pipelineValue: $this->sumEstimatedValue($tenantId, "status NOT IN ('WON', 'LOST')"),
             wonValue: $this->sumEstimatedValue($tenantId, "status = 'WON'"),
+            period: $period->value,
         );
     }
 
@@ -83,33 +90,52 @@ final class DoctrineDashboard implements Dashboard
      * un indicateur de réactivité du marché. Tout se lit sur le journal (horodatages), aucune
      * projection dédiée. Null si aucune piste n'a encore répondu.
      */
-    private function firstResponseDelayDays(string $tenantId): ?float
+    private function firstResponseDelayDays(string $tenantId, ?string $since): ?float
     {
+        // La fenêtre borne la COHORTE : pistes 1er-contactées dans la période (cohérent avec le
+        // compte `contacted`). La 1re réponse, elle, est prise quelle que soit sa date.
+        $params = ['tenant' => $tenantId];
+        $contactWindow = '';
+        if (null !== $since) {
+            $contactWindow = ' AND occurred_on >= :since';
+            $params['since'] = $since;
+        }
+
         $avg = $this->connection->fetchOne(
-            <<<'SQL'
-                SELECT AVG(EXTRACT(EPOCH FROM (r.first_reply - c.first_contact)) / 86400.0)
-                FROM (SELECT lead_id, MIN(occurred_on) AS first_contact FROM interaction
-                      WHERE tenant_id = :tenant AND type = 'contacted' GROUP BY lead_id) c
-                JOIN (SELECT lead_id, MIN(occurred_on) AS first_reply FROM interaction
-                      WHERE tenant_id = :tenant AND type = 'reply' GROUP BY lead_id) r ON r.lead_id = c.lead_id
-                WHERE r.first_reply >= c.first_contact
-                SQL,
-            ['tenant' => $tenantId],
+            \sprintf(
+                <<<'SQL'
+                    SELECT AVG(EXTRACT(EPOCH FROM (r.first_reply - c.first_contact)) / 86400.0)
+                    FROM (SELECT lead_id, MIN(occurred_on) AS first_contact FROM interaction
+                          WHERE tenant_id = :tenant AND type = 'contacted'%s GROUP BY lead_id) c
+                    JOIN (SELECT lead_id, MIN(occurred_on) AS first_reply FROM interaction
+                          WHERE tenant_id = :tenant AND type = 'reply' GROUP BY lead_id) r ON r.lead_id = c.lead_id
+                    WHERE r.first_reply >= c.first_contact
+                    SQL,
+                $contactWindow,
+            ),
+            $params,
         );
 
         return is_numeric($avg) ? round((float) $avg, 1) : null;
     }
 
     /** @return array{contacted: int, replied: int, won: int, lost: int} */
-    private function leadRates(string $tenantId): array
+    private function leadRates(string $tenantId, ?string $since): array
     {
+        $params = ['tenant' => $tenantId];
+        $window = '';
+        if (null !== $since) {
+            $window = ' AND occurred_on >= :since';
+            $params['since'] = $since;
+        }
+
         $row = $this->connection->fetchAssociative(
             "SELECT COUNT(DISTINCT CASE WHEN type = 'contacted' THEN lead_id END) AS contacted,
                     COUNT(DISTINCT CASE WHEN type = 'reply' THEN lead_id END) AS replied,
                     COUNT(DISTINCT CASE WHEN type = 'won' THEN lead_id END) AS won,
                     COUNT(DISTINCT CASE WHEN type = 'lost' THEN lead_id END) AS lost
-             FROM interaction WHERE tenant_id = :tenant",
-            ['tenant' => $tenantId],
+             FROM interaction WHERE tenant_id = :tenant".$window,
+            $params,
         );
 
         return [
@@ -195,18 +221,27 @@ final class DoctrineDashboard implements Dashboard
     }
 
     /** @return SegmentStats[] segments ayant au moins une piste, ordre canonique */
-    private function segments(string $tenantId): array
+    private function segments(string $tenantId, ?string $since): array
     {
+        // La fenêtre porte sur les actes (jointure) : un segment garde sa ligne même sans activité
+        // dans la période (comptes à 0), car il est piloté par l'existence des pistes.
+        $params = ['tenant' => $tenantId];
+        $joinWindow = '';
+        if (null !== $since) {
+            $joinWindow = ' AND i.occurred_on >= :since';
+            $params['since'] = $since;
+        }
+
         $rows = $this->connection->fetchAllAssociative(
             "SELECT l.segment,
                     COUNT(DISTINCT CASE WHEN i.type = 'contacted' THEN l.id END) AS contacted,
                     COUNT(DISTINCT CASE WHEN i.type = 'reply' THEN l.id END) AS replied,
                     COUNT(DISTINCT CASE WHEN i.type = 'won' THEN l.id END) AS won
              FROM lead l
-             LEFT JOIN interaction i ON i.lead_id = l.id AND i.tenant_id = l.tenant_id
+             LEFT JOIN interaction i ON i.lead_id = l.id AND i.tenant_id = l.tenant_id".$joinWindow.'
              WHERE l.tenant_id = :tenant
-             GROUP BY l.segment",
-            ['tenant' => $tenantId],
+             GROUP BY l.segment',
+            $params,
         );
 
         /** @var array<string, SegmentStats> $bySegment */

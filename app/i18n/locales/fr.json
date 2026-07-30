@@ -706,6 +706,14 @@
     "eyebrow": "Pilotage",
     "title": "Tableau de bord",
     "export": "Exporter (CSV)",
+    "period": {
+      "label": "Période",
+      "all": "Depuis le début",
+      "30d": "30 derniers jours",
+      "90d": "90 derniers jours",
+      "12m": "12 derniers mois",
+      "scope": "Taux, segments et délai sur : {period}. Le pipeline et la valeur restent l'état actuel."
+    },
     "empty": "Les chiffres arrivent avec les premières pistes — créez une piste et contactez-la.",
     "kpis": {
       "responseRate": "Taux de réponse",

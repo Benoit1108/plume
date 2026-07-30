@@ -1222,6 +1222,8 @@ export interface components {
         "Dashboard-dashboard.read": {
             /** @default dashboard */
             id: string;
+            /** @default all */
+            period: string;
             /** @default 0 */
             contacted: number;
             /** @default 0 */
@@ -1258,6 +1260,8 @@ export interface components {
         "Dashboard.jsonld-dashboard.read": components["schemas"]["HydraItemBaseSchema"] & {
             /** @default dashboard */
             id: string;
+            /** @default all */
+            period: string;
             /** @default 0 */
             contacted: number;
             /** @default 0 */

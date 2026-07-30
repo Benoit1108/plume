@@ -1,7 +1,12 @@
 import type { LeadStatus } from '~/types/leads'
 
+/** Fenêtre temporelle des métriques du journal (taux, segments, délai). `all` = depuis le début. */
+export type DashboardPeriod = 'all' | '30d' | '90d' | '12m'
+
 /** Le tableau de bord — numérateurs/dénominateurs en clair (l'UI affiche « 4 / 12 »). */
 export interface Dashboard {
+  /** Fenêtre appliquée aux métriques du journal, renvoyée par l'API (reflète le choix courant). */
+  period: DashboardPeriod
   contacted: number
   replied: number
   won: number

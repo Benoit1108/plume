@@ -106,9 +106,11 @@ Nouveau contexte `Notification` (in-app d'abord, digests email ensuite) :
   `Prefer`) — à parité avec Gmail, chacun routé vers le réel dès que `MICROSOFT_CLIENT_ID` est présent,
   factice sinon. Tests unitaires MockHttpClient prouvant les formes de requêtes Graph. 🟦 reste :
   identifiants d'app Azure + validation en recette sur une vraie boîte Outlook.
-- 🟩 Dashboard enrichi : ✅ **délai moyen de 1re réponse** + ✅ **export CSV** + ✅ **valeur estimée**
-  (champ `estimatedValue` sur la piste, saisie sur la fiche, sommes pipeline/gagné au dashboard) ;
-  reste 🟩 **filtres de période** (change la sémantique des taux cumulés → slice dédiée).
+- ✅ **Dashboard enrichi (livré, complet)** : **délai moyen de 1re réponse** + **export CSV** +
+  **valeur estimée** (champ `estimatedValue`, saisie sur la fiche, sommes pipeline/gagné) +
+  **filtres de période** (fenêtres glissantes 30/90 j & 12 mois via l'enum `DashboardPeriod` ;
+  ne fenêtrent QUE les métriques du journal — taux, segments, délai — les instantanés pipeline/valeur
+  restent l'état actuel ; sélecteur dans l'en-tête, période reprise dans l'export CSV).
 
 ---
 

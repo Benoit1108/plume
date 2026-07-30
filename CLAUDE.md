@@ -189,5 +189,11 @@ sur la piste = changement de domaine).
 
 **Outlook réel : LIVRÉ** (envoi/réponse/alertes Microsoft Graph à parité Gmail — cf. Chantier 2 mail réel).
 
-**Prochaine grande étape** : V2.3 restant (filtres de période dashboard, parsers ProZ/TC) ;
-V2.2 abonnement (décision paiement Benoit) ; dettes (QR 2FA, chiffrement secret TOTP au repos).
+**Filtres de période dashboard : LIVRÉS** : enum `DashboardPeriod` (all/30d/90d/12m, fenêtres glissantes) ;
+ne fenêtrent QUE les métriques du JOURNAL (taux contacté/répondu/gagné/perdu, segments, délai 1re réponse —
+`occurred_on >= since`), les instantanés (pistes actives, pipeline, valeur) restent l'état ACTUEL ; passé en
+`?period=` (provider lit `$context['filters']`, export CSV idem). **→ dashboard enrichi COMPLET.**
+
+**Prochaine grande étape** : V2.3 restant = 🟦 parsers ProZ/TC (échantillons Benoit) ; puis « Planifié, pas
+commencé » : V2.2 abonnement (décision paiement Benoit), dettes (QR 2FA, chiffrement secret TOTP au repos) ;
+enfin « à concevoir » (back-office v2 widgets, plafond budget IA global, site vitrine/démo).

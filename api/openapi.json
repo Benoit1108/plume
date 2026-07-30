@@ -5469,6 +5469,10 @@
                         "default": "dashboard",
                         "type": "string"
                     },
+                    "period": {
+                        "default": "all",
+                        "type": "string"
+                    },
                     "contacted": {
                         "default": 0,
                         "type": "integer"
@@ -5571,6 +5575,10 @@
                         "properties": {
                             "id": {
                                 "default": "dashboard",
+                                "type": "string"
+                            },
+                            "period": {
+                                "default": "all",
                                 "type": "string"
                             },
                             "contacted": {

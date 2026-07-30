@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Prospecting\Infrastructure\Http;
 
 use App\Prospecting\Application\Query\GetDashboard\GetDashboard;
+use App\Prospecting\Application\ReadModel\DashboardPeriod;
 use App\Prospecting\Application\ReadModel\DashboardView;
 use App\Shared\Application\Query\QueryBus;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 
@@ -22,10 +24,13 @@ final class DashboardExportController
     {
     }
 
-    public function __invoke(): Response
+    public function __invoke(Request $request): Response
     {
+        $rawPeriod = $request->query->get('period');
+        $period = DashboardPeriod::fromString(\is_string($rawPeriod) ? $rawPeriod : null);
+
         /** @var DashboardView $view */
-        $view = $this->queryBus->ask(new GetDashboard());
+        $view = $this->queryBus->ask(new GetDashboard($period));
 
         $csv = fopen('php://temp', 'r+');
         \assert(false !== $csv);
@@ -35,6 +40,7 @@ final class DashboardExportController
         $esc = '';
 
         fputcsv($csv, ['Indicateur', 'Valeur'], $sep, $enc, $esc);
+        fputcsv($csv, ['Période (taux & délai)', self::periodLabel($period)], $sep, $enc, $esc);
         fputcsv($csv, ['Pistes contactées', $view->contacted], $sep, $enc, $esc);
         fputcsv($csv, ['Pistes ayant répondu', $view->replied], $sep, $enc, $esc);
         fputcsv($csv, ['Gagnées', $view->won], $sep, $enc, $esc);
@@ -67,5 +73,15 @@ final class DashboardExportController
             'Content-Type' => 'text/csv; charset=UTF-8',
             'Content-Disposition' => 'attachment; filename="plume-tableau-de-bord.csv"',
         ]);
+    }
+
+    private static function periodLabel(DashboardPeriod $period): string
+    {
+        return match ($period) {
+            DashboardPeriod::ALL => 'Depuis le début',
+            DashboardPeriod::LAST_30_DAYS => '30 derniers jours',
+            DashboardPeriod::LAST_90_DAYS => '90 derniers jours',
+            DashboardPeriod::LAST_12_MONTHS => '12 derniers mois',
+        };
     }
 }

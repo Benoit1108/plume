@@ -16,6 +16,6 @@ final class GetDashboardHandler implements QueryHandler
 
     public function __invoke(GetDashboard $query): DashboardView
     {
-        return $this->dashboard->view();
+        return $this->dashboard->view($query->period);
     }
 }

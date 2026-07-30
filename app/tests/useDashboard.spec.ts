@@ -40,4 +40,19 @@ describe('useDashboard', () => {
     expect(path).toBe('/api/v1/dashboard/export')
     expect(options.responseType).toBe('blob')
   })
+
+  it('passe la période en query quand elle restreint (all = URL propre)', async () => {
+    apiMock.mockResolvedValue({ contacted: 0 })
+
+    await useDashboard().get('30d')
+    await useDashboard().get('all')
+    await useDashboard().exportCsv('90d')
+
+    const [, restricted] = apiMock.mock.calls[0] as [string, { query: Record<string, string> }]
+    const [, allTime] = apiMock.mock.calls[1] as [string, { query: Record<string, string> }]
+    const [, exported] = apiMock.mock.calls[2] as [string, { query: Record<string, string> }]
+    expect(restricted.query).toEqual({ period: '30d' })
+    expect(allTime.query).toEqual({}) // « depuis le début » ne pollue pas l'URL
+    expect(exported.query).toEqual({ period: '90d' })
+  })
 })
