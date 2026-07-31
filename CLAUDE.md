@@ -212,6 +212,11 @@ ne stocke que les COUPURES, défaut = tout activé). Enforcement par **prédicat
 excluent les types coupés (`COALESCE(... ->> 'inApp'/'email', true)`). Matrice type×canal dans Réglages.
 Pattern de préférence Profile mirroré (event `NotificationPreferencesChanged`, migration, resource+processor).
 
-**Prochaine grande étape** : « Planifié, pas commencé » : dette restante = dédoublonnage suggéré Orgs/Contacts
-au tri ; puis V2.2 abonnement (décision paiement Benoit) ;
+**Dédoublonnage suggéré au tri : LIVRÉ** : au tri en mode « accepter », si le nom saisi ressemble à une
+organisation existante (util pure `suggestDuplicateOrganizations`, égalité/inclusion normalisée), une bannière
+propose de basculer en « fusionner » sur cette organisation (réutilise recherche + merge déjà en place ; 100 %
+front, aucun backend). **→ toutes les dettes techniques planifiées sont soldées.**
+
+**Prochaine grande étape** : V2.2 abonnement Stripe (attend décisions paiement + compte Stripe de Benoit) ;
+puis « à concevoir » (back-office v2 widgets, plafond budget IA global, site vitrine/démo).
 enfin « à concevoir » (back-office v2 widgets, plafond budget IA global, site vitrine/démo).

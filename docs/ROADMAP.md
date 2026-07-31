@@ -103,7 +103,8 @@ Fondations techniques.
       message, brut conservé). Relève auto (Scheduler, fan-out par boîte). **Suivi** (avec de
       vrais emails) : adaptateurs réels Gmail/Outlook de lecture du label + parsers fins par
       fournisseur. Cf. `docs/design/M3.2-alertes-email.md`.
-- [ ] **Dédoublonnage** Organisations/Contacts (suggestion au tri — exact V1, ADR-0021).
+- [x] **Dédoublonnage suggéré** Organisations au tri ✅ (bannière « réutiliser une organisation existante »
+      en mode accepter → bascule en fusion ; front, réutilise recherche + merge existants).
 
 ---
 

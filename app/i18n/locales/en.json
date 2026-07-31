@@ -536,6 +536,11 @@
     "mergeTitle": "Merge — attach to an existing organization",
     "mergeDescription": "Attaches the announcement to an organization already in the directory.",
     "mergeNoOrg": "No organization in the directory — accept an announcement first, or create an organization.",
+    "duplicate": {
+      "title": "Organization already known?",
+      "hint": "A similar name already exists in your directory. Reuse it to avoid a duplicate:",
+      "use": "Use “{name}”"
+    },
     "actions": {
       "accept": "Accept",
       "merge": "Merge",

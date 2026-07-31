@@ -536,6 +536,11 @@
     "mergeTitle": "Fusionner — rattacher à une organisation existante",
     "mergeDescription": "Rattache l'annonce à une organisation déjà au répertoire.",
     "mergeNoOrg": "Aucune organisation au répertoire — acceptez d'abord une annonce ou créez une organisation.",
+    "duplicate": {
+      "title": "Organisation déjà connue ?",
+      "hint": "Un nom proche existe déjà au répertoire. Réutilisez-la pour éviter un doublon :",
+      "use": "Utiliser « {name} »"
+    },
     "actions": {
       "accept": "Accepter",
       "merge": "Fusionner",

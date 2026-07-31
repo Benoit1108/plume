@@ -65,6 +65,21 @@ function openMerge(candidate: CandidateLead): void {
   triaging.value = { candidate, mode: 'merge' }
 }
 
+// Dédoublonnage suggéré : en mode « accepter », si le nom saisi ressemble à une organisation
+// existante, on propose de la RÉUTILISER (bascule en fusion) plutôt que d'en créer un doublon.
+const duplicateSuggestions = computed<Organization[]>(() =>
+  triaging.value?.mode === 'accept'
+    ? suggestDuplicateOrganizations(form.organizationName, organizations.value)
+    : [],
+)
+
+/** L'utilisatrice choisit une organisation existante suggérée → on bascule sur la fusion. */
+function useExistingOrganization(org: Organization): void {
+  if (!triaging.value) return
+  form.organizationId = org.id
+  triaging.value = { candidate: triaging.value.candidate, mode: 'merge' }
+}
+
 const pairValid = computed(() => /^[a-z]{2}>[a-z]{2}$/i.test(form.languagePair.trim()))
 const canSubmit = computed(() =>
   triaging.value?.mode === 'accept'
@@ -271,6 +286,32 @@ function safeUrl(url?: string | null): string | null {
             <UFormField :label="t('sourcing.form.organizationName')" required>
               <UInput v-model="form.organizationName" class="w-full" maxlength="200" />
             </UFormField>
+            <!-- Dédoublonnage suggéré : réutiliser une organisation existante au lieu d'un doublon. -->
+            <UAlert
+              v-if="duplicateSuggestions.length"
+              color="warning"
+              variant="subtle"
+              icon="i-lucide-copy-check"
+              :title="t('sourcing.duplicate.title')"
+              :description="t('sourcing.duplicate.hint')"
+            >
+              <template #actions>
+                <div class="flex flex-col gap-1.5 w-full">
+                  <UButton
+                    v-for="org in duplicateSuggestions"
+                    :key="org.id"
+                    size="xs"
+                    variant="soft"
+                    color="warning"
+                    icon="i-lucide-arrow-right"
+                    class="self-start"
+                    @click="useExistingOrganization(org)"
+                  >
+                    {{ t('sourcing.duplicate.use', { name: org.name }) }}
+                  </UButton>
+                </div>
+              </template>
+            </UAlert>
             <UFormField :label="t('sourcing.form.organizationType')">
               <USelect v-model="form.organizationType" :items="typeOptions" value-key="value" label-key="label" class="w-full" />
             </UFormField>
