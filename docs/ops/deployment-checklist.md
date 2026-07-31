@@ -4,9 +4,9 @@ Prérequis pour un déploiement **hébergement-agnostique** (VPS Docker ou PaaS 
 déploiement, cf. [cadrage V2](../design/V2-cadrage.md)). Cette liste est le pendant opérationnel de
 V2.0-c : la config est prête, cette page dit **quoi surcharger** avant d'ouvrir au public.
 
-> Fail-fast en place : `MAILBOX_ENCRYPTION_KEY` (ADR-0016) et un garde-fou qui refuse de démarrer si
-> `APP_SECRET` / `JWT_PASSPHRASE` sont restés sur le placeholder de dev (`ProductionConfigGuard`).
-> Ils rattrapent les oublis les plus dangereux — mais ne dispensent pas de cette liste.
+> Fail-fast en place : `MAILBOX_ENCRYPTION_KEY` (ADR-0016), `TOTP_ENCRYPTION_KEY` (ADR-0027) et un garde-fou
+> qui refuse de démarrer si `APP_SECRET` / `JWT_PASSPHRASE` sont restés sur le placeholder de dev
+> (`ProductionConfigGuard`). Ils rattrapent les oublis les plus dangereux — mais ne dispensent pas de cette liste.
 
 ## 1. Secrets à surcharger IMPÉRATIVEMENT (jamais les valeurs de dev)
 
@@ -15,6 +15,7 @@ V2.0-c : la config est prête, cette page dit **quoi surcharger** avant d'ouvrir
 | `APP_SECRET` | Signature/CSRF Symfony | `php -r "echo bin2hex(random_bytes(32));"` |
 | `JWT_PASSPHRASE` | Passphrase des clés JWT | mot de passe fort ; régénérer les clés (`lexik:jwt:generate-keypair`) avec |
 | `MAILBOX_ENCRYPTION_KEY` | Chiffrement des tokens OAuth (ADR-0016) | `php -r "echo base64_encode(random_bytes(32));"` |
+| `TOTP_ENCRYPTION_KEY` | Chiffrement du secret 2FA/TOTP au repos (ADR-0027) | `php -r "echo base64_encode(random_bytes(32));"` |
 | `APP_DB_PASSWORD` | Mot de passe du rôle runtime `plume_app` | mot de passe fort ; répercuter dans `APP_DATABASE_URL` |
 | Mot de passe du rôle propriétaire `plume` | Migrations/console/scheduler | mot de passe fort ; répercuter dans `DATABASE_URL` |
 | `GOOGLE_CLIENT_SECRET` / `MICROSOFT_CLIENT_SECRET` | OAuth mail réel | consoles Google/Microsoft |

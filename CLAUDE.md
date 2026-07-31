@@ -194,13 +194,15 @@ ne fenêtrent QUE les métriques du JOURNAL (taux contacté/répondu/gagné/perd
 `occurred_on >= since`), les instantanés (pistes actives, pipeline, valeur) restent l'état ACTUEL ; passé en
 `?period=` (provider lit `$context['filters']`, export CSV idem). **→ dashboard enrichi COMPLET.**
 
-**QR code d'enrôlement 2FA : LIVRÉ** : rendu client (composable `useQrCode` → `qrcode` npm) du `otpauthUri`
-déjà exposé par `setup()`, dans `SecuritySection.vue` ; la clé reste affichée en repli (saisie manuelle).
+**Durcissement 2FA : COMPLET** — (1) **QR code d'enrôlement** : rendu client (`useQrCode` → `qrcode` npm) du
+`otpauthUri` déjà exposé par `setup()`, clé en repli. (2) **Secret TOTP chiffré au repos** (ADR-0027 amendé) :
+port `App\Account\Application\Crypto\SecretCipher` + `SodiumSecretCipher` (secretbox, même primitive qu'ADR-0016),
+clé DÉDIÉE `TOTP_ENCRYPTION_KEY` fail-fast prod / dérivée APP_SECRET (préfixe `totp:`) hors prod ; déchiffré en
+mémoire au setup/confirm/login (échec de déchiffrement = sûr → 2fa_invalid) ; colonnes `totp_*` élargies 128→255.
 **Sources d'alertes (décision Benoit 2026-07-30)** : LinkedIn primaire (parser fin livré), ProZ secondaire
 (parser à faire sur vraie annonce), **TranslatorsCafe abandonné** (site inutilisable) ; sources robustes
 candidates : Indeed, Welcome to the Jungle, APEC, France Travail, Malt (relève email générique déjà OK).
 
-**Prochaine grande étape** : « Planifié, pas commencé » : dette 2FA restante = **chiffrement du secret TOTP
-au repos** (le QR est fait) ; préférences notif fines ; dédoublonnage suggéré Orgs/Contacts ; V2.2 abonnement
-(décision paiement Benoit) ;
+**Prochaine grande étape** : « Planifié, pas commencé » : dettes restantes = préférences notif fines ;
+dédoublonnage suggéré Orgs/Contacts ; notif « à trier » ; puis V2.2 abonnement (décision paiement Benoit) ;
 enfin « à concevoir » (back-office v2 widgets, plafond budget IA global, site vitrine/démo).

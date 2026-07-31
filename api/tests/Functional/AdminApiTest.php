@@ -58,7 +58,10 @@ final class AdminApiTest extends ApiTestCase
         $em->clear();
 
         if (null !== $totpSecret) {
-            $this->connection->executeStatement('UPDATE app_user SET totp_secret = ? WHERE tenant_id = ?', [$totpSecret, $tenant->toRfc4122()]);
+            // Le secret est chiffré AU REPOS (ADR-0027) : on stocke le chiffré, le login déchiffre.
+            $cipher = $container->get(\App\Account\Application\Crypto\SecretCipher::class);
+            \assert($cipher instanceof \App\Account\Application\Crypto\SecretCipher);
+            $this->connection->executeStatement('UPDATE app_user SET totp_secret = ? WHERE tenant_id = ?', [$cipher->encrypt($totpSecret), $tenant->toRfc4122()]);
         }
 
         return $tenant->toRfc4122();

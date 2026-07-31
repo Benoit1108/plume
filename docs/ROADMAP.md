@@ -118,7 +118,8 @@ Fondations techniques.
 - [x] **V2.1 — Ouverture des comptes** (livré) : socle (mot de passe oublié, emails transactionnels,
       vérif email **sans état** ADR-0029, health, pages légales) → **inscription publique** (compte non
       vérifié, provider insensible à la casse) → **onboarding** ; **2FA TOTP** + gestion des **sessions**
-      (ADR-0027). *QR code d'enrôlement ✅ livré ; reste : chiffrement du secret TOTP au repos (dette tracée).*
+      (ADR-0027). *Durcissement 2FA ✅ COMPLET : QR code d'enrôlement + chiffrement du secret TOTP au repos
+      (clé dédiée `TOTP_ENCRYPTION_KEY`, fail-fast prod).*
 - [x] **Back-office / Admin** (livré) : contexte `Admin` **hors tenant** (`ROLE_ADMIN`, CLI), **connexion
       propriétaire** cross-tenant (ADR-0026), 2FA obligatoire ; vue d'ensemble, comptes (recherche),
       suppression RGPD support + reset 2FA, **journal d'audit hors-tenant**, **statut système**

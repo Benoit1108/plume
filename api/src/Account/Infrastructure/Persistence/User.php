@@ -45,14 +45,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     /**
      * 2FA TOTP (V2, slice sécurité). `totpSecret` non nul ⇒ 2FA ACTIVE (OTP exigé au login).
-     * Le secret est stocké tel quel (il DOIT être relu pour vérifier les codes — non hashable) :
-     * compromis documenté, la base est protégée par ailleurs (RLS, rôles, sauvegardes chiffrées).
+     * CHIFFRÉ AU REPOS (ADR-0027) : la colonne contient le ciphertext (secretbox base64), déchiffré
+     * en mémoire le temps de vérifier un code — jamais le secret en clair en base. 255 car. couvrent
+     * le chiffré (nonce + secret + MAC, base64).
      */
-    #[ORM\Column(length: 128, nullable: true)]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $totpSecret = null;
 
-    /** Secret en cours d'enrôlement : posé au setup, promu par confirm (code valide exigé). */
-    #[ORM\Column(length: 128, nullable: true)]
+    /** Secret en cours d'enrôlement (chiffré) : posé au setup, promu par confirm (code valide exigé). */
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $totpPendingSecret = null;
 
     /** Anti-rejeu : dernier pas de temps TOTP accepté (un code ne sert qu'une fois). */

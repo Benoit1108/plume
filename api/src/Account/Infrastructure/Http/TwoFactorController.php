@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Account\Infrastructure\Http;
 
+use App\Account\Application\Crypto\SecretCipher;
+use App\Account\Application\Crypto\SecretCipherFailure;
 use App\Account\Infrastructure\Auth\RefreshToken;
 use App\Account\Infrastructure\Persistence\User;
 use App\Account\Infrastructure\Security\TotpService;
@@ -29,6 +31,7 @@ final class TwoFactorController
     public function __construct(
         private readonly Security $security,
         private readonly TotpService $totp,
+        private readonly SecretCipher $cipher,
         private readonly EntityManagerInterface $em,
         private readonly UserPasswordHasherInterface $hasher,
         private readonly AuditLogger $audit,
@@ -52,8 +55,9 @@ final class TwoFactorController
             return new JsonResponse(['detail' => 'already_enabled'], Response::HTTP_CONFLICT);
         }
 
+        // Le clair sert à afficher le QR/la clé UNE fois ; en base, seul le chiffré est posé (repos).
         $secret = $this->totp->generateSecret();
-        $user->startTotpEnrollment($secret);
+        $user->startTotpEnrollment($this->cipher->encrypt($secret));
         $this->em->flush();
 
         return new JsonResponse([
@@ -70,9 +74,16 @@ final class TwoFactorController
             return new JsonResponse(['detail' => 'no_pending_enrollment'], Response::HTTP_CONFLICT);
         }
 
+        try {
+            $pendingPlain = $this->cipher->decrypt($pending);
+        } catch (SecretCipherFailure) {
+            // Secret illisible (clé changée) : on ne peut pas confirmer cet enrôlement.
+            return new JsonResponse(['detail' => 'no_pending_enrollment'], Response::HTTP_CONFLICT);
+        }
+
         $payload = json_decode($request->getContent(), true);
         $code = \is_array($payload) && \is_string($payload['code'] ?? null) ? trim($payload['code']) : '';
-        if (null === $this->totp->verify($pending, $code)) {
+        if (null === $this->totp->verify($pendingPlain, $code)) {
             return new JsonResponse(['detail' => 'invalid_code'], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 

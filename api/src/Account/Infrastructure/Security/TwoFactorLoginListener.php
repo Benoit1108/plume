@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Account\Infrastructure\Security;
 
+use App\Account\Application\Crypto\SecretCipher;
+use App\Account\Application\Crypto\SecretCipherFailure;
 use App\Account\Infrastructure\Persistence\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
@@ -25,6 +27,7 @@ final class TwoFactorLoginListener
     public function __construct(
         private readonly RequestStack $requests,
         private readonly TotpService $totp,
+        private readonly SecretCipher $cipher,
         private readonly EntityManagerInterface $em,
     ) {
     }
@@ -50,9 +53,15 @@ final class TwoFactorLoginListener
 
         $secret = $user->totpSecret();
         \assert(null !== $secret);
+        try {
+            $secret = $this->cipher->decrypt($secret); // chiffré au repos (ADR-0027)
+        } catch (SecretCipherFailure) {
+            // Secret illisible (clé changée) : le TOTP ne peut pas matcher — reste le code de secours.
+            $secret = null;
+        }
 
         // 1) Code TOTP — avec anti-rejeu (le pas de temps ne sert qu'une fois).
-        $step = $this->totp->verify($secret, $otp);
+        $step = null === $secret ? null : $this->totp->verify($secret, $otp);
         if (null !== $step) {
             if (!$user->acceptTotpStep($step)) {
                 throw new CustomUserMessageAuthenticationException('2fa_invalid'); // code déjà utilisé

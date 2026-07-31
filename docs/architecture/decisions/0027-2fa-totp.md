@@ -33,7 +33,12 @@
 - ✅ La crypto est déléguée à une librairie maintenue ; notre logique sensible (anti-rejeu, codes de
   secours, cycle de vie) est **couverte par des tests unitaires** (`TotpServiceTest`) et fonctionnels.
 - ✅ Codes d'erreur **stables** → contrat clair avec le front (afficher l'OTP, distinguer invalide/requis).
-- ⚠️ **Dette : le secret TOTP est stocké en clair.** À chiffrer au repos via un cipher partagé (même
-  famille que le chiffrement des tokens OAuth, [ADR-0016](0016-chiffrement-tokens-oauth.md)) — tracé au backlog.
-- ⚠️ Pas de **QR code** à l'enrôlement (saisie manuelle de la clé) → amélioration UX ultérieure (l'URI
-  `otpauth://` est déjà produite, il ne manque que le rendu).
+- ✅ **Résolu (2026-07-30) — secret TOTP chiffré au repos.** Port `App\Account\Application\Crypto\SecretCipher`
+  + adaptateur `SodiumSecretCipher` (secretbox, même primitive qu'[ADR-0016](0016-chiffrement-tokens-oauth.md)).
+  Clé **dédiée** `TOTP_ENCRYPTION_KEY` (32 o base64), **fail-fast en prod**, dérivée d'`APP_SECRET` avec
+  **séparation de domaine** (préfixe `totp:`) hors prod. Le secret n'est déchiffré qu'en mémoire, le temps de
+  générer l'URI de provisionnement (setup) ou de vérifier un code (confirm / login). Colonnes élargies à 255.
+  *NB : le patron sodium est dupliqué avec Mailbox (chaque contexte possède son port) — unification `Shared`
+  = dette tracée ADR-0022.*
+- ✅ **Résolu (2026-07-30) — QR code à l'enrôlement.** Rendu client (`useQrCode` → lib `qrcode`) de l'URI
+  `otpauth://` déjà produite ; la clé reste affichée **en repli** (saisie manuelle).

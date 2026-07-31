@@ -90,6 +90,12 @@ final class TwoFactorApiTest extends ApiTestCase
         $setup = $response->toArray();
         self::assertStringContainsString('otpauth://totp/', $setup['otpauthUri']);
 
+        // Chiffré AU REPOS (ADR-0027) : la colonne ne contient PAS le secret en clair.
+        $storedPending = $this->connection->fetchOne("SELECT totp_pending_secret FROM app_user WHERE email = 'totp@plume.test'");
+        self::assertIsString($storedPending);
+        self::assertNotSame($setup['secret'], $storedPending);
+        self::assertStringNotContainsString($setup['secret'], $storedPending);
+
         $client->request('POST', '/api/v1/account/2fa/confirm', ['auth_bearer' => $token, 'json' => ['code' => '000000']]);
         self::assertResponseStatusCodeSame(422);
 

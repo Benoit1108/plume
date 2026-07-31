@@ -19,6 +19,7 @@ parameters:
     # Connecteur factice (dev/CI/E2E) : le callback retombe sur la route dynamique front.
     env(MAILBOX_FAKE_REDIRECT_URI): 'http://localhost:3000/oauth/gmail/callback'
     env(MAILBOX_ENCRYPTION_KEY): ''
+    env(TOTP_ENCRYPTION_KEY): ''
     drafting.anthropic_api_key: '%env(string:ANTHROPIC_API_KEY)%'
     drafting.model: '%env(string:DRAFTING_MODEL)%'
 
@@ -86,6 +87,13 @@ services:
     App\Mailbox\Infrastructure\Crypto\SodiumTokenCipher:
         arguments:
             $encodedKey: '%env(string:MAILBOX_ENCRYPTION_KEY)%'
+            $appSecret: '%env(string:APP_SECRET)%'
+            $environment: '%kernel.environment%'
+    # Chiffrement du secret TOTP au repos (ADR-0027 amendé) : clé DÉDIÉE, fail-fast en prod.
+    App\Account\Application\Crypto\SecretCipher: '@App\Account\Infrastructure\Crypto\SodiumSecretCipher'
+    App\Account\Infrastructure\Crypto\SodiumSecretCipher:
+        arguments:
+            $encodedKey: '%env(string:TOTP_ENCRYPTION_KEY)%'
             $appSecret: '%env(string:APP_SECRET)%'
             $environment: '%kernel.environment%'
     App\Mailbox\Infrastructure\OAuth\OAuthStateCodec:
