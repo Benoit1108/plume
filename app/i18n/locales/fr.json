@@ -691,6 +691,22 @@
       "weekly": "Chaque lundi",
       "none": "Jamais (in-app uniquement)"
     },
+    "notifications": {
+      "title": "Préférences de notification",
+      "hint": "Choisissez, pour chaque type, où être prévenue : dans l'appli (cloche) et/ou par email (digest).",
+      "type": "Type",
+      "inApp": "Dans l'appli",
+      "email": "Email",
+      "inAppFor": "Notification in-app pour « {type} »",
+      "emailFor": "Notification email pour « {type} »",
+      "types": {
+        "reply_received": "Réponse reçue",
+        "followup_due": "Relance due",
+        "candidate_to_triage": "Nouveau candidat à trier",
+        "email_send_failed": "Échec d'envoi d'email",
+        "mailbox_disconnected": "Boîte email déconnectée"
+      }
+    },
     "presentation": {
       "title": "Présentation",
       "intro": "La matière première des brouillons générés — plus c’est précis, meilleure est la plume.",

@@ -40,6 +40,7 @@ final class ProfileProcessor implements ProcessorInterface
             $data->digestFrequency,
             $data->followUpCadence,
             $data->pipelineLabels,
+            $data->notificationPreferences,
         ));
 
         return $data;

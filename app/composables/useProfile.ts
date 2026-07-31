@@ -9,7 +9,7 @@ export function useProfile() {
     get: () => api<Profile>('/api/v1/profile', { headers: { Accept: 'application/ld+json' } }),
     updateWeeklyGoal: (weeklyGoal: number) =>
       api<Profile>('/api/v1/profile', { method: 'PATCH', body: { weeklyGoal }, headers: patch }),
-    update: (data: Partial<Pick<Profile, 'weeklyGoal' | 'bio' | 'specialties' | 'signature' | 'firstName' | 'lastName' | 'digestFrequency' | 'followUpCadence' | 'pipelineLabels'>>) =>
+    update: (data: Partial<Pick<Profile, 'weeklyGoal' | 'bio' | 'specialties' | 'signature' | 'firstName' | 'lastName' | 'digestFrequency' | 'followUpCadence' | 'pipelineLabels' | 'notificationPreferences'>>) =>
       api<Profile>('/api/v1/profile', { method: 'PATCH', body: data, headers: patch }),
   }
 }

@@ -22,6 +22,8 @@ final class UpdateProfile implements Command
         public readonly array $followUpCadence = [7, 21, 45],
         /** @var array<string, string> overrides de libellés d'étapes du pipeline */
         public readonly array $pipelineLabels = [],
+        /** @var array<array-key, mixed> coupures de notification par type (entrée non fiable) */
+        public readonly array $notificationPreferences = [],
     ) {
     }
 }

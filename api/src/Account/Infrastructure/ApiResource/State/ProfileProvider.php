@@ -38,6 +38,7 @@ final class ProfileProvider implements ProviderInterface
         $resource->digestFrequency = $view->digestFrequency;
         $resource->followUpCadence = $view->followUpCadence;
         $resource->pipelineLabels = $view->pipelineLabels;
+        $resource->notificationPreferences = $view->notificationPreferences;
 
         return $resource;
     }

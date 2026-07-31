@@ -77,6 +77,8 @@ final class SendNotificationDigestsTest extends KernelTestCase
         bool $deletionRequested = false,
         bool $emailVerified = true,
         bool $read = false,
+        string $type = 'reply_received',
+        string $notificationPreferences = '{}',
     ): void {
         $tenant = Uuid::v7()->toRfc4122();
         $this->connection->executeStatement(
@@ -85,13 +87,32 @@ final class SendNotificationDigestsTest extends KernelTestCase
             [Uuid::v7()->toRfc4122(), $tenant, $email, 'x', '[]', $emailVerified ? 'true' : 'false', $deletionRequested ? self::MONDAY : null],
         );
         $this->connection->executeStatement(
-            "INSERT INTO profile (tenant_id, weekly_goal, timezone, digest_frequency) VALUES (?, 5, 'Europe/Paris', ?)",
-            [$tenant, $frequency],
+            "INSERT INTO profile (tenant_id, weekly_goal, timezone, digest_frequency, notification_preferences) VALUES (?, 5, 'Europe/Paris', ?, ?)",
+            [$tenant, $frequency, $notificationPreferences],
         );
         $this->connection->executeStatement(
             'INSERT INTO notification (id, event_id, tenant_id, type, payload, occurred_on, read_at)
              VALUES (?, ?, ?, ?, ?, ?, ?)',
-            [Uuid::v7()->toRfc4122(), 'evt-'.$tenant, $tenant, 'reply_received', '{}', $occurredOn, $read ? $occurredOn : null],
+            [Uuid::v7()->toRfc4122(), 'evt-'.$tenant, $tenant, $type, '{}', $occurredOn, $read ? $occurredOn : null],
         );
+    }
+
+    public function testExcludesTypesWhoseEmailChannelIsMuted(): void
+    {
+        // DAILY, notif fraîche, mais le canal email de ce type est coupé → aucun digest.
+        $this->seed(
+            'muted@plume.test',
+            'DAILY',
+            occurredOn: '2026-08-03 02:00:00',
+            type: 'candidate_to_triage',
+            notificationPreferences: '{"candidate_to_triage": {"inApp": true, "email": false}}',
+        );
+
+        $mailer = static::getContainer()->get(AccountMailer::class);
+        \assert($mailer instanceof AccountMailer);
+        $handler = new SendNotificationDigestsHandler($this->connection, $mailer, new FixedClock(new \DateTimeImmutable(self::MONDAY)));
+        ($handler)(new SendNotificationDigestsTick());
+
+        self::assertCount(0, self::getMailerMessages()); // rien à résumer : le seul type est coupé en email
     }
 }

@@ -691,6 +691,22 @@
       "weekly": "Every Monday",
       "none": "Never (in-app only)"
     },
+    "notifications": {
+      "title": "Notification preferences",
+      "hint": "For each type, choose where to be notified: in the app (bell) and/or by email (digest).",
+      "type": "Type",
+      "inApp": "In-app",
+      "email": "Email",
+      "inAppFor": "In-app notification for “{type}”",
+      "emailFor": "Email notification for “{type}”",
+      "types": {
+        "reply_received": "Reply received",
+        "followup_due": "Follow-up due",
+        "candidate_to_triage": "New candidate to triage",
+        "email_send_failed": "Email send failed",
+        "mailbox_disconnected": "Email mailbox disconnected"
+      }
+    },
     "presentation": {
       "title": "Presentation",
       "intro": "The raw material of generated drafts — the more precise, the better the writing.",

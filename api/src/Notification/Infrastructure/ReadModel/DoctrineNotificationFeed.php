@@ -22,13 +22,17 @@ final class DoctrineNotificationFeed implements NotificationFeed
     {
         $tenant = $this->tenantContext->require();
 
+        // Préférences fines : on masque les types dont le canal in-app est coupé (défaut = affiché).
+        // LEFT JOIN + COALESCE : sans profil ou sans override, la notification reste visible.
         /** @var list<array<string, mixed>> $rows */
         $rows = $this->connection->fetchAllAssociative(
-            'SELECT id, type, payload, read_at, occurred_on
-             FROM notification
-             WHERE tenant_id = :tenant
-             ORDER BY occurred_on DESC
-             LIMIT :limit',
+            "SELECT n.id, n.type, n.payload, n.read_at, n.occurred_on
+             FROM notification n
+             LEFT JOIN profile p ON p.tenant_id = n.tenant_id
+             WHERE n.tenant_id = :tenant
+               AND COALESCE((p.notification_preferences -> n.type ->> 'inApp')::boolean, true) = true
+             ORDER BY n.occurred_on DESC
+             LIMIT :limit",
             ['tenant' => $tenant->toString(), 'limit' => $limit],
             ['limit' => \Doctrine\DBAL\ParameterType::INTEGER],
         );

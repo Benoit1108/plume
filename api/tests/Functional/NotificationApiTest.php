@@ -103,6 +103,31 @@ final class NotificationApiTest extends ApiTestCase
         self::assertNull($items[0]['readAt'] ?? null); // null omis de la sérialisation = non lue
     }
 
+    public function testInAppMutedTypesAreHiddenFromTheFeed(): void
+    {
+        // Préférence : la traductrice coupe le canal in-app des « candidats à trier » (email gardé).
+        $this->connection->executeStatement(
+            "INSERT INTO profile (tenant_id, weekly_goal, timezone, notification_preferences)
+             VALUES (?, 5, 'Europe/Paris', '{\"candidate_to_triage\": {\"inApp\": false, \"email\": true}}')",
+            [$this->tenantA],
+        );
+        $shown = $this->seedNotification($this->tenantA, 'reply_received', '2026-07-28 09:00:00');
+        $this->seedNotification($this->tenantA, 'candidate_to_triage', '2026-07-28 10:00:00'); // coupé in-app
+
+        $client = static::createClient();
+        $token = $this->tokenFor($client, 'notif-a@plume.test');
+
+        $response = $client->request('GET', '/api/v1/notifications', ['auth_bearer' => $token]);
+        self::assertResponseIsSuccessful();
+        /** @var array{member?: list<array{id: string, type: string}>} $data */
+        $data = $response->toArray();
+        $items = $data['member'] ?? [];
+
+        self::assertCount(1, $items); // le candidat à trier est masqué de la cloche
+        self::assertSame($shown, $items[0]['id']);
+        self::assertSame('reply_received', $items[0]['type']);
+    }
+
     public function testMarkReadIsTenantScopedAndIdempotent(): void
     {
         $mine = $this->seedNotification($this->tenantA, 'reply_received', '2026-07-28 09:00:00');

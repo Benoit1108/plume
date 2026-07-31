@@ -2055,6 +2055,11 @@ export interface components {
             pipelineLabels?: {
                 [key: string]: string;
             };
+            notificationPreferences?: {
+                [key: string]: {
+                    [key: string]: boolean;
+                };
+            };
             bio?: string | null;
             specialties?: string | null;
             signature?: string | null;
@@ -2083,6 +2088,11 @@ export interface components {
             followUpCadence: number[];
             pipelineLabels?: {
                 [key: string]: string;
+            };
+            notificationPreferences?: {
+                [key: string]: {
+                    [key: string]: boolean;
+                };
             };
             bio?: string | null;
             specialties?: string | null;
@@ -2116,6 +2126,11 @@ export interface components {
             followUpCadence: number[];
             pipelineLabels?: {
                 [key: string]: string;
+            };
+            notificationPreferences?: {
+                [key: string]: {
+                    [key: string]: boolean;
+                };
             };
             bio?: string | null;
             specialties?: string | null;

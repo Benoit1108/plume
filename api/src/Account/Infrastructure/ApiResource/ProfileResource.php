@@ -66,6 +66,16 @@ final class ProfileResource
     #[Groups(['profile:read', 'profile:write'])]
     public array $pipelineLabels = [];
 
+    /**
+     * Préférences fines de notification par type et par canal (in-app / email). Défaut = tout activé :
+     * on ne renvoie/n'accepte que les coupures. Ex. `{"candidate_to_triage": {"email": false}}`.
+     *
+     * @var array<string, array{inApp: bool, email: bool}>
+     */
+    #[Assert\Count(max: 20)]
+    #[Groups(['profile:read', 'profile:write'])]
+    public array $notificationPreferences = [];
+
     /** Présentation courte, matière première des brouillons générés. */
     #[Assert\Length(max: 2000)]
     #[Groups(['profile:read', 'profile:write'])]

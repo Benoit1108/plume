@@ -66,4 +66,6 @@ export interface Profile {
   followUpCadence: number[]
   /** Libellés d'étapes du pipeline personnalisés (statut → libellé), overrides uniquement. */
   pipelineLabels: Record<string, string>
+  /** Coupures de notification par type (défaut = tout activé) ; overrides uniquement. */
+  notificationPreferences: Record<string, { inApp: boolean, email: boolean }>
 }

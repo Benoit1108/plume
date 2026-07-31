@@ -20,6 +20,8 @@ final class ProfileView
         public readonly array $followUpCadence = [7, 21, 45],
         /** @var array<string, string> overrides de libellés d'étapes du pipeline */
         public readonly array $pipelineLabels = [],
+        /** @var array<string, array{inApp: bool, email: bool}> coupures de notification par type */
+        public readonly array $notificationPreferences = [],
     ) {
     }
 }

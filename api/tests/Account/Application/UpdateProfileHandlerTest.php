@@ -9,6 +9,7 @@ use App\Account\Application\Command\UpdateProfile\UpdateProfileHandler;
 use App\Account\Domain\Profile\DigestFrequency;
 use App\Account\Domain\Profile\Event\DigestFrequencyChanged;
 use App\Account\Domain\Profile\Event\FollowUpCadenceChanged;
+use App\Account\Domain\Profile\Event\NotificationPreferencesChanged;
 use App\Account\Domain\Profile\Event\PipelineLabelsChanged;
 use App\Account\Domain\Profile\Event\ProfileCreated;
 use App\Account\Domain\Profile\Event\ProfileIdentityChanged;
@@ -77,6 +78,27 @@ final class UpdateProfileHandlerTest extends TestCase
         ($this->handler)(new UpdateProfile('tenant-1', 5, null, null, null, null, null, 'DAILY', [7, 21, 45], ['WON' => 'Signée', 'LOST' => '   ']));
         self::assertSame(['WON' => 'Signée'], $this->profiles->find(TenantId::fromString('tenant-1'))?->pipelineLabels());
         self::assertSame(1, $this->eventBus->countOf(PipelineLabelsChanged::class));
+    }
+
+    public function testChangesNotificationPreferencesKeepingOnlyCuts(): void
+    {
+        // Défaut = tout activé : un type entièrement coché n'est PAS mémorisé ; seules les coupures restent.
+        ($this->handler)(new UpdateProfile('tenant-1', 5, null, null, null, null, null, 'DAILY', [7, 21, 45], [], [
+            'candidate_to_triage' => ['inApp' => true, 'email' => false],
+            'reply_received' => ['inApp' => true, 'email' => true],
+        ]));
+
+        self::assertSame(
+            ['candidate_to_triage' => ['inApp' => true, 'email' => false]],
+            $this->profiles->find(TenantId::fromString('tenant-1'))?->notificationPreferences(),
+        );
+        self::assertSame(1, $this->eventBus->countOf(NotificationPreferencesChanged::class));
+
+        // Re-soumettre à l'identique → no-op (aucun nouvel event).
+        ($this->handler)(new UpdateProfile('tenant-1', 5, null, null, null, null, null, 'DAILY', [7, 21, 45], [], [
+            'candidate_to_triage' => ['inApp' => true, 'email' => false],
+        ]));
+        self::assertSame(1, $this->eventBus->countOf(NotificationPreferencesChanged::class));
     }
 
     public function testUpdatesExistingProfileWithoutRecreating(): void

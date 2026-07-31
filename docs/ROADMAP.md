@@ -126,7 +126,8 @@ Fondations techniques.
       (files/backlog/boîtes en erreur) + **métriques produit** (actifs, inscriptions, pistes par statut).
 - [x] **Centre de notifications** (livré, ADR-0028) : projection DBAL sur événements — réponse reçue,
       envoi échoué, relance due, **boîte déconnectée** (reprise OAuth guidée) ; badge cloche, purge 90 j ;
-      **digests email** (préférence NONE/DAILY/WEEKLY, défaut DAILY). *Reste : « à trier ».*
+      **digests email** (préférence NONE/DAILY/WEEKLY, défaut DAILY) + **notif « à trier »** ✅ +
+      **préférences fines** ✅ (par type × canal in-app/email, filtrage JSONB à la lecture).
 - [x] **Revue de santé globale (7 axes) + remédiation A→G** (2026-07-29) : cf.
       [`docs/reviews/2026-07-29-revue-sante-globale.md`](reviews/2026-07-29-revue-sante-globale.md).
 - [x] **Observabilité** (ADR-0030) : logs JSON corrélés **tenant + request_id** (HTTP + worker) +

@@ -6,6 +6,7 @@ namespace App\Account\Domain\Profile;
 
 use App\Account\Domain\Profile\Event\DigestFrequencyChanged;
 use App\Account\Domain\Profile\Event\FollowUpCadenceChanged;
+use App\Account\Domain\Profile\Event\NotificationPreferencesChanged;
 use App\Account\Domain\Profile\Event\PipelineLabelsChanged;
 use App\Account\Domain\Profile\Event\ProfileCreated;
 use App\Account\Domain\Profile\Event\ProfileIdentityChanged;
@@ -44,6 +45,8 @@ final class Profile extends AggregateRoot
         private array $followUpCadence = self::DEFAULT_FOLLOW_UP_CADENCE,
         /** @var array<string, string> overrides de libellés d'étapes du pipeline (statut → libellé) */
         private array $pipelineLabels = [],
+        /** @var array<string, array{inApp: bool, email: bool}> COUPURES par type (défaut = tout activé) */
+        private array $notificationPreferences = [],
     ) {
     }
 
@@ -118,6 +121,38 @@ final class Profile extends AggregateRoot
 
         $this->pipelineLabels = $clean;
         $this->recordEvent(new PipelineLabelsChanged($this->tenantId->toString(), $now));
+    }
+
+    /**
+     * Préférences fines de notification par TYPE et par CANAL (in-app / email). Le défaut est « tout
+     * activé » : on ne conserve donc QUE les coupures (au moins un canal à false) — un profil sans
+     * override reçoit tout. Pas de couplage aux types du contexte Notification (clé libre, bornée).
+     *
+     * @param array<array-key, mixed> $preferences type → canaux (entrée non fiable, normalisée ici)
+     */
+    public function changeNotificationPreferences(array $preferences, \DateTimeImmutable $now): void
+    {
+        $clean = [];
+        foreach ($preferences as $type => $channels) {
+            if (!\is_string($type) || '' === $type || !\is_array($channels)) {
+                continue;
+            }
+            $inApp = (bool) ($channels['inApp'] ?? true);
+            $email = (bool) ($channels['email'] ?? true);
+            if (!$inApp || !$email) { // seules les coupures sont mémorisées (défaut = activé)
+                $clean[mb_substr($type, 0, 50)] = ['inApp' => $inApp, 'email' => $email];
+            }
+        }
+        if (\count($clean) > 20) {
+            throw InvalidValue::because('At most 20 notification preferences can be customised.');
+        }
+
+        if ($clean === $this->notificationPreferences) {
+            return;
+        }
+
+        $this->notificationPreferences = $clean;
+        $this->recordEvent(new NotificationPreferencesChanged($this->tenantId->toString(), $now));
     }
 
     public function changeWeeklyGoal(int $weeklyGoal, \DateTimeImmutable $now): void
@@ -230,5 +265,11 @@ final class Profile extends AggregateRoot
     public function pipelineLabels(): array
     {
         return $this->pipelineLabels;
+    }
+
+    /** @return array<string, array{inApp: bool, email: bool}> coupures par type (défaut = activé) */
+    public function notificationPreferences(): array
+    {
+        return $this->notificationPreferences;
     }
 }

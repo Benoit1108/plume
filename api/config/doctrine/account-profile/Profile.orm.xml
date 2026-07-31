@@ -18,5 +18,6 @@
         <field name="digestFrequency" type="string" column="digest_frequency" length="10" enum-type="App\Account\Domain\Profile\DigestFrequency"/>
         <field name="followUpCadence" type="json" column="follow_up_cadence"/>
         <field name="pipelineLabels" type="json" column="pipeline_labels"/>
+        <field name="notificationPreferences" type="json" column="notification_preferences"/>
     </entity>
 </doctrine-mapping>

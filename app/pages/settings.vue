@@ -23,6 +23,9 @@ const digestFrequency = ref<'NONE' | 'DAILY' | 'WEEKLY'>('DAILY')
 const cadenceInput = ref('')
 /** Libellés d'étapes personnalisés (ADR-0031) : un champ par statut, vide = libellé par défaut. */
 const pipelineLabels = ref<Record<string, string>>({})
+/** Préférences fines de notification : matrice type × canal (défaut = tout activé). */
+const NOTIFICATION_TYPES = ['reply_received', 'followup_due', 'candidate_to_triage', 'email_send_failed', 'mailbox_disconnected'] as const
+const notificationPrefs = ref<Record<string, { inApp: boolean, email: boolean }>>({})
 
 watch(profile, (value) => {
   if (!value) return
@@ -33,6 +36,11 @@ watch(profile, (value) => {
   digestFrequency.value = value.digestFrequency
   cadenceInput.value = value.followUpCadence.join(', ')
   pipelineLabels.value = Object.fromEntries(LEAD_STATUSES.map(s => [s, value.pipelineLabels[s] ?? '']))
+  // Défaut = tout activé : on fusionne les coupures stockées avec les valeurs par défaut (vraies).
+  notificationPrefs.value = Object.fromEntries(NOTIFICATION_TYPES.map(type => [type, {
+    inApp: value.notificationPreferences[type]?.inApp ?? true,
+    email: value.notificationPreferences[type]?.email ?? true,
+  }]))
 }, { immediate: true })
 
 /** « 7, 21, 45 » → [7, 21, 45] (entiers positifs uniquement ; vide = pas de relance auto). */
@@ -199,6 +207,7 @@ async function save(): Promise<void> {
       digestFrequency: digestFrequency.value,
       followUpCadence: parsedCadence.value,
       pipelineLabels: Object.fromEntries(Object.entries(pipelineLabels.value).filter(([, v]) => v.trim() !== '')),
+      notificationPreferences: notificationPrefs.value,
     })
     await refresh()
     toast.add({ title: t('settings.toasts.saved'), color: 'success' })
@@ -248,6 +257,42 @@ async function save(): Promise<void> {
         <UFormField :label="t('settings.digest.label')" :hint="t('settings.digest.hint')" class="mt-3">
           <USelect v-model="digestFrequency" :items="digestOptions" value-key="value" class="w-56" />
         </UFormField>
+      </section>
+
+      <!-- Préférences fines de notification : matrice type × canal (in-app / email), défaut = tout activé -->
+      <section class="border border-default rounded-xl p-4 bg-elevated/40">
+        <h2 class="text-sm font-semibold">{{ t('settings.notifications.title') }}</h2>
+        <p class="text-xs text-muted mt-1">{{ t('settings.notifications.hint') }}</p>
+        <div class="mt-3 overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="text-left text-xs text-dimmed uppercase tracking-wide">
+                <th scope="col" class="py-1.5 pr-3 font-semibold">{{ t('settings.notifications.type') }}</th>
+                <th scope="col" class="py-1.5 px-3 font-semibold text-center">{{ t('settings.notifications.inApp') }}</th>
+                <th scope="col" class="py-1.5 pl-3 font-semibold text-center">{{ t('settings.notifications.email') }}</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[var(--ui-border)]">
+              <tr v-for="type in NOTIFICATION_TYPES" :key="type">
+                <td class="py-2 pr-3">{{ t(`settings.notifications.types.${type}`) }}</td>
+                <td class="py-2 px-3 text-center">
+                  <UCheckbox
+                    v-if="notificationPrefs[type]"
+                    v-model="notificationPrefs[type].inApp"
+                    :aria-label="t('settings.notifications.inAppFor', { type: t(`settings.notifications.types.${type}`) })"
+                  />
+                </td>
+                <td class="py-2 pl-3 text-center">
+                  <UCheckbox
+                    v-if="notificationPrefs[type]"
+                    v-model="notificationPrefs[type].email"
+                    :aria-label="t('settings.notifications.emailFor', { type: t(`settings.notifications.types.${type}`) })"
+                  />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </section>
 
       <!-- Libellés d'étapes du pipeline (ADR-0031 : cosmétique, la logique ne change pas) -->

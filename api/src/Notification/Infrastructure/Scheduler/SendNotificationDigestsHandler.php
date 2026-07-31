@@ -54,6 +54,8 @@ final class SendNotificationDigestsHandler
                   AND p.digest_frequency = :freq
                   AND u.deletion_requested_at IS NULL
                   AND u.email_verified = true
+                  -- Préférences fines : on exclut les types dont le canal email est coupé (défaut = inclus).
+                  AND COALESCE((p.notification_preferences -> n.type ->> 'email')::boolean, true) = true
                 GROUP BY u.email, n.type
                 ORDER BY u.email
                 SQL,

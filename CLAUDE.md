@@ -206,6 +206,12 @@ candidates : Indeed, Welcome to the Jungle, APEC, France Travail, Malt (relève 
 **Notif « nouveau candidat à trier » : LIVRÉE** : `NotificationProjector::onCandidateLeadIngested`
 (type `candidate_to_triage`, payload candidateLeadId+source ; enum resource étendu) → cloche + cible `/candidates`.
 
-**Prochaine grande étape** : « Planifié, pas commencé » : dettes restantes = préférences notif fines ;
-dédoublonnage suggéré Orgs/Contacts ; puis V2.2 abonnement (décision paiement Benoit) ;
+**Préférences de notif fines : LIVRÉES** : `profile.notification_preferences` (map JSON `type → {inApp, email}`,
+ne stocke que les COUPURES, défaut = tout activé). Enforcement par **prédicat JSONB** à la lecture : la cloche
+(`DoctrineNotificationFeed`, canal `inApp`) et le digest (`SendNotificationDigestsHandler`, canal `email`)
+excluent les types coupés (`COALESCE(... ->> 'inApp'/'email', true)`). Matrice type×canal dans Réglages.
+Pattern de préférence Profile mirroré (event `NotificationPreferencesChanged`, migration, resource+processor).
+
+**Prochaine grande étape** : « Planifié, pas commencé » : dette restante = dédoublonnage suggéré Orgs/Contacts
+au tri ; puis V2.2 abonnement (décision paiement Benoit) ;
 enfin « à concevoir » (back-office v2 widgets, plafond budget IA global, site vitrine/démo).

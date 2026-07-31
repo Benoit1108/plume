@@ -27,7 +27,7 @@ final class DoctrineProfileSettings implements ProfileSettings
         $tenant = $this->tenantContext->require();
 
         $row = $this->connection->fetchAssociative(
-            'SELECT weekly_goal, timezone, bio, specialties, signature, first_name, last_name, digest_frequency, follow_up_cadence, pipeline_labels FROM profile WHERE tenant_id = :tenant',
+            'SELECT weekly_goal, timezone, bio, specialties, signature, first_name, last_name, digest_frequency, follow_up_cadence, pipeline_labels, notification_preferences FROM profile WHERE tenant_id = :tenant',
             ['tenant' => $tenant->toString()],
         );
 
@@ -46,7 +46,29 @@ final class DoctrineProfileSettings implements ProfileSettings
             \is_string($row['digest_frequency'] ?? null) && '' !== $row['digest_frequency'] ? $row['digest_frequency'] : 'DAILY',
             $this->cadenceOf($row['follow_up_cadence'] ?? null),
             $this->labelsOf($row['pipeline_labels'] ?? null),
+            $this->prefsOf($row['notification_preferences'] ?? null),
         );
+    }
+
+    /** @return array<string, array{inApp: bool, email: bool}> coupures par type (défaut = activé) */
+    private function prefsOf(mixed $raw): array
+    {
+        if (!\is_string($raw) || '' === $raw) {
+            return [];
+        }
+        $decoded = json_decode($raw, true);
+        if (!\is_array($decoded)) {
+            return [];
+        }
+
+        $prefs = [];
+        foreach ($decoded as $type => $channels) {
+            if (\is_string($type) && \is_array($channels)) {
+                $prefs[$type] = ['inApp' => (bool) ($channels['inApp'] ?? true), 'email' => (bool) ($channels['email'] ?? true)];
+            }
+        }
+
+        return $prefs;
     }
 
     /** @return array<string, string> */
