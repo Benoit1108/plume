@@ -10,6 +10,7 @@ use App\Mailbox\Domain\Outbound\Event\ReplyCaptured;
 use App\Notification\Infrastructure\Projection\NotificationProjector;
 use App\Notification\Infrastructure\Scheduler\NotifyDueFollowUpsHandler;
 use App\Notification\Infrastructure\Scheduler\NotifyDueFollowUpsTick;
+use App\Sourcing\Domain\CandidateLead\Event\CandidateLeadIngested;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Uid\Uuid;
@@ -53,6 +54,23 @@ final class NotificationProjectionTest extends KernelTestCase
         self::assertSame(2, $this->countFor($tenant));
         $types = $this->connection->fetchFirstColumn('SELECT type FROM notification WHERE tenant_id = ? ORDER BY occurred_on', [$tenant]);
         self::assertSame(['reply_received', 'email_send_failed'], $types);
+    }
+
+    public function testProjectsCandidateToTriageIdempotently(): void
+    {
+        $tenant = Uuid::v7()->toRfc4122();
+        $projector = new NotificationProjector($this->connection);
+
+        $ingested = new CandidateLeadIngested('cand-1', $tenant, 'LINKEDIN', 'hash-1', new \DateTimeImmutable('2026-07-30 09:00:00'));
+        $projector->onCandidateLeadIngested($ingested);
+        $projector->onCandidateLeadIngested($ingested); // redélivrance → aucun doublon
+
+        self::assertSame(1, $this->countFor($tenant));
+        /** @var array{type: string, payload: string} $row */
+        $row = $this->connection->fetchAssociative('SELECT type, payload FROM notification WHERE tenant_id = ?', [$tenant]);
+        self::assertSame('candidate_to_triage', $row['type']);
+        self::assertStringContainsString('cand-1', $row['payload']);
+        self::assertStringContainsString('LINKEDIN', $row['payload']);
     }
 
     public function testNotifiesOnlyWhenTheMailboxNeedsReconnection(): void

@@ -203,6 +203,9 @@ mémoire au setup/confirm/login (échec de déchiffrement = sûr → 2fa_invalid
 (parser à faire sur vraie annonce), **TranslatorsCafe abandonné** (site inutilisable) ; sources robustes
 candidates : Indeed, Welcome to the Jungle, APEC, France Travail, Malt (relève email générique déjà OK).
 
+**Notif « nouveau candidat à trier » : LIVRÉE** : `NotificationProjector::onCandidateLeadIngested`
+(type `candidate_to_triage`, payload candidateLeadId+source ; enum resource étendu) → cloche + cible `/candidates`.
+
 **Prochaine grande étape** : « Planifié, pas commencé » : dettes restantes = préférences notif fines ;
-dédoublonnage suggéré Orgs/Contacts ; notif « à trier » ; puis V2.2 abonnement (décision paiement Benoit) ;
+dédoublonnage suggéré Orgs/Contacts ; puis V2.2 abonnement (décision paiement Benoit) ;
 enfin « à concevoir » (back-office v2 widgets, plafond budget IA global, site vitrine/démo).

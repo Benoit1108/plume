@@ -62,6 +62,8 @@ function label(notification: AppNotification): string {
       return t('notifications.types.mailboxDisconnected')
     case 'followup_due':
       return t('notifications.types.followupDue', { org: typeof p.orgName === 'string' ? p.orgName : '?' })
+    case 'candidate_to_triage':
+      return t('notifications.types.candidateToTriage')
     default:
       return notification.type
   }

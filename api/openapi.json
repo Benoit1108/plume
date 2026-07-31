@@ -7352,7 +7352,8 @@
                             "reply_received",
                             "email_send_failed",
                             "followup_due",
-                            "mailbox_disconnected"
+                            "mailbox_disconnected",
+                            "candidate_to_triage"
                         ]
                     },
                     "payload": {
@@ -7395,7 +7396,8 @@
                                     "reply_received",
                                     "email_send_failed",
                                     "followup_due",
-                                    "mailbox_disconnected"
+                                    "mailbox_disconnected",
+                                    "candidate_to_triage"
                                 ]
                             },
                             "payload": {

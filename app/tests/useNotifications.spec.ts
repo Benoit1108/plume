@@ -48,6 +48,10 @@ describe('notificationTarget', () => {
     expect(notificationTarget({ type: 'mailbox_disconnected', payload: { leadId: 'L42' } })).toBe('/settings')
     expect(notificationTarget({ type: 'mailbox_disconnected', payload: {} })).toBe('/settings')
   })
+
+  it('mène à la file de tri pour un nouveau candidat', () => {
+    expect(notificationTarget({ type: 'candidate_to_triage', payload: { candidateLeadId: 'c1' } })).toBe('/candidates')
+  })
 })
 
 describe('unreadCount / unreadBadge', () => {

@@ -121,7 +121,8 @@
       "replyReceived": "You received a reply",
       "emailSendFailed": "An email failed to send",
       "followupDue": "Follow-up due today — {org}",
-      "mailboxDisconnected": "Your email mailbox needs reconnecting"
+      "mailboxDisconnected": "Your email mailbox needs reconnecting",
+      "candidateToTriage": "New candidate to triage"
     }
   },
   "onboarding": {

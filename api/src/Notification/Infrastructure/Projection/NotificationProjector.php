@@ -8,6 +8,7 @@ use App\Mailbox\Domain\Mailbox\Event\MailboxSyncFailed;
 use App\Mailbox\Domain\Outbound\Event\EmailSendFailed;
 use App\Mailbox\Domain\Outbound\Event\ReplyCaptured;
 use App\Shared\Domain\DomainEvent;
+use App\Sourcing\Domain\CandidateLead\Event\CandidateLeadIngested;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Uid\Uuid;
@@ -56,6 +57,16 @@ final class NotificationProjector
         }
 
         $this->record($event, $event->tenantId, 'mailbox_disconnected', ['reason' => $event->reason]);
+    }
+
+    /** Une annonce est entrée dans la file « À trier » : un candidat à évaluer. */
+    #[AsMessageHandler(bus: 'event.bus')]
+    public function onCandidateLeadIngested(CandidateLeadIngested $event): void
+    {
+        $this->record($event, $event->tenantId, 'candidate_to_triage', [
+            'candidateLeadId' => $event->candidateLeadId,
+            'source' => $event->source,
+        ]);
     }
 
     /** @param array<string, mixed> $payload */

@@ -6,6 +6,7 @@ import type { AppNotification } from '~/types/notifications'
  *  connaît, sinon l'accueil. */
 export function notificationTarget(notification: Pick<AppNotification, 'type' | 'payload'>): string {
   if (notification.type === 'mailbox_disconnected') return '/settings'
+  if (notification.type === 'candidate_to_triage') return '/candidates'
   const leadId = notification.payload.leadId
   return typeof leadId === 'string' && leadId !== '' ? `/leads/${leadId}` : '/today'
 }

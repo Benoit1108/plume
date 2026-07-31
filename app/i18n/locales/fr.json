@@ -121,7 +121,8 @@
       "replyReceived": "Vous avez reçu une réponse",
       "emailSendFailed": "Un envoi d'email a échoué",
       "followupDue": "Relance due aujourd'hui — {org}",
-      "mailboxDisconnected": "Votre boîte email doit être reconnectée"
+      "mailboxDisconnected": "Votre boîte email doit être reconnectée",
+      "candidateToTriage": "Nouveau candidat à trier"
     }
   },
   "onboarding": {
