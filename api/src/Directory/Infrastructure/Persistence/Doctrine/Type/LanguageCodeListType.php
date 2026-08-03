@@ -13,11 +13,6 @@ final class LanguageCodeListType extends JsonType
 {
     public const string NAME = 'language_code_list';
 
-    public function getName(): string
-    {
-        return self::NAME;
-    }
-
     public function convertToDatabaseValue($value, AbstractPlatform $platform): string
     {
         $codes = [];

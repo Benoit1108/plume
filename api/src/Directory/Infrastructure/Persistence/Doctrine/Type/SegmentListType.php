@@ -13,11 +13,6 @@ final class SegmentListType extends JsonType
 {
     public const string NAME = 'segment_list';
 
-    public function getName(): string
-    {
-        return self::NAME;
-    }
-
     public function convertToDatabaseValue($value, AbstractPlatform $platform): string
     {
         $values = [];

@@ -12,11 +12,6 @@ final class AlertFeedIdType extends AbstractStringIdType
 {
     public const string NAME = 'alert_feed_id';
 
-    public function getName(): string
-    {
-        return self::NAME;
-    }
-
     protected function idClass(): string
     {
         return AlertFeedId::class;

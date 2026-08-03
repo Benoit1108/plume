@@ -73,6 +73,14 @@ final class ProfileResource
      * @var array<string, array{inApp: bool, email: bool}>
      */
     #[Assert\Count(max: 20)]
+    #[Assert\All([new Assert\Collection(
+        fields: [
+            'inApp' => new Assert\Optional(new Assert\Type('bool')),
+            'email' => new Assert\Optional(new Assert\Type('bool')),
+        ],
+        allowExtraFields: false,
+        allowMissingFields: true,
+    )])]
     #[Groups(['profile:read', 'profile:write'])]
     public array $notificationPreferences = [];
 

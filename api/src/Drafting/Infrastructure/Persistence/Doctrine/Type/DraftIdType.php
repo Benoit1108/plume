@@ -12,11 +12,6 @@ final class DraftIdType extends AbstractStringIdType
 {
     public const string NAME = 'draft_id';
 
-    public function getName(): string
-    {
-        return self::NAME;
-    }
-
     protected function idClass(): string
     {
         return DraftId::class;

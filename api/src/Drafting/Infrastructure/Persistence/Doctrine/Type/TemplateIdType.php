@@ -12,11 +12,6 @@ final class TemplateIdType extends AbstractStringIdType
 {
     public const string NAME = 'template_id';
 
-    public function getName(): string
-    {
-        return self::NAME;
-    }
-
     protected function idClass(): string
     {
         return TemplateId::class;

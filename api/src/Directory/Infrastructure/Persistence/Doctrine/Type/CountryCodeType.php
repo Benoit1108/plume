@@ -12,11 +12,6 @@ final class CountryCodeType extends StringType
 {
     public const string NAME = 'country_code';
 
-    public function getName(): string
-    {
-        return self::NAME;
-    }
-
     public function convertToDatabaseValue($value, AbstractPlatform $platform): ?string
     {
         if (null === $value) {

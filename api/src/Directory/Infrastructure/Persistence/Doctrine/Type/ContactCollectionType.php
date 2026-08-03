@@ -19,11 +19,6 @@ final class ContactCollectionType extends JsonType
 {
     public const string NAME = 'contact_collection';
 
-    public function getName(): string
-    {
-        return self::NAME;
-    }
-
     public function convertToDatabaseValue($value, AbstractPlatform $platform): string
     {
         $rows = [];

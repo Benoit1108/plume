@@ -12,11 +12,6 @@ final class MailboxIdType extends AbstractStringIdType
 {
     public const string NAME = 'mailbox_id';
 
-    public function getName(): string
-    {
-        return self::NAME;
-    }
-
     protected function idClass(): string
     {
         return MailboxId::class;

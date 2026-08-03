@@ -18,11 +18,6 @@ final class FollowUpCollectionType extends JsonType
 {
     public const string NAME = 'follow_up_collection';
 
-    public function getName(): string
-    {
-        return self::NAME;
-    }
-
     public function convertToDatabaseValue($value, AbstractPlatform $platform): string
     {
         $rows = [];

@@ -13,11 +13,6 @@ final class EncryptedTokenType extends TextType
 {
     public const string NAME = 'encrypted_token';
 
-    public function getName(): string
-    {
-        return self::NAME;
-    }
-
     public function convertToDatabaseValue($value, AbstractPlatform $platform): ?string
     {
         if (null === $value) {

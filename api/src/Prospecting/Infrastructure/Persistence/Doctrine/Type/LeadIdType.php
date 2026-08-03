@@ -12,11 +12,6 @@ final class LeadIdType extends AbstractStringIdType
 {
     public const string NAME = 'lead_id';
 
-    public function getName(): string
-    {
-        return self::NAME;
-    }
-
     protected function idClass(): string
     {
         return LeadId::class;

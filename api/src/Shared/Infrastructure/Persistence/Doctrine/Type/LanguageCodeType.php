@@ -13,11 +13,6 @@ final class LanguageCodeType extends StringType
 {
     public const string NAME = 'language_code';
 
-    public function getName(): string
-    {
-        return self::NAME;
-    }
-
     public function convertToDatabaseValue($value, AbstractPlatform $platform): ?string
     {
         if (null === $value) {

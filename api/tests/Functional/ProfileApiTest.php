@@ -112,6 +112,37 @@ final class ProfileApiTest extends ApiTestCase
         self::assertResponseStatusCodeSame(422);
     }
 
+    public function testAcceptsValidNotificationPreferencesAndRejectsMalformedShape(): void
+    {
+        $this->createUser('a@plume.test');
+        $client = static::createClient();
+        $token = $this->tokenFor($client, 'a@plume.test');
+
+        // Coupure valide (map type → {inApp/email booléens}).
+        $client->request('PATCH', '/api/v1/profile', [
+            'auth_bearer' => $token,
+            'headers' => ['Content-Type' => 'application/merge-patch+json'],
+            'json' => ['notificationPreferences' => ['reply_received' => ['email' => false]]],
+        ]);
+        self::assertResponseIsSuccessful();
+
+        // Valeur non booléenne → 422 (Assert\All + Collection : défense en profondeur, H-P2d).
+        $client->request('PATCH', '/api/v1/profile', [
+            'auth_bearer' => $token,
+            'headers' => ['Content-Type' => 'application/merge-patch+json'],
+            'json' => ['notificationPreferences' => ['reply_received' => ['email' => 'nope']]],
+        ]);
+        self::assertResponseStatusCodeSame(422);
+
+        // Champ interne inattendu → 422 (allowExtraFields: false).
+        $client->request('PATCH', '/api/v1/profile', [
+            'auth_bearer' => $token,
+            'headers' => ['Content-Type' => 'application/merge-patch+json'],
+            'json' => ['notificationPreferences' => ['reply_received' => ['bogus' => true]]],
+        ]);
+        self::assertResponseStatusCodeSame(422);
+    }
+
     public function testUpdatesFollowUpCadenceAndRejectsInvalidValue(): void
     {
         $this->createUser('a@plume.test');

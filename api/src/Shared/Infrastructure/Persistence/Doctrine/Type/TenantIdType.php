@@ -11,11 +11,6 @@ final class TenantIdType extends AbstractStringIdType
 {
     public const string NAME = 'tenant_id';
 
-    public function getName(): string
-    {
-        return self::NAME;
-    }
-
     protected function idClass(): string
     {
         return TenantId::class;

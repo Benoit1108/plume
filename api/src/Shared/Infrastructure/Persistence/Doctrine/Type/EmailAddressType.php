@@ -13,11 +13,6 @@ final class EmailAddressType extends StringType
 {
     public const string NAME = 'email_address';
 
-    public function getName(): string
-    {
-        return self::NAME;
-    }
-
     public function convertToDatabaseValue($value, AbstractPlatform $platform): ?string
     {
         if (null === $value) {
