@@ -151,6 +151,29 @@ final class BillingApiTest extends ApiTestCase
         self::assertResponseStatusCodeSame(201);
     }
 
+    public function testSubscriptionSnapshotReflectsState(): void
+    {
+        // Compte grandfathered (aucun abonnement) → status none, en droit.
+        $this->createUser('snap-legacy@plume.test');
+        // Compte en essai valide.
+        $trial = $this->createUser('snap-trial@plume.test');
+        $this->seedSubscription($trial, 'trialing', '2099-01-01 00:00:00');
+
+        $client = static::createClient();
+
+        /** @var array{status: string, entitled: bool, canManage: bool} $legacy */
+        $legacy = $client->request('GET', '/api/v1/billing/subscription', ['auth_bearer' => $this->tokenFor($client, 'snap-legacy@plume.test')])->toArray();
+        self::assertSame('none', $legacy['status']);
+        self::assertTrue($legacy['entitled']);
+        self::assertFalse($legacy['canManage']);
+
+        /** @var array{status: string, entitled: bool, trialEndsAt: ?string} $onTrial */
+        $onTrial = $client->request('GET', '/api/v1/billing/subscription', ['auth_bearer' => $this->tokenFor($client, 'snap-trial@plume.test')])->toArray();
+        self::assertSame('trialing', $onTrial['status']);
+        self::assertTrue($onTrial['entitled']);
+        self::assertNotNull($onTrial['trialEndsAt']);
+    }
+
     public function testPortalWithoutSubscriptionReturns409(): void
     {
         $this->createUser('noportal@plume.test'); // grandfathered, jamais payé → aucun client Stripe

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { Subscription } from '~/types/billing'
 import type { Profile } from '~/types/leads'
 import type { Mailbox } from '~/types/mailbox'
 import type { AlertFeed } from '~/types/sourcing'
@@ -13,6 +14,40 @@ const queryClient = useQueryClient()
 const { data: profileData, isPending: loading } = useQuery({ queryKey: queryKeys.profile, queryFn: () => profileApi.get() })
 const profile = computed<Profile | null>(() => profileData.value ?? null)
 async function refresh(): Promise<void> { await queryClient.invalidateQueries({ queryKey: queryKeys.profile }) }
+
+// ----- Abonnement (V2.2) -----
+const billing = useBilling()
+const { data: subData } = useQuery({ queryKey: queryKeys.billingSubscription, queryFn: () => billing.subscription() })
+const subscription = computed<Subscription | null>(() => subData.value ?? null)
+const trialDaysLeft = computed<number>(() => {
+  const end = subscription.value?.trialEndsAt
+  return end ? Math.max(0, Math.ceil((new Date(end).getTime() - Date.now()) / 86_400_000)) : 0
+})
+const billingBusy = ref(false)
+async function subscribe(plan: 'monthly' | 'annual'): Promise<void> {
+  if (billingBusy.value) return
+  billingBusy.value = true
+  try {
+    const { url } = await billing.checkout(plan)
+    window.location.href = url // redirection vers Stripe (ou retour app en factice)
+  }
+  catch {
+    toast.add({ title: t('common.error'), color: 'error' })
+    billingBusy.value = false
+  }
+}
+async function manageBilling(): Promise<void> {
+  if (billingBusy.value) return
+  billingBusy.value = true
+  try {
+    const { url } = await billing.portal()
+    window.location.href = url
+  }
+  catch {
+    toast.add({ title: t('common.error'), color: 'error' })
+    billingBusy.value = false
+  }
+}
 
 const weeklyGoal = ref(5)
 const bio = ref('')
@@ -224,6 +259,30 @@ async function save(): Promise<void> {
 <template>
   <PageContainer width="atelier">
     <PageHeader :eyebrow="t('settings.eyebrow')" :title="t('settings.title')" />
+
+    <!-- Abonnement (V2.2) : état + s'abonner / gérer -->
+    <section v-if="subscription && subscription.status !== 'none'" class="mt-6 border border-default rounded-xl p-4 bg-elevated/40 max-w-2xl">
+      <div class="flex items-center gap-2 flex-wrap">
+        <h2 class="text-sm font-semibold">{{ t('settings.billing.title') }}</h2>
+        <UBadge :color="subscription.entitled ? 'success' : 'error'" variant="soft" size="sm">
+          {{ t(`settings.billing.status.${subscription.status}`) }}
+        </UBadge>
+      </div>
+      <p class="text-xs text-muted mt-1">
+        <span v-if="subscription.status === 'trialing' && subscription.entitled">{{ t('settings.billing.trialLeft', { days: trialDaysLeft }, trialDaysLeft) }}</span>
+        <span v-else-if="!subscription.entitled">{{ t('settings.billing.readOnly') }}</span>
+        <span v-else>{{ t('settings.billing.activeHint') }}</span>
+      </p>
+      <div class="mt-3 flex items-center gap-2 flex-wrap">
+        <UButton v-if="subscription.canManage" size="sm" variant="soft" :loading="billingBusy" @click="manageBilling">
+          {{ t('settings.billing.manage') }}
+        </UButton>
+        <template v-else>
+          <UButton size="sm" :loading="billingBusy" @click="subscribe('monthly')">{{ t('settings.billing.subscribeMonthly') }}</UButton>
+          <UButton size="sm" variant="soft" :loading="billingBusy" @click="subscribe('annual')">{{ t('settings.billing.subscribeAnnual') }}</UButton>
+        </template>
+      </div>
+    </section>
 
     <div v-if="loading" role="status" class="mt-6 flex flex-col gap-4 max-w-2xl">
       <span class="sr-only">{{ t('common.loading') }}</span>

@@ -243,8 +243,11 @@ port `BillingGateway` + `StripeBillingGateway` (HTTP fin) / `FakeBillingGateway`
 routés par `ProviderBillingGateway` ; endpoints `POST /billing/checkout` (plan monthly/annual) + `/billing/portal`
 (409 si jamais payé) + **webhook public `/billing/webhook`** (signature HMAC + tolérance anti-rejeu ;
 checkout.completed→active, subscription.updated/deleted→past_due/canceled). Prix = 2 Price IDs Stripe en config
-(12 €/120 € provisoire), plan « Pro » unique. Reste : 3/ UI abonnement + bandeaux lecture seule (gère le 402) ·
-4/ back-office billing + bascule comped.
+(12 €/120 € provisoire), plan « Pro » unique. **Slice 3/4 LIVRÉE — UI abonnement** : `GET /billing/subscription`
+(snapshot status/trialEndsAt/entitled/canManage) ; `useBilling` (subscription/checkout/portal) ; section
+« Abonnement » dans Réglages (statut, jours d'essai, boutons s'abonner mensuel/annuel / gérer) ; **bandeau
+« lecture seule »** global (`SubscriptionBanner` dans le layout, visible quand `!entitled`). Reste :
+4/ back-office billing (abonnés/MRR/impayés) + bascule `comped`.
 
 **Prochaine grande étape** : finir V2.2 (slices 2-4) ; puis site vitrine/démo.
 enfin « à concevoir » (back-office v2 widgets, plafond budget IA global, site vitrine/démo).

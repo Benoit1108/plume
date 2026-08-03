@@ -734,9 +734,33 @@
       "othersRevoked": "Other sessions have been signed out."
     }
   },
+  "billing": {
+    "banner": {
+      "title": "Read-only access",
+      "hint": "Your trial or subscription has ended. Your data is kept — subscribe to re-enable writing.",
+      "cta": "Subscribe"
+    }
+  },
   "settings": {
     "eyebrow": "Preferences",
     "title": "Settings",
+    "billing": {
+      "title": "Subscription",
+      "status": {
+        "trialing": "Trial",
+        "active": "Active",
+        "past_due": "Payment pending",
+        "canceled": "Canceled",
+        "comped": "Complimentary",
+        "none": "—"
+      },
+      "trialLeft": "Free trial — {days} day left | Free trial — {days} day left | Free trial — {days} days left",
+      "readOnly": "Read-only access. Subscribe to re-enable writing (sending, generation, creation).",
+      "activeHint": "Thank you! Your subscription is active.",
+      "manage": "Manage my subscription",
+      "subscribeMonthly": "Subscribe (monthly)",
+      "subscribeAnnual": "Subscribe (annual, 2 months free)"
+    },
     "goal": {
       "title": "Weekly goal",
       "label": "Prospecting actions per week",

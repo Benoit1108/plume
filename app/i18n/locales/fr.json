@@ -734,9 +734,33 @@
       "othersRevoked": "Les autres sessions ont été déconnectées."
     }
   },
+  "billing": {
+    "banner": {
+      "title": "Accès en lecture seule",
+      "hint": "Votre essai ou abonnement a pris fin. Vos données sont conservées — abonnez-vous pour réactiver l'écriture.",
+      "cta": "S'abonner"
+    }
+  },
   "settings": {
     "eyebrow": "Préférences",
     "title": "Réglages",
+    "billing": {
+      "title": "Abonnement",
+      "status": {
+        "trialing": "Essai",
+        "active": "Actif",
+        "past_due": "Paiement en attente",
+        "canceled": "Résilié",
+        "comped": "Offert",
+        "none": "—"
+      },
+      "trialLeft": "Essai gratuit — {days} jour restant | Essai gratuit — {days} jour restant | Essai gratuit — {days} jours restants",
+      "readOnly": "Accès en lecture seule. Abonnez-vous pour réactiver l'écriture (envois, génération, création).",
+      "activeHint": "Merci ! Votre abonnement est actif.",
+      "manage": "Gérer mon abonnement",
+      "subscribeMonthly": "S'abonner (mensuel)",
+      "subscribeAnnual": "S'abonner (annuel, 2 mois offerts)"
+    },
     "goal": {
       "title": "Objectif hebdomadaire",
       "label": "Actes de démarchage par semaine",

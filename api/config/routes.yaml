@@ -20,6 +20,11 @@ api_admin_audit:
     methods: [GET]
 
 # Abonnement (V2.2) : checkout + portail (authentifiés), webhook Stripe (public, signé).
+api_billing_subscription:
+    path: /api/v1/billing/subscription
+    controller: App\Billing\Infrastructure\Http\SubscriptionStatusController
+    methods: [GET]
+
 api_billing_checkout:
     path: /api/v1/billing/checkout
     controller: App\Billing\Infrastructure\Http\CheckoutController

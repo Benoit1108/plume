@@ -35,4 +35,12 @@ interface Subscriptions
 
     /** Identifiant client Stripe du tenant (pour ouvrir le portail), ou null s'il n'a jamais payé. */
     public function stripeCustomerFor(string $tenantId): ?string;
+
+    /**
+     * État d'abonnement pour l'UI. `status` = trialing|active|past_due|canceled|comped|none
+     * (`none` = aucun abonnement = compte grandfathered). `canManage` = un portail Stripe est ouvrable.
+     *
+     * @return array{status: string, trialEndsAt: ?string, entitled: bool, canManage: bool}
+     */
+    public function snapshot(string $tenantId): array;
 }

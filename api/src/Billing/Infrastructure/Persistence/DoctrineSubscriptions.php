@@ -50,8 +50,32 @@ final class DoctrineSubscriptions implements Subscriptions
             ['tenant' => $tenantId],
         );
 
-        // Aucun abonnement (compte antérieur à la facturation) → accès complet (grandfathered).
+        return $this->entitledFromRow(false === $row ? null : $row);
+    }
+
+    public function snapshot(string $tenantId): array
+    {
+        $row = $this->connection->fetchAssociative(
+            'SELECT status, trial_ends_at, stripe_customer_id FROM subscription WHERE tenant_id = :tenant',
+            ['tenant' => $tenantId],
+        );
         if (false === $row) {
+            return ['status' => 'none', 'trialEndsAt' => null, 'entitled' => true, 'canManage' => false];
+        }
+
+        return [
+            'status' => \is_string($row['status'] ?? null) ? $row['status'] : 'none',
+            'trialEndsAt' => \is_string($row['trial_ends_at'] ?? null) ? $row['trial_ends_at'] : null,
+            'entitled' => $this->entitledFromRow($row),
+            'canManage' => \is_string($row['stripe_customer_id'] ?? null) && '' !== $row['stripe_customer_id'],
+        ];
+    }
+
+    /** @param array<string, mixed>|null $row */
+    private function entitledFromRow(?array $row): bool
+    {
+        // Aucun abonnement (compte antérieur à la facturation) → accès complet (grandfathered).
+        if (null === $row) {
             return true;
         }
 
