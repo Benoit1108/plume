@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Prospecting\Application\Command\ScheduleFollowUp;
 
+use App\Prospecting\Domain\Lead\FollowUpIds;
 use App\Prospecting\Domain\Lead\LeadId;
 use App\Prospecting\Domain\Lead\LeadRepository;
 use App\Shared\Application\Clock;
@@ -17,6 +18,7 @@ final class ScheduleFollowUpHandler implements CommandHandler
         private readonly LeadRepository $leads,
         private readonly EventBus $eventBus,
         private readonly Clock $clock,
+        private readonly FollowUpIds $followUpIds,
     ) {
     }
 
@@ -28,7 +30,7 @@ final class ScheduleFollowUpHandler implements CommandHandler
         }
 
         $lead = $this->leads->get(LeadId::fromString($command->leadId));
-        $lead->scheduleFollowUp($dueAt, $command->label, $this->clock->now());
+        $lead->scheduleFollowUp($dueAt, $command->label, $this->clock->now(), $this->followUpIds);
         $this->leads->save($lead);
         $this->eventBus->publish(...$lead->pullDomainEvents());
     }

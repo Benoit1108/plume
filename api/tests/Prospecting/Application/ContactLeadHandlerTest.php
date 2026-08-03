@@ -41,6 +41,7 @@ final class ContactLeadHandlerTest extends TestCase
             $this->eventBus,
             new FixedClock(new \DateTimeImmutable('2026-07-13 10:00:00')),
             new \App\Tests\Support\FixedFollowUpCadenceProvider(),
+            new \App\Tests\Support\SequentialFollowUpIds(),
         );
 
         $lead = Lead::create(

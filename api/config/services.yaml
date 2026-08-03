@@ -65,6 +65,8 @@ services:
     # Ports techniques de la couche Application (horloge, identifiants).
     App\Shared\Application\Clock: '@App\Shared\Infrastructure\Time\SystemClock'
     App\Shared\Application\IdGenerator: '@App\Shared\Infrastructure\Uid\UuidV7IdGenerator'
+    # Identifiants de relance générés HORS domaine (UUID v7) — injectés dans l'agrégat Lead.
+    App\Prospecting\Domain\Lead\FollowUpIds: '@App\Prospecting\Infrastructure\Uid\Uuid7FollowUpIds'
 
     # Repositories : interface (Domain, hors conteneur) -> implémentation (Infrastructure).
     App\Prospecting\Domain\Lead\LeadRepository: '@App\Prospecting\Infrastructure\Persistence\Doctrine\DoctrineLeadRepository'

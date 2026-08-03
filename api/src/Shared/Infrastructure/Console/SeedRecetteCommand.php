@@ -29,6 +29,7 @@ use App\Mailbox\Domain\Mailbox\MailProviderName;
 use App\Mailbox\Domain\Outbound\OutboundMessage;
 use App\Mailbox\Domain\Outbound\OutboundMessageId;
 use App\Mailbox\Domain\Outbound\OutboundMessageRepository;
+use App\Prospecting\Domain\Lead\FollowUpIds;
 use App\Prospecting\Domain\Lead\Lead;
 use App\Prospecting\Domain\Lead\LeadId;
 use App\Prospecting\Domain\Lead\LeadRepository;
@@ -81,6 +82,7 @@ final class SeedRecetteCommand extends Command
         private readonly Connection $connection,
         private readonly UserPasswordHasherInterface $hasher,
         private readonly IdGenerator $ids,
+        private readonly FollowUpIds $followUpIds,
         private readonly OrganizationRepository $organizations,
         private readonly LeadRepository $leads,
         private readonly DraftRepository $drafts,
@@ -377,13 +379,13 @@ final class SeedRecetteCommand extends Command
 
             if (null !== $contactDaysAgo) {
                 $contactAt = $this->daysAgo($contactDaysAgo);
-                $lead->contact($contactAt);
+                $lead->contact($contactAt, $this->followUpIds);
                 $interactions += $this->interaction($leadId, 'contacted', $contactAt);
                 $interactions += $this->interaction($leadId, 'follow_up_scheduled', $contactAt, ['dueAt' => $contactAt->modify('+7 days')->format('Y-m-d'), 'auto' => true]);
 
                 if ('followed' === $outcome) {
                     $fuAt = $this->daysAgo(max(1, $contactDaysAgo - 7));
-                    $lead->recordFollowUp($fuAt);
+                    $lead->recordFollowUp($fuAt, $this->followUpIds);
                     $interactions += $this->interaction($leadId, 'followed_up', $fuAt);
                     $interactions += $this->interaction($leadId, 'follow_up_scheduled', $fuAt, ['dueAt' => $fuAt->modify('+21 days')->format('Y-m-d'), 'auto' => true]);
                 } elseif (\in_array($outcome, ['discussion', 'sample', 'won'], true)) {
@@ -393,7 +395,7 @@ final class SeedRecetteCommand extends Command
                     $lastTouch = $contactDaysAgo;
                     foreach ($followUpOffsets as $offset) {
                         $fuAt = $this->daysAgo($contactDaysAgo - $offset);
-                        $lead->recordFollowUp($fuAt);
+                        $lead->recordFollowUp($fuAt, $this->followUpIds);
                         $interactions += $this->interaction($leadId, 'followed_up', $fuAt);
                         $lastTouch = $contactDaysAgo - $offset;
                     }

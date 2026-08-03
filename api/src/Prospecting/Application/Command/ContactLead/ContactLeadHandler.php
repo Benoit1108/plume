@@ -8,6 +8,7 @@ use App\Prospecting\Application\FollowUpCadenceProvider;
 use App\Prospecting\Application\OrganizationGateway;
 use App\Prospecting\Domain\Lead\Exception\LeadNotFound;
 use App\Prospecting\Domain\Lead\Exception\OrganizationNotContactable;
+use App\Prospecting\Domain\Lead\FollowUpIds;
 use App\Prospecting\Domain\Lead\LeadId;
 use App\Prospecting\Domain\Lead\LeadRepository;
 use App\Shared\Application\Clock;
@@ -22,6 +23,7 @@ final class ContactLeadHandler implements CommandHandler
         private readonly EventBus $eventBus,
         private readonly Clock $clock,
         private readonly FollowUpCadenceProvider $cadences,
+        private readonly FollowUpIds $followUpIds,
     ) {
     }
 
@@ -40,7 +42,7 @@ final class ContactLeadHandler implements CommandHandler
             throw OrganizationNotContactable::forOrganization($lead->organizationId());
         }
 
-        $lead->contact($this->clock->now(), $this->cadences->forCurrentTenant());
+        $lead->contact($this->clock->now(), $this->followUpIds, $this->cadences->forCurrentTenant());
         $this->leads->save($lead);
 
         // Outbox : l'INSERT des events dans le transport doctrine rejoint la transaction

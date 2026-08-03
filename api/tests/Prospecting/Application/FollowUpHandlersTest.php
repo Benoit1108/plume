@@ -23,7 +23,9 @@ use App\Shared\Domain\ValueObject\LanguagePair;
 use App\Shared\Domain\ValueObject\Segment;
 use App\Shared\Domain\ValueObject\TenantId;
 use App\Tests\Support\FixedClock;
+use App\Tests\Support\FixedFollowUpCadenceProvider;
 use App\Tests\Support\RecordingEventBus;
+use App\Tests\Support\SequentialFollowUpIds;
 use PHPUnit\Framework\TestCase;
 
 /** Tests d'application des relances : repo in-memory, sans base. */
@@ -32,12 +34,14 @@ final class FollowUpHandlersTest extends TestCase
     private InMemoryLeadRepository $leads;
     private RecordingEventBus $eventBus;
     private FixedClock $clock;
+    private SequentialFollowUpIds $followUpIds;
 
     protected function setUp(): void
     {
         $this->leads = new InMemoryLeadRepository();
         $this->eventBus = new RecordingEventBus();
         $this->clock = new FixedClock(new \DateTimeImmutable('2026-07-13 10:00:00'));
+        $this->followUpIds = new SequentialFollowUpIds();
 
         $lead = Lead::create(
             LeadId::fromString('lead-1'),
@@ -50,14 +54,14 @@ final class FollowUpHandlersTest extends TestCase
             Segment::PUBLISHING,
             new \DateTimeImmutable('2026-07-13 09:00:00'),
         );
-        $lead->contact($this->clock->now()); // relance auto J+7 en attente
+        $lead->contact($this->clock->now(), $this->followUpIds); // relance auto J+7 en attente
         $lead->pullDomainEvents();
         $this->leads->save($lead);
     }
 
     public function testRecordFollowUpAdvancesCadence(): void
     {
-        (new RecordFollowUpHandler($this->leads, $this->eventBus, $this->clock, new \App\Tests\Support\FixedFollowUpCadenceProvider()))(new RecordFollowUp('lead-1'));
+        (new RecordFollowUpHandler($this->leads, $this->eventBus, $this->clock, new FixedFollowUpCadenceProvider(), $this->followUpIds))(new RecordFollowUp('lead-1'));
 
         $lead = $this->leads->get(LeadId::fromString('lead-1'));
         self::assertSame(PipelineStatus::FOLLOWED_UP, $lead->status());
@@ -68,7 +72,7 @@ final class FollowUpHandlersTest extends TestCase
 
     public function testScheduleFollowUpParsesDateAndReplaces(): void
     {
-        (new ScheduleFollowUpHandler($this->leads, $this->eventBus, $this->clock))(
+        (new ScheduleFollowUpHandler($this->leads, $this->eventBus, $this->clock, $this->followUpIds))(
             new ScheduleFollowUp('lead-1', '2026-07-15', 'Après le salon'),
         );
 
@@ -80,7 +84,7 @@ final class FollowUpHandlersTest extends TestCase
     public function testScheduleFollowUpRejectsMalformedDate(): void
     {
         $this->expectException(InvalidValue::class);
-        (new ScheduleFollowUpHandler($this->leads, $this->eventBus, $this->clock))(
+        (new ScheduleFollowUpHandler($this->leads, $this->eventBus, $this->clock, $this->followUpIds))(
             new ScheduleFollowUp('lead-1', '15/07/2026', null),
         );
     }

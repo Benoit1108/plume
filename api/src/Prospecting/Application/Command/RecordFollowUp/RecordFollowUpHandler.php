@@ -6,6 +6,7 @@ namespace App\Prospecting\Application\Command\RecordFollowUp;
 
 use App\Prospecting\Application\FollowUpCadenceProvider;
 use App\Prospecting\Domain\Lead\Exception\LeadNotFound;
+use App\Prospecting\Domain\Lead\FollowUpIds;
 use App\Prospecting\Domain\Lead\LeadId;
 use App\Prospecting\Domain\Lead\LeadRepository;
 use App\Shared\Application\Clock;
@@ -19,6 +20,7 @@ final class RecordFollowUpHandler implements CommandHandler
         private readonly EventBus $eventBus,
         private readonly Clock $clock,
         private readonly FollowUpCadenceProvider $cadences,
+        private readonly FollowUpIds $followUpIds,
     ) {
     }
 
@@ -30,7 +32,7 @@ final class RecordFollowUpHandler implements CommandHandler
         if (null !== $command->tenantId && $lead->tenantId()->toString() !== $command->tenantId) {
             throw LeadNotFound::withId($lead->id());
         }
-        $lead->recordFollowUp($this->clock->now(), $this->cadences->forCurrentTenant());
+        $lead->recordFollowUp($this->clock->now(), $this->followUpIds, $this->cadences->forCurrentTenant());
         $this->leads->save($lead);
         $this->eventBus->publish(...$lead->pullDomainEvents());
     }

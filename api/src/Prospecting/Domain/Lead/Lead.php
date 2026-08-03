@@ -99,12 +99,12 @@ final class Lead extends AggregateRoot
     }
 
     /** Contact établi : la cadence démarre (1ʳᵉ relance auto-planifiée selon la séquence, défaut J+7). */
-    public function contact(\DateTimeImmutable $now, ?FollowUpCadence $cadence = null): void
+    public function contact(\DateTimeImmutable $now, FollowUpIds $ids, ?FollowUpCadence $cadence = null): void
     {
         $this->transitionTo(PipelineStatus::CONTACTED);
         $this->lastContactedAt = $now;
         $this->recordEvent(new LeadContacted($this->tenantId->toString(), $this->id->toString(), $now));
-        $this->autoScheduleFollowUp($now, $cadence);
+        $this->autoScheduleFollowUp($now, $ids, $cadence);
     }
 
     /**
@@ -137,7 +137,7 @@ final class Lead extends AggregateRoot
     }
 
     /** Relance faite (acte manuel en M1 — l'envoi réel arrive en M2). Cadence : suivante auto. */
-    public function recordFollowUp(\DateTimeImmutable $now, ?FollowUpCadence $cadence = null): void
+    public function recordFollowUp(\DateTimeImmutable $now, FollowUpIds $ids, ?FollowUpCadence $cadence = null): void
     {
         $this->transitionTo(PipelineStatus::FOLLOWED_UP);
 
@@ -147,18 +147,18 @@ final class Lead extends AggregateRoot
             $followUpId = $pending->id();
         } else {
             // Relance faite sans planification préalable : on la consigne (cadence + journal).
-            $done = new FollowUp(FollowUpId::generate(), $now, null, FollowUpStatus::DONE);
+            $done = new FollowUp($ids->next(), $now, null, FollowUpStatus::DONE);
             $this->followUps[] = $done;
             $followUpId = $done->id();
         }
 
         $this->syncNextFollowUp();
         $this->recordEvent(new FollowUpSent($this->tenantId->toString(), $this->id->toString(), $followUpId->toString(), $now));
-        $this->autoScheduleFollowUp($now, $cadence);
+        $this->autoScheduleFollowUp($now, $ids, $cadence);
     }
 
     /** Planification (ou replanification) manuelle — remplace la relance en attente. */
-    public function scheduleFollowUp(\DateTimeImmutable $dueAt, ?string $label, \DateTimeImmutable $now): void
+    public function scheduleFollowUp(\DateTimeImmutable $dueAt, ?string $label, \DateTimeImmutable $now, FollowUpIds $ids): void
     {
         $this->guardFollowUpAllowed();
         if ($dueAt->format('Y-m-d') < $now->format('Y-m-d')) {
@@ -174,7 +174,7 @@ final class Lead extends AggregateRoot
             ));
         }
 
-        $this->applySchedule($dueAt, null !== $label && '' !== trim($label) ? trim($label) : null, auto: false, now: $now);
+        $this->applySchedule($dueAt, null !== $label && '' !== trim($label) ? trim($label) : null, auto: false, now: $now, ids: $ids);
     }
 
     /** Annulation volontaire de la relance en attente (sans effet s'il n'y en a pas). */
@@ -251,19 +251,19 @@ final class Lead extends AggregateRoot
     // ----- Relances : mécanique interne -----
 
     /** Planifie la relance suivante selon la SÉQUENCE (défaut [7,21,45] si non fournie). */
-    private function autoScheduleFollowUp(\DateTimeImmutable $now, ?FollowUpCadence $cadence): void
+    private function autoScheduleFollowUp(\DateTimeImmutable $now, FollowUpIds $ids, ?FollowUpCadence $cadence): void
     {
         $delay = ($cadence ?? FollowUpCadence::default())->nextDelayInDays($this->doneFollowUpsCount());
         if (null === $delay || null !== $this->pendingFollowUp()) {
             return;
         }
 
-        $this->applySchedule($now->modify(sprintf('+%d days', $delay)), null, auto: true, now: $now);
+        $this->applySchedule($now->modify(sprintf('+%d days', $delay)), null, auto: true, now: $now, ids: $ids);
     }
 
-    private function applySchedule(\DateTimeImmutable $dueAt, ?string $label, bool $auto, \DateTimeImmutable $now): void
+    private function applySchedule(\DateTimeImmutable $dueAt, ?string $label, bool $auto, \DateTimeImmutable $now, FollowUpIds $ids): void
     {
-        $followUp = FollowUp::pending(FollowUpId::generate(), $dueAt, $label);
+        $followUp = FollowUp::pending($ids->next(), $dueAt, $label);
         $this->followUps[] = $followUp;
         $this->syncNextFollowUp();
         $this->recordEvent(new FollowUpScheduled(

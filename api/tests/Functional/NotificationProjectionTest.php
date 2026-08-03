@@ -45,10 +45,12 @@ final class NotificationProjectionTest extends KernelTestCase
         $projector = new NotificationProjector($this->connection);
 
         $reply = new ReplyCaptured($tenant, 'lead-1', 'thread-1', 'Merci pour votre message, ça m\'intéresse !', new \DateTimeImmutable('2026-07-28 09:00:00'));
+        $reply->assignId('evt-reply-1'); // l'outbox assigne l'id ; ici on le simule (redélivrance = même id)
         $projector->onReplyCaptured($reply);
         $projector->onReplyCaptured($reply); // redélivrance Messenger → aucun doublon
 
         $failure = new EmailSendFailed($tenant, 'msg-1', 'lead-1', 'token_expired', new \DateTimeImmutable('2026-07-28 10:00:00'));
+        $failure->assignId('evt-failure-1');
         $projector->onEmailSendFailed($failure);
 
         self::assertSame(2, $this->countFor($tenant));
@@ -62,6 +64,7 @@ final class NotificationProjectionTest extends KernelTestCase
         $projector = new NotificationProjector($this->connection);
 
         $ingested = new CandidateLeadIngested('cand-1', $tenant, 'LINKEDIN', 'hash-1', new \DateTimeImmutable('2026-07-30 09:00:00'));
+        $ingested->assignId('evt-ingested-1');
         $projector->onCandidateLeadIngested($ingested);
         $projector->onCandidateLeadIngested($ingested); // redélivrance → aucun doublon
 
@@ -79,11 +82,15 @@ final class NotificationProjectionTest extends KernelTestCase
         $projector = new NotificationProjector($this->connection);
 
         // Incident transitoire (réseau/5xx) : la boîte est ERROR mais se rétablira → PAS de notification.
-        $projector->onMailboxSyncFailed(new MailboxSyncFailed($tenant, 'mbx-1', 'sync_failed', new \DateTimeImmutable('2026-07-28 08:00:00')));
+        $transient = new MailboxSyncFailed($tenant, 'mbx-1', 'sync_failed', new \DateTimeImmutable('2026-07-28 08:00:00'));
+        $transient->assignId('evt-sync-1');
+        $projector->onMailboxSyncFailed($transient);
         self::assertSame(0, $this->countFor($tenant));
 
         // Token mort → RECONNEXION requise : une notification actionnable.
-        $projector->onMailboxSyncFailed(new MailboxSyncFailed($tenant, 'mbx-1', 'reauth_required', new \DateTimeImmutable('2026-07-28 08:05:00')));
+        $reauth = new MailboxSyncFailed($tenant, 'mbx-1', 'reauth_required', new \DateTimeImmutable('2026-07-28 08:05:00'));
+        $reauth->assignId('evt-sync-2');
+        $projector->onMailboxSyncFailed($reauth);
         self::assertSame(1, $this->countFor($tenant));
         self::assertSame('mailbox_disconnected', $this->connection->fetchOne('SELECT type FROM notification WHERE tenant_id = ?', [$tenant]));
     }

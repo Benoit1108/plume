@@ -30,6 +30,7 @@ use App\Shared\Domain\Exception\InvalidValue;
 use App\Shared\Domain\ValueObject\LanguagePair;
 use App\Shared\Domain\ValueObject\Segment;
 use App\Shared\Domain\ValueObject\TenantId;
+use App\Tests\Support\SequentialFollowUpIds;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -39,10 +40,12 @@ use PHPUnit\Framework\TestCase;
 final class LeadTest extends TestCase
 {
     private \DateTimeImmutable $now;
+    private SequentialFollowUpIds $followUpIds;
 
     protected function setUp(): void
     {
         $this->now = new \DateTimeImmutable('2026-07-13 10:00:00');
+        $this->followUpIds = new SequentialFollowUpIds();
     }
 
     private function aLead(): Lead
@@ -68,7 +71,7 @@ final class LeadTest extends TestCase
             self::fail('FOLLOWED_UP arrive en M1.3 (relances).');
         }
         if (\in_array($status, [PipelineStatus::CONTACTED, PipelineStatus::IN_DISCUSSION, PipelineStatus::SAMPLE_TEST, PipelineStatus::WON], true)) {
-            $lead->contact($this->now);
+            $lead->contact($this->now, $this->followUpIds);
         }
         if (\in_array($status, [PipelineStatus::IN_DISCUSSION, PipelineStatus::SAMPLE_TEST, PipelineStatus::WON], true)) {
             $lead->recordReply($this->now);
@@ -107,7 +110,9 @@ final class LeadTest extends TestCase
         self::assertInstanceOf(LeadCreated::class, $event);
         self::assertSame('tenant-1', $event->tenantId);
         self::assertSame('org-1', $event->organizationId);
-        self::assertMatchesRegularExpression('/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$/', $event->eventId());
+        // L'identifiant d'event n'est plus généré par le domaine : il est assigné à la publication
+        // (outbox). Avant publication, le lire est une erreur de programmation.
+        self::assertEquals($this->now, $event->occurredOn());
     }
 
     public function testHappyPathToWon(): void
@@ -115,7 +120,7 @@ final class LeadTest extends TestCase
         $lead = $this->aLead();
         $lead->pullDomainEvents();
 
-        $lead->contact($this->now);
+        $lead->contact($this->now, $this->followUpIds);
         self::assertEquals($this->now, $lead->lastContactedAt());
 
         $lead->recordReply($this->now->modify('+1 day'));
@@ -147,7 +152,7 @@ final class LeadTest extends TestCase
         foreach ([PipelineStatus::WON, PipelineStatus::LOST] as $terminal) {
             $lead = $this->aLeadIn($terminal);
             try {
-                $lead->contact($this->now);
+                $lead->contact($this->now, $this->followUpIds);
                 self::fail(sprintf('contact() devrait être refusé depuis %s', $terminal->value));
             } catch (IllegalStatusTransition) {
                 self::assertSame($terminal, $lead->status());
@@ -263,7 +268,7 @@ final class LeadTest extends TestCase
         $lead = $this->aLead();
         $lead->pullDomainEvents();
 
-        $lead->contact($this->now);
+        $lead->contact($this->now, $this->followUpIds);
 
         self::assertSame('2026-07-20', $lead->nextFollowUpAt()?->format('Y-m-d'));
         $events = $lead->pullDomainEvents();
@@ -276,14 +281,14 @@ final class LeadTest extends TestCase
     {
         $lead = $this->aLeadIn(PipelineStatus::CONTACTED); // relance auto J+7 en attente
 
-        $lead->recordFollowUp($this->now); // 1 faite -> J+21
+        $lead->recordFollowUp($this->now, $this->followUpIds); // 1 faite -> J+21
         self::assertSame(PipelineStatus::FOLLOWED_UP, $lead->status());
         self::assertSame('2026-08-03', $lead->nextFollowUpAt()?->format('Y-m-d'));
 
-        $lead->recordFollowUp($this->now); // 2 faites -> J+45
+        $lead->recordFollowUp($this->now, $this->followUpIds); // 2 faites -> J+45
         self::assertSame('2026-08-27', $lead->nextFollowUpAt()?->format('Y-m-d'));
 
-        $lead->recordFollowUp($this->now); // 3 faites -> fin de cadence
+        $lead->recordFollowUp($this->now, $this->followUpIds); // 3 faites -> fin de cadence
         self::assertNull($lead->nextFollowUpAt());
 
         $events = $lead->pullDomainEvents();
@@ -310,7 +315,7 @@ final class LeadTest extends TestCase
     {
         $lead = $this->aLeadIn(PipelineStatus::TO_CONTACT);
 
-        $lead->contact($this->now, FollowUpCadence::fromDays([3, 10]));
+        $lead->contact($this->now, $this->followUpIds, FollowUpCadence::fromDays([3, 10]));
 
         // 1re relance à J+3 (au lieu du J+7 par défaut).
         self::assertSame('2026-07-16', $lead->nextFollowUpAt()?->format('Y-m-d'));
@@ -370,7 +375,7 @@ final class LeadTest extends TestCase
     {
         $lead = $this->aLeadIn(PipelineStatus::CONTACTED);
 
-        $lead->scheduleFollowUp($this->now->modify('+2 days'), '  Relancer après le salon  ', $this->now);
+        $lead->scheduleFollowUp($this->now->modify('+2 days'), '  Relancer après le salon  ', $this->now, $this->followUpIds);
 
         self::assertSame('2026-07-15', $lead->nextFollowUpAt()?->format('Y-m-d'));
         self::assertSame('Relancer après le salon', $lead->nextFollowUpLabel());
@@ -382,25 +387,25 @@ final class LeadTest extends TestCase
     {
         $lead = $this->aLeadIn(PipelineStatus::CONTACTED);
 
-        $lead->scheduleFollowUp($this->now, null, $this->now); // aujourd'hui : OK
+        $lead->scheduleFollowUp($this->now, null, $this->now, $this->followUpIds); // aujourd'hui : OK
         self::assertSame('2026-07-13', $lead->nextFollowUpAt()?->format('Y-m-d'));
 
         $this->expectException(InvalidValue::class);
-        $lead->scheduleFollowUp($this->now->modify('-1 day'), null, $this->now);
+        $lead->scheduleFollowUp($this->now->modify('-1 day'), null, $this->now, $this->followUpIds);
     }
 
     public function testNoFollowUpOnTerminalOrPausedLead(): void
     {
         $lead = $this->aLeadIn(PipelineStatus::PAUSED);
         try {
-            $lead->scheduleFollowUp($this->now->modify('+3 days'), null, $this->now);
+            $lead->scheduleFollowUp($this->now->modify('+3 days'), null, $this->now, $this->followUpIds);
             self::fail('scheduleFollowUp devrait être refusé en pause');
         } catch (FollowUpNotAllowed) {
         }
 
         $lead = $this->aLeadIn(PipelineStatus::WON);
         $this->expectException(FollowUpNotAllowed::class);
-        $lead->scheduleFollowUp($this->now->modify('+3 days'), null, $this->now);
+        $lead->scheduleFollowUp($this->now->modify('+3 days'), null, $this->now, $this->followUpIds);
     }
 
     public function testManualCancelIsIdempotent(): void
@@ -421,7 +426,7 @@ final class LeadTest extends TestCase
         $lead->cancelFollowUp($this->now); // plus de PENDING
         $lead->pullDomainEvents();
 
-        $lead->recordFollowUp($this->now); // consignée DONE + cadence continue (J+21)
+        $lead->recordFollowUp($this->now, $this->followUpIds); // consignée DONE + cadence continue (J+21)
 
         self::assertSame('2026-08-03', $lead->nextFollowUpAt()?->format('Y-m-d'));
         self::assertSame(1, \count(array_filter($lead->followUps(), static fn ($f): bool => FollowUpStatus::DONE === $f->status())));
