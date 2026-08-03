@@ -12,6 +12,11 @@ parameters:
     # Garde-fou coût IA : coupe-circuit (1 = actif) + plafond mensuel de jetons (0 = illimité).
     env(AI_GENERATION_ENABLED): '1'
     env(AI_MONTHLY_TOKEN_BUDGET): '0'
+    # Abonnement Stripe (V2.2). Sans STRIPE_SECRET_KEY => passerelle factice (dev/CI/E2E).
+    env(STRIPE_SECRET_KEY): ''
+    env(STRIPE_WEBHOOK_SECRET): ''
+    env(STRIPE_PRICE_MONTHLY): ''
+    env(STRIPE_PRICE_ANNUAL): ''
     # Passerelle email : sans GOOGLE_CLIENT_ID => connecteur factice (coût zéro).
     env(GOOGLE_CLIENT_ID): ''
     env(GOOGLE_CLIENT_SECRET): ''
@@ -190,6 +195,23 @@ services:
             $model: '%drafting.model%'
     # V2.2 abonnement : état par tenant (essai/actif/impayé/résilié/offert) + garde lecture seule.
     App\Billing\Application\Subscriptions: '@App\Billing\Infrastructure\Persistence\DoctrineSubscriptions'
+    # Passerelle de paiement : Stripe si STRIPE_SECRET_KEY présent, sinon factice (dev/CI/E2E).
+    App\Billing\Application\BillingGateway: '@App\Billing\Infrastructure\Gateway\ProviderBillingGateway'
+    App\Billing\Infrastructure\Gateway\ProviderBillingGateway:
+        arguments:
+            $secretKey: '%env(string:STRIPE_SECRET_KEY)%'
+    App\Billing\Infrastructure\Gateway\FakeBillingGateway:
+        arguments:
+            $frontBaseUrl: '%env(string:APP_FRONTEND_URL)%'
+    App\Billing\Infrastructure\Gateway\StripeBillingGateway:
+        arguments:
+            $secretKey: '%env(string:STRIPE_SECRET_KEY)%'
+            $priceMonthly: '%env(string:STRIPE_PRICE_MONTHLY)%'
+            $priceAnnual: '%env(string:STRIPE_PRICE_ANNUAL)%'
+            $frontBaseUrl: '%env(string:APP_FRONTEND_URL)%'
+    App\Billing\Infrastructure\Http\StripeWebhookController:
+        arguments:
+            $webhookSecret: '%env(string:STRIPE_WEBHOOK_SECRET)%'
 
     # Garde-fou de coût IA : coupe-circuit + plafond mensuel de jetons (0 = illimité).
     App\Drafting\Application\AiBudget: '@App\Drafting\Infrastructure\Budget\DoctrineAiBudget'

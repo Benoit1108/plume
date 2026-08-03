@@ -53,6 +53,16 @@ V2.0-c : la config est prête, cette page dit **quoi surcharger** avant d'ouvrir
 - Rappel : sans `ANTHROPIC_API_KEY`, aucune IA payante n'est appelée (générateur local gratuit).
 - Suivi : `GET /admin/status` → `aiUsage` (jetons du mois, plafond, appels, état) — visible au back-office.
 
+## 2quater. Abonnement Stripe (ADR-0033)
+
+- Sans `STRIPE_SECRET_KEY` : passerelle **factice** (aucun paiement réel). Pour activer Stripe en prod :
+  - **`STRIPE_SECRET_KEY`** (clé secrète live) + **`STRIPE_WEBHOOK_SECRET`** (secret de signature de
+    l'endpoint webhook — 🟦 à créer dans Stripe en pointant sur `POST /api/v1/billing/webhook`).
+  - **`STRIPE_PRICE_MONTHLY`** / **`STRIPE_PRICE_ANNUAL`** : les Price IDs créés dans Stripe (le montant
+    — 12 €/120 € provisoire — se règle côté Stripe, pas dans le code).
+- L'accès n'est crédité que par le **webhook signé** (jamais sur la redirection). Fin d'essai/impayé →
+  **lecture seule** (données conservées).
+
 ## 3. Base de données (deux rôles, RLS — ADR-0023)
 
 Dans l'ordre, en tant que **propriétaire `plume`** :

@@ -238,8 +238,13 @@ table `subscription` (hors RLS comme app_user — écrite à l'inscription/webho
 exclue de RlsCoverageTest), port `Subscriptions` (startTrial idempotent à l'inscription + isEntitled : active/
 comped→oui, trialing→si non expiré, past_due/canceled→non, **aucun abo→oui = grandfathered**, fail-open),
 garde `ReadOnlyGuardListener` sur kernel.controller (402 `subscription_required` sur écritures produit hors
-liste blanche auth/account/profile/admin/billing). Reste : 2/ Stripe réel (checkout/webhooks/portail, factice
-sans clés) · 3/ UI abonnement + bandeaux lecture seule (gère le 402) · 4/ back-office billing + bascule comped.
+liste blanche auth/account/profile/admin/billing). **Slice 2/4 LIVRÉE — intégration Stripe (factice + réel)** :
+port `BillingGateway` + `StripeBillingGateway` (HTTP fin) / `FakeBillingGateway` (active en local sans clés),
+routés par `ProviderBillingGateway` ; endpoints `POST /billing/checkout` (plan monthly/annual) + `/billing/portal`
+(409 si jamais payé) + **webhook public `/billing/webhook`** (signature HMAC + tolérance anti-rejeu ;
+checkout.completed→active, subscription.updated/deleted→past_due/canceled). Prix = 2 Price IDs Stripe en config
+(12 €/120 € provisoire), plan « Pro » unique. Reste : 3/ UI abonnement + bandeaux lecture seule (gère le 402) ·
+4/ back-office billing + bascule comped.
 
 **Prochaine grande étape** : finir V2.2 (slices 2-4) ; puis site vitrine/démo.
 enfin « à concevoir » (back-office v2 widgets, plafond budget IA global, site vitrine/démo).

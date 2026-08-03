@@ -65,4 +65,58 @@ final class DoctrineSubscriptions implements Subscriptions
 
         return $status->grantsWriteAccess($trialStillValid);
     }
+
+    public function activate(string $tenantId, string $customerId, string $subscriptionId, ?\DateTimeImmutable $currentPeriodEnd): void
+    {
+        $this->connection->executeStatement(
+            <<<'SQL'
+                INSERT INTO subscription (tenant_id, status, stripe_customer_id, stripe_subscription_id, current_period_end, updated_at)
+                VALUES (:tenant, :status, :customer, :subscription, :period_end, :now)
+                ON CONFLICT (tenant_id) DO UPDATE SET
+                    status = excluded.status,
+                    stripe_customer_id = excluded.stripe_customer_id,
+                    stripe_subscription_id = excluded.stripe_subscription_id,
+                    current_period_end = excluded.current_period_end,
+                    updated_at = excluded.updated_at
+                SQL,
+            [
+                'tenant' => $tenantId,
+                'status' => SubscriptionStatus::ACTIVE->value,
+                'customer' => $customerId,
+                'subscription' => $subscriptionId,
+                'period_end' => $currentPeriodEnd?->format('Y-m-d H:i:s'),
+                'now' => $this->clock->now()->format('Y-m-d H:i:s'),
+            ],
+        );
+    }
+
+    public function applyStatusByCustomer(string $customerId, SubscriptionStatus $status, ?\DateTimeImmutable $currentPeriodEnd): void
+    {
+        // Transition webhook : on ne crée jamais de ligne ici (le client Stripe naît au checkout).
+        $this->connection->executeStatement(
+            <<<'SQL'
+                UPDATE subscription
+                SET status = :status,
+                    current_period_end = COALESCE(:period_end, current_period_end),
+                    updated_at = :now
+                WHERE stripe_customer_id = :customer
+                SQL,
+            [
+                'status' => $status->value,
+                'period_end' => $currentPeriodEnd?->format('Y-m-d H:i:s'),
+                'now' => $this->clock->now()->format('Y-m-d H:i:s'),
+                'customer' => $customerId,
+            ],
+        );
+    }
+
+    public function stripeCustomerFor(string $tenantId): ?string
+    {
+        $customer = $this->connection->fetchOne(
+            'SELECT stripe_customer_id FROM subscription WHERE tenant_id = :tenant',
+            ['tenant' => $tenantId],
+        );
+
+        return \is_string($customer) && '' !== $customer ? $customer : null;
+    }
 }

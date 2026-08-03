@@ -7,10 +7,14 @@ namespace App\Tests\Functional;
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use ApiPlatform\Symfony\Bundle\Test\Client;
 use App\Account\Infrastructure\Persistence\User;
+use App\Billing\Application\Subscriptions;
+use App\Billing\Infrastructure\Http\StripeWebhookController;
 use App\Billing\Infrastructure\Persistence\DoctrineSubscriptions;
+use App\Shared\Application\Clock;
 use App\Tests\Support\FixedClock;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\Uid\Uuid;
@@ -119,6 +123,80 @@ final class BillingApiTest extends ApiTestCase
             'json' => ['weeklyGoal' => 7],
         ]);
         self::assertResponseIsSuccessful();
+    }
+
+    public function testCheckoutViaFakeGatewayLiftsReadOnly(): void
+    {
+        // Essai expiré → lecture seule. Le checkout (factice) active l'abonnement → écriture rétablie.
+        $tenant = $this->createUser('subscribe@plume.test');
+        $this->seedSubscription($tenant, 'trialing', '2000-01-01 00:00:00');
+
+        $client = static::createClient();
+        $token = $this->tokenFor($client, 'subscribe@plume.test');
+
+        /** @var array{url: string} $checkout */
+        $checkout = $client->request('POST', '/api/v1/billing/checkout', [
+            'auth_bearer' => $token,
+            'headers' => ['Content-Type' => 'application/json'],
+            'json' => ['plan' => 'monthly'],
+        ])->toArray();
+        self::assertStringContainsString('/settings', $checkout['url']); // retour app (factice)
+
+        // Désormais abonné → l'écriture produit repasse.
+        $client->request('POST', '/api/v1/organizations', [
+            'auth_bearer' => $token,
+            'headers' => ['Content-Type' => 'application/ld+json'],
+            'json' => ['name' => 'Éditions Abonnées', 'type' => 'PUBLISHER'],
+        ]);
+        self::assertResponseStatusCodeSame(201);
+    }
+
+    public function testPortalWithoutSubscriptionReturns409(): void
+    {
+        $this->createUser('noportal@plume.test'); // grandfathered, jamais payé → aucun client Stripe
+        $client = static::createClient();
+        $client->request('POST', '/api/v1/billing/portal', ['auth_bearer' => $this->tokenFor($client, 'noportal@plume.test')]);
+        self::assertResponseStatusCodeSame(409);
+    }
+
+    public function testWebhookActivatesThenTransitionsBySignedEvents(): void
+    {
+        $tenant = $this->createUser('webhook@plume.test');
+        $subs = static::getContainer()->get(Subscriptions::class);
+        \assert($subs instanceof Subscriptions);
+        $clock = static::getContainer()->get(Clock::class);
+        \assert($clock instanceof Clock);
+        $secret = 'whsec_test_123';
+        $controller = new StripeWebhookController($subs, $clock, $secret);
+
+        // 1) checkout.session.completed (signé) → abonnement actif + client Stripe mémorisé.
+        $completed = (string) json_encode(['type' => 'checkout.session.completed', 'data' => ['object' => [
+            'client_reference_id' => $tenant, 'customer' => 'cus_wh', 'subscription' => 'sub_wh',
+        ]]]);
+        self::assertSame(200, $controller($this->signedRequest($completed, $secret))->getStatusCode());
+        self::assertTrue($subs->isEntitled($tenant));
+        self::assertSame('cus_wh', $subs->stripeCustomerFor($tenant));
+
+        // 2) customer.subscription.updated past_due → lecture seule.
+        $pastDue = (string) json_encode(['type' => 'customer.subscription.updated', 'data' => ['object' => [
+            'customer' => 'cus_wh', 'status' => 'past_due',
+        ]]]);
+        self::assertSame(200, $controller($this->signedRequest($pastDue, $secret))->getStatusCode());
+        self::assertFalse($subs->isEntitled($tenant));
+
+        // 3) Signature invalide → 400, aucun effet.
+        $bad = Request::create('/api/v1/billing/webhook', 'POST', server: ['CONTENT_TYPE' => 'application/json'], content: $completed);
+        $bad->headers->set('Stripe-Signature', 't='.time().',v1=deadbeef');
+        self::assertSame(400, $controller($bad)->getStatusCode());
+    }
+
+    private function signedRequest(string $body, string $secret): Request
+    {
+        $t = time();
+        $request = Request::create('/api/v1/billing/webhook', 'POST', server: ['CONTENT_TYPE' => 'application/json'], content: $body);
+        $request->headers->set('Stripe-Signature', 't='.$t.',v1='.hash_hmac('sha256', $t.'.'.$body, $secret));
+
+        return $request;
     }
 
     public function testEntitledAccountCanWrite(): void
