@@ -35,7 +35,7 @@ final class BillingApiTest extends ApiTestCase
         $connection = static::getContainer()->get(Connection::class);
         \assert($connection instanceof Connection);
         $this->connection = $connection;
-        $this->connection->executeStatement('TRUNCATE TABLE app_user, refresh_tokens, subscription, organization, lead, profile RESTART IDENTITY CASCADE');
+        $this->connection->executeStatement('TRUNCATE TABLE app_user, refresh_tokens, subscription, stripe_webhook_event, organization, lead, profile RESTART IDENTITY CASCADE');
 
         $limiter = static::getContainer()->get('limiter.token_endpoints');
         \assert($limiter instanceof RateLimiterFactory);
@@ -190,7 +190,7 @@ final class BillingApiTest extends ApiTestCase
         $clock = static::getContainer()->get(Clock::class);
         \assert($clock instanceof Clock);
         $secret = 'whsec_test_123';
-        $controller = new StripeWebhookController($subs, $clock, $secret);
+        $controller = new StripeWebhookController($subs, $clock, $this->connection, $secret);
 
         // 1) checkout.session.completed (signé) → abonnement actif + client Stripe mémorisé.
         $completed = (string) json_encode(['type' => 'checkout.session.completed', 'data' => ['object' => [
@@ -211,6 +211,94 @@ final class BillingApiTest extends ApiTestCase
         $bad = Request::create('/api/v1/billing/webhook', 'POST', server: ['CONTENT_TYPE' => 'application/json'], content: $completed);
         $bad->headers->set('Stripe-Signature', 't='.time().',v1=deadbeef');
         self::assertSame(400, $controller($bad)->getStatusCode());
+    }
+
+    public function testWebhookRejectsStaleTimestamp(): void
+    {
+        // Anti-rejeu : un événement signé mais horodaté hors tolérance (300 s) est refusé (400).
+        $subs = static::getContainer()->get(Subscriptions::class);
+        \assert($subs instanceof Subscriptions);
+        $clock = new FixedClock(new \DateTimeImmutable('2026-08-03 12:00:00'));
+        $secret = 'whsec_stale';
+        $controller = new StripeWebhookController($subs, $clock, $this->connection, $secret);
+
+        $body = (string) json_encode(['id' => 'evt_stale', 'type' => 'checkout.session.completed', 'data' => ['object' => []]]);
+        $staleTs = $clock->now()->getTimestamp() - 600; // 10 min avant l'horloge du contrôleur
+        $request = Request::create('/api/v1/billing/webhook', 'POST', server: ['CONTENT_TYPE' => 'application/json'], content: $body);
+        $request->headers->set('Stripe-Signature', 't='.$staleTs.',v1='.hash_hmac('sha256', $staleTs.'.'.$body, $secret));
+
+        self::assertSame(400, $controller($request)->getStatusCode());
+    }
+
+    public function testWebhookIgnoresReplayedEvent(): void
+    {
+        // Un event.id déjà traité est ignoré : rejouer le checkout après une résiliation ne re-crédite PAS l'accès.
+        $tenant = $this->createUser('replay@plume.test');
+        $subs = static::getContainer()->get(Subscriptions::class);
+        \assert($subs instanceof Subscriptions);
+        $clock = static::getContainer()->get(Clock::class);
+        \assert($clock instanceof Clock);
+        $secret = 'whsec_replay';
+        $controller = new StripeWebhookController($subs, $clock, $this->connection, $secret);
+
+        $completed = (string) json_encode(['id' => 'evt_1', 'type' => 'checkout.session.completed', 'data' => ['object' => [
+            'client_reference_id' => $tenant, 'customer' => 'cus_r', 'subscription' => 'sub_r',
+        ]]]);
+        $controller($this->signedRequest($completed, $secret));
+        self::assertTrue($subs->isEntitled($tenant));
+
+        $deleted = (string) json_encode(['id' => 'evt_2', 'type' => 'customer.subscription.deleted', 'data' => ['object' => ['customer' => 'cus_r']]]);
+        $controller($this->signedRequest($deleted, $secret));
+        self::assertFalse($subs->isEntitled($tenant));
+
+        // Rejeu de evt_1 (signature valide) : dédupliqué → l'accès reste coupé.
+        $controller($this->signedRequest($completed, $secret));
+        self::assertFalse($subs->isEntitled($tenant));
+    }
+
+    public function testWebhookRouteIsPublicAndEnforcesSignatureEndToEnd(): void
+    {
+        // Câblage de bout en bout via la VRAIE route HTTP : elle est PUBLIQUE (sinon 401) et bien
+        // routée (sinon 404), et la signature est exigée → 400 sur signature invalide. Le chemin
+        // succès (200) est couvert par les tests contrôleur-direct (secret connu). On ne committe
+        // aucun secret webhook (gate gitleaks, dépôt public).
+        $body = (string) json_encode(['id' => 'evt_http', 'type' => 'checkout.session.completed', 'data' => ['object' => []]]);
+
+        static::createClient()->request('POST', '/api/v1/billing/webhook', [
+            'headers' => ['Content-Type' => 'application/json', 'Stripe-Signature' => 't='.time().',v1=deadbeef'],
+            'body' => $body,
+        ]);
+        self::assertResponseStatusCodeSame(400); // route atteinte, publique, signature refusée
+    }
+
+    public function testCheckoutAnnualPlanViaFakeGateway(): void
+    {
+        $this->createUser('annual@plume.test');
+        $client = static::createClient();
+        $token = $this->tokenFor($client, 'annual@plume.test');
+
+        /** @var array{url: string} $checkout */
+        $checkout = $client->request('POST', '/api/v1/billing/checkout', [
+            'auth_bearer' => $token,
+            'headers' => ['Content-Type' => 'application/json'],
+            'json' => ['plan' => 'annual'],
+        ])->toArray();
+        self::assertStringContainsString('/settings', $checkout['url']);
+    }
+
+    public function testPortalSuccessWhenCustomerExists(): void
+    {
+        // Compte ayant payé (client Stripe présent) → le portail renvoie une URL (factice).
+        $tenant = $this->createUser('portal@plume.test');
+        $this->connection->executeStatement(
+            "INSERT INTO subscription (tenant_id, status, stripe_customer_id, updated_at) VALUES (?, 'active', 'cus_portal', NOW())",
+            [$tenant],
+        );
+        $client = static::createClient();
+
+        /** @var array{url: string} $portal */
+        $portal = $client->request('POST', '/api/v1/billing/portal', ['auth_bearer' => $this->tokenFor($client, 'portal@plume.test')])->toArray();
+        self::assertStringContainsString('/settings', $portal['url']);
     }
 
     private function signedRequest(string $body, string $secret): Request

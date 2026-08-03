@@ -7,6 +7,7 @@ namespace App\Billing\Infrastructure\Http;
 use App\Billing\Application\Subscriptions;
 use App\Billing\Domain\SubscriptionStatus;
 use App\Shared\Application\Clock;
+use Doctrine\DBAL\Connection;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -18,6 +19,11 @@ use Symfony\Component\HttpKernel\Attribute\AsController;
  * temps) avant tout traitement. Traduit les événements d'abonnement en état local (active/impayé/
  * résilié). Répond toujours 200 aux événements valides (même ignorés) pour éviter les retries ;
  * 400 sur signature/configuration invalide.
+ *
+ * DÉDUPLICATION (revue santé S-P2c) : chaque `event.id` traité est mémorisé (`stripe_webhook_event`)
+ * et un événement déjà vu est ignoré — un payload signé rejoué dans la fenêtre de tolérance ne
+ * re-crédite plus l'accès. Le marquage n'a lieu qu'APRÈS traitement (les upserts sont idempotents,
+ * donc un échec avant marquage laisse Stripe rejouer sans risque de sauter l'événement).
  */
 #[AsController]
 final class StripeWebhookController
@@ -27,6 +33,7 @@ final class StripeWebhookController
     public function __construct(
         private readonly Subscriptions $subscriptions,
         private readonly Clock $clock,
+        private readonly Connection $connection,
         private readonly string $webhookSecret,
     ) {
     }
@@ -39,6 +46,11 @@ final class StripeWebhookController
         }
 
         $event = json_decode($raw, true);
+        $eventId = \is_array($event) && \is_string($event['id'] ?? null) ? $event['id'] : '';
+        if ('' !== $eventId && $this->alreadyProcessed($eventId)) {
+            return new JsonResponse(['received' => true, 'duplicate' => true]); // rejeu ignoré
+        }
+
         $type = \is_array($event) && \is_string($event['type'] ?? null) ? $event['type'] : '';
         $data = \is_array($event) ? ($event['data'] ?? null) : null;
         $object = \is_array($data) && \is_array($data['object'] ?? null) ? $data['object'] : [];
@@ -50,7 +62,27 @@ final class StripeWebhookController
             default => null, // événement non suivi : accusé de réception, aucun effet
         };
 
+        if ('' !== $eventId) {
+            $this->markProcessed($eventId);
+        }
+
         return new JsonResponse(['received' => true]);
+    }
+
+    private function alreadyProcessed(string $eventId): bool
+    {
+        return false !== $this->connection->fetchOne(
+            'SELECT 1 FROM stripe_webhook_event WHERE event_id = :id',
+            ['id' => $eventId],
+        );
+    }
+
+    private function markProcessed(string $eventId): void
+    {
+        $this->connection->executeStatement(
+            'INSERT INTO stripe_webhook_event (event_id, processed_at) VALUES (:id, :now) ON CONFLICT (event_id) DO NOTHING',
+            ['id' => $eventId, 'now' => $this->clock->now()->format('Y-m-d H:i:s')],
+        );
     }
 
     /** @param array<array-key, mixed> $object */
