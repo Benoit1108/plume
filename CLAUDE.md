@@ -277,4 +277,6 @@ front/tests-docs), aucun P0, notes 7,5–8,5. Remédiation par lots (CI verte pa
 (plus de génération d'ID : eventId assigné par l'outbox en v7, `FollowUpIds` injecté ; port `IdGenerator` réactivé) ·
 **D** nettoyage (18 `getName()` morts DBAL 4, `Assert\All` prefs notif) · **E** factorisations front transverses
 (`useCatchUpRefresh`, `downloadBlob`, `errorDetail`, `queryKeys.adminAccount`, code mort retiré) · **G** resync
-docs (ROADMAP, index ADR 0032–0034). **F** (découpage des grosses pages front — settings/admin en tête) : maintenabilité pure.
+docs (ROADMAP, index ADR 0032–0034). **F** découpage des **8 grosses pages front** (settings, admin, dashboard,
+account, organizations/[id], candidates, leads/[id], LeadDraftsSection) en orchestrateurs minces + sous-composants
+autonomes. **→ Remédiation A→G COMPLÈTE, CI verte par lot.**

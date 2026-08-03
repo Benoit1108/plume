@@ -1,5 +1,11 @@
 # Revue de santé « V2 complète » — 2026-08-03
 
+> **Statut : REMÉDIATION COMPLÈTE (A→G), CI verte par lot.** A sécu compte démo (ADR-0034) ·
+> B durcissement webhook Stripe · C domaine pur (eventId outbox v7 + `FollowUpIds`) · D nettoyage
+> (18 `getName()` DBAL 4 + `Assert\All`) · E factorisations front · F découpage des 8 grosses pages ·
+> G resync docs. (+ correctif advisory brace-expansion.)
+
+
 Point de contrôle : la V2 est complète côté fonctionnalités (jusqu'à la vitrine + compte démo).
 Cette revue couvre le **delta non revu depuis la revue globale du 2026-07-29** (V2.2 Billing/Stripe,
 garde lecture seule, compte démo, plafond IA ADR-0032, back-office v2, complétions dashboard) et
