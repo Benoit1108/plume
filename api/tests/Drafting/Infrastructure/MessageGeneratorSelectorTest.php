@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Drafting\Infrastructure;
 
+use App\Drafting\Application\AiGenerationPolicy;
 use App\Drafting\Application\DraftPrompt;
 use App\Drafting\Infrastructure\Generator\CannedMessageGenerator;
 use App\Drafting\Infrastructure\Generator\ClaudeMessageGenerator;
@@ -40,10 +41,25 @@ final class MessageGeneratorSelectorTest extends TestCase
         return new ClaudeMessageGenerator($http, new FakeAiBudget(), 'test-key', 'claude-sonnet-5');
     }
 
+    /** Politique de génération payante (démo = false → repli canned). */
+    private function policy(bool $allows): AiGenerationPolicy
+    {
+        return new class($allows) implements AiGenerationPolicy {
+            public function __construct(private readonly bool $allows)
+            {
+            }
+
+            public function allowsPaidGeneration(): bool
+            {
+                return $this->allows;
+            }
+        };
+    }
+
     public function testUsesClaudeWhenKeyPresentAndBudgetAllows(): void
     {
         $calls = 0;
-        $selector = new MessageGeneratorSelector(new CannedMessageGenerator(), $this->claudeSpy($calls), new FakeAiBudget(allows: true), 'test-key');
+        $selector = new MessageGeneratorSelector(new CannedMessageGenerator(), $this->claudeSpy($calls), new FakeAiBudget(allows: true), $this->policy(true), 'test-key');
 
         $message = $selector->generate($this->prompt());
 
@@ -54,7 +70,7 @@ final class MessageGeneratorSelectorTest extends TestCase
     public function testFallsBackToCannedWhenBudgetDisallows(): void
     {
         $calls = 0;
-        $selector = new MessageGeneratorSelector(new CannedMessageGenerator(), $this->claudeSpy($calls), new FakeAiBudget(allows: false), 'test-key');
+        $selector = new MessageGeneratorSelector(new CannedMessageGenerator(), $this->claudeSpy($calls), new FakeAiBudget(allows: false), $this->policy(true), 'test-key');
 
         $message = $selector->generate($this->prompt());
 
@@ -66,10 +82,22 @@ final class MessageGeneratorSelectorTest extends TestCase
     public function testFallsBackToCannedWhenKeyAbsent(): void
     {
         $calls = 0;
-        $selector = new MessageGeneratorSelector(new CannedMessageGenerator(), $this->claudeSpy($calls), new FakeAiBudget(allows: true), '');
+        $selector = new MessageGeneratorSelector(new CannedMessageGenerator(), $this->claudeSpy($calls), new FakeAiBudget(allows: true), $this->policy(true), '');
 
         $selector->generate($this->prompt());
 
         self::assertSame(0, $calls);
+    }
+
+    public function testFallsBackToCannedWhenPolicyDisallows(): void
+    {
+        // Tenant de démo : clé + budget OK, mais la politique interdit l'appel payant → canned gratuit.
+        $calls = 0;
+        $selector = new MessageGeneratorSelector(new CannedMessageGenerator(), $this->claudeSpy($calls), new FakeAiBudget(allows: true), $this->policy(false), 'test-key');
+
+        $message = $selector->generate($this->prompt());
+
+        self::assertSame(0, $calls); // API payante JAMAIS appelée pour une démo
+        self::assertStringNotContainsString('CLAUDE_OUTPUT', $message->body);
     }
 }

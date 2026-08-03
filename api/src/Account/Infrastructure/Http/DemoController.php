@@ -6,6 +6,7 @@ namespace App\Account\Infrastructure\Http;
 
 use App\Account\Infrastructure\Demo\DemoSeeder;
 use App\Account\Infrastructure\Persistence\User;
+use App\Shared\Application\Clock;
 use App\Shared\Domain\ValueObject\TenantId;
 use App\Shared\Infrastructure\Doctrine\Tenancy\TenantScope;
 use Doctrine\DBAL\Connection;
@@ -14,6 +15,7 @@ use Lexik\Bundle\JWTAuthenticationBundle\Security\Http\Authentication\Authentica
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
+use Symfony\Component\HttpKernel\Exception\ServiceUnavailableHttpException;
 use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\RateLimiter\RateLimiterFactory;
@@ -23,15 +25,19 @@ use Symfony\Component\Uid\Uuid;
  * Vitrine — « Essayer la démo » (POST /api/v1/demo, PUBLIC). Crée un tenant ÉPHÉMÈRE isolé + un
  * compte démo (rôle ROLE_DEMO, expirant), le pré-remplit de données fictives, et connecte
  * directement la visiteuse (cookies JWT via le success handler lexik). Le tenant est purgé après
- * `demo_expires_at` par un tick (réutilise la purge RGPD). Débit limité PAR IP (anti-abus).
+ * `demo_expires_at` par un tick (réutilise la purge RGPD).
  *
- * Sûr par construction : aucune boîte connectée (envois factices), aucune clé IA (canned gratuit),
- * tenant isolé (RLS). Aucun email réel n'est envoyé.
+ * Capacités BRIDÉES (l'endpoint est ouvert à un visiteur anonyme) : génération IA forcée gratuite
+ * (`AiGenerationPolicy` → canned), connexion de boîte réelle et envoi d'emails réels refusés
+ * (`DemoRestrictionListener`). Anti-abus : débit limité PAR IP + PLAFOND GLOBAL de démos actives.
  */
 #[AsController]
 final class DemoController
 {
     private const string DEMO_TTL = '+2 hours';
+
+    /** Plafond global de comptes de démo actifs simultanément (au-delà : 503, le temps que la purge horaire libère). */
+    private const int MAX_ACTIVE_DEMOS = 50;
 
     public function __construct(
         private readonly EntityManagerInterface $em,
@@ -41,6 +47,7 @@ final class DemoController
         private readonly DemoSeeder $seeder,
         private readonly AuthenticationSuccessHandler $successHandler,
         private readonly RateLimiterFactory $demoLimiter,
+        private readonly Clock $clock,
     ) {
     }
 
@@ -49,6 +56,15 @@ final class DemoController
         $limit = $this->demoLimiter->create((string) $request->getClientIp())->consume();
         if (!$limit->isAccepted()) {
             throw new TooManyRequestsHttpException($limit->getRetryAfter()->getTimestamp() - time());
+        }
+
+        $now = $this->clock->now();
+        $active = $this->connection->fetchOne(
+            'SELECT COUNT(*) FROM app_user WHERE demo_expires_at > :now',
+            ['now' => $now->format('Y-m-d H:i:s')],
+        );
+        if (is_numeric($active) && (int) $active >= self::MAX_ACTIVE_DEMOS) {
+            throw new ServiceUnavailableHttpException(null, 'demo_unavailable');
         }
 
         $tenantId = Uuid::v7();
@@ -62,7 +78,7 @@ final class DemoController
         // Expiration (colonne hors ORM) : marque le compte comme démo → purgé par le tick.
         $this->connection->executeStatement(
             'UPDATE app_user SET demo_expires_at = :expires WHERE tenant_id = :tenant',
-            ['expires' => (new \DateTimeImmutable(self::DEMO_TTL))->format('Y-m-d H:i:s'), 'tenant' => $tenantId->toRfc4122()],
+            ['expires' => $now->modify(self::DEMO_TTL)->format('Y-m-d H:i:s'), 'tenant' => $tenantId->toRfc4122()],
         );
 
         // Pré-remplissage sous le tenant démo (scope actif → RLS satisfaite ; nettoyé en fin de requête).

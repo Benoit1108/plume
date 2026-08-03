@@ -8,6 +8,9 @@ use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use App\Account\Infrastructure\Scheduler\PurgeAccount;
 use App\Account\Infrastructure\Scheduler\PurgeExpiredDemosHandler;
 use App\Account\Infrastructure\Scheduler\PurgeExpiredDemosTick;
+use App\Drafting\Application\AiGenerationPolicy;
+use App\Shared\Domain\ValueObject\TenantId;
+use App\Shared\Infrastructure\Doctrine\Tenancy\TenantScope;
 use App\Tests\Support\FixedClock;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\Messenger\Envelope;
@@ -75,6 +78,54 @@ final class DemoApiTest extends ApiTestCase
         self::assertCount(1, $bus->dispatched);
         self::assertInstanceOf(PurgeAccount::class, $bus->dispatched[0]);
         self::assertSame($expired, $bus->dispatched[0]->tenantId);
+    }
+
+    public function testReturns503WhenGlobalDemoCapReached(): void
+    {
+        // Sature le plafond global (MAX_ACTIVE_DEMOS = 50) de démos actives.
+        for ($i = 0; $i < 50; ++$i) {
+            $this->seedDemoUser("cap-$i@demo.plume.local", '+2 hours');
+        }
+
+        $client = static::createClient();
+        $client->request('POST', '/api/v1/demo', ['json' => []]);
+        self::assertResponseStatusCodeSame(503); // demo_unavailable, le temps que la purge horaire libère
+    }
+
+    public function testPaidGenerationRefusedForDemoTenant(): void
+    {
+        $tenant = $this->seedDemoUser('policy@demo.plume.local', '+2 hours');
+        $this->activate($tenant);
+
+        self::assertFalse($this->policy()->allowsPaidGeneration()); // démo → repli canned gratuit
+    }
+
+    public function testPaidGenerationAllowedForRegularTenant(): void
+    {
+        $tenant = Uuid::v7()->toRfc4122();
+        $this->connection->executeStatement(
+            "INSERT INTO app_user (id, tenant_id, email, password, roles, email_verified)
+             VALUES (?, ?, 'reg@plume.test', 'x', '[\"ROLE_USER\"]', true)",
+            [Uuid::v7()->toRfc4122(), $tenant],
+        );
+        $this->activate($tenant);
+
+        self::assertTrue($this->policy()->allowsPaidGeneration()); // compte normal → génération payante possible
+    }
+
+    private function policy(): AiGenerationPolicy
+    {
+        $policy = static::getContainer()->get(AiGenerationPolicy::class);
+        \assert($policy instanceof AiGenerationPolicy);
+
+        return $policy;
+    }
+
+    private function activate(string $tenantId): void
+    {
+        $scope = static::getContainer()->get(TenantScope::class);
+        \assert($scope instanceof TenantScope);
+        $scope->activate(TenantId::fromString($tenantId));
     }
 
     private function seedDemoUser(string $email, string $expiresModifier): string

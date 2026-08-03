@@ -191,6 +191,8 @@ services:
     App\Drafting\Infrastructure\Generator\MessageGeneratorSelector:
         arguments:
             $apiKey: '%drafting.anthropic_api_key%'
+    # Politique de génération payante : refusée aux tenants de démo (repli canned gratuit).
+    App\Drafting\Application\AiGenerationPolicy: '@App\Drafting\Infrastructure\Generator\TenantAiGenerationPolicy'
     App\Drafting\Infrastructure\Generator\ClaudeMessageGenerator:
         arguments:
             $apiKey: '%drafting.anthropic_api_key%'
