@@ -24,6 +24,13 @@ export interface AdminStatus {
   /** Âge du plus vieux message en attente (hors failed) — un backlog qui vieillit = worker bloqué. */
   backlogAgeSeconds: number
   mailboxesError: number
+  /** Garde-fou coût IA : consommation du mois vs plafond (0 = illimité) + coupe-circuit. */
+  aiUsage: {
+    enabled: boolean
+    monthlyTokenBudget: number
+    periodTokens: number
+    calls: number
+  }
 }
 
 /** KPIs produit (comptages/répartitions, sans PII). */

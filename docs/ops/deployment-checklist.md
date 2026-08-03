@@ -43,6 +43,16 @@ V2.0-c : la config est prête, cette page dit **quoi surcharger** avant d'ouvrir
   activer : renseigner le DSN d'un projet **Sentry** (SaaS ou self-hosté). `send_default_pii` est à
   `false` (aucune PII envoyée) ; les événements sont tagués `tenant_id` + `request_id`.
 
+## 2ter. Garde-fou de coût IA (ADR-0032)
+
+- **`AI_MONTHLY_TOKEN_BUDGET`** : plafond mensuel de jetons Anthropic (entrée+sortie). **Défaut `0` =
+  illimité** → **à fixer avant d'ouvrir au public** (ex. `2000000`). Au-delà, repli automatique sur le
+  générateur gratuit (aucune facture surprise, aucune coupure de service).
+- **`AI_GENERATION_ENABLED`** : **bouton d'arrêt d'urgence**. `0` coupe instantanément tout appel payant
+  (repli gratuit). Défaut `1`.
+- Rappel : sans `ANTHROPIC_API_KEY`, aucune IA payante n'est appelée (générateur local gratuit).
+- Suivi : `GET /admin/status` → `aiUsage` (jetons du mois, plafond, appels, état) — visible au back-office.
+
 ## 3. Base de données (deux rôles, RLS — ADR-0023)
 
 Dans l'ordre, en tant que **propriétaire `plume`** :

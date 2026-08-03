@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Drafting\Infrastructure\Generator;
 
+use App\Drafting\Application\AiBudget;
 use App\Drafting\Application\DraftPrompt;
 use App\Drafting\Application\Exception\GenerationFailed;
 use App\Drafting\Application\GeneratedMessage;
@@ -25,6 +26,7 @@ final class ClaudeMessageGenerator implements MessageGenerator
 
     public function __construct(
         private readonly HttpClientInterface $httpClient,
+        private readonly AiBudget $budget,
         private readonly string $apiKey,
         private readonly string $model,
     ) {
@@ -52,6 +54,15 @@ final class ClaudeMessageGenerator implements MessageGenerator
             $payload = $response->toArray();
         } catch (ExceptionInterface $e) {
             throw GenerationFailed::because('Anthropic API call failed.', $e);
+        }
+
+        // Coût déjà engagé dès qu'on a une réponse : comptabiliser AVANT toute validation du contenu.
+        $usage = $payload['usage'] ?? null;
+        if (\is_array($usage)) {
+            $this->budget->record(
+                is_numeric($usage['input_tokens'] ?? null) ? (int) $usage['input_tokens'] : 0,
+                is_numeric($usage['output_tokens'] ?? null) ? (int) $usage['output_tokens'] : 0,
+            );
         }
 
         $content = $payload['content'] ?? null;

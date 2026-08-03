@@ -7,16 +7,24 @@ namespace App\Tests\Drafting\Infrastructure;
 use App\Drafting\Application\DraftPrompt;
 use App\Drafting\Application\Exception\GenerationFailed;
 use App\Drafting\Infrastructure\Generator\ClaudeMessageGenerator;
+use App\Tests\Support\FakeAiBudget;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
 
-/** ACL Anthropic : parsing du format SUBJECT/OBJET, bornes, erreurs → GenerationFailed. */
+/** ACL Anthropic : parsing du format SUBJECT/OBJET, bornes, comptage des jetons, erreurs → GenerationFailed. */
 final class ClaudeMessageGeneratorTest extends TestCase
 {
+    private FakeAiBudget $budget;
+
+    protected function setUp(): void
+    {
+        $this->budget = new FakeAiBudget();
+    }
+
     private function generator(MockResponse $response): ClaudeMessageGenerator
     {
-        return new ClaudeMessageGenerator(new MockHttpClient($response), 'test-key', 'claude-sonnet-5');
+        return new ClaudeMessageGenerator(new MockHttpClient($response), $this->budget, 'test-key', 'claude-sonnet-5');
     }
 
     private function prompt(string $type = 'APPLICATION_EMAIL'): DraftPrompt
@@ -38,6 +46,27 @@ final class ClaudeMessageGeneratorTest extends TestCase
 
         self::assertSame('Candidature — traduction', $message->subject);
         self::assertSame("Bonjour,\nvoici mon message.", $message->body);
+    }
+
+    public function testRecordsTokenUsageAgainstTheBudget(): void
+    {
+        $response = self::apiResponse([
+            'content' => [['type' => 'text', 'text' => "SUBJECT: X\n\nCorps."]],
+            'usage' => ['input_tokens' => 320, 'output_tokens' => 210],
+        ]);
+
+        $this->generator($response)->generate($this->prompt());
+
+        self::assertSame([[320, 210]], $this->budget->recorded);
+    }
+
+    public function testMissingUsageDoesNotRecord(): void
+    {
+        $response = self::apiResponse(['content' => [['type' => 'text', 'text' => "SUBJECT: X\n\nCorps."]]]);
+
+        $this->generator($response)->generate($this->prompt());
+
+        self::assertSame([], $this->budget->recorded);
     }
 
     public function testParsesFrenchObjetMarkerToo(): void

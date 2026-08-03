@@ -9,6 +9,9 @@ parameters:
     # Rédaction assistée : clé absente => générateur local (canned), coût zéro.
     env(ANTHROPIC_API_KEY): ''
     env(DRAFTING_MODEL): 'claude-sonnet-5'
+    # Garde-fou coût IA : coupe-circuit (1 = actif) + plafond mensuel de jetons (0 = illimité).
+    env(AI_GENERATION_ENABLED): '1'
+    env(AI_MONTHLY_TOKEN_BUDGET): '0'
     # Passerelle email : sans GOOGLE_CLIENT_ID => connecteur factice (coût zéro).
     env(GOOGLE_CLIENT_ID): ''
     env(GOOGLE_CLIENT_SECRET): ''
@@ -185,6 +188,12 @@ services:
         arguments:
             $apiKey: '%drafting.anthropic_api_key%'
             $model: '%drafting.model%'
+    # Garde-fou de coût IA : coupe-circuit + plafond mensuel de jetons (0 = illimité).
+    App\Drafting\Application\AiBudget: '@App\Drafting\Infrastructure\Budget\DoctrineAiBudget'
+    App\Drafting\Infrastructure\Budget\DoctrineAiBudget:
+        arguments:
+            $enabled: '%env(bool:AI_GENERATION_ENABLED)%'
+            $monthlyTokenBudget: '%env(int:AI_MONTHLY_TOKEN_BUDGET)%'
 
     # Contexte Sourcing (ingestion d'annonces, M3) : repo + frontières par gateway.
     App\Sourcing\Domain\CandidateLead\CandidateLeadRepository: '@App\Sourcing\Infrastructure\Persistence\Doctrine\DoctrineCandidateLeadRepository'

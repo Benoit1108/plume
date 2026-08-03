@@ -30,7 +30,7 @@ final class AdminApiTest extends ApiTestCase
         $connection = static::getContainer()->get(Connection::class);
         \assert($connection instanceof Connection);
         $this->connection = $connection;
-        $this->connection->executeStatement('TRUNCATE TABLE app_user, refresh_tokens, organization, lead, audit_log RESTART IDENTITY CASCADE');
+        $this->connection->executeStatement('TRUNCATE TABLE app_user, refresh_tokens, organization, lead, audit_log, ai_usage RESTART IDENTITY CASCADE');
 
         $tokenLimiter = static::getContainer()->get('limiter.token_endpoints');
         \assert($tokenLimiter instanceof RateLimiterFactory);
@@ -137,12 +137,16 @@ final class AdminApiTest extends ApiTestCase
         $response = $client->request('GET', '/api/v1/admin/status', ['auth_bearer' => $token]);
         self::assertResponseIsSuccessful();
 
-        /** @var array{db: string, queues: array<string, int>, failed: int, backlogAgeSeconds: int, mailboxesError: int} $data */
+        /** @var array{db: string, queues: array<string, int>, failed: int, backlogAgeSeconds: int, mailboxesError: int, aiUsage: array{enabled: bool, monthlyTokenBudget: int, periodTokens: int, calls: int}} $data */
         $data = $response->toArray();
         self::assertSame('ok', $data['db']);
         self::assertSame(0, $data['mailboxesError']);
         self::assertArrayHasKey('failed', $data);
         self::assertArrayHasKey('backlogAgeSeconds', $data);
+        // Garde-fou coût IA : le back-office voit la consommation du mois (compteur vide au départ).
+        self::assertArrayHasKey('aiUsage', $data);
+        self::assertIsBool($data['aiUsage']['enabled']);
+        self::assertSame(0, $data['aiUsage']['periodTokens']);
     }
 
     public function testSystemStatusIsForbiddenToRegularUsers(): void

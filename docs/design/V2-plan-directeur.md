@@ -131,6 +131,9 @@ Nouveau contexte `Notification` (in-app d'abord, digests email ensuite) :
    sessions actives. Après le socle + l'inscription.
 4. 🟩 **Page de statut publique** (uptime, 🟦 dépend hébergement) + **reprise de boîte email** :
    reconnexion guidée quand un token OAuth expire (lié au centre de notifications).
+5. ✅ **Garde-fou de coût IA (LIVRÉ, ADR-0032)** : coupe-circuit `AI_GENERATION_ENABLED` + plafond mensuel
+   `AI_MONTHLY_TOKEN_BUDGET` (repli gratuit au blocage) + compteur `ai_usage` visible au back-office. 🟦 reste
+   à **fixer le plafond en prod** (défaut illimité).
 
 **Gardées mais plus tard / au fil de l'eau** (non prioritaires) :
 5. 🟩 Sauvegardes DB auto + test de restauration (🟦 dépend hébergeur) · 🟩 a11y + responsive mobile

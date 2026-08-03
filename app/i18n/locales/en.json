@@ -69,7 +69,13 @@
       "backlogHours": "{count} h",
       "mailboxesError": "Inboxes in error",
       "db": "Database",
-      "dbOk": "OK"
+      "dbOk": "OK",
+      "aiUsage": "AI usage (this month)",
+      "aiTokens": "tokens",
+      "aiUnlimited": "unlimited",
+      "aiCalls": "no generation | {count} generation | {count} generations",
+      "aiEnabled": "AI on",
+      "aiDisabled": "AI off"
     },
     "metrics": {
       "title": "Product metrics",

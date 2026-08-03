@@ -217,6 +217,13 @@ organisation existante (util pure `suggestDuplicateOrganizations`, égalité/inc
 propose de basculer en « fusionner » sur cette organisation (réutilise recherche + merge déjà en place ; 100 %
 front, aucun backend). **→ toutes les dettes techniques planifiées sont soldées.**
 
+**Plafond de budget IA global : LIVRÉ** (ADR-0032) : 3 lignes de défense — défaut gratuit (canned) + plafond
+par tenant/h (rate-limiter) + **garde-fou GLOBAL** : coupe-circuit `AI_GENERATION_ENABLED` + plafond mensuel
+`AI_MONTHLY_TOKEN_BUDGET` (jetons, 0 = illimité). Port `AiBudget`/`DoctrineAiBudget`, compteur `ai_usage`
+(mensuel, hors tenant/hors RLS, upsert atomique). Le sélecteur consulte `allowsGeneration()` avant Claude
+(sinon repli canned gratuit, jamais d'échec) ; le générateur `record()` les jetons `usage`. Exposé au
+back-office via `GET /admin/status` → `aiUsage` (widget). Lecture fail-open (coupe-circuit = garantie dure).
+
 **Prochaine grande étape** : V2.2 abonnement Stripe (attend décisions paiement + compte Stripe de Benoit) ;
-puis « à concevoir » (back-office v2 widgets, plafond budget IA global, site vitrine/démo).
+puis « à concevoir » (back-office v2 widgets, site vitrine/démo).
 enfin « à concevoir » (back-office v2 widgets, plafond budget IA global, site vitrine/démo).

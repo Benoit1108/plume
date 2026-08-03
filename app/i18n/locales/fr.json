@@ -69,7 +69,13 @@
       "backlogHours": "{count} h",
       "mailboxesError": "Boîtes en erreur",
       "db": "Base de données",
-      "dbOk": "OK"
+      "dbOk": "OK",
+      "aiUsage": "Consommation IA (ce mois)",
+      "aiTokens": "jetons",
+      "aiUnlimited": "illimité",
+      "aiCalls": "aucune génération | {count} génération | {count} générations",
+      "aiEnabled": "IA active",
+      "aiDisabled": "IA coupée"
     },
     "metrics": {
       "title": "Métriques produit",

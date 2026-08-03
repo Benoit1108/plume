@@ -28,6 +28,10 @@ const systemHealthy = computed(() =>
   && status.value.mailboxesError === 0
   && status.value.backlogAgeSeconds < 600,
 )
+function formatTokens(n: number): string {
+  return new Intl.NumberFormat(locale.value).format(n)
+}
+
 function backlogLabel(seconds: number): string {
   if (seconds < 60) return t('admin.status.backlogFresh')
   if (seconds < 3600) return t('admin.status.backlogMinutes', { count: Math.round(seconds / 60) })
@@ -150,6 +154,24 @@ const failedDepth = computed(() => overview.value?.queues.failed ?? 0)
           <p class="text-xs text-muted">{{ t('admin.status.db') }}</p>
           <p class="text-lg font-semibold mt-1.5">{{ status.db === 'ok' ? t('admin.status.dbOk') : status.db }}</p>
         </div>
+      </div>
+
+      <!-- Garde-fou coût IA : consommation du mois vs plafond + coupe-circuit -->
+      <div class="mt-3 border border-default rounded-xl p-4 bg-elevated/40 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <p class="text-xs text-muted">{{ t('admin.status.aiUsage') }}</p>
+          <p class="text-lg font-semibold mt-1.5 font-mono tabular-nums">
+            {{ formatTokens(status.aiUsage.periodTokens) }}
+            <span class="text-muted text-sm font-normal">
+              / {{ status.aiUsage.monthlyTokenBudget > 0 ? formatTokens(status.aiUsage.monthlyTokenBudget) : t('admin.status.aiUnlimited') }}
+              {{ t('admin.status.aiTokens') }}
+            </span>
+          </p>
+          <p class="text-xs text-muted mt-0.5">{{ t('admin.status.aiCalls', { count: status.aiUsage.calls }, status.aiUsage.calls) }}</p>
+        </div>
+        <UBadge :color="status.aiUsage.enabled ? 'success' : 'error'" variant="soft">
+          {{ status.aiUsage.enabled ? t('admin.status.aiEnabled') : t('admin.status.aiDisabled') }}
+        </UBadge>
       </div>
     </section>
 

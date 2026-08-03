@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Admin\Infrastructure\Http;
 
+use App\Drafting\Application\AiBudget;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -23,6 +24,7 @@ final class AdminStatusController
     public function __construct(
         #[Autowire(service: 'doctrine.dbal.admin_connection')]
         private readonly Connection $admin,
+        private readonly AiBudget $aiBudget,
     ) {
     }
 
@@ -52,6 +54,8 @@ final class AdminStatusController
             'failed' => $queues['failed'] ?? 0,
             'backlogAgeSeconds' => is_numeric($backlogAge) ? (int) $backlogAge : 0,
             'mailboxesError' => self::toInt($mailboxesError),
+            // Garde-fou coût IA : coupe-circuit + consommation du mois vs plafond (0 = illimité).
+            'aiUsage' => $this->aiBudget->snapshot(),
         ]);
     }
 
