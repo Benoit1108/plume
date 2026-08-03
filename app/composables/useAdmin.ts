@@ -1,4 +1,4 @@
-import type { AdminAccount, AdminAlerts, AdminAuditEntry, AdminMetrics, AdminOverview, AdminStatus, AdminTrends } from '~/types/admin'
+import type { AdminAccount, AdminAccountDetail, AdminAlerts, AdminAuditEntry, AdminMetrics, AdminOverview, AdminStatus, AdminTrends } from '~/types/admin'
 
 /** Back-office (ROLE_ADMIN) : vue d'ensemble, comptes, audit, actions support. */
 export function useAdmin() {
@@ -27,6 +27,9 @@ export function useAdmin() {
       const res = await api<{ accounts: AdminAccount[] }>('/api/v1/admin/accounts', { query })
       return res.accounts
     },
+
+    /** GET /admin/accounts/{tenantId} — fiche compte détaillée (support). */
+    accountDetail: (tenantId: string) => api<AdminAccountDetail>(`/api/v1/admin/accounts/${tenantId}`),
 
     /** GET /admin/accounts/export — mêmes filtres, en CSV (blob à télécharger). */
     accountsExport: (q = '', status = 'all', sort = 'email') =>

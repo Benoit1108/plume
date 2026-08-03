@@ -157,6 +157,23 @@
         "activated": "First lead created",
         "active30d": "Active (30d)"
       }
+    },
+    "detail": {
+      "title": "Account details",
+      "status": "Status",
+      "deleting": "Being deleted",
+      "createdAt": "Signed up on",
+      "lastLogin": "Last login",
+      "lastActivity": "Last activity",
+      "never": "Never",
+      "twoFactor": "2FA",
+      "on": "Enabled",
+      "off": "Disabled",
+      "digest": "Digest",
+      "mailbox": "Mailbox",
+      "noMailbox": "None",
+      "volumes": "Volumes",
+      "volumesValue": "{orgs} orgs · {leads} leads · {sent} sent"
     }
   },
   "notifications": {

@@ -157,6 +157,23 @@
         "activated": "1re piste créée",
         "active30d": "Actives (30 j)"
       }
+    },
+    "detail": {
+      "title": "Fiche compte",
+      "status": "Statut",
+      "deleting": "En suppression",
+      "createdAt": "Inscrite le",
+      "lastLogin": "Dernière connexion",
+      "lastActivity": "Dernière activité",
+      "never": "Jamais",
+      "twoFactor": "2FA",
+      "on": "Activée",
+      "off": "Désactivée",
+      "digest": "Digest",
+      "mailbox": "Boîte email",
+      "noMailbox": "Aucune",
+      "volumes": "Volumétrie",
+      "volumesValue": "{orgs} orgs · {leads} pistes · {sent} envoyés"
     }
   },
   "notifications": {

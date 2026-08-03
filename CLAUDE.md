@@ -224,16 +224,14 @@ par tenant/h (rate-limiter) + **garde-fou GLOBAL** : coupe-circuit `AI_GENERATIO
 (sinon repli canned gratuit, jamais d'échec) ; le générateur `record()` les jetons `usage`. Exposé au
 back-office via `GET /admin/status` → `aiUsage` (widget). Lecture fail-open (coupe-circuit = garantie dure).
 
-**Back-office v2 EN COURS** (4 blocs cadrés avec Benoit ; impersonation reportée). **Slice 1/4 LIVRÉE —
-audit consultable + gestion comptes** : `GET /admin/audit` (journal hors-tenant filtrable), lecteur partagé
-`AccountDirectory` (recherche + filtre statut all/verified/unverified/deleting + tri email/leads/created) →
-liste `GET /admin/accounts` + export `GET /admin/accounts/export` (CSV) ; UI admin (filtres/tri/export +
-section journal d'audit). **Slice 2/4 LIVRÉE — santé & alertes** : `GET /admin/alerts` (comptes inactifs
->30 j, boîtes en erreur, vérifications en souffrance >7 j) + section « Santé & alertes » (badge « à regarder »).
-**Slice 3/4 LIVRÉE — courbes & entonnoir** : `GET /admin/trends` (comptes actifs/semaine sur 12 sem. +
-entonnoir inscription→vérifié→1re piste→actif 30 j) → section « Croissance & acquisition » (barres + entonnoir).
-Reste : 4/ fiche compte détaillée (+ last_login).
+**Back-office v2 COMPLET** (4 blocs cadrés avec Benoit ; impersonation reportée) : **1/ audit consultable +
+gestion comptes** (`GET /admin/audit` ; `AccountDirectory` partagé → liste `GET /admin/accounts` recherche/
+filtre statut/tri + export CSV `/admin/accounts/export`) · **2/ santé & alertes** (`GET /admin/alerts` :
+inactifs >30 j, boîtes en erreur, vérifs en souffrance >7 j) · **3/ courbes & entonnoir** (`GET /admin/trends` :
+actifs/semaine 12 sem. + entonnoir inscription→vérifié→1re piste→actif 30 j) · **4/ fiche compte détaillée**
+(`GET /admin/accounts/{tenantId}` : état, `last_login_at` (colonne hors-ORM posée au login réel via
+`LastLoginListener`), 2FA, digest, boîte, volumétrie ; modal au clic sur un email). UI : sections dédiées + modal.
 
-**Prochaine grande étape** : finir back-office v2 (slices 2-4) ; puis V2.2 abonnement Stripe (attend décisions
-paiement + compte Stripe de Benoit) ; site vitrine/démo.
+**Prochaine grande étape** : V2.2 abonnement Stripe (attend décisions paiement + compte Stripe de Benoit) ;
+site vitrine/démo.
 enfin « à concevoir » (back-office v2 widgets, plafond budget IA global, site vitrine/démo).

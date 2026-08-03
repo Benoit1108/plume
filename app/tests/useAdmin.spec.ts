@@ -64,6 +64,12 @@ describe('useAdmin', () => {
     expect((apiMock.mock.calls[0] as [string])[0]).toBe('/api/v1/admin/alerts')
   })
 
+  it('accountDetail lit la fiche d\'un compte', async () => {
+    apiMock.mockResolvedValueOnce({ email: 'x@plume.test', leads: 3 })
+    await expect(useAdmin().accountDetail('t-9')).resolves.toMatchObject({ leads: 3 })
+    expect((apiMock.mock.calls[0] as [string])[0]).toBe('/api/v1/admin/accounts/t-9')
+  })
+
   it('trends lit la croissance (actifs/semaine + entonnoir)', async () => {
     apiMock.mockResolvedValueOnce({ weeklyActive: [], funnel: { signedUp: 5, verified: 3, activated: 2, active30d: 1 } })
     await expect(useAdmin().trends()).resolves.toMatchObject({ funnel: { signedUp: 5 } })

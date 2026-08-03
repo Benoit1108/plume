@@ -168,6 +168,31 @@ final class AdminApiTest extends ApiTestCase
         self::assertResponseStatusCodeSame(403);
     }
 
+    public function testAccountDetailReportsProfileAndRecordsLastLogin(): void
+    {
+        $this->createAdmin();
+        $tenant = $this->createUser('detail@plume.test');
+
+        $client = static::createClient();
+        // La traductrice se connecte (vrai login) → last_login_at posé par le listener.
+        $this->tokenFor($client, 'detail@plume.test');
+        // Un SEUL login admin : deux logins TOTP dans le même créneau 30 s se heurteraient à l'anti-rejeu.
+        $adminToken = $this->adminToken($client);
+
+        /** @var array{email: string, emailVerified: bool, lastLoginAt: ?string, twoFactorEnabled: bool, leads: int, mailbox: ?array<string, string>} $data */
+        $data = $client->request('GET', '/api/v1/admin/accounts/'.$tenant, ['auth_bearer' => $adminToken])->toArray();
+        self::assertSame('detail@plume.test', $data['email']);
+        self::assertTrue($data['emailVerified']);
+        self::assertNotNull($data['lastLoginAt']); // connexion enregistrée
+        self::assertFalse($data['twoFactorEnabled']);
+        self::assertSame(0, $data['leads']);
+        self::assertNull($data['mailbox']);
+
+        // Tenant inconnu (uuid valide) → 404.
+        $client->request('GET', '/api/v1/admin/accounts/'.Uuid::v7()->toRfc4122(), ['auth_bearer' => $adminToken]);
+        self::assertResponseStatusCodeSame(404);
+    }
+
     public function testTrendsReportFunnelAndWeeklyActive(): void
     {
         $this->createAdmin();

@@ -53,6 +53,23 @@ export interface AdminAccount {
   mailboxStatus: string
 }
 
+/** Fiche compte détaillée (back-office, support). */
+export interface AdminAccountDetail {
+  tenantId: string
+  email: string
+  emailVerified: boolean
+  deletionRequestedAt: string | null
+  createdAt: string | null
+  lastLoginAt: string | null
+  twoFactorEnabled: boolean
+  digestFrequency: string
+  lastActivityAt: string | null
+  mailbox: { provider: string, status: string } | null
+  organizations: number
+  leads: number
+  messagesSent: number
+}
+
 /** Courbes & entonnoir : croissance dans le temps + acquisition. */
 export interface AdminTrends {
   weeklyActive: { week: string, count: number }[]

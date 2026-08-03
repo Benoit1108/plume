@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { AdminAccount, AdminAlerts, AdminAuditEntry, AdminTrends } from '~/types/admin'
+import type { AdminAccount, AdminAccountDetail, AdminAlerts, AdminAuditEntry, AdminTrends } from '~/types/admin'
 
 /**
  * Back-office (ROLE_ADMIN). L'entrée nav n'apparaît qu'aux admins ; l'autorité reste l'API
@@ -58,6 +58,22 @@ const { data: accountsData, isPending: accountsLoading } = useQuery({
   queryFn: () => adminApi.accounts(debouncedSearch.value, statusFilter.value, sortBy.value),
 })
 const accounts = computed<AdminAccount[]>(() => accountsData.value ?? [])
+
+// Fiche compte détaillée : ouverte au clic sur un email (chargée à la demande).
+const detailId = ref<string | null>(null)
+const detailOpen = computed({
+  get: () => detailId.value !== null,
+  set: (open: boolean) => { if (!open) detailId.value = null },
+})
+const { data: detailData, isPending: detailLoading } = useQuery({
+  queryKey: computed(() => ['admin', 'account', detailId.value] as const),
+  queryFn: () => adminApi.accountDetail(detailId.value as string),
+  enabled: computed(() => detailId.value !== null),
+})
+const detail = computed<AdminAccountDetail | null>(() => detailData.value ?? null)
+function openDetail(account: AdminAccount): void {
+  detailId.value = account.tenantId
+}
 
 const exporting = ref(false)
 async function exportAccounts(): Promise<void> {
@@ -413,7 +429,11 @@ const failedDepth = computed(() => overview.value?.queues.failed ?? 0)
               <td colspan="6" class="px-3 py-6 text-center text-muted">{{ t('admin.accounts.empty') }}</td>
             </tr>
             <tr v-for="account in accounts" :key="account.tenantId" class="border-b border-default last:border-0">
-              <td class="px-3 py-2 font-medium">{{ account.email }}</td>
+              <td class="px-3 py-2 font-medium">
+                <button type="button" class="text-left hover:text-primary hover:underline underline-offset-2" @click="openDetail(account)">
+                  {{ account.email }}
+                </button>
+              </td>
               <td class="px-3 py-2">
                 <UBadge v-if="account.deletionRequestedAt" color="error" variant="soft" size="sm">
                   {{ t('admin.accounts.deleting', { date: formatDate(account.deletionRequestedAt) }) }}
@@ -480,6 +500,34 @@ const failedDepth = computed(() => overview.value?.queues.failed ?? 0)
         </table>
       </div>
     </section>
+
+    <!-- Fiche compte détaillée (support) -->
+    <UModal v-model:open="detailOpen" :title="detail?.email ?? t('admin.detail.title')">
+      <template #body>
+        <div v-if="detailLoading" role="status" class="py-6 text-center text-muted">{{ t('common.loading') }}</div>
+        <dl v-else-if="detail" class="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+          <dt class="text-muted">{{ t('admin.detail.status') }}</dt>
+          <dd>
+            <span v-if="detail.deletionRequestedAt" class="text-error">{{ t('admin.detail.deleting') }}</span>
+            <span v-else>{{ detail.emailVerified ? t('admin.accounts.active') : t('admin.accounts.unverified') }}</span>
+          </dd>
+          <dt class="text-muted">{{ t('admin.detail.createdAt') }}</dt>
+          <dd>{{ detail.createdAt ? formatDate(detail.createdAt) : '—' }}</dd>
+          <dt class="text-muted">{{ t('admin.detail.lastLogin') }}</dt>
+          <dd>{{ detail.lastLoginAt ? formatDateTime(detail.lastLoginAt) : t('admin.detail.never') }}</dd>
+          <dt class="text-muted">{{ t('admin.detail.lastActivity') }}</dt>
+          <dd>{{ detail.lastActivityAt ? formatDateTime(detail.lastActivityAt) : t('admin.detail.never') }}</dd>
+          <dt class="text-muted">{{ t('admin.detail.twoFactor') }}</dt>
+          <dd>{{ detail.twoFactorEnabled ? t('admin.detail.on') : t('admin.detail.off') }}</dd>
+          <dt class="text-muted">{{ t('admin.detail.digest') }}</dt>
+          <dd class="font-mono text-xs">{{ detail.digestFrequency }}</dd>
+          <dt class="text-muted">{{ t('admin.detail.mailbox') }}</dt>
+          <dd>{{ detail.mailbox ? `${detail.mailbox.provider} · ${detail.mailbox.status}` : t('admin.detail.noMailbox') }}</dd>
+          <dt class="text-muted">{{ t('admin.detail.volumes') }}</dt>
+          <dd class="font-mono tabular-nums text-xs">{{ t('admin.detail.volumesValue', { orgs: detail.organizations, leads: detail.leads, sent: detail.messagesSent }) }}</dd>
+        </dl>
+      </template>
+    </UModal>
 
     <ConfirmDialog
       v-model:open="confirmOpen"
