@@ -145,8 +145,8 @@ final class AdminApiTest extends ApiTestCase
         self::assertArrayHasKey('backlogAgeSeconds', $data);
         // Garde-fou coût IA : le back-office voit la consommation du mois (compteur vide au départ).
         self::assertArrayHasKey('aiUsage', $data);
-        self::assertIsBool($data['aiUsage']['enabled']);
         self::assertSame(0, $data['aiUsage']['periodTokens']);
+        self::assertSame(0, $data['aiUsage']['calls']);
     }
 
     public function testSystemStatusIsForbiddenToRegularUsers(): void
