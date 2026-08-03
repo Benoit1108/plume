@@ -280,3 +280,13 @@ front/tests-docs), aucun P0, notes 7,5–8,5. Remédiation par lots (CI verte pa
 docs (ROADMAP, index ADR 0032–0034). **F** découpage des **8 grosses pages front** (settings, admin, dashboard,
 account, organizations/[id], candidates, leads/[id], LeadDraftsSection) en orchestrateurs minces + sous-composants
 autonomes. **→ Remédiation A→G COMPLÈTE, CI verte par lot.**
+
+**V2.4 EN COURS** (cadrée : réactivation clients dormants + quick wins ; **« Modèles de messages » DÉJÀ livrée** —
+contexte `Template` complet CRUD + fusion `{{…}}`). **Réactivation des clients dormants LIVRÉE** : seuil par tenant
+`profile.dormant_client_threshold_days` (défaut 120 j, 0 = désactivé ; colonne mappée ORM + event
+`DormantClientThresholdChanged`) ; read model « clients dormants » dans `DoctrineTodayBoard` (piste **WON** dont la
+dernière interaction — `MAX(interaction.occurred_on)`, journal indexé — dépasse le seuil), exposé dans **Aujourd'hui**
+(section « À réactiver ») ; tick quotidien `NotifyDormantClientsHandler` (notif `client_dormant`, idempotent
+`dormant:<lead>:<YYYY-MM>` = 1 rappel/client/mois, réutilise le patron INSERT…SELECT owner). Réglage dans Réglages,
+type ajouté à la matrice de préférences de notif + à la cloche + cible piste. Reste V2.4 : bilan hebdo par email, PWA
+installable (l'**objectif hebdo + série** existent déjà dans Aujourd'hui).

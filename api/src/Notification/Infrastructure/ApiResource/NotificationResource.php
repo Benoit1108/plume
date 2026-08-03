@@ -45,7 +45,7 @@ final class NotificationResource
     public string $id = '';
 
     /** Type stable (i18n front : notifications.types.*). */
-    #[ApiProperty(openapiContext: ['enum' => ['reply_received', 'email_send_failed', 'followup_due', 'mailbox_disconnected', 'candidate_to_triage']])]
+    #[ApiProperty(openapiContext: ['enum' => ['reply_received', 'email_send_failed', 'followup_due', 'mailbox_disconnected', 'candidate_to_triage', 'client_dormant']])]
     #[Groups(['notification:read'])]
     public string $type = '';
 

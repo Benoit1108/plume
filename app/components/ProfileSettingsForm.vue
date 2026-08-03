@@ -15,12 +15,14 @@ const bio = ref('')
 const specialties = ref('')
 const signature = ref('')
 const digestFrequency = ref<'NONE' | 'DAILY' | 'WEEKLY'>('DAILY')
+/** Seuil de dormance des clients gagnés en jours (0 = réactivation désactivée). */
+const dormantThreshold = ref(120)
 /** Saisie libre « 7, 21, 45 » ; parsée en jours à l'enregistrement. */
 const cadenceInput = ref('')
 /** Libellés d'étapes personnalisés (ADR-0031) : un champ par statut, vide = libellé par défaut. */
 const pipelineLabels = ref<Record<string, string>>({})
 /** Préférences fines de notification : matrice type × canal (défaut = tout activé). */
-const NOTIFICATION_TYPES = ['reply_received', 'followup_due', 'candidate_to_triage', 'email_send_failed', 'mailbox_disconnected'] as const
+const NOTIFICATION_TYPES = ['reply_received', 'followup_due', 'candidate_to_triage', 'client_dormant', 'email_send_failed', 'mailbox_disconnected'] as const
 const notificationPrefs = ref<Record<string, { inApp: boolean, email: boolean }>>({})
 
 watch(profile, (value) => {
@@ -30,6 +32,7 @@ watch(profile, (value) => {
   specialties.value = value.specialties ?? ''
   signature.value = value.signature ?? ''
   digestFrequency.value = value.digestFrequency
+  dormantThreshold.value = value.dormantClientThresholdDays
   cadenceInput.value = value.followUpCadence.join(', ')
   pipelineLabels.value = Object.fromEntries(LEAD_STATUSES.map(s => [s, value.pipelineLabels[s] ?? '']))
   // Défaut = tout activé : on fusionne les coupures stockées avec les valeurs par défaut (vraies).
@@ -66,6 +69,7 @@ async function save(): Promise<void> {
       specialties: specialties.value.trim() || null,
       signature: signature.value.trim() || null,
       digestFrequency: digestFrequency.value,
+      dormantClientThresholdDays: Number.isInteger(dormantThreshold.value) ? dormantThreshold.value : 120,
       followUpCadence: parsedCadence.value,
       pipelineLabels: Object.fromEntries(Object.entries(pipelineLabels.value).filter(([, v]) => v.trim() !== '')),
       notificationPreferences: notificationPrefs.value,
@@ -106,6 +110,17 @@ async function save(): Promise<void> {
       </UFormField>
       <p class="text-xs text-muted mt-2">
         {{ parsedCadence.length === 0 ? t('settings.cadence.none') : t('settings.cadence.preview', { days: parsedCadence.join(' · J+') }) }}
+      </p>
+    </section>
+
+    <!-- Réactivation des clients dormants (V2.4) -->
+    <section class="border border-default rounded-xl p-4 bg-elevated/40">
+      <h2 class="text-sm font-semibold">{{ t('settings.dormant.title') }}</h2>
+      <UFormField :label="t('settings.dormant.label')" :hint="t('settings.dormant.hint')" class="mt-3">
+        <UInput v-model.number="dormantThreshold" type="number" min="0" max="730" class="w-32" />
+      </UFormField>
+      <p class="text-xs text-muted mt-2">
+        {{ dormantThreshold === 0 ? t('settings.dormant.disabled') : t('settings.dormant.preview', { days: dormantThreshold }) }}
       </p>
     </section>
 

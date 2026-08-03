@@ -1882,7 +1882,7 @@ export interface components {
              * @default
              * @enum {string}
              */
-            type: "reply_received" | "email_send_failed" | "followup_due" | "mailbox_disconnected" | "candidate_to_triage";
+            type: "reply_received" | "email_send_failed" | "followup_due" | "mailbox_disconnected" | "candidate_to_triage" | "client_dormant";
             payload?: {
                 [key: string]: string | null;
             };
@@ -1901,7 +1901,7 @@ export interface components {
              * @default
              * @enum {string}
              */
-            type: "reply_received" | "email_send_failed" | "followup_due" | "mailbox_disconnected" | "candidate_to_triage";
+            type: "reply_received" | "email_send_failed" | "followup_due" | "mailbox_disconnected" | "candidate_to_triage" | "client_dormant";
             payload?: {
                 [key: string]: string | null;
             };
@@ -2037,6 +2037,8 @@ export interface components {
             id: string;
             /** @default 5 */
             weeklyGoal: number;
+            /** @default 120 */
+            dormantClientThresholdDays: number;
             /** @default Europe/Paris */
             timezone: string;
             /**
@@ -2073,6 +2075,8 @@ export interface components {
         "Profile-profile.write.jsonMergePatch": {
             /** @default 5 */
             weeklyGoal: number;
+            /** @default 120 */
+            dormantClientThresholdDays: number;
             /**
              * @default DAILY
              * @enum {string}
@@ -2109,6 +2113,8 @@ export interface components {
             id: string;
             /** @default 5 */
             weeklyGoal: number;
+            /** @default 120 */
+            dormantClientThresholdDays: number;
             /** @default Europe/Paris */
             timezone: string;
             /**
@@ -2311,6 +2317,7 @@ export interface components {
             id: string;
             followUpsDue?: components["schemas"]["Lead-today.read_lead.read"][];
             toContact?: components["schemas"]["Lead-today.read_lead.read"][];
+            dormantClients?: components["schemas"]["Lead-today.read_lead.read"][];
             /** @default 0 */
             weeklyTarget: number;
             /** @default 0 */
@@ -2324,6 +2331,7 @@ export interface components {
             id: string;
             followUpsDue?: components["schemas"]["Lead.jsonld-today.read_lead.read"][];
             toContact?: components["schemas"]["Lead.jsonld-today.read_lead.read"][];
+            dormantClients?: components["schemas"]["Lead.jsonld-today.read_lead.read"][];
             /** @default 0 */
             weeklyTarget: number;
             /** @default 0 */

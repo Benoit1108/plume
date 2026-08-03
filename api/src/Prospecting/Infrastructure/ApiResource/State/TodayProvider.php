@@ -32,6 +32,7 @@ final class TodayProvider implements ProviderInterface
         $resource = new TodayResource();
         $resource->followUpsDue = array_map(static fn (LeadView $lead): LeadResource => LeadProvider::toResource($lead), $view->followUpsDue);
         $resource->toContact = array_map(static fn (LeadView $lead): LeadResource => LeadProvider::toResource($lead), $view->toContact);
+        $resource->dormantClients = array_map(static fn (LeadView $lead): LeadResource => LeadProvider::toResource($lead), $view->dormantClients);
         $resource->weeklyTarget = $view->weeklyProgress->target;
         $resource->weeklyDone = $view->weeklyProgress->done;
         $resource->streak = $view->weeklyProgress->streak;

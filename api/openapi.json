@@ -7353,7 +7353,8 @@
                             "email_send_failed",
                             "followup_due",
                             "mailbox_disconnected",
-                            "candidate_to_triage"
+                            "candidate_to_triage",
+                            "client_dormant"
                         ]
                     },
                     "payload": {
@@ -7397,7 +7398,8 @@
                                     "email_send_failed",
                                     "followup_due",
                                     "mailbox_disconnected",
-                                    "candidate_to_triage"
+                                    "candidate_to_triage",
+                                    "client_dormant"
                                 ]
                             },
                             "payload": {
@@ -7822,6 +7824,12 @@
                         "default": 5,
                         "type": "integer"
                     },
+                    "dormantClientThresholdDays": {
+                        "minimum": 0,
+                        "maximum": 730,
+                        "default": 120,
+                        "type": "integer"
+                    },
                     "timezone": {
                         "default": "Europe/Paris",
                         "type": "string"
@@ -7909,6 +7917,12 @@
                         "minimum": 1,
                         "maximum": 99,
                         "default": 5,
+                        "type": "integer"
+                    },
+                    "dormantClientThresholdDays": {
+                        "minimum": 0,
+                        "maximum": 730,
+                        "default": 120,
                         "type": "integer"
                     },
                     "digestFrequency": {
@@ -8002,6 +8016,12 @@
                                 "minimum": 1,
                                 "maximum": 99,
                                 "default": 5,
+                                "type": "integer"
+                            },
+                            "dormantClientThresholdDays": {
+                                "minimum": 0,
+                                "maximum": 730,
+                                "default": 120,
                                 "type": "integer"
                             },
                             "timezone": {
@@ -8480,6 +8500,12 @@
                             "$ref": "#/components/schemas/Lead-today.read_lead.read"
                         }
                     },
+                    "dormantClients": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Lead-today.read_lead.read"
+                        }
+                    },
                     "weeklyTarget": {
                         "default": 0,
                         "type": "integer"
@@ -8513,6 +8539,12 @@
                                 }
                             },
                             "toContact": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/Lead.jsonld-today.read_lead.read"
+                                }
+                            },
+                            "dormantClients": {
                                 "type": "array",
                                 "items": {
                                     "$ref": "#/components/schemas/Lead.jsonld-today.read_lead.read"

@@ -24,6 +24,8 @@ final class UpdateProfile implements Command
         public readonly array $pipelineLabels = [],
         /** @var array<array-key, mixed> coupures de notification par type (entrée non fiable) */
         public readonly array $notificationPreferences = [],
+        /** Seuil de dormance des clients gagnés en jours (0 = désactivé). */
+        public readonly int $dormantClientThresholdDays = 120,
     ) {
     }
 }

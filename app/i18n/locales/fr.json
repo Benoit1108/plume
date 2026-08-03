@@ -205,7 +205,8 @@
       "emailSendFailed": "Un envoi d'email a échoué",
       "followupDue": "Relance due aujourd'hui — {org}",
       "mailboxDisconnected": "Votre boîte email doit être reconnectée",
-      "candidateToTriage": "Nouveau candidat à trier"
+      "candidateToTriage": "Nouveau candidat à trier",
+      "clientDormant": "Client à réactiver : {org}"
     }
   },
   "onboarding": {
@@ -524,7 +525,13 @@
       "streak": "aucune série | {count} semaine de suite | {count} semaines de suite",
       "edit": "Modifier l'objectif"
     },
-    "writeFollowUp": "Rédiger la relance"
+    "writeFollowUp": "Rédiger la relance",
+    "dormant": {
+      "title": "À réactiver",
+      "hint": "Clients gagnés silencieux depuis un moment — un petit mot pour reprendre contact.",
+      "wonBadge": "Client gagné",
+      "action": "Reprendre contact"
+    }
   },
   "drafts": {
     "title": "Brouillons",
@@ -842,6 +849,13 @@
       "title": "Noms des étapes du pipeline",
       "hint": "Personnalisez le nom affiché de chaque étape (kanban, fiche, tableau de bord). Laisser vide = nom par défaut. N'affecte que l'affichage, pas le fonctionnement."
     },
+    "dormant": {
+      "title": "Réactivation des clients dormants",
+      "label": "Seuil de dormance (jours)",
+      "hint": "Un client gagné sans nouvelle depuis ce délai remonte dans « Aujourd'hui ».",
+      "preview": "Rappel après {days} jours de silence.",
+      "disabled": "Réactivation désactivée."
+    },
     "digest": {
       "title": "Digest email",
       "label": "Recevoir un récap des notifications",
@@ -863,7 +877,8 @@
         "followup_due": "Relance due",
         "candidate_to_triage": "Nouveau candidat à trier",
         "email_send_failed": "Échec d'envoi d'email",
-        "mailbox_disconnected": "Boîte email déconnectée"
+        "mailbox_disconnected": "Boîte email déconnectée",
+        "client_dormant": "Client à réactiver"
       }
     },
     "presentation": {

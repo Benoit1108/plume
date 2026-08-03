@@ -205,7 +205,8 @@
       "emailSendFailed": "An email failed to send",
       "followupDue": "Follow-up due today — {org}",
       "mailboxDisconnected": "Your email mailbox needs reconnecting",
-      "candidateToTriage": "New candidate to triage"
+      "candidateToTriage": "New candidate to triage",
+      "clientDormant": "Time to reconnect with {org}"
     }
   },
   "onboarding": {
@@ -524,7 +525,13 @@
       "streak": "no streak | {count} week in a row | {count} weeks in a row",
       "edit": "Edit goal"
     },
-    "writeFollowUp": "Write the follow-up"
+    "writeFollowUp": "Write the follow-up",
+    "dormant": {
+      "title": "To reactivate",
+      "hint": "Won clients gone quiet for a while — a short message to reconnect.",
+      "wonBadge": "Won client",
+      "action": "Reconnect"
+    }
   },
   "drafts": {
     "title": "Drafts",
@@ -842,6 +849,13 @@
       "title": "Pipeline stage names",
       "hint": "Customise the displayed name of each stage (kanban, lead, dashboard). Leave empty for the default. Display only — does not change behaviour."
     },
+    "dormant": {
+      "title": "Reactivating dormant clients",
+      "label": "Dormancy threshold (days)",
+      "hint": "A won client with no news for this long resurfaces in “Today”.",
+      "preview": "Reminder after {days} days of silence.",
+      "disabled": "Reactivation disabled."
+    },
     "digest": {
       "title": "Email digest",
       "label": "Receive a notifications summary",
@@ -863,7 +877,8 @@
         "followup_due": "Follow-up due",
         "candidate_to_triage": "New candidate to triage",
         "email_send_failed": "Email send failed",
-        "mailbox_disconnected": "Email mailbox disconnected"
+        "mailbox_disconnected": "Email mailbox disconnected",
+        "client_dormant": "Client to reactivate"
       }
     },
     "presentation": {

@@ -112,6 +112,43 @@ final class ProfileApiTest extends ApiTestCase
         self::assertResponseStatusCodeSame(422);
     }
 
+    public function testUpdatesDormantThresholdAndRejectsOutOfRange(): void
+    {
+        $this->createUser('a@plume.test');
+        $client = static::createClient();
+        $token = $this->tokenFor($client, 'a@plume.test');
+
+        // Défaut 120 j.
+        $before = $client->request('GET', '/api/v1/profile', ['auth_bearer' => $token, 'headers' => ['Accept' => 'application/ld+json']])->toArray();
+        self::assertSame(120, $before['dormantClientThresholdDays'] ?? null);
+
+        // Réglage à 90 j (persisté).
+        $client->request('PATCH', '/api/v1/profile', [
+            'auth_bearer' => $token,
+            'headers' => ['Content-Type' => 'application/merge-patch+json'],
+            'json' => ['dormantClientThresholdDays' => 90],
+        ]);
+        self::assertResponseIsSuccessful();
+        $after = $client->request('GET', '/api/v1/profile', ['auth_bearer' => $token, 'headers' => ['Accept' => 'application/ld+json']])->toArray();
+        self::assertSame(90, $after['dormantClientThresholdDays'] ?? null);
+
+        // 0 accepté (désactive la réactivation).
+        $client->request('PATCH', '/api/v1/profile', [
+            'auth_bearer' => $token,
+            'headers' => ['Content-Type' => 'application/merge-patch+json'],
+            'json' => ['dormantClientThresholdDays' => 0],
+        ]);
+        self::assertResponseIsSuccessful();
+
+        // Hors bornes (> 730) → 422.
+        $client->request('PATCH', '/api/v1/profile', [
+            'auth_bearer' => $token,
+            'headers' => ['Content-Type' => 'application/merge-patch+json'],
+            'json' => ['dormantClientThresholdDays' => 9999],
+        ]);
+        self::assertResponseStatusCodeSame(422);
+    }
+
     public function testAcceptsValidNotificationPreferencesAndRejectsMalformedShape(): void
     {
         $this->createUser('a@plume.test');

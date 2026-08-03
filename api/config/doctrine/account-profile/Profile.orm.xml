@@ -19,5 +19,6 @@
         <field name="followUpCadence" type="json" column="follow_up_cadence"/>
         <field name="pipelineLabels" type="json" column="pipeline_labels"/>
         <field name="notificationPreferences" type="json" column="notification_preferences"/>
+        <field name="dormantClientThresholdDays" type="integer" column="dormant_client_threshold_days"/>
     </entity>
 </doctrine-mapping>

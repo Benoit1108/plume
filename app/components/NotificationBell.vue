@@ -64,6 +64,8 @@ function label(notification: AppNotification): string {
       return t('notifications.types.followupDue', { org: typeof p.orgName === 'string' ? p.orgName : '?' })
     case 'candidate_to_triage':
       return t('notifications.types.candidateToTriage')
+    case 'client_dormant':
+      return t('notifications.types.clientDormant', { org: typeof p.orgName === 'string' ? p.orgName : '?' })
     default:
       return notification.type
   }

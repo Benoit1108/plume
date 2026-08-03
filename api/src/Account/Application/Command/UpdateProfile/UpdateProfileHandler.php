@@ -35,6 +35,7 @@ final class UpdateProfileHandler implements CommandHandler
         $profile->changeFollowUpCadence($command->followUpCadence, $now);
         $profile->changePipelineLabels($command->pipelineLabels, $now);
         $profile->changeNotificationPreferences($command->notificationPreferences, $now);
+        $profile->changeDormantClientThreshold($command->dormantClientThresholdDays, $now);
 
         $this->profiles->save($profile);
         $this->eventBus->publish(...$profile->pullDomainEvents());

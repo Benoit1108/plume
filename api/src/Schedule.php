@@ -8,6 +8,7 @@ use App\Account\Infrastructure\Scheduler\PurgeDeletedAccountsTick;
 use App\Account\Infrastructure\Scheduler\PurgeExpiredDemosTick;
 use App\Mailbox\Infrastructure\Scheduler\FetchAllAlertEmailsTick;
 use App\Mailbox\Infrastructure\Scheduler\FetchAllRepliesTick;
+use App\Notification\Infrastructure\Scheduler\NotifyDormantClientsTick;
 use App\Notification\Infrastructure\Scheduler\NotifyDueFollowUpsTick;
 use App\Notification\Infrastructure\Scheduler\PurgeOldNotificationsTick;
 use App\Notification\Infrastructure\Scheduler\SendNotificationDigestsTick;
@@ -58,6 +59,9 @@ class Schedule implements ScheduleProviderInterface
             // Notifications « relance due aujourd'hui » — horaire (passage de minuit par fuseau),
             // idempotent (une notification par relance et par échéance).
             ->add(RecurringMessage::every('1 hour', new NotifyDueFollowUpsTick()))
+
+            // Rappel des clients gagnés dormants à réactiver — quotidien (au plus 1/mois/client, V2.4).
+            ->add(RecurringMessage::every('1 day', new NotifyDormantClientsTick()))
 
             // Rétention du centre de notifications (lues > 90 j) + jetons de reset expirés (revue globale).
             ->add(RecurringMessage::every('1 day', new PurgeOldNotificationsTick()))

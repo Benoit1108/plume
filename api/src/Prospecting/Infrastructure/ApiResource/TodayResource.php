@@ -33,6 +33,14 @@ final class TodayResource
     #[Groups(['today:read'])]
     public array $toContact = [];
 
+    /**
+     * Clients gagnés à réactiver (silencieux depuis le seuil).
+     *
+     * @var LeadResource[]
+     */
+    #[Groups(['today:read'])]
+    public array $dormantClients = [];
+
     #[Groups(['today:read'])]
     public int $weeklyTarget = 0;
 

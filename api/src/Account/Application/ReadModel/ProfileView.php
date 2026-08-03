@@ -22,6 +22,8 @@ final class ProfileView
         public readonly array $pipelineLabels = [],
         /** @var array<string, array{inApp: bool, email: bool}> coupures de notification par type */
         public readonly array $notificationPreferences = [],
+        /** Seuil de dormance des clients gagnés en jours (0 = réactivation désactivée). */
+        public readonly int $dormantClientThresholdDays = 120,
     ) {
     }
 }

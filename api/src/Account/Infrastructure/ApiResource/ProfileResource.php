@@ -37,6 +37,11 @@ final class ProfileResource
     #[Groups(['profile:read', 'profile:write'])]
     public int $weeklyGoal = 5;
 
+    /** Seuil de dormance des clients gagnés en jours (0 = réactivation désactivée). */
+    #[Assert\Range(min: 0, max: 730)]
+    #[Groups(['profile:read', 'profile:write'])]
+    public int $dormantClientThresholdDays = 120;
+
     #[Groups(['profile:read'])]
     public string $timezone = 'Europe/Paris';
 

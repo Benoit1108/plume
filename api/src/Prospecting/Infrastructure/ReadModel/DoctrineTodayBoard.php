@@ -70,7 +70,38 @@ final class DoctrineTodayBoard implements TodayBoard
             array_map(fn (array $row): LeadView => $this->mapper->map($row), $dueRows),
             array_map(fn (array $row): LeadView => $this->mapper->map($row), $toContactRows),
             $this->weeklyProgress($tenantId, $profile->weeklyGoal, $timezone, $now),
+            $this->dormantClients($tenantId, $profile->dormantClientThresholdDays),
         );
+    }
+
+    /**
+     * Clients GAGNÉS silencieux depuis le seuil (aucune interaction depuis N jours) → à réactiver.
+     * 0 = désactivé. La dormance se mesure sur le journal `interaction` (UTC), les plus dormants d'abord.
+     *
+     * @return LeadView[]
+     */
+    private function dormantClients(string $tenantId, int $thresholdDays): array
+    {
+        if ($thresholdDays <= 0) {
+            return [];
+        }
+
+        $cutoff = $this->clock->now()->modify(sprintf('-%d days', $thresholdDays))->format('Y-m-d H:i:s');
+        $lastTouch = '(SELECT MAX(i.occurred_on) FROM interaction i WHERE i.tenant_id = l.tenant_id AND i.lead_id = l.id)';
+        $rows = $this->connection->fetchAllAssociative(
+            sprintf(
+                "SELECT %s %s WHERE l.tenant_id = :tenant AND l.status = 'WON'
+                 AND COALESCE(%s, l.created_at) < :cutoff
+                 ORDER BY COALESCE(%s, l.created_at) ASC",
+                LeadViewMapper::COLUMNS,
+                LeadViewMapper::FROM,
+                $lastTouch,
+                $lastTouch,
+            ),
+            ['tenant' => $tenantId, 'cutoff' => $cutoff],
+        );
+
+        return array_map(fn (array $row): LeadView => $this->mapper->map($row), $rows);
     }
 
     private function weeklyProgress(string $tenantId, int $goal, \DateTimeZone $timezone, \DateTimeImmutable $localNow): WeeklyProgress

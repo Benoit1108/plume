@@ -103,7 +103,7 @@ function isOverdue(lead: Lead): boolean {
       </section>
 
       <div
-        v-if="!board.followUpsDue.length && !board.toContact.length"
+        v-if="!board.followUpsDue.length && !board.toContact.length && !board.dormantClients.length"
         class="mt-6 py-12 text-center text-muted border border-default rounded-xl"
       >
         {{ t('today.empty') }}
@@ -180,6 +180,32 @@ function isOverdue(lead: Lead): boolean {
                 @click="() => quickAction(lead, 'contact')"
               >
                 {{ t('pipeline.actions.contact') }}
+              </UButton>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <!-- À réactiver : clients gagnés silencieux depuis le seuil (V2.4) -->
+      <section v-if="board.dormantClients.length" class="mt-8">
+        <p class="text-[11px] uppercase tracking-widest text-dimmed font-semibold">
+          {{ t('today.dormant.title') }} <span class="font-mono">{{ board.dormantClients.length }}</span>
+        </p>
+        <p class="text-xs text-muted mt-1">{{ t('today.dormant.hint') }}</p>
+        <ul class="mt-3 border border-default rounded-xl divide-y divide-[var(--ui-border)] rise-stagger">
+          <li v-for="lead in board.dormantClients" :key="lead.id" class="p-4 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div class="min-w-0 flex-1">
+              <NuxtLink :to="`/leads/${lead.id}`" class="font-medium hover:text-primary">
+                {{ lead.organizationName }}
+              </NuxtLink>
+              <div class="text-xs text-dimmed mt-0.5 flex gap-2 items-center">
+                <UBadge color="success" variant="soft" size="sm">{{ t('today.dormant.wonBadge') }}</UBadge>
+                <LangStamp :code="pairLabel(lead.languagePair)" />
+              </div>
+            </div>
+            <div class="flex gap-2 flex-wrap shrink-0">
+              <UButton size="sm" variant="outline" icon="i-lucide-heart-handshake" :to="`/leads/${lead.id}`">
+                {{ t('today.dormant.action') }}
               </UButton>
             </div>
           </li>

@@ -8,6 +8,8 @@ use App\Mailbox\Domain\Mailbox\Event\MailboxSyncFailed;
 use App\Mailbox\Domain\Outbound\Event\EmailSendFailed;
 use App\Mailbox\Domain\Outbound\Event\ReplyCaptured;
 use App\Notification\Infrastructure\Projection\NotificationProjector;
+use App\Notification\Infrastructure\Scheduler\NotifyDormantClientsHandler;
+use App\Notification\Infrastructure\Scheduler\NotifyDormantClientsTick;
 use App\Notification\Infrastructure\Scheduler\NotifyDueFollowUpsHandler;
 use App\Notification\Infrastructure\Scheduler\NotifyDueFollowUpsTick;
 use App\Sourcing\Domain\CandidateLead\Event\CandidateLeadIngested;
@@ -123,6 +125,57 @@ final class NotificationProjectionTest extends KernelTestCase
         self::assertSame('followup_due', $row['type']);
         self::assertStringContainsString('lead-due', $row['payload']);
         self::assertStringContainsString('Maison lead-due', $row['payload']); // orgName joint
+    }
+
+    public function testNotifiesDormantWonClientsOncePerMonth(): void
+    {
+        $tenant = Uuid::v7()->toRfc4122();
+        $deleting = Uuid::v7()->toRfc4122();
+
+        $this->seedWonLead($tenant, 'won-dormant', 200); // dernière interaction il y a 200 j → dormant (>120)
+        $this->seedWonLead($tenant, 'won-recent', 10);   // il y a 10 j → pas dormant
+        $this->seedWonLead($deleting, 'won-gone', 300);   // dormant mais tenant en suppression → exclu
+        $this->connection->executeStatement(
+            "INSERT INTO app_user (id, tenant_id, email, password, roles, deletion_requested_at) VALUES (?, ?, 'gone-dormant@plume.test', 'x', '[]', NOW())",
+            [Uuid::v7()->toRfc4122(), $deleting],
+        );
+
+        $handler = new NotifyDormantClientsHandler($this->connection);
+        $handler(new NotifyDormantClientsTick());
+        $handler(new NotifyDormantClientsTick()); // tick quotidien → re-run sans doublon (1/mois/client)
+
+        self::assertSame(1, $this->countFor($tenant));
+        self::assertSame(0, $this->countFor($deleting));
+
+        /** @var array{type: string, payload: string} $row */
+        $row = $this->connection->fetchAssociative('SELECT type, payload FROM notification WHERE tenant_id = ?', [$tenant]);
+        self::assertSame('client_dormant', $row['type']);
+        self::assertStringContainsString('won-dormant', $row['payload']);
+        self::assertStringContainsString('Maison won-dormant', $row['payload']); // orgName joint
+    }
+
+    private function seedWonLead(string $tenantId, string $leadId, int $lastTouchDaysAgo): void
+    {
+        $this->connection->executeStatement(
+            "INSERT INTO profile (tenant_id, weekly_goal, timezone) VALUES (?, 5, 'UTC') ON CONFLICT (tenant_id) DO NOTHING",
+            [$tenantId],
+        );
+        $orgId = 'org-'.$leadId;
+        $this->connection->executeStatement(
+            "INSERT INTO organization (id, tenant_id, name, type, working_languages, segments, do_not_contact, contacts)
+             VALUES (?, ?, ?, 'publisher', '[]', '[]', false, '[]')",
+            [$orgId, $tenantId, 'Maison '.$leadId],
+        );
+        $this->connection->executeStatement(
+            "INSERT INTO lead (id, tenant_id, organization_id, segment, status, language_pair, source, priority, created_at, follow_ups)
+             VALUES (?, ?, ?, 'EDITION', 'WON', 'en>fr', 'DIRECT', 'MEDIUM', NOW() - INTERVAL '400 days', '[]')",
+            [$leadId, $tenantId, $orgId],
+        );
+        $this->connection->executeStatement(
+            "INSERT INTO interaction (id, event_id, tenant_id, lead_id, type, payload, occurred_on)
+             VALUES (?, ?, ?, ?, 'contacted', '{}', NOW() - (? || ' days')::interval)",
+            [Uuid::v7()->toRfc4122(), 'evt-'.$leadId, $tenantId, $leadId, (string) $lastTouchDaysAgo],
+        );
     }
 
     private function seedLeadWithFollowUp(string $tenantId, string $leadId, \DateTimeImmutable $dueAt): void

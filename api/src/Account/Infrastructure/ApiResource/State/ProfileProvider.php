@@ -39,6 +39,7 @@ final class ProfileProvider implements ProviderInterface
         $resource->followUpCadence = $view->followUpCadence;
         $resource->pipelineLabels = $view->pipelineLabels;
         $resource->notificationPreferences = $view->notificationPreferences;
+        $resource->dormantClientThresholdDays = $view->dormantClientThresholdDays;
 
         return $resource;
     }

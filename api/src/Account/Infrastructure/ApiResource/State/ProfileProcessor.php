@@ -41,6 +41,7 @@ final class ProfileProcessor implements ProcessorInterface
             $data->followUpCadence,
             $data->pipelineLabels,
             $data->notificationPreferences,
+            $data->dormantClientThresholdDays,
         ));
 
         return $data;

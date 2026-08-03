@@ -48,6 +48,7 @@ export interface Interaction {
 export interface Today {
   followUpsDue: Lead[]
   toContact: Lead[]
+  dormantClients: Lead[]
   weeklyTarget: number
   weeklyDone: number
   streak: number
@@ -68,4 +69,6 @@ export interface Profile {
   pipelineLabels: Record<string, string>
   /** Coupures de notification par type (défaut = tout activé) ; overrides uniquement. */
   notificationPreferences: Record<string, { inApp: boolean, email: boolean }>
+  /** Seuil de dormance des clients gagnés en jours (0 = réactivation désactivée). */
+  dormantClientThresholdDays: number
 }

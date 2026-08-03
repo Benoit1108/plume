@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Account\Domain\Profile;
 
 use App\Account\Domain\Profile\Event\DigestFrequencyChanged;
+use App\Account\Domain\Profile\Event\DormantClientThresholdChanged;
 use App\Account\Domain\Profile\Event\FollowUpCadenceChanged;
 use App\Account\Domain\Profile\Event\NotificationPreferencesChanged;
 use App\Account\Domain\Profile\Event\PipelineLabelsChanged;
@@ -27,6 +28,10 @@ final class Profile extends AggregateRoot
     public const string DEFAULT_TIMEZONE = 'Europe/Paris';
     /** @var int[] séquence de relance par défaut (miroir de FollowUpCadence côté Prospecting) */
     public const array DEFAULT_FOLLOW_UP_CADENCE = [7, 21, 45];
+    /** Seuil de dormance d'un client GAGNÉ (jours sans interaction) avant proposition de réactivation. */
+    public const int DEFAULT_DORMANT_THRESHOLD_DAYS = 120;
+    /** 0 = réactivation désactivée ; borne haute pragmatique (2 ans). */
+    private const int DORMANT_MAX_DAYS = 730;
 
     private const int CADENCE_MAX_STEPS = 10;
     private const int CADENCE_MAX_DAYS = 365;
@@ -47,6 +52,7 @@ final class Profile extends AggregateRoot
         private array $pipelineLabels = [],
         /** @var array<string, array{inApp: bool, email: bool}> COUPURES par type (défaut = tout activé) */
         private array $notificationPreferences = [],
+        private int $dormantClientThresholdDays = self::DEFAULT_DORMANT_THRESHOLD_DAYS,
     ) {
     }
 
@@ -168,6 +174,20 @@ final class Profile extends AggregateRoot
         $this->recordEvent(new WeeklyGoalChanged($this->tenantId->toString(), $weeklyGoal, $now));
     }
 
+    /** Seuil de dormance des clients gagnés (0 = réactivation désactivée). Sans changement, aucun event. */
+    public function changeDormantClientThreshold(int $days, \DateTimeImmutable $now): void
+    {
+        if ($days < 0 || $days > self::DORMANT_MAX_DAYS) {
+            throw InvalidValue::because(sprintf('Dormant threshold must be between 0 and %d days.', self::DORMANT_MAX_DAYS));
+        }
+        if ($days === $this->dormantClientThresholdDays) {
+            return;
+        }
+
+        $this->dormantClientThresholdDays = $days;
+        $this->recordEvent(new DormantClientThresholdChanged($this->tenantId->toString(), $days, $now));
+    }
+
     /** Présentation (bio, spécialités, signature) — sans changement, aucun event. */
     public function changePresentation(?string $bio, ?string $specialties, ?string $signature, \DateTimeImmutable $now): void
     {
@@ -218,6 +238,11 @@ final class Profile extends AggregateRoot
     public function weeklyGoal(): int
     {
         return $this->weeklyGoal;
+    }
+
+    public function dormantClientThresholdDays(): int
+    {
+        return $this->dormantClientThresholdDays;
     }
 
     public function timezone(): string

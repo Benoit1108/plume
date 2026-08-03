@@ -144,6 +144,9 @@ Fondations techniques.
       éphémère par visiteur** (tenant isolé pré-rempli, login sans mot de passe, purge horaire, capacités bridées).
 - [x] **Revue de santé « V2 complète »** (2026-08-03) + remédiation A→G : cf.
       [`docs/reviews/2026-08-03-revue-sante-v2-complete.md`](reviews/2026-08-03-revue-sante-v2-complete.md).
+- [~] **V2.4** Accélérer & fidéliser : **modèles de messages** ✅ (contexte `Template`, champs de fusion) +
+      **réactivation des clients dormants** ✅ (seuil par tenant, section « À réactiver » dans Aujourd'hui, tick de
+      rappel mensuel `client_dormant`) + **objectif hebdo & série** ✅ (Aujourd'hui). Reste : bilan hebdo par email, PWA installable.
 - [~] **V2.3** Enrichissement : **séquences de relance configurables** ✅ + **annuaire pré-rempli** ✅ +
       **pipeline personnalisable** ✅ (libellés d'étapes, machine à états figée — ADR-0031) +
       **dashboard enrichi** ✅ (délai moyen de 1re réponse + export CSV + **valeur estimée** des pistes +
