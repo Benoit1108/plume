@@ -38,14 +38,7 @@ async function exportCsv(): Promise<void> {
   exporting.value = true
   try {
     const blob = await dashboardApi.exportCsv(period.value)
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = `plume-tableau-de-bord-${new Date().toISOString().slice(0, 10)}.csv`
-    document.body.appendChild(link)
-    link.click()
-    link.remove()
-    setTimeout(() => { URL.revokeObjectURL(url) }, 60_000)
+    downloadBlob(blob, `plume-tableau-de-bord-${new Date().toISOString().slice(0, 10)}.csv`)
   }
   catch {
     toast.add({ title: t('common.error'), color: 'error' })

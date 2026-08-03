@@ -70,7 +70,7 @@ async function changePassword(): Promise<void> {
     toast.add({ title: t('account.toasts.passwordChanged'), color: 'success' })
   }
   catch (error) {
-    const detail = (error as { data?: { detail?: string } }).data?.detail
+    const detail = errorDetail(error)
     const key = detail === 'invalid_current_password'
       ? 'account.errors.invalidCurrent'
       : detail === 'invalid_new_password'
@@ -90,16 +90,7 @@ async function exportData(): Promise<void> {
   exporting.value = true
   try {
     const blob = await accountApi.exportData()
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = `plume-export-${new Date().toISOString().slice(0, 10)}.zip`
-    // Ancre insérée dans le DOM (requis par WebKit/Safari) + révocation DIFFÉRÉE : révoquer
-    // synchroniquement peut annuler un téléchargement d'archive volumineuse en cours de lecture.
-    document.body.appendChild(link)
-    link.click()
-    link.remove()
-    setTimeout(() => { URL.revokeObjectURL(url) }, 60_000)
+    downloadBlob(blob, `plume-export-${new Date().toISOString().slice(0, 10)}.zip`)
     toast.add({ title: t('account.export.done'), color: 'success' })
   }
   catch {
@@ -133,7 +124,7 @@ async function deleteAccount(): Promise<void> {
     auth.logout()
   }
   catch (error) {
-    const detail = (error as { data?: { detail?: string } }).data?.detail
+    const detail = errorDetail(error)
     const key = detail === 'invalid_current_password'
       ? 'account.errors.invalidCurrent'
       : 'account.errors.generic'

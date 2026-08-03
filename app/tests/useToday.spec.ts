@@ -25,7 +25,7 @@ describe('useToday / useProfile', () => {
     const profile = useProfile()
 
     await profile.get()
-    await profile.updateWeeklyGoal(8)
+    await profile.update({ weeklyGoal: 8 })
 
     const [path, options] = apiMock.mock.calls[1] as [string, { method: string, body: { weeklyGoal: number }, headers: Record<string, string> }]
     expect(path).toBe('/api/v1/profile')

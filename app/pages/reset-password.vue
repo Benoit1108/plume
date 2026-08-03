@@ -26,7 +26,7 @@ async function onSubmit(): Promise<void> {
     await navigateTo('/login')
   }
   catch (e) {
-    const detail = (e as { data?: { detail?: string } }).data?.detail
+    const detail = errorDetail(e)
     error.value = detail === 'invalid_new_password' ? t('account.errors.tooShort') : t('auth.reset.invalidToken')
   }
   finally {

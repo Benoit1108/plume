@@ -66,7 +66,7 @@ const detailOpen = computed({
   set: (open: boolean) => { if (!open) detailId.value = null },
 })
 const { data: detailData, isPending: detailLoading } = useQuery({
-  queryKey: computed(() => ['admin', 'account', detailId.value] as const),
+  queryKey: computed(() => queryKeys.adminAccount(detailId.value ?? '')),
   queryFn: () => adminApi.accountDetail(detailId.value as string),
   enabled: computed(() => detailId.value !== null),
 })
@@ -81,14 +81,7 @@ async function exportAccounts(): Promise<void> {
   exporting.value = true
   try {
     const blob = await adminApi.accountsExport(debouncedSearch.value, statusFilter.value, sortBy.value)
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = `plume-comptes-${new Date().toISOString().slice(0, 10)}.csv`
-    document.body.appendChild(link)
-    link.click()
-    link.remove()
-    setTimeout(() => { URL.revokeObjectURL(url) }, 60_000)
+    downloadBlob(blob, `plume-comptes-${new Date().toISOString().slice(0, 10)}.csv`)
   }
   catch {
     toast.add({ title: t('common.error'), color: 'error' })
@@ -141,7 +134,7 @@ async function toggleComp(comped: boolean): Promise<void> {
   compBusy.value = true
   try {
     await adminApi.setComp(detailId.value, comped)
-    await queryClient.invalidateQueries({ queryKey: ['admin', 'account', detailId.value] })
+    await queryClient.invalidateQueries({ queryKey: queryKeys.adminAccount(detailId.value ?? '') })
     await queryClient.invalidateQueries({ queryKey: queryKeys.adminBilling })
     toast.add({ title: comped ? t('admin.detail.compGranted') : t('admin.detail.compRevoked'), color: 'success' })
   }

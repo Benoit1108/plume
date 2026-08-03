@@ -9,3 +9,10 @@ export function isConflict(error: unknown): boolean {
 export function errorToastTitle(t: (key: string) => string, error: unknown): string {
   return isConflict(error) ? t('common.conflict') : t('common.error')
 }
+
+/** Détail lisible renvoyé par l'API (clé `detail` du problem+json), s'il existe. */
+export function errorDetail(error: unknown): string | undefined {
+  if (typeof error !== 'object' || error === null) return undefined
+  const detail = (error as { data?: { detail?: unknown } }).data?.detail
+  return typeof detail === 'string' ? detail : undefined
+}

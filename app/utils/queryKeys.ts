@@ -21,6 +21,7 @@ export const queryKeys = {
   adminAlerts: ['admin', 'alerts'] as const,
   adminTrends: ['admin', 'trends'] as const,
   adminBilling: ['admin', 'billing'] as const,
+  adminAccount: (tenantId: string) => ['admin', 'account', tenantId] as const,
   billingSubscription: ['billing', 'subscription'] as const,
   organizations: ['organizations'] as const,
   directoryCatalog: ['directory', 'catalog'] as const,

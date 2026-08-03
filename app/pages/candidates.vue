@@ -156,16 +156,11 @@ async function doReject(): Promise<void> {
 // La relève est ASYNCHRONE (202, worker) : on rafraîchit la file plusieurs fois au fil de
 // l'ingestion (l'I/O RSS peut prendre quelques secondes côté worker).
 const polling = ref(false)
-const pollCatchUpTimers: ReturnType<typeof setTimeout>[] = []
+const pollCatchUp = useCatchUpRefresh(() => { void refresh() }, { schedule: [1000, 3000, 6000, 10000] })
 
 function schedulePollCatchUp(): void {
-  pollCatchUpTimers.forEach(clearTimeout)
-  pollCatchUpTimers.length = 0
-  for (const delay of [1000, 3000, 6000, 10000]) {
-    pollCatchUpTimers.push(setTimeout(() => { void refresh() }, delay))
-  }
+  pollCatchUp.trigger()
 }
-onUnmounted(() => pollCatchUpTimers.forEach(clearTimeout))
 
 async function doPoll(): Promise<void> {
   polling.value = true

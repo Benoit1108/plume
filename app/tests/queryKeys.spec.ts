@@ -13,5 +13,6 @@ describe('queryKeys', () => {
     expect(queryKeys.leadTimeline('abc')).toEqual(['lead', 'abc', 'timeline'])
     expect(queryKeys.organization('o1')).toEqual(['organization', 'o1'])
     expect(queryKeys.draftsForLead('l1')).toEqual(['drafts', 'l1'])
+    expect(queryKeys.adminAccount('t1')).toEqual(['admin', 'account', 't1'])
   })
 })

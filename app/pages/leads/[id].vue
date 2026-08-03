@@ -101,16 +101,10 @@ async function submitNote(): Promise<void> {
 }
 
 /** La projection du journal est asynchrone (worker) : on repasse chercher les retardataires. */
-let timelineCatchUpTimer: ReturnType<typeof setTimeout> | null = null
+const timelineCatchUp = useCatchUpRefresh(() => { void refreshTimeline() }, { schedule: [1500] })
 function scheduleTimelineCatchUp(): void {
-  if (timelineCatchUpTimer) clearTimeout(timelineCatchUpTimer)
-  timelineCatchUpTimer = setTimeout(() => {
-    void refreshTimeline()
-  }, 1500)
+  timelineCatchUp.trigger()
 }
-onUnmounted(() => {
-  if (timelineCatchUpTimer) clearTimeout(timelineCatchUpTimer)
-})
 
 /** La section Brouillons a produit de l'activité (génération) : timeline à jour. */
 function onDraftActivity(): void {
