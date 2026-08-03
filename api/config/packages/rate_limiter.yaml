@@ -23,6 +23,11 @@ framework:
             policy: sliding_window
             limit: 5
             interval: '15 minutes'
+        # « Essayer la démo » (endpoint PUBLIC) : chaque appel crée un tenant éphémère — borne l'abus, PAR IP.
+        demo:
+            policy: sliding_window
+            limit: 5
+            interval: '1 hour'
         # Génération IA (drafts) : chaque appel peut coûter de l'argent (API Anthropic)
         # et occuper le worker ~30 s. 30 générations / heure par tenant : large pour un
         # usage réel, borne la facture et protège les projections des autres tenants.

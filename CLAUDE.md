@@ -251,13 +251,20 @@ checkout.completed→active, subscription.updated/deleted→past_due/canceled). 
 `BILLING_MONTHLY_AMOUNT_EUR`) + **compte offert** `POST /admin/accounts/{tenantId}/comp` (`comped`/`uncomp`
 + audit) piloté depuis la fiche compte (statut d'abonnement affiché + bouton offrir/retirer). **→ V2.2 COMPLÈTE.**
 
-**Site vitrine + compte démo EN COURS** (cadré : vitrine intégrée à l'app `/` = landing publique si déconnecté,
-compte démo ÉPHÉMÈRE par visiteur, coquilles FR par Claude). **Slice 1/2 LIVRÉE — vitrine** : `/` = landing
+**Site vitrine + compte démo : LIVRÉ** (cadré : vitrine intégrée à l'app `/` = landing publique si déconnecté,
+compte démo ÉPHÉMÈRE par visiteur, coquilles FR par Claude). **Slice 1/2 — vitrine** : `/` = landing
 publique (hero + fonctionnalités + tarifs 12/120 + footer légal ; redirige /today si connecté ; `layout:false` ;
-i18n `landing.*` fr/en ; middleware : `/` public). Reste : 2/ compte démo éphémère (endpoint création+seed+
-login passwordless + purge planifiée + bouton « Essayer la démo » + bandeau démo).
+i18n `landing.*` fr/en ; middleware : `/` public). **Slice 2/2 — compte démo éphémère** : endpoint public
+`POST /api/v1/demo` (rate-limité) monte un tenant isolé, le pré-remplit (`DemoSeeder` : 3 organisations +
+3 pistes + interactions fictives) et connecte SANS mot de passe (réutilise `AuthenticationSuccessHandler`,
+cookies httpOnly) ; utilisateur `ROLE_DEMO`, colonne hors-ORM `app_user.demo_expires_at` (+2 h) ; purge horaire
+`PurgeExpiredDemosTick` → RÉUTILISE la purge RGPD `PurgeAccount` (effacement atomique du tenant + `app_user`).
+Front : bouton « Essayer la démo » (hero vitrine) → `auth.enterDemo()` ; `/me` expose `isDemo` ; bandeau global
+`DemoBanner` (« données fictives, compte temporaire ») ; E2E smoke du flux complet. **→ V2 essentiellement
+complète (features).**
 
-**Prochaine grande étape** : finir vitrine+démo (slice 2 démo éphémère).
-
-**Prochaine grande étape** : finir V2.2 (slices 2-4) ; puis site vitrine/démo.
-enfin « à concevoir » (back-office v2 widgets, plafond budget IA global, site vitrine/démo).
+**Reste (côté Benoit / hébergement)** : identifiants Stripe (clés + 2 Price IDs + secret webhook), validation
+apps OAuth Google/Microsoft, échantillons emails ProZ/autres sites, contenu juridique à signer, choix d'hébergeur,
+DSN Sentry, secrets prod `AI_MONTHLY_TOKEN_BUDGET`/`TOTP_ENCRYPTION_KEY`, recette produit complète — puis mise en
+production. **Reste (code, différé)** : parsers fins ProZ ; page de statut PUBLIQUE (dépend hébergement) ;
+V2.2 décision paiement (plan/prix définitifs) ; impersonation back-office (reportée) ; dettes ADR-0022.

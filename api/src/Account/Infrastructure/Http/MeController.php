@@ -30,6 +30,8 @@ final class MeController
             'email' => $user->getUserIdentifier(),
             // Le front n'affiche l'entrée back-office qu'aux admins (l'autorité reste l'API : ROLE_ADMIN).
             'isAdmin' => \in_array('ROLE_ADMIN', $user->getRoles(), true),
+            // Session de démonstration (ROLE_DEMO) → le front affiche le bandeau « données fictives ».
+            'isDemo' => \in_array('ROLE_DEMO', $user->getRoles(), true),
         ]);
     }
 }

@@ -55,6 +55,7 @@ when@dev:
             - { path: ^/api/v1/token/(refresh|invalidate)$, roles: PUBLIC_ACCESS }
             - { path: ^/api/v1/account/password/(forgot|reset)$, roles: PUBLIC_ACCESS }
             - { path: ^/api/v1/(register|account/verify-email(/resend)?)$, roles: PUBLIC_ACCESS }
+            - { path: ^/api/v1/demo$, roles: PUBLIC_ACCESS }
             - { path: ^/api/v1/billing/webhook$, roles: PUBLIC_ACCESS }
             - { path: ^/api/v1/admin, roles: ROLE_ADMIN }
             - { path: ^/api/(v1/)?docs, roles: PUBLIC_ACCESS }
@@ -72,6 +73,7 @@ when@test:
             - { path: ^/api/v1/token/(refresh|invalidate)$, roles: PUBLIC_ACCESS }
             - { path: ^/api/v1/account/password/(forgot|reset)$, roles: PUBLIC_ACCESS }
             - { path: ^/api/v1/(register|account/verify-email(/resend)?)$, roles: PUBLIC_ACCESS }
+            - { path: ^/api/v1/demo$, roles: PUBLIC_ACCESS }
             - { path: ^/api/v1/billing/webhook$, roles: PUBLIC_ACCESS }
             - { path: ^/api/v1/admin, roles: ROLE_ADMIN }
             - { path: ^/api/(v1/)?docs, roles: PUBLIC_ACCESS }
@@ -86,6 +88,7 @@ when@prod:
             - { path: ^/api/v1/token/(refresh|invalidate)$, roles: PUBLIC_ACCESS }
             - { path: ^/api/v1/account/password/(forgot|reset)$, roles: PUBLIC_ACCESS }
             - { path: ^/api/v1/(register|account/verify-email(/resend)?)$, roles: PUBLIC_ACCESS }
+            - { path: ^/api/v1/demo$, roles: PUBLIC_ACCESS }
             - { path: ^/api/v1/billing/webhook$, roles: PUBLIC_ACCESS }
             - { path: ^/api/v1/admin, roles: ROLE_ADMIN }
             - { path: ^/api/(v1/)?docs, roles: ROLE_USER }

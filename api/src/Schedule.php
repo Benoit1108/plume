@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App;
 
 use App\Account\Infrastructure\Scheduler\PurgeDeletedAccountsTick;
+use App\Account\Infrastructure\Scheduler\PurgeExpiredDemosTick;
 use App\Mailbox\Infrastructure\Scheduler\FetchAllAlertEmailsTick;
 use App\Mailbox\Infrastructure\Scheduler\FetchAllRepliesTick;
 use App\Notification\Infrastructure\Scheduler\NotifyDueFollowUpsTick;
@@ -50,6 +51,9 @@ class Schedule implements ScheduleProviderInterface
 
             // Purge quotidienne des comptes en soft-delete au-delà du délai de grâce (RGPD, V2.0-a2).
             ->add(RecurringMessage::every('1 day', new PurgeDeletedAccountsTick()))
+
+            // Purge horaire des comptes de démo éphémères expirés (vitrine V2).
+            ->add(RecurringMessage::every('1 hour', new PurgeExpiredDemosTick()))
 
             // Notifications « relance due aujourd'hui » — horaire (passage de minuit par fuseau),
             // idempotent (une notification par relance et par échéance).

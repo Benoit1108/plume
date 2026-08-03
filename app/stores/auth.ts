@@ -26,6 +26,14 @@ export const useAuthStore = defineStore('auth', () => {
     maxAge: THIRTY_DAYS,
   })
 
+  // Témoin non sensible « session de démonstration » : affiche le bandeau « données fictives ».
+  const isDemo = useCookie<boolean>('plume_demo', {
+    default: () => false,
+    sameSite: 'lax',
+    secure: true,
+    maxAge: THIRTY_DAYS,
+  })
+
   // Migration M2.0 : purge des anciens cookies de tokens lisibles par JS.
   const legacyToken = useCookie<string | null>('plume_token')
   const legacyRefresh = useCookie<string | null>('plume_refresh')
@@ -40,9 +48,23 @@ export const useAuthStore = defineStore('auth', () => {
       body: otp ? { email: mail, password, otp } : { email: mail, password },
     })
     // Les cookies httpOnly sont posés par la réponse ; on demande à l'API qui on est.
-    const me = await $fetch<{ email: string, isAdmin?: boolean }>('/api/v1/me')
+    const me = await $fetch<{ email: string, isAdmin?: boolean, isDemo?: boolean }>('/api/v1/me')
     email.value = me.email
     isAdmin.value = me.isAdmin === true
+    isDemo.value = me.isDemo === true
+  }
+
+  /**
+   * Vitrine — « Essayer la démo » : l'API crée un tenant isolé, pré-rempli et éphémère,
+   * puis pose directement les cookies de session (login sans mot de passe). On récupère
+   * ensuite l'identité comme après un login classique.
+   */
+  async function enterDemo(): Promise<void> {
+    await $fetch('/api/v1/demo', { method: 'POST', body: {} })
+    const me = await $fetch<{ email: string, isAdmin?: boolean, isDemo?: boolean }>('/api/v1/me')
+    email.value = me.email
+    isAdmin.value = me.isAdmin === true
+    isDemo.value = me.isDemo === true
   }
 
   // Mutex : plusieurs 401 simultanés partagent LE même refresh (indispensable
@@ -82,8 +104,9 @@ export const useAuthStore = defineStore('auth', () => {
 
     email.value = null
     isAdmin.value = false
+    isDemo.value = false
     void navigateTo('/login')
   }
 
-  return { email, isAdmin, isAuthenticated, login, tryRefresh, logout }
+  return { email, isAdmin, isDemo, isAuthenticated, login, enterDemo, tryRefresh, logout }
 })

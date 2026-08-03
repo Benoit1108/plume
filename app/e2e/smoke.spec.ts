@@ -25,6 +25,21 @@ test('la racine / affiche la vitrine publique au visiteur', async ({ page }) => 
   expect(errors).toEqual([])
 })
 
+test('« Essayer la démo » monte un compte éphémère et connecte le visiteur', async ({ page }) => {
+  const errors = watchConsole(page)
+
+  await page.goto('/')
+  await page.getByRole('button', { name: /essayer la démo|try the demo/i }).click()
+
+  // Login sans mot de passe : l'API pose les cookies et on arrive dans l'app.
+  await page.waitForURL('**/today')
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+  // Le bandeau « mode démonstration » signale les données fictives.
+  await expect(page.getByText(/vous explorez une démonstration|you are exploring a demo/i)).toBeVisible()
+
+  expect(errors).toEqual([])
+})
+
 test('login puis Répertoire : rendu complet sans erreur console', async ({ page }) => {
   const errors = watchConsole(page)
 

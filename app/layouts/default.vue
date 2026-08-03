@@ -61,6 +61,7 @@ watch(() => route.path, () => {
         />
       </header>
       <main class="flex-1 min-w-0">
+        <DemoBanner />
         <SubscriptionBanner />
         <slot />
       </main>

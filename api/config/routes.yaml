@@ -152,6 +152,11 @@ api_register:
     controller: App\Account\Infrastructure\Http\RegisterController
     methods: [POST]
 
+api_demo:
+    path: /api/v1/demo
+    controller: App\Account\Infrastructure\Http\DemoController
+    methods: [POST]
+
 # Vérification d'email (PUBLIC) : confirme l'adresse via le jeton signé.
 api_account_verify_email:
     path: /api/v1/account/verify-email

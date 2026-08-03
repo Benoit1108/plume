@@ -762,7 +762,9 @@
       "title": "Win more clients, without spending your days on it",
       "subtitle": "Plume organizes your outreach end to end: find the right publishers, studios and agencies, write messages that ring true, follow up at the right time and track every reply — all in one place.",
       "cta": "Start free trial",
-      "trialNote": "14-day trial, no credit card."
+      "trialNote": "14-day trial, no credit card.",
+      "demoCta": "Try the demo",
+      "demoNote": "or try the demo, no sign-up"
     },
     "features": {
       "pipeline": { "icon": "i-lucide-target", "title": "Pipeline & follow-ups", "text": "A clear board of your leads, automatic follow-ups at the right pace, and a « Today » screen that tells you what to do." },
@@ -785,6 +787,9 @@
         "dashboard": "Dashboard & export",
         "support": "Exportable data, cancel in one click"
       }
+    },
+    "demo": {
+      "error": "Could not start the demo. Please try again."
     }
   },
   "billing": {
@@ -792,6 +797,13 @@
       "title": "Read-only access",
       "hint": "Your trial or subscription has ended. Your data is kept — subscribe to re-enable writing.",
       "cta": "Subscribe"
+    }
+  },
+  "demo": {
+    "banner": {
+      "title": "You are exploring a demo",
+      "hint": "The data is fictitious and this temporary account will be erased automatically. Create your account to keep your work.",
+      "cta": "Create my account"
     }
   },
   "settings": {

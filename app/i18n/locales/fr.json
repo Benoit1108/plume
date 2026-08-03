@@ -762,7 +762,9 @@
       "title": "Décrochez plus de clients, sans y passer vos journées",
       "subtitle": "Plume organise votre prospection de bout en bout : repérez les bonnes maisons d'édition, studios et agences, écrivez des messages qui sonnent juste, relancez au bon moment et suivez chaque réponse — au même endroit.",
       "cta": "Démarrer l'essai gratuit",
-      "trialNote": "14 jours d'essai, sans carte bancaire."
+      "trialNote": "14 jours d'essai, sans carte bancaire.",
+      "demoCta": "Essayer la démo",
+      "demoNote": "ou testez la démo, sans inscription"
     },
     "features": {
       "pipeline": { "icon": "i-lucide-target", "title": "Pipeline & relances", "text": "Un tableau clair de vos pistes, des relances automatiques au bon rythme, et l'écran « Aujourd'hui » qui vous dit quoi faire." },
@@ -785,6 +787,9 @@
         "dashboard": "Tableau de bord & export",
         "support": "Données exportables, résiliation en un clic"
       }
+    },
+    "demo": {
+      "error": "Impossible de lancer la démo. Réessayez."
     }
   },
   "billing": {
@@ -792,6 +797,13 @@
       "title": "Accès en lecture seule",
       "hint": "Votre essai ou abonnement a pris fin. Vos données sont conservées — abonnez-vous pour réactiver l'écriture.",
       "cta": "S'abonner"
+    }
+  },
+  "demo": {
+    "banner": {
+      "title": "Vous explorez une démonstration",
+      "hint": "Les données sont fictives et ce compte temporaire sera effacé automatiquement. Créez votre compte pour conserver votre travail.",
+      "cta": "Créer mon compte"
     }
   },
   "settings": {

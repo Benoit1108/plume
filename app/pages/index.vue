@@ -5,6 +5,7 @@ definePageMeta({ layout: false })
 
 const { t } = useI18n()
 const auth = useAuthStore()
+const toast = useToast()
 
 if (auth.isAuthenticated) {
   await navigateTo('/today', { replace: true })
@@ -12,6 +13,23 @@ if (auth.isAuthenticated) {
 
 const features = ['pipeline', 'replies', 'drafting', 'sourcing', 'dashboard'] as const
 const included = ['pipeline', 'drafting', 'mailbox', 'sourcing', 'dashboard', 'support'] as const
+
+// « Essayer la démo » : l'API monte un compte éphémère pré-rempli et nous connecte directement.
+const enteringDemo = ref(false)
+async function tryDemo() {
+  if (enteringDemo.value) return
+  enteringDemo.value = true
+  try {
+    await auth.enterDemo()
+    await navigateTo('/today')
+  }
+  catch {
+    toast.add({ title: t('landing.demo.error'), color: 'error' })
+  }
+  finally {
+    enteringDemo.value = false
+  }
+}
 </script>
 
 <template>
@@ -37,9 +55,9 @@ const included = ['pipeline', 'drafting', 'mailbox', 'sourcing', 'dashboard', 's
         <p class="mt-5 text-lg text-muted max-w-2xl mx-auto">{{ t('landing.hero.subtitle') }}</p>
         <div class="mt-8 flex items-center justify-center gap-3 flex-wrap">
           <UButton to="/register" size="lg" icon="i-lucide-arrow-right" trailing>{{ t('landing.hero.cta') }}</UButton>
-          <UButton to="/login" size="lg" color="neutral" variant="outline">{{ t('landing.nav.login') }}</UButton>
+          <UButton size="lg" color="neutral" variant="outline" icon="i-lucide-play" :loading="enteringDemo" @click="tryDemo">{{ t('landing.hero.demoCta') }}</UButton>
         </div>
-        <p class="mt-3 text-xs text-dimmed">{{ t('landing.hero.trialNote') }}</p>
+        <p class="mt-3 text-xs text-dimmed">{{ t('landing.hero.trialNote') }} · {{ t('landing.hero.demoNote') }}</p>
       </section>
 
       <!-- Fonctionnalités -->
