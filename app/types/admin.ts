@@ -53,6 +53,13 @@ export interface AdminAccount {
   mailboxStatus: string
 }
 
+/** Santé & alertes : la liste « à regarder » du back-office. */
+export interface AdminAlerts {
+  inactiveAccounts: { email: string, lastActivityAt: string | null }[]
+  mailboxesInError: { email: string }[]
+  stuckVerification: { email: string, createdAt: string | null }[]
+}
+
 /** Une entrée du journal d'audit hors tenant (connexions admin, suppressions, resets). */
 export interface AdminAuditEntry {
   id: string

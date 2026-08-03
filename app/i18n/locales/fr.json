@@ -133,6 +133,18 @@
       "action": "Action",
       "target": "Cible",
       "empty": "Aucune entrée."
+    },
+    "alerts": {
+      "title": "Santé & alertes",
+      "count": "{count} point à regarder | {count} point à regarder | {count} points à regarder",
+      "allClear": "Rien à signaler",
+      "none": "Aucun",
+      "inactive": "Comptes inactifs",
+      "inactiveHint": "Vérifiés, sans activité depuis 30 jours.",
+      "mailboxError": "Boîtes en erreur",
+      "mailboxErrorHint": "Reconnexion OAuth à demander.",
+      "stuckVerification": "Vérifications en souffrance",
+      "stuckVerificationHint": "Email non vérifié depuis plus de 7 jours."
     }
   },
   "notifications": {

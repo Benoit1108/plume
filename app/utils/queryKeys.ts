@@ -18,6 +18,7 @@ export const queryKeys = {
   adminMetrics: ['admin', 'metrics'] as const,
   adminAccounts: ['admin', 'accounts'] as const,
   adminAudit: ['admin', 'audit'] as const,
+  adminAlerts: ['admin', 'alerts'] as const,
   organizations: ['organizations'] as const,
   directoryCatalog: ['directory', 'catalog'] as const,
   leads: ['leads'] as const,

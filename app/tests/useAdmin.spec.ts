@@ -58,6 +58,12 @@ describe('useAdmin', () => {
     expect(noQ.query).toEqual({ status: 'all', sort: 'email' })
   })
 
+  it('alerts lit la santé (inactifs, boîtes en erreur, vérifs en souffrance)', async () => {
+    apiMock.mockResolvedValueOnce({ inactiveAccounts: [], mailboxesInError: [{ email: 'x@plume.test' }], stuckVerification: [] })
+    await expect(useAdmin().alerts()).resolves.toMatchObject({ mailboxesInError: [{ email: 'x@plume.test' }] })
+    expect((apiMock.mock.calls[0] as [string])[0]).toBe('/api/v1/admin/alerts')
+  })
+
   it('status lit l\'état opérationnel', async () => {
     apiMock.mockResolvedValueOnce({ db: 'ok', queues: {}, failed: 0, backlogAgeSeconds: 0, mailboxesError: 0 })
     await expect(useAdmin().status()).resolves.toMatchObject({ db: 'ok' })

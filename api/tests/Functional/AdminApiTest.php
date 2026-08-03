@@ -30,7 +30,7 @@ final class AdminApiTest extends ApiTestCase
         $connection = static::getContainer()->get(Connection::class);
         \assert($connection instanceof Connection);
         $this->connection = $connection;
-        $this->connection->executeStatement('TRUNCATE TABLE app_user, refresh_tokens, organization, lead, audit_log, ai_usage RESTART IDENTITY CASCADE');
+        $this->connection->executeStatement('TRUNCATE TABLE app_user, refresh_tokens, organization, lead, audit_log, ai_usage, connected_mailbox, interaction RESTART IDENTITY CASCADE');
 
         $tokenLimiter = static::getContainer()->get('limiter.token_endpoints');
         \assert($tokenLimiter instanceof RateLimiterFactory);
@@ -162,6 +162,39 @@ final class AdminApiTest extends ApiTestCase
         self::assertResponseStatusCodeSame(403);
         $client->request('GET', '/api/v1/admin/accounts/export', ['auth_bearer' => $token]);
         self::assertResponseStatusCodeSame(403);
+        $client->request('GET', '/api/v1/admin/alerts', ['auth_bearer' => $token]);
+        self::assertResponseStatusCodeSame(403);
+    }
+
+    public function testAlertsSurfaceAccountsToWatch(): void
+    {
+        $this->createAdmin();
+        $this->createUser('inactive@plume.test'); // vérifié, aucune activité → inactif
+        $mbx = $this->createUser('mbx@plume.test');
+        $this->connection->executeStatement(
+            "INSERT INTO connected_mailbox (id, tenant_id, provider, email_address, status, connected_at)
+             VALUES (?, ?, 'GMAIL', 'x@gmail.example', 'ERROR', NOW())",
+            [Uuid::v7()->toRfc4122(), $mbx],
+        );
+        $stuck = $this->createUser('stuck@plume.test');
+        $this->connection->executeStatement(
+            "UPDATE app_user SET email_verified = false, created_at = NOW() - INTERVAL '10 days' WHERE tenant_id = ?",
+            [$stuck],
+        );
+
+        $client = static::createClient();
+        /** @var array{inactiveAccounts: list<array{email: string}>, mailboxesInError: list<array{email: string}>, stuckVerification: list<array{email: string}>} $data */
+        $data = $client->request('GET', '/api/v1/admin/alerts', ['auth_bearer' => $this->adminToken($client)])->toArray();
+
+        $inactive = array_column($data['inactiveAccounts'], 'email');
+        self::assertContains('inactive@plume.test', $inactive);
+        self::assertNotContains('stuck@plume.test', $inactive); // non vérifié → pas « inactif »
+
+        self::assertSame(['mbx@plume.test'], array_column($data['mailboxesInError'], 'email'));
+
+        $stuckEmails = array_column($data['stuckVerification'], 'email');
+        self::assertContains('stuck@plume.test', $stuckEmails);
+        self::assertNotContains('inactive@plume.test', $stuckEmails); // vérifié → pas « en souffrance »
     }
 
     public function testAuditLogIsListedAndFilterable(): void

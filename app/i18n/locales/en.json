@@ -133,6 +133,18 @@
       "action": "Action",
       "target": "Target",
       "empty": "No entries."
+    },
+    "alerts": {
+      "title": "Health & alerts",
+      "count": "{count} item to review | {count} item to review | {count} items to review",
+      "allClear": "All clear",
+      "none": "None",
+      "inactive": "Inactive accounts",
+      "inactiveHint": "Verified, no activity for 30 days.",
+      "mailboxError": "Inboxes in error",
+      "mailboxErrorHint": "OAuth reconnection needed.",
+      "stuckVerification": "Stuck verifications",
+      "stuckVerificationHint": "Email unverified for over 7 days."
     }
   },
   "notifications": {

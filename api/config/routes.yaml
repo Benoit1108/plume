@@ -19,6 +19,11 @@ api_admin_audit:
     controller: App\Admin\Infrastructure\Http\AdminAuditController
     methods: [GET]
 
+api_admin_alerts:
+    path: /api/v1/admin/alerts
+    controller: App\Admin\Infrastructure\Http\AdminAlertsController
+    methods: [GET]
+
 api_admin_status:
     path: /api/v1/admin/status
     controller: App\Admin\Infrastructure\Http\AdminStatusController

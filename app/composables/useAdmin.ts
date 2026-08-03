@@ -1,4 +1,4 @@
-import type { AdminAccount, AdminAuditEntry, AdminMetrics, AdminOverview, AdminStatus } from '~/types/admin'
+import type { AdminAccount, AdminAlerts, AdminAuditEntry, AdminMetrics, AdminOverview, AdminStatus } from '~/types/admin'
 
 /** Back-office (ROLE_ADMIN) : vue d'ensemble, comptes, audit, actions support. */
 export function useAdmin() {
@@ -13,6 +13,9 @@ export function useAdmin() {
 
     /** GET /admin/metrics — KPIs produit (comptages/répartitions, sans PII). */
     metrics: () => api<AdminMetrics>('/api/v1/admin/metrics'),
+
+    /** GET /admin/alerts — santé : comptes inactifs, boîtes en erreur, vérifications en souffrance. */
+    alerts: () => api<AdminAlerts>('/api/v1/admin/alerts'),
 
     /** GET /admin/accounts — comptes des traductrices (admins exclus) : recherche + filtre + tri, max 100. */
     async accounts(q = '', status = 'all', sort = 'email'): Promise<AdminAccount[]> {
