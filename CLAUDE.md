@@ -251,7 +251,13 @@ checkout.completed→active, subscription.updated/deleted→past_due/canceled). 
 `BILLING_MONTHLY_AMOUNT_EUR`) + **compte offert** `POST /admin/accounts/{tenantId}/comp` (`comped`/`uncomp`
 + audit) piloté depuis la fiche compte (statut d'abonnement affiché + bouton offrir/retirer). **→ V2.2 COMPLÈTE.**
 
-**Prochaine grande étape** : site vitrine + compte démo (dernier gros morceau produit).
+**Site vitrine + compte démo EN COURS** (cadré : vitrine intégrée à l'app `/` = landing publique si déconnecté,
+compte démo ÉPHÉMÈRE par visiteur, coquilles FR par Claude). **Slice 1/2 LIVRÉE — vitrine** : `/` = landing
+publique (hero + fonctionnalités + tarifs 12/120 + footer légal ; redirige /today si connecté ; `layout:false` ;
+i18n `landing.*` fr/en ; middleware : `/` public). Reste : 2/ compte démo éphémère (endpoint création+seed+
+login passwordless + purge planifiée + bouton « Essayer la démo » + bandeau démo).
+
+**Prochaine grande étape** : finir vitrine+démo (slice 2 démo éphémère).
 
 **Prochaine grande étape** : finir V2.2 (slices 2-4) ; puis site vitrine/démo.
 enfin « à concevoir » (back-office v2 widgets, plafond budget IA global, site vitrine/démo).

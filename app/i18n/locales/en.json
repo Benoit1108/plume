@@ -752,6 +752,41 @@
       "othersRevoked": "Other sessions have been signed out."
     }
   },
+  "landing": {
+    "nav": {
+      "login": "Log in",
+      "signup": "Create account"
+    },
+    "hero": {
+      "eyebrow": "Prospecting CRM for freelance translators",
+      "title": "Win more clients, without spending your days on it",
+      "subtitle": "Plume organizes your outreach end to end: find the right publishers, studios and agencies, write messages that ring true, follow up at the right time and track every reply — all in one place.",
+      "cta": "Start free trial",
+      "trialNote": "14-day trial, no credit card."
+    },
+    "features": {
+      "pipeline": { "icon": "i-lucide-target", "title": "Pipeline & follow-ups", "text": "A clear board of your leads, automatic follow-ups at the right pace, and a « Today » screen that tells you what to do." },
+      "replies": { "icon": "i-lucide-mail-check", "title": "Replies captured", "text": "Your messages go out from your own inbox; replies attach automatically to the right lead." },
+      "drafting": { "icon": "i-lucide-sparkles", "title": "AI-assisted drafting", "text": "Personalized drafts from your profile — you refine, never a blank page." },
+      "sourcing": { "icon": "i-lucide-rss", "title": "Announcement sourcing", "text": "Offers (LinkedIn, RSS feeds…) land in a « to triage » queue: accept in one click." },
+      "dashboard": { "icon": "i-lucide-line-chart", "title": "Dashboard", "text": "Response rate, conversion, pipeline value, consistency: you know what works." }
+    },
+    "pricing": {
+      "planName": "Pro",
+      "badge": "14-day trial",
+      "monthly": "€12",
+      "perMonth": "/ month",
+      "annual": "or €120 / year (2 months free)",
+      "included": {
+        "pipeline": "Pipeline, follow-ups & Today screen",
+        "drafting": "AI-assisted drafting",
+        "mailbox": "Gmail / Outlook connection",
+        "sourcing": "Announcement sourcing & directory",
+        "dashboard": "Dashboard & export",
+        "support": "Exportable data, cancel in one click"
+      }
+    }
+  },
   "billing": {
     "banner": {
       "title": "Read-only access",

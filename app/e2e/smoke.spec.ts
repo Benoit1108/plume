@@ -11,6 +11,20 @@ test('un visiteur non connecté est redirigé vers /login', async ({ page }) => 
   expect(errors).toEqual([])
 })
 
+test('la racine / affiche la vitrine publique au visiteur', async ({ page }) => {
+  const errors = watchConsole(page)
+
+  await page.goto('/')
+  // Pas de redirection vers /login : la vitrine est publique.
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+  await expect(page.getByRole('link', { name: /se connecter|log in/i }).first()).toBeVisible()
+  // Le CTA d'inscription mène bien à l'inscription.
+  await page.getByRole('link', { name: /démarrer l'essai|start free trial/i }).first().click()
+  await page.waitForURL('**/register')
+
+  expect(errors).toEqual([])
+})
+
 test('login puis Répertoire : rendu complet sans erreur console', async ({ page }) => {
   const errors = watchConsole(page)
 

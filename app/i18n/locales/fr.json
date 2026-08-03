@@ -752,6 +752,41 @@
       "othersRevoked": "Les autres sessions ont été déconnectées."
     }
   },
+  "landing": {
+    "nav": {
+      "login": "Se connecter",
+      "signup": "Créer un compte"
+    },
+    "hero": {
+      "eyebrow": "CRM de prospection pour traductrices",
+      "title": "Décrochez plus de clients, sans y passer vos journées",
+      "subtitle": "Plume organise votre prospection de bout en bout : repérez les bonnes maisons d'édition, studios et agences, écrivez des messages qui sonnent juste, relancez au bon moment et suivez chaque réponse — au même endroit.",
+      "cta": "Démarrer l'essai gratuit",
+      "trialNote": "14 jours d'essai, sans carte bancaire."
+    },
+    "features": {
+      "pipeline": { "icon": "i-lucide-target", "title": "Pipeline & relances", "text": "Un tableau clair de vos pistes, des relances automatiques au bon rythme, et l'écran « Aujourd'hui » qui vous dit quoi faire." },
+      "replies": { "icon": "i-lucide-mail-check", "title": "Réponses captées", "text": "Vos messages partent de votre propre boîte ; les réponses se rattachent automatiquement à la bonne piste." },
+      "drafting": { "icon": "i-lucide-sparkles", "title": "Rédaction assistée", "text": "Des brouillons personnalisés à partir de votre profil — à vous de peaufiner, jamais de page blanche." },
+      "sourcing": { "icon": "i-lucide-rss", "title": "Sourcing d'annonces", "text": "Les offres (LinkedIn, flux RSS…) arrivent dans une file « à trier » : vous acceptez en un clic." },
+      "dashboard": { "icon": "i-lucide-line-chart", "title": "Tableau de bord", "text": "Taux de réponse, conversion, valeur du pipeline, régularité : vous savez ce qui marche." }
+    },
+    "pricing": {
+      "planName": "Pro",
+      "badge": "Essai 14 j",
+      "monthly": "12 €",
+      "perMonth": "/ mois",
+      "annual": "ou 120 € / an (2 mois offerts)",
+      "included": {
+        "pipeline": "Pipeline, relances & écran Aujourd'hui",
+        "drafting": "Rédaction assistée par IA",
+        "mailbox": "Connexion Gmail / Outlook",
+        "sourcing": "Sourcing d'annonces & annuaire",
+        "dashboard": "Tableau de bord & export",
+        "support": "Données exportables, résiliation en un clic"
+      }
+    }
+  },
   "billing": {
     "banner": {
       "title": "Accès en lecture seule",
