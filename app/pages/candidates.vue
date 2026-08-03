@@ -1,11 +1,9 @@
 <script setup lang="ts">
-import type { Organization, OrganizationType, Segment } from '~/types/directory'
-import type { LeadPriority } from '~/types/leads'
+import type { Organization } from '~/types/directory'
 import type { CandidateLead } from '~/types/sourcing'
 
 const { t, locale } = useI18n()
-const { sourceLabel, pairLabel, priorityOptions } = useLeadLabels()
-const { typeOptions, segmentOptions } = useDirectoryLabels()
+const { sourceLabel, pairLabel } = useLeadLabels()
 const sourcing = useSourcing()
 const directory = useDirectory()
 const toast = useToast()
@@ -23,111 +21,12 @@ const { data: candidatesData, isPending: loading, isError, refetch } = useQuery(
 const candidates = computed<CandidateLead[]>(() => candidatesData.value ?? [])
 async function refresh(): Promise<void> { await queryClient.invalidateQueries({ queryKey: queryKeys.candidateQueue }) }
 
-// Organisations existantes (pour la fusion).
+// Organisations existantes (pour la fusion depuis le tri).
 const { data: orgsData } = useQuery({ queryKey: queryKeys.organizations, queryFn: () => directory.list() })
 const organizations = computed<Organization[]>(() => orgsData.value ?? [])
-const organizationOptions = computed(() => organizations.value.map(o => ({ value: o.id, label: o.name })))
 
-// --- Tri : accepter (nouvelle organisation) / fusionner (organisation existante) ---
-const triaging = ref<{ candidate: CandidateLead, mode: 'accept' | 'merge' } | null>(null)
-const triageOpen = computed({
-  get: () => triaging.value !== null,
-  set: (open: boolean) => {
-    if (!open) triaging.value = null
-  },
-})
-const submitting = ref(false)
-const form = reactive({
-  organizationName: '',
-  organizationType: 'PUBLISHER' as OrganizationType,
-  organizationId: '',
-  languagePair: 'en>fr',
-  segment: 'PUBLISHING' as Segment,
-  priority: 'MEDIUM' as LeadPriority,
-  website: '',
-})
-
-function openAccept(candidate: CandidateLead): void {
-  form.organizationName = candidate.organizationName ?? ''
-  form.organizationType = 'PUBLISHER'
-  form.languagePair = candidate.languagePair ?? 'en>fr'
-  form.segment = 'PUBLISHING'
-  form.priority = 'MEDIUM'
-  form.website = safeUrl(candidate.url) ?? ''
-  triaging.value = { candidate, mode: 'accept' }
-}
-
-function openMerge(candidate: CandidateLead): void {
-  form.organizationId = organizations.value[0]?.id ?? ''
-  form.languagePair = candidate.languagePair ?? 'en>fr'
-  form.segment = 'PUBLISHING'
-  form.priority = 'MEDIUM'
-  triaging.value = { candidate, mode: 'merge' }
-}
-
-// Dédoublonnage suggéré : en mode « accepter », si le nom saisi ressemble à une organisation
-// existante, on propose de la RÉUTILISER (bascule en fusion) plutôt que d'en créer un doublon.
-const duplicateSuggestions = computed<Organization[]>(() =>
-  triaging.value?.mode === 'accept'
-    ? suggestDuplicateOrganizations(form.organizationName, organizations.value)
-    : [],
-)
-
-/** L'utilisatrice choisit une organisation existante suggérée → on bascule sur la fusion. */
-function useExistingOrganization(org: Organization): void {
-  if (!triaging.value) return
-  form.organizationId = org.id
-  triaging.value = { candidate: triaging.value.candidate, mode: 'merge' }
-}
-
-const pairValid = computed(() => /^[a-z]{2}>[a-z]{2}$/i.test(form.languagePair.trim()))
-const canSubmit = computed(() =>
-  triaging.value?.mode === 'accept'
-    ? form.organizationName.trim() !== '' && pairValid.value
-    : form.organizationId !== '' && pairValid.value,
-)
-
-async function submitTriage(): Promise<void> {
-  if (!triaging.value) return
-  const { candidate, mode } = triaging.value
-  submitting.value = true
-  try {
-    if (mode === 'accept') {
-      await sourcing.accept(candidate.id, {
-        organizationName: form.organizationName.trim(),
-        organizationType: form.organizationType,
-        languagePair: form.languagePair.trim().toLowerCase(),
-        segment: form.segment,
-        priority: form.priority,
-        website: form.website.trim() || null,
-      })
-    }
-    else {
-      await sourcing.merge(candidate.id, {
-        organizationId: form.organizationId,
-        languagePair: form.languagePair.trim().toLowerCase(),
-        segment: form.segment,
-        priority: form.priority,
-      })
-    }
-    triaging.value = null
-    // La promotion crée une piste (+ éventuellement une organisation) : file de tri + tout ce qui
-    // dépend d'une piste (kanban, aujourd'hui, dashboard) + liste des organisations.
-    await Promise.all([
-      invalidateLeadRelated(queryClient),
-      queryClient.invalidateQueries({ queryKey: queryKeys.candidateQueue }),
-      queryClient.invalidateQueries({ queryKey: queryKeys.organizations }),
-    ])
-    focusTop()
-    toast.add({ title: t('sourcing.toasts.promoted'), color: 'success' })
-  }
-  catch (error) {
-    toast.add({ title: isConflict(error) ? t('sourcing.errors.conflict') : errorToastTitle(t, error), color: 'error' })
-  }
-  finally {
-    submitting.value = false
-  }
-}
+// Tri (accepter / fusionner) : délégué au composant, ouvert via son API exposée.
+const triageModal = ref<{ open: (candidate: CandidateLead, mode: 'accept' | 'merge') => void } | null>(null)
 
 // --- Rejeter ---
 const rejecting = ref<CandidateLead | null>(null)
@@ -158,16 +57,12 @@ async function doReject(): Promise<void> {
 const polling = ref(false)
 const pollCatchUp = useCatchUpRefresh(() => { void refresh() }, { schedule: [1000, 3000, 6000, 10000] })
 
-function schedulePollCatchUp(): void {
-  pollCatchUp.trigger()
-}
-
 async function doPoll(): Promise<void> {
   polling.value = true
   try {
     await sourcing.poll()
     toast.add({ title: t('sourcing.toasts.polled'), color: 'success' })
-    schedulePollCatchUp()
+    pollCatchUp.trigger()
   }
   catch (error) {
     toast.add({ title: errorToastTitle(t, error), color: 'error' })
@@ -243,7 +138,7 @@ function safeUrl(url?: string | null): string | null {
             </a>
           </div>
           <div class="flex gap-2 flex-wrap shrink-0">
-            <UButton size="sm" icon="i-lucide-check" @click="() => openAccept(candidate)">
+            <UButton size="sm" icon="i-lucide-check" @click="() => triageModal?.open(candidate, 'accept')">
               {{ t('sourcing.actions.accept') }}
             </UButton>
             <UButton
@@ -252,7 +147,7 @@ function safeUrl(url?: string | null): string | null {
               icon="i-lucide-git-merge"
               :disabled="!organizations.length"
               :title="!organizations.length ? t('sourcing.mergeNoOrg') : undefined"
-              @click="() => openMerge(candidate)"
+              @click="() => triageModal?.open(candidate, 'merge')"
             >
               {{ t('sourcing.actions.merge') }}
             </UButton>
@@ -269,78 +164,7 @@ function safeUrl(url?: string | null): string | null {
       </li>
     </ul>
 
-    <!-- Accepter (nouvelle organisation) / Fusionner (organisation existante) -->
-    <UModal
-      v-model:open="triageOpen"
-      :title="triaging?.mode === 'accept' ? t('sourcing.acceptTitle') : t('sourcing.mergeTitle')"
-      :description="triaging?.mode === 'accept' ? t('sourcing.acceptDescription') : t('sourcing.mergeDescription')"
-    >
-      <template #body>
-        <div v-if="triaging" class="flex flex-col gap-4">
-          <template v-if="triaging.mode === 'accept'">
-            <UFormField :label="t('sourcing.form.organizationName')" required>
-              <UInput v-model="form.organizationName" class="w-full" maxlength="200" />
-            </UFormField>
-            <!-- Dédoublonnage suggéré : réutiliser une organisation existante au lieu d'un doublon. -->
-            <UAlert
-              v-if="duplicateSuggestions.length"
-              color="warning"
-              variant="subtle"
-              icon="i-lucide-copy-check"
-              :title="t('sourcing.duplicate.title')"
-              :description="t('sourcing.duplicate.hint')"
-            >
-              <template #actions>
-                <div class="flex flex-col gap-1.5 w-full">
-                  <UButton
-                    v-for="org in duplicateSuggestions"
-                    :key="org.id"
-                    size="xs"
-                    variant="soft"
-                    color="warning"
-                    icon="i-lucide-arrow-right"
-                    class="self-start"
-                    @click="useExistingOrganization(org)"
-                  >
-                    {{ t('sourcing.duplicate.use', { name: org.name }) }}
-                  </UButton>
-                </div>
-              </template>
-            </UAlert>
-            <UFormField :label="t('sourcing.form.organizationType')">
-              <USelect v-model="form.organizationType" :items="typeOptions" value-key="value" label-key="label" class="w-full" />
-            </UFormField>
-          </template>
-          <UFormField v-else :label="t('sourcing.form.organization')" required>
-            <USelect v-model="form.organizationId" :items="organizationOptions" value-key="value" label-key="label" class="w-full" />
-          </UFormField>
-
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <UFormField :label="t('sourcing.form.languagePair')" required>
-              <UInput v-model="form.languagePair" class="w-full font-mono" placeholder="en>fr" />
-            </UFormField>
-            <UFormField :label="t('sourcing.form.segment')">
-              <USelect v-model="form.segment" :items="segmentOptions" value-key="value" label-key="label" class="w-full" />
-            </UFormField>
-            <UFormField :label="t('sourcing.form.priority')">
-              <USelect v-model="form.priority" :items="priorityOptions" value-key="value" label-key="label" class="w-full" />
-            </UFormField>
-          </div>
-
-          <UFormField v-if="triaging.mode === 'accept'" :label="t('sourcing.form.website')">
-            <UInput v-model="form.website" class="w-full" placeholder="https://…" />
-          </UFormField>
-        </div>
-      </template>
-      <template #footer>
-        <div class="flex gap-2 justify-end w-full">
-          <UButton color="neutral" variant="ghost" @click="() => { triaging = null }">{{ t('actions.cancel') }}</UButton>
-          <UButton :loading="submitting" :disabled="!canSubmit" @click="submitTriage">
-            {{ triaging?.mode === 'accept' ? t('sourcing.actions.accept') : t('sourcing.actions.merge') }}
-          </UButton>
-        </div>
-      </template>
-    </UModal>
+    <TriageModal ref="triageModal" :organizations="organizations" @promoted="focusTop" />
 
     <ConfirmDialog
       v-model:open="confirmReject"

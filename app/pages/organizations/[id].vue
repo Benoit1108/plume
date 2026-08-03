@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Contact, ContactInput, Organization, OrganizationInput } from '~/types/directory'
+import type { Organization, OrganizationInput } from '~/types/directory'
 
 const route = useRoute()
 const id = route.params.id as string
@@ -24,19 +24,8 @@ async function refresh(): Promise<void> {
 
 const editing = ref(false)
 const savingOrg = ref(false)
-const addingContact = ref(false)
-const editingContactId = ref<string | null>(null)
-const savingContact = ref(false)
 const togglingDoNotContact = ref(false)
-
 const confirmAllow = ref(false)
-const contactToDelete = ref<Contact | null>(null)
-const confirmDelete = computed({
-  get: () => contactToDelete.value !== null,
-  set: (open: boolean) => {
-    if (!open) contactToDelete.value = null
-  },
-})
 
 /** Lien externe rendu seulement si l'URL est http(s) — jamais de javascript:. */
 const safeWebsite = computed(() => {
@@ -55,16 +44,6 @@ function orgInitial() {
     segments: o.segments,
     notes: o.notes ?? '',
   }
-}
-
-function initials(name: string): string {
-  return name
-    .split(/\s+/)
-    .map(w => w.charAt(0))
-    .filter(Boolean)
-    .slice(0, 2)
-    .join('')
-    .toUpperCase()
 }
 
 function errorToast(): void {
@@ -112,50 +91,6 @@ async function applyDoNotContact(flag: boolean): Promise<void> {
   }
 }
 
-async function addContact(payload: ContactInput): Promise<void> {
-  savingContact.value = true
-  try {
-    await directory.addContact(id, payload)
-    addingContact.value = false
-    await refresh()
-    toast.add({ title: t('directory.toasts.contactAdded'), color: 'success' })
-  }
-  catch {
-    errorToast()
-  }
-  finally {
-    savingContact.value = false
-  }
-}
-
-async function saveContact(contactId: string, payload: ContactInput): Promise<void> {
-  savingContact.value = true
-  try {
-    await directory.updateContact(id, contactId, payload)
-    editingContactId.value = null
-    await refresh()
-    toast.add({ title: t('directory.toasts.contactUpdated'), color: 'success' })
-  }
-  catch {
-    errorToast()
-  }
-  finally {
-    savingContact.value = false
-  }
-}
-
-async function deleteContact(): Promise<void> {
-  const contact = contactToDelete.value
-  if (!contact) return
-  try {
-    await directory.removeContact(id, contact.id)
-    await refresh()
-    toast.add({ title: t('directory.toasts.contactDeleted'), color: 'success' })
-  }
-  catch {
-    errorToast()
-  }
-}
 </script>
 
 <template>
@@ -229,65 +164,9 @@ async function deleteContact(): Promise<void> {
         />
       </div>
 
-      <section class="mt-10">
-        <div class="flex items-center gap-2">
-          <p class="text-[11px] uppercase tracking-widest text-dimmed font-semibold flex-1">{{ t('directory.detail.contacts') }}</p>
-          <UButton v-if="!addingContact" size="sm" variant="outline" icon="i-lucide-plus" @click="() => { addingContact = true }">
-            {{ t('directory.detail.addContact') }}
-          </UButton>
-        </div>
+      <OrgContactList :org-id="id" :contacts="org.contacts" />
 
-        <div v-if="addingContact" class="mt-4 border border-default rounded-lg p-4 bg-elevated/40">
-          <ContactForm
-            :submitting="savingContact"
-            :submit-label="t('actions.add')"
-            @submit="addContact"
-            @cancel="addingContact = false"
-          />
-        </div>
-
-        <div class="mt-4 border border-default rounded-lg divide-y divide-[var(--ui-border)]">
-          <div v-for="c in org.contacts" :key="c.id" class="p-4">
-            <div v-if="editingContactId !== c.id" class="flex items-center gap-3">
-              <div class="w-9 h-9 rounded-full bg-elevated grid place-items-center text-xs font-bold text-primary shrink-0" aria-hidden="true">
-                {{ initials(c.fullName) }}
-              </div>
-              <div class="min-w-0">
-                <div class="font-medium text-sm">{{ c.fullName }}</div>
-                <div v-if="c.role" class="text-xs text-dimmed">{{ c.role }}</div>
-              </div>
-              <div class="ml-auto flex items-center gap-2">
-                <span v-if="c.email" class="font-mono text-xs text-muted hidden sm:inline">{{ c.email }}</span>
-                <LangStamp v-if="c.preferredLanguage" :code="c.preferredLanguage" />
-                <UButton size="xs" variant="ghost" icon="i-lucide-pencil" :aria-label="t('actions.edit')" @click="() => { editingContactId = c.id }" />
-                <UButton size="xs" variant="ghost" color="error" icon="i-lucide-trash-2" :aria-label="t('actions.delete')" @click="() => { contactToDelete = c }" />
-              </div>
-            </div>
-            <ContactForm
-              v-else
-              :initial="c"
-              :submitting="savingContact"
-              :submit-label="t('actions.save')"
-              @submit="(p: ContactInput) => saveContact(c.id, p)"
-              @cancel="editingContactId = null"
-            />
-          </div>
-
-          <div v-if="!org.contacts.length" class="p-6 text-center text-muted text-sm">
-            {{ t('directory.detail.noContacts') }}
-          </div>
-        </div>
-      </section>
-
-      <!-- Confirmations : suppression (destructive) et réautorisation (RGPD). -->
-      <ConfirmDialog
-        v-model:open="confirmDelete"
-        :title="t('directory.detail.deleteContactTitle')"
-        :description="t('directory.detail.deleteContactBody', { name: contactToDelete?.fullName ?? '' })"
-        :confirm-label="t('actions.delete')"
-        danger
-        @confirm="deleteContact"
-      />
+      <!-- Réautorisation (RGPD) : décision sensible → confirmation explicite. -->
       <ConfirmDialog
         v-model:open="confirmAllow"
         :title="t('directory.detail.allowContactTitle')"
