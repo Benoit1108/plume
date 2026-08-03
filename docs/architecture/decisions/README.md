@@ -36,3 +36,6 @@ Ne pas contredire un ADR accepté sans en écrire un nouveau qui le remplace (st
 | [0029](0029-verification-email-sans-etat.md) | Vérification d'email sans état (HMAC) vs reset mot de passe avec état | Accepté |
 | [0030](0030-observabilite.md) | Observabilité : logs JSON corrélés (tenant + request_id) + error-tracking Sentry (prod-only, env-gated) | Accepté |
 | [0031](0031-pipeline-labels-configurables.md) | Pipeline personnalisable : libellés d'étapes configurables (machine à états figée — amende 0008) | Accepté |
+| [0032](0032-garde-fou-cout-ia.md) | Garde-fou de coût IA : coupe-circuit + plafond mensuel de jetons (repli gratuit) | Accepté |
+| [0033](0033-abonnement-v2-2.md) | Abonnement SaaS (V2.2) : Stripe, essai 14 j sans carte, lecture seule, compte offert | Accepté |
+| [0034](0034-compte-demo-ephemere.md) | Compte de démonstration éphémère (vitrine) : login public sans mot de passe, capacités bridées | Accepté |

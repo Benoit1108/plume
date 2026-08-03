@@ -133,7 +133,17 @@ Fondations techniques.
       [`docs/reviews/2026-07-29-revue-sante-globale.md`](reviews/2026-07-29-revue-sante-globale.md).
 - [x] **Observabilité** (ADR-0030) : logs JSON corrélés **tenant + request_id** (HTTP + worker) +
       **error-tracking Sentry** prod-only/env-gated/sans PII (reste : fournir le `SENTRY_DSN`).
-- [ ] **V2.2** Abonnement SaaS : plans + quotas + paiement (≠ facturation client).
+- [x] **Garde-fou de coût IA** (ADR-0032) : coupe-circuit `AI_GENERATION_ENABLED` + plafond mensuel de
+      jetons `AI_MONTHLY_TOKEN_BUDGET` (0 = illimité) + repli gratuit `canned` (reste 🟦 fixer le plafond prod).
+- [x] **Back-office / Admin v2** : audit consultable, gestion comptes (recherche/filtre/export), santé & alertes,
+      courbes & entonnoir, fiche compte détaillée, statut système + métriques produit, compte offert (`comped`).
+- [x] **V2.2** Abonnement SaaS (ADR-0033) : **Stripe** (factice sans clés), **essai 14 j sans carte**, fin
+      d'essai/impayé → **lecture seule**, checkout/portail/**webhook signé**, compte **offert** au back-office
+      (reste 🟦 clés Stripe : secret + 2 Price IDs + secret webhook). ≠ facturation client (cf. Futur).
+- [x] **Site vitrine + compte démo** (ADR-0034) : `/` = landing publique si déconnecté ; **compte démo
+      éphémère par visiteur** (tenant isolé pré-rempli, login sans mot de passe, purge horaire, capacités bridées).
+- [x] **Revue de santé « V2 complète »** (2026-08-03) + remédiation A→G : cf.
+      [`docs/reviews/2026-08-03-revue-sante-v2-complete.md`](reviews/2026-08-03-revue-sante-v2-complete.md).
 - [~] **V2.3** Enrichissement : **séquences de relance configurables** ✅ + **annuaire pré-rempli** ✅ +
       **pipeline personnalisable** ✅ (libellés d'étapes, machine à états figée — ADR-0031) +
       **dashboard enrichi** ✅ (délai moyen de 1re réponse + export CSV + **valeur estimée** des pistes +

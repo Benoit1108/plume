@@ -268,3 +268,13 @@ apps OAuth Google/Microsoft, échantillons emails ProZ/autres sites, contenu jur
 DSN Sentry, secrets prod `AI_MONTHLY_TOKEN_BUDGET`/`TOTP_ENCRYPTION_KEY`, recette produit complète — puis mise en
 production. **Reste (code, différé)** : parsers fins ProZ ; page de statut PUBLIQUE (dépend hébergement) ;
 V2.2 décision paiement (plan/prix définitifs) ; impersonation back-office (reportée) ; dettes ADR-0022.
+
+**Revue de santé « V2 complète » (2026-08-03)** — 4 audits adversariaux parallèles (sécu/hygiène back/archi
+front/tests-docs), aucun P0, notes 7,5–8,5. Remédiation par lots (CI verte par lot), cf.
+[`docs/reviews/2026-08-03-revue-sante-v2-complete.md`](docs/reviews/2026-08-03-revue-sante-v2-complete.md) :
+**A** bridage du compte démo (P1 : IA forcée gratuite + boîte/envoi refusés + plafond global ; ADR-0034) ·
+**B** durcissement webhook Stripe (dédup `event.id`, unicité `stripe_customer_id`, tests) · **C** domaine PUR
+(plus de génération d'ID : eventId assigné par l'outbox en v7, `FollowUpIds` injecté ; port `IdGenerator` réactivé) ·
+**D** nettoyage (18 `getName()` morts DBAL 4, `Assert\All` prefs notif) · **E** factorisations front transverses
+(`useCatchUpRefresh`, `downloadBlob`, `errorDetail`, `queryKeys.adminAccount`, code mort retiré) · **G** resync
+docs (ROADMAP, index ADR 0032–0034). **F** (découpage des grosses pages front — settings/admin en tête) : maintenabilité pure.
