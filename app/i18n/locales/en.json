@@ -145,6 +145,18 @@
       "mailboxErrorHint": "OAuth reconnection needed.",
       "stuckVerification": "Stuck verifications",
       "stuckVerificationHint": "Email unverified for over 7 days."
+    },
+    "trends": {
+      "title": "Growth & acquisition",
+      "activeWeekly": "Active accounts per week",
+      "activeWeeklyHint": "Last 12 weeks (at least one action).",
+      "funnel": "Acquisition funnel",
+      "stages": {
+        "signedUp": "Signed up",
+        "verified": "Email verified",
+        "activated": "First lead created",
+        "active30d": "Active (30d)"
+      }
     }
   },
   "notifications": {

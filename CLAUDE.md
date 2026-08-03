@@ -230,7 +230,9 @@ audit consultable + gestion comptes** : `GET /admin/audit` (journal hors-tenant 
 liste `GET /admin/accounts` + export `GET /admin/accounts/export` (CSV) ; UI admin (filtres/tri/export +
 section journal d'audit). **Slice 2/4 LIVRÉE — santé & alertes** : `GET /admin/alerts` (comptes inactifs
 >30 j, boîtes en erreur, vérifications en souffrance >7 j) + section « Santé & alertes » (badge « à regarder »).
-Reste : 3/ courbes & entonnoir · 4/ fiche compte détaillée.
+**Slice 3/4 LIVRÉE — courbes & entonnoir** : `GET /admin/trends` (comptes actifs/semaine sur 12 sem. +
+entonnoir inscription→vérifié→1re piste→actif 30 j) → section « Croissance & acquisition » (barres + entonnoir).
+Reste : 4/ fiche compte détaillée (+ last_login).
 
 **Prochaine grande étape** : finir back-office v2 (slices 2-4) ; puis V2.2 abonnement Stripe (attend décisions
 paiement + compte Stripe de Benoit) ; site vitrine/démo.

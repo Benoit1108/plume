@@ -53,6 +53,12 @@ export interface AdminAccount {
   mailboxStatus: string
 }
 
+/** Courbes & entonnoir : croissance dans le temps + acquisition. */
+export interface AdminTrends {
+  weeklyActive: { week: string, count: number }[]
+  funnel: { signedUp: number, verified: number, activated: number, active30d: number }
+}
+
 /** Santé & alertes : la liste « à regarder » du back-office. */
 export interface AdminAlerts {
   inactiveAccounts: { email: string, lastActivityAt: string | null }[]

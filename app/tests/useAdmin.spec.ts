@@ -64,6 +64,12 @@ describe('useAdmin', () => {
     expect((apiMock.mock.calls[0] as [string])[0]).toBe('/api/v1/admin/alerts')
   })
 
+  it('trends lit la croissance (actifs/semaine + entonnoir)', async () => {
+    apiMock.mockResolvedValueOnce({ weeklyActive: [], funnel: { signedUp: 5, verified: 3, activated: 2, active30d: 1 } })
+    await expect(useAdmin().trends()).resolves.toMatchObject({ funnel: { signedUp: 5 } })
+    expect((apiMock.mock.calls[0] as [string])[0]).toBe('/api/v1/admin/trends')
+  })
+
   it('status lit l\'état opérationnel', async () => {
     apiMock.mockResolvedValueOnce({ db: 'ok', queues: {}, failed: 0, backlogAgeSeconds: 0, mailboxesError: 0 })
     await expect(useAdmin().status()).resolves.toMatchObject({ db: 'ok' })

@@ -164,6 +164,43 @@ final class AdminApiTest extends ApiTestCase
         self::assertResponseStatusCodeSame(403);
         $client->request('GET', '/api/v1/admin/alerts', ['auth_bearer' => $token]);
         self::assertResponseStatusCodeSame(403);
+        $client->request('GET', '/api/v1/admin/trends', ['auth_bearer' => $token]);
+        self::assertResponseStatusCodeSame(403);
+    }
+
+    public function testTrendsReportFunnelAndWeeklyActive(): void
+    {
+        $this->createAdmin();
+        $active = $this->createUser('active@plume.test');   // vérifié + piste + activité récente
+        $this->createUser('verified@plume.test');           // vérifié, sans piste
+        $unverified = $this->createUser('signedup@plume.test');
+        $this->connection->executeStatement('UPDATE app_user SET email_verified = false WHERE tenant_id = ?', [$unverified]);
+
+        $this->connection->executeStatement(
+            "INSERT INTO organization (id, tenant_id, name, type, working_languages, segments, do_not_contact, contacts)
+             VALUES ('org-a', ?, 'Org A', 'publisher', '[]', '[]', false, '[]')",
+            [$active],
+        );
+        $this->connection->executeStatement(
+            "INSERT INTO lead (id, tenant_id, organization_id, segment, status, language_pair, source, priority, created_at, follow_ups)
+             VALUES ('lead-a', ?, 'org-a', 'EDITION', 'TO_CONTACT', 'en>fr', 'DIRECT', 'MEDIUM', NOW(), '[]')",
+            [$active],
+        );
+        $this->connection->executeStatement(
+            "INSERT INTO interaction (id, event_id, tenant_id, lead_id, type, payload, occurred_on)
+             VALUES (?, ?, ?, 'lead-a', 'contacted', '{}', NOW())",
+            [Uuid::v7()->toRfc4122(), Uuid::v7()->toRfc4122(), $active],
+        );
+
+        $client = static::createClient();
+        /** @var array{weeklyActive: list<array{week: string, count: int}>, funnel: array{signedUp: int, verified: int, activated: int, active30d: int}} $data */
+        $data = $client->request('GET', '/api/v1/admin/trends', ['auth_bearer' => $this->adminToken($client)])->toArray();
+
+        self::assertCount(12, $data['weeklyActive']); // 12 semaines glissantes
+        self::assertSame(3, $data['funnel']['signedUp']);   // 3 non-admins
+        self::assertSame(2, $data['funnel']['verified']);   // active@ + verified@
+        self::assertSame(1, $data['funnel']['activated']);  // seule active@ a une piste
+        self::assertSame(1, $data['funnel']['active30d']);  // seule active@ a un acte récent
     }
 
     public function testAlertsSurfaceAccountsToWatch(): void

@@ -145,6 +145,18 @@
       "mailboxErrorHint": "Reconnexion OAuth à demander.",
       "stuckVerification": "Vérifications en souffrance",
       "stuckVerificationHint": "Email non vérifié depuis plus de 7 jours."
+    },
+    "trends": {
+      "title": "Croissance & acquisition",
+      "activeWeekly": "Comptes actifs par semaine",
+      "activeWeeklyHint": "12 dernières semaines (au moins un acte).",
+      "funnel": "Entonnoir d'acquisition",
+      "stages": {
+        "signedUp": "Inscrites",
+        "verified": "Email vérifié",
+        "activated": "1re piste créée",
+        "active30d": "Actives (30 j)"
+      }
     }
   },
   "notifications": {

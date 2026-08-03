@@ -24,6 +24,11 @@ api_admin_alerts:
     controller: App\Admin\Infrastructure\Http\AdminAlertsController
     methods: [GET]
 
+api_admin_trends:
+    path: /api/v1/admin/trends
+    controller: App\Admin\Infrastructure\Http\AdminTrendsController
+    methods: [GET]
+
 api_admin_status:
     path: /api/v1/admin/status
     controller: App\Admin\Infrastructure\Http\AdminStatusController
