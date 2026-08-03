@@ -8,11 +8,9 @@ import { execSync } from 'node:child_process'
 
 /** @type {Record<string, string>} advisory GHSA -> justification (datée). */
 const ALLOWED = {
-  'GHSA-mh99-v99m-4gvg':
-    'brace-expansion DoS (2026-07-27) — transitive de l’OUTILLAGE DE BUILD de Nuxt '
-    + '(glob/minimatch via nitropack/archiver). Aucun correctif forward (nuxt ≥4.2 est flaggé, le '
-    + 'seul « fix » npm est un downgrade cassant en 4.1.3), zéro exposition au runtime servi. '
-    + 'À retirer dès qu’un Nuxt embarquant un brace-expansion patché sort.',
+  // 2026-08-03 : les advisories brace-expansion (GHSA-mh99-v99m-4gvg + GHSA-rgw5-rvv9-x895) sont
+  // désormais CORRIGÉES via un override ciblé (package.json → 2.1.4 / 5.0.9), pas une exception.
+  // L'allowlist est vide : toute advisory high/critical runtime fait échouer la CI.
 }
 const RANK = { info: 0, low: 1, moderate: 2, high: 3, critical: 4 }
 const BLOCKING_FROM = RANK.high
