@@ -1,4 +1,4 @@
-import type { AdminAccount, AdminAccountDetail, AdminAlerts, AdminAuditEntry, AdminMetrics, AdminOverview, AdminStatus, AdminTrends } from '~/types/admin'
+import type { AdminAccount, AdminAccountDetail, AdminAlerts, AdminAuditEntry, AdminBilling, AdminMetrics, AdminOverview, AdminStatus, AdminTrends } from '~/types/admin'
 
 /** Back-office (ROLE_ADMIN) : vue d'ensemble, comptes, audit, actions support. */
 export function useAdmin() {
@@ -19,6 +19,13 @@ export function useAdmin() {
 
     /** GET /admin/trends — croissance dans le temps (actifs/semaine) + entonnoir d'acquisition. */
     trends: () => api<AdminTrends>('/api/v1/admin/trends'),
+
+    /** GET /admin/billing — abonnés par statut + revenu mensuel estimé. */
+    billing: () => api<AdminBilling>('/api/v1/admin/billing'),
+
+    /** POST /admin/accounts/{tenantId}/comp — offrir (comped:true) ou retirer (false) l'accès gratuit. */
+    setComp: (tenantId: string, comped: boolean) =>
+      api<unknown>(`/api/v1/admin/accounts/${tenantId}/comp`, { method: 'POST', body: { comped } }),
 
     /** GET /admin/accounts — comptes des traductrices (admins exclus) : recherche + filtre + tri, max 100. */
     async accounts(q = '', status = 'all', sort = 'email'): Promise<AdminAccount[]> {

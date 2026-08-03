@@ -20,6 +20,7 @@ export const queryKeys = {
   adminAudit: ['admin', 'audit'] as const,
   adminAlerts: ['admin', 'alerts'] as const,
   adminTrends: ['admin', 'trends'] as const,
+  adminBilling: ['admin', 'billing'] as const,
   billingSubscription: ['billing', 'subscription'] as const,
   organizations: ['organizations'] as const,
   directoryCatalog: ['directory', 'catalog'] as const,

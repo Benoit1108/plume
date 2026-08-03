@@ -17,6 +17,8 @@ parameters:
     env(STRIPE_WEBHOOK_SECRET): ''
     env(STRIPE_PRICE_MONTHLY): ''
     env(STRIPE_PRICE_ANNUAL): ''
+    # Montant mensuel (€) pour le MRR estimé du back-office (le vrai prix reste côté Stripe).
+    env(BILLING_MONTHLY_AMOUNT_EUR): '12'
     # Passerelle email : sans GOOGLE_CLIENT_ID => connecteur factice (coût zéro).
     env(GOOGLE_CLIENT_ID): ''
     env(GOOGLE_CLIENT_SECRET): ''
@@ -212,6 +214,9 @@ services:
     App\Billing\Infrastructure\Http\StripeWebhookController:
         arguments:
             $webhookSecret: '%env(string:STRIPE_WEBHOOK_SECRET)%'
+    App\Admin\Infrastructure\Http\AdminBillingController:
+        arguments:
+            $monthlyAmountEur: '%env(int:BILLING_MONTHLY_AMOUNT_EUR)%'
 
     # Garde-fou de coût IA : coupe-circuit + plafond mensuel de jetons (0 = illimité).
     App\Drafting\Application\AiBudget: '@App\Drafting\Infrastructure\Budget\DoctrineAiBudget'

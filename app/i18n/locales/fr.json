@@ -158,6 +158,18 @@
         "active30d": "Actives (30 j)"
       }
     },
+    "billing": {
+      "title": "Abonnements",
+      "mrr": "Revenu mensuel (estimé)",
+      "mrrHint": "Abonnés actifs × montant mensuel.",
+      "status": {
+        "active": "Actifs",
+        "trialing": "En essai",
+        "past_due": "Impayés",
+        "comped": "Offerts",
+        "canceled": "Résiliés"
+      }
+    },
     "detail": {
       "title": "Fiche compte",
       "status": "Statut",
@@ -173,7 +185,13 @@
       "mailbox": "Boîte email",
       "noMailbox": "Aucune",
       "volumes": "Volumétrie",
-      "volumesValue": "{orgs} orgs · {leads} pistes · {sent} envoyés"
+      "volumesValue": "{orgs} orgs · {leads} pistes · {sent} envoyés",
+      "subscription": "Abonnement",
+      "compHint": "Accès offert (gratuit, hors Stripe)",
+      "compGrant": "Offrir l'accès",
+      "compRevoke": "Retirer l'accès offert",
+      "compGranted": "Accès offert accordé.",
+      "compRevoked": "Accès offert retiré."
     }
   },
   "notifications": {

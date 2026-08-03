@@ -134,6 +134,33 @@ final class DoctrineSubscriptions implements Subscriptions
         );
     }
 
+    public function comp(string $tenantId): void
+    {
+        // Upsert : un compte grandfathered (sans ligne) reçoit une ligne `comped`.
+        $this->connection->executeStatement(
+            <<<'SQL'
+                INSERT INTO subscription (tenant_id, status, updated_at)
+                VALUES (:tenant, :status, :now)
+                ON CONFLICT (tenant_id) DO UPDATE SET status = excluded.status, updated_at = excluded.updated_at
+                SQL,
+            ['tenant' => $tenantId, 'status' => SubscriptionStatus::COMPED->value, 'now' => $this->clock->now()->format('Y-m-d H:i:s')],
+        );
+    }
+
+    public function uncomp(string $tenantId): void
+    {
+        // Ne touche QUE les comptes offerts (pas un abonné Stripe qu'on résilierait par erreur).
+        $this->connection->executeStatement(
+            'UPDATE subscription SET status = :canceled, updated_at = :now WHERE tenant_id = :tenant AND status = :comped',
+            [
+                'canceled' => SubscriptionStatus::CANCELED->value,
+                'comped' => SubscriptionStatus::COMPED->value,
+                'now' => $this->clock->now()->format('Y-m-d H:i:s'),
+                'tenant' => $tenantId,
+            ],
+        );
+    }
+
     public function stripeCustomerFor(string $tenantId): ?string
     {
         $customer = $this->connection->fetchOne(

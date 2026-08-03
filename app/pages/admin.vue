@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { AdminAccount, AdminAccountDetail, AdminAlerts, AdminAuditEntry, AdminTrends } from '~/types/admin'
+import type { AdminAccount, AdminAccountDetail, AdminAlerts, AdminAuditEntry, AdminBilling, AdminTrends } from '~/types/admin'
 
 /**
  * Back-office (ROLE_ADMIN). L'entrée nav n'apparaît qu'aux admins ; l'autorité reste l'API
@@ -127,6 +127,26 @@ function funnelPercent(count: number): number {
 }
 function weekLabel(iso: string): string {
   return new Date(`${iso}T00:00:00`).toLocaleDateString(locale.value, { day: 'numeric', month: 'short' })
+}
+
+// Billing : abonnés par statut + revenu mensuel estimé.
+const { data: billingData } = useQuery({ queryKey: queryKeys.adminBilling, queryFn: () => adminApi.billing() })
+const billing = computed<AdminBilling | null>(() => billingData.value ?? null)
+const euroFormat = computed(() => new Intl.NumberFormat(locale.value, { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }))
+
+// Accès offert (comped) : bascule depuis la fiche compte.
+const compBusy = ref(false)
+async function toggleComp(comped: boolean): Promise<void> {
+  if (compBusy.value || !detailId.value) return
+  compBusy.value = true
+  try {
+    await adminApi.setComp(detailId.value, comped)
+    await queryClient.invalidateQueries({ queryKey: ['admin', 'account', detailId.value] })
+    await queryClient.invalidateQueries({ queryKey: queryKeys.adminBilling })
+    toast.add({ title: comped ? t('admin.detail.compGranted') : t('admin.detail.compRevoked'), color: 'success' })
+  }
+  catch { toast.add({ title: t('common.error'), color: 'error' }) }
+  finally { compBusy.value = false }
 }
 
 // Journal d'audit (hors tenant) : les 100 dernières actions sensibles.
@@ -386,6 +406,22 @@ const failedDepth = computed(() => overview.value?.queues.failed ?? 0)
       </div>
     </section>
 
+    <!-- Billing : abonnés par statut + revenu mensuel estimé -->
+    <section v-if="billing" class="mt-8" :aria-label="t('admin.billing.title')">
+      <h2 class="text-sm font-semibold">{{ t('admin.billing.title') }}</h2>
+      <div class="mt-3 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div class="border border-default rounded-xl p-4 bg-elevated/40">
+          <p class="text-xs text-muted">{{ t('admin.billing.mrr') }}</p>
+          <p class="text-2xl font-semibold font-mono tabular-nums">{{ euroFormat.format(billing.estimatedMonthlyRevenue) }}</p>
+          <p class="text-[10px] text-dimmed mt-1">{{ t('admin.billing.mrrHint') }}</p>
+        </div>
+        <div v-for="s in (['active', 'trialing', 'past_due', 'comped', 'canceled'] as const)" :key="s" class="border border-default rounded-xl p-4 bg-elevated/40">
+          <p class="text-xs text-muted">{{ t(`admin.billing.status.${s}`) }}</p>
+          <p class="text-2xl font-semibold font-mono tabular-nums">{{ billing.byStatus[s] }}</p>
+        </div>
+      </div>
+    </section>
+
     <!-- Comptes -->
     <section class="mt-8" :aria-label="t('admin.accounts.title')">
       <div class="flex items-center gap-3 flex-wrap">
@@ -525,7 +561,25 @@ const failedDepth = computed(() => overview.value?.queues.failed ?? 0)
           <dd>{{ detail.mailbox ? `${detail.mailbox.provider} · ${detail.mailbox.status}` : t('admin.detail.noMailbox') }}</dd>
           <dt class="text-muted">{{ t('admin.detail.volumes') }}</dt>
           <dd class="font-mono tabular-nums text-xs">{{ t('admin.detail.volumesValue', { orgs: detail.organizations, leads: detail.leads, sent: detail.messagesSent }) }}</dd>
+          <dt class="text-muted">{{ t('admin.detail.subscription') }}</dt>
+          <dd>{{ t(`settings.billing.status.${detail.subscriptionStatus}`) }}</dd>
         </dl>
+        <div v-if="detail" class="mt-4 pt-3 border-t border-default flex items-center justify-between gap-3">
+          <span class="text-xs text-muted">{{ t('admin.detail.compHint') }}</span>
+          <UButton
+            v-if="detail.subscriptionStatus === 'comped'"
+            size="xs"
+            color="warning"
+            variant="soft"
+            :loading="compBusy"
+            @click="toggleComp(false)"
+          >
+            {{ t('admin.detail.compRevoke') }}
+          </UButton>
+          <UButton v-else size="xs" variant="soft" :loading="compBusy" @click="toggleComp(true)">
+            {{ t('admin.detail.compGrant') }}
+          </UButton>
+        </div>
       </template>
     </UModal>
 

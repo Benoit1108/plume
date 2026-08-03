@@ -246,8 +246,12 @@ checkout.completed→active, subscription.updated/deleted→past_due/canceled). 
 (12 €/120 € provisoire), plan « Pro » unique. **Slice 3/4 LIVRÉE — UI abonnement** : `GET /billing/subscription`
 (snapshot status/trialEndsAt/entitled/canManage) ; `useBilling` (subscription/checkout/portal) ; section
 « Abonnement » dans Réglages (statut, jours d'essai, boutons s'abonner mensuel/annuel / gérer) ; **bandeau
-« lecture seule »** global (`SubscriptionBanner` dans le layout, visible quand `!entitled`). Reste :
-4/ back-office billing (abonnés/MRR/impayés) + bascule `comped`.
+« lecture seule »** global (`SubscriptionBanner` dans le layout, visible quand `!entitled`). **Slice 4/4 LIVRÉE
+— back-office billing** : `GET /admin/billing` (abonnés par statut + MRR estimé = actifs × montant configuré
+`BILLING_MONTHLY_AMOUNT_EUR`) + **compte offert** `POST /admin/accounts/{tenantId}/comp` (`comped`/`uncomp`
++ audit) piloté depuis la fiche compte (statut d'abonnement affiché + bouton offrir/retirer). **→ V2.2 COMPLÈTE.**
+
+**Prochaine grande étape** : site vitrine + compte démo (dernier gros morceau produit).
 
 **Prochaine grande étape** : finir V2.2 (slices 2-4) ; puis site vitrine/démo.
 enfin « à concevoir » (back-office v2 widgets, plafond budget IA global, site vitrine/démo).

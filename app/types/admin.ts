@@ -53,6 +53,13 @@ export interface AdminAccount {
   mailboxStatus: string
 }
 
+/** Billing : abonnés par statut + revenu mensuel estimé (back-office). */
+export interface AdminBilling {
+  byStatus: { trialing: number, active: number, past_due: number, canceled: number, comped: number }
+  estimatedMonthlyRevenue: number
+  monthlyAmount: number
+}
+
 /** Fiche compte détaillée (back-office, support). */
 export interface AdminAccountDetail {
   tenantId: string
@@ -63,6 +70,7 @@ export interface AdminAccountDetail {
   lastLoginAt: string | null
   twoFactorEnabled: boolean
   digestFrequency: string
+  subscriptionStatus: string
   lastActivityAt: string | null
   mailbox: { provider: string, status: string } | null
   organizations: number

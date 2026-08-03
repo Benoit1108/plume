@@ -76,6 +76,21 @@ describe('useAdmin', () => {
     expect((apiMock.mock.calls[0] as [string])[0]).toBe('/api/v1/admin/trends')
   })
 
+  it('billing lit les abonnés + revenu estimé', async () => {
+    apiMock.mockResolvedValueOnce({ byStatus: { active: 3 }, estimatedMonthlyRevenue: 36, monthlyAmount: 12 })
+    await expect(useAdmin().billing()).resolves.toMatchObject({ estimatedMonthlyRevenue: 36 })
+    expect((apiMock.mock.calls[0] as [string])[0]).toBe('/api/v1/admin/billing')
+  })
+
+  it('setComp bascule l\'accès offert', async () => {
+    apiMock.mockResolvedValueOnce({})
+    await useAdmin().setComp('t-7', true)
+    const [path, options] = apiMock.mock.calls[0] as [string, { method: string, body: { comped: boolean } }]
+    expect(path).toBe('/api/v1/admin/accounts/t-7/comp')
+    expect(options.method).toBe('POST')
+    expect(options.body.comped).toBe(true)
+  })
+
   it('status lit l\'état opérationnel', async () => {
     apiMock.mockResolvedValueOnce({ db: 'ok', queues: {}, failed: 0, backlogAgeSeconds: 0, mailboxesError: 0 })
     await expect(useAdmin().status()).resolves.toMatchObject({ db: 'ok' })

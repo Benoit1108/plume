@@ -45,6 +45,18 @@ api_admin_alerts:
     controller: App\Admin\Infrastructure\Http\AdminAlertsController
     methods: [GET]
 
+api_admin_billing:
+    path: /api/v1/admin/billing
+    controller: App\Admin\Infrastructure\Http\AdminBillingController
+    methods: [GET]
+
+api_admin_account_comp:
+    path: /api/v1/admin/accounts/{tenantId}/comp
+    controller: App\Admin\Infrastructure\Http\AdminCompController
+    methods: [POST]
+    requirements:
+        tenantId: '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
+
 api_admin_trends:
     path: /api/v1/admin/trends
     controller: App\Admin\Infrastructure\Http\AdminTrendsController

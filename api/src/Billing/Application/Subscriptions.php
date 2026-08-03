@@ -36,6 +36,12 @@ interface Subscriptions
     /** Identifiant client Stripe du tenant (pour ouvrir le portail), ou null s'il n'a jamais payé. */
     public function stripeCustomerFor(string $tenantId): ?string;
 
+    /** Accès OFFERT (back-office, hors Stripe) : passe le compte en `comped` (accès complet gratuit). */
+    public function comp(string $tenantId): void;
+
+    /** Retire l'accès offert : repasse en `canceled` (lecture seule). No-op si le compte n'était pas offert. */
+    public function uncomp(string $tenantId): void;
+
     /**
      * État d'abonnement pour l'UI. `status` = trialing|active|past_due|canceled|comped|none
      * (`none` = aucun abonnement = compte grandfathered). `canManage` = un portail Stripe est ouvrable.

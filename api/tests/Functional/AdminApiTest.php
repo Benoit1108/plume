@@ -30,7 +30,7 @@ final class AdminApiTest extends ApiTestCase
         $connection = static::getContainer()->get(Connection::class);
         \assert($connection instanceof Connection);
         $this->connection = $connection;
-        $this->connection->executeStatement('TRUNCATE TABLE app_user, refresh_tokens, organization, lead, audit_log, ai_usage, connected_mailbox, interaction RESTART IDENTITY CASCADE');
+        $this->connection->executeStatement('TRUNCATE TABLE app_user, refresh_tokens, organization, lead, audit_log, ai_usage, connected_mailbox, interaction, subscription RESTART IDENTITY CASCADE');
 
         $tokenLimiter = static::getContainer()->get('limiter.token_endpoints');
         \assert($tokenLimiter instanceof RateLimiterFactory);
@@ -166,6 +166,62 @@ final class AdminApiTest extends ApiTestCase
         self::assertResponseStatusCodeSame(403);
         $client->request('GET', '/api/v1/admin/trends', ['auth_bearer' => $token]);
         self::assertResponseStatusCodeSame(403);
+        $client->request('GET', '/api/v1/admin/billing', ['auth_bearer' => $token]);
+        self::assertResponseStatusCodeSame(403);
+    }
+
+    private function seedSubscription(string $tenantId, string $status): void
+    {
+        $this->connection->executeStatement(
+            'INSERT INTO subscription (tenant_id, status, updated_at) VALUES (?, ?, NOW())',
+            [$tenantId, $status],
+        );
+    }
+
+    public function testBillingMetricsReportSubscribersByStatus(): void
+    {
+        $this->createAdmin();
+        $this->seedSubscription($this->createUser('a1@plume.test'), 'active');
+        $this->seedSubscription($this->createUser('a2@plume.test'), 'active');
+        $this->seedSubscription($this->createUser('t1@plume.test'), 'trialing');
+        $this->seedSubscription($this->createUser('p1@plume.test'), 'past_due');
+
+        $client = static::createClient();
+        /** @var array{byStatus: array<string, int>, estimatedMonthlyRevenue: int, monthlyAmount: int} $data */
+        $data = $client->request('GET', '/api/v1/admin/billing', ['auth_bearer' => $this->adminToken($client)])->toArray();
+
+        self::assertSame(2, $data['byStatus']['active']);
+        self::assertSame(1, $data['byStatus']['trialing']);
+        self::assertSame(1, $data['byStatus']['past_due']);
+        self::assertSame(2 * $data['monthlyAmount'], $data['estimatedMonthlyRevenue']); // MRR estimé = actifs × montant
+    }
+
+    public function testCompToggleGrantsThenRevokesOfferedAccess(): void
+    {
+        $this->createAdmin();
+        $tenant = $this->createUser('gift@plume.test');
+
+        $client = static::createClient();
+        $token = $this->adminToken($client);
+
+        // Offrir l'accès → statut comped.
+        $client->request('POST', '/api/v1/admin/accounts/'.$tenant.'/comp', [
+            'auth_bearer' => $token, 'headers' => ['Content-Type' => 'application/json'], 'json' => ['comped' => true],
+        ]);
+        self::assertResponseStatusCodeSame(204);
+        self::assertSame('comped', $this->connection->fetchOne('SELECT status FROM subscription WHERE tenant_id = ?', [$tenant]));
+
+        // Retirer l'accès offert → canceled.
+        $client->request('POST', '/api/v1/admin/accounts/'.$tenant.'/comp', [
+            'auth_bearer' => $token, 'headers' => ['Content-Type' => 'application/json'], 'json' => ['comped' => false],
+        ]);
+        self::assertResponseStatusCodeSame(204);
+        self::assertSame('canceled', $this->connection->fetchOne('SELECT status FROM subscription WHERE tenant_id = ?', [$tenant]));
+
+        // Tracé au journal d'audit (les deux actions).
+        $actions = $this->connection->fetchFirstColumn('SELECT action FROM audit_log WHERE target = ? ORDER BY occurred_at', [$tenant]);
+        self::assertContains('admin.access_comped', $actions);
+        self::assertContains('admin.access_uncomped', $actions);
     }
 
     public function testAccountDetailReportsProfileAndRecordsLastLogin(): void

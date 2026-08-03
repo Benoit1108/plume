@@ -47,6 +47,7 @@ final class AdminAccountDetailController
         );
 
         $digest = $this->admin->fetchOne('SELECT digest_frequency FROM profile WHERE tenant_id = :tenant', ['tenant' => $tenantId]);
+        $subStatus = $this->admin->fetchOne('SELECT status FROM subscription WHERE tenant_id = :tenant', ['tenant' => $tenantId]);
         $lastActivity = $this->admin->fetchOne('SELECT MAX(occurred_on) FROM interaction WHERE tenant_id = :tenant', ['tenant' => $tenantId]);
 
         /** @var array<string, mixed> $counts */
@@ -69,6 +70,7 @@ final class AdminAccountDetailController
             'lastLoginAt' => \is_string($user['last_login_at'] ?? null) ? $user['last_login_at'] : null,
             'twoFactorEnabled' => (bool) $user['two_factor_enabled'],
             'digestFrequency' => \is_string($digest) ? $digest : 'DAILY',
+            'subscriptionStatus' => \is_string($subStatus) ? $subStatus : 'none',
             'lastActivityAt' => \is_string($lastActivity) ? $lastActivity : null,
             'mailbox' => \is_array($mailbox) ? [
                 'provider' => \is_string($mailbox['provider'] ?? null) ? $mailbox['provider'] : '',

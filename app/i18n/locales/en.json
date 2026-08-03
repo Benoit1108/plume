@@ -158,6 +158,18 @@
         "active30d": "Active (30d)"
       }
     },
+    "billing": {
+      "title": "Subscriptions",
+      "mrr": "Monthly revenue (estimate)",
+      "mrrHint": "Active subscribers × monthly amount.",
+      "status": {
+        "active": "Active",
+        "trialing": "In trial",
+        "past_due": "Past due",
+        "comped": "Complimentary",
+        "canceled": "Canceled"
+      }
+    },
     "detail": {
       "title": "Account details",
       "status": "Status",
@@ -173,7 +185,13 @@
       "mailbox": "Mailbox",
       "noMailbox": "None",
       "volumes": "Volumes",
-      "volumesValue": "{orgs} orgs · {leads} leads · {sent} sent"
+      "volumesValue": "{orgs} orgs · {leads} leads · {sent} sent",
+      "subscription": "Subscription",
+      "compHint": "Complimentary access (free, outside Stripe)",
+      "compGrant": "Grant free access",
+      "compRevoke": "Revoke free access",
+      "compGranted": "Complimentary access granted.",
+      "compRevoked": "Complimentary access revoked."
     }
   },
   "notifications": {
