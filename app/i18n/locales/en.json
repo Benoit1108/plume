@@ -92,6 +92,15 @@
     "accounts": {
       "title": "Accounts",
       "search": "Search by email",
+      "export": "Export (CSV)",
+      "filterAll": "All",
+      "filterVerified": "Verified",
+      "filterUnverified": "Unverified",
+      "filterDeleting": "Being deleted",
+      "sortLabel": "Sort",
+      "sortEmail": "Sort: email",
+      "sortLeads": "Sort: leads",
+      "sortCreated": "Sort: newest",
       "email": "Email",
       "status": "Status",
       "orgs": "Organizations",
@@ -115,6 +124,15 @@
         "ERROR": "Error",
         "REVOKED": "Revoked"
       }
+    },
+    "audit": {
+      "title": "Audit log",
+      "hint": "Sensitive actions recorded (tenant-free): admin logins, deletions, 2FA resets.",
+      "when": "When",
+      "actor": "Actor",
+      "action": "Action",
+      "target": "Target",
+      "empty": "No entries."
     }
   },
   "notifications": {

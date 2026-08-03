@@ -47,7 +47,18 @@ export interface AdminAccount {
   email: string
   emailVerified: boolean
   deletionRequestedAt: string | null
+  createdAt: string | null
   organizations: number
   leads: number
   mailboxStatus: string
+}
+
+/** Une entrée du journal d'audit hors tenant (connexions admin, suppressions, resets). */
+export interface AdminAuditEntry {
+  id: string
+  actor: string
+  action: string
+  target: string
+  details: Record<string, unknown>
+  occurredAt: string
 }

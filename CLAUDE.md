@@ -224,6 +224,12 @@ par tenant/h (rate-limiter) + **garde-fou GLOBAL** : coupe-circuit `AI_GENERATIO
 (sinon repli canned gratuit, jamais d'échec) ; le générateur `record()` les jetons `usage`. Exposé au
 back-office via `GET /admin/status` → `aiUsage` (widget). Lecture fail-open (coupe-circuit = garantie dure).
 
-**Prochaine grande étape** : V2.2 abonnement Stripe (attend décisions paiement + compte Stripe de Benoit) ;
-puis « à concevoir » (back-office v2 widgets, site vitrine/démo).
+**Back-office v2 EN COURS** (4 blocs cadrés avec Benoit ; impersonation reportée). **Slice 1/4 LIVRÉE —
+audit consultable + gestion comptes** : `GET /admin/audit` (journal hors-tenant filtrable), lecteur partagé
+`AccountDirectory` (recherche + filtre statut all/verified/unverified/deleting + tri email/leads/created) →
+liste `GET /admin/accounts` + export `GET /admin/accounts/export` (CSV) ; UI admin (filtres/tri/export +
+section journal d'audit). Reste : 2/ santé & alertes · 3/ courbes & entonnoir · 4/ fiche compte détaillée.
+
+**Prochaine grande étape** : finir back-office v2 (slices 2-4) ; puis V2.2 abonnement Stripe (attend décisions
+paiement + compte Stripe de Benoit) ; site vitrine/démo.
 enfin « à concevoir » (back-office v2 widgets, plafond budget IA global, site vitrine/démo).

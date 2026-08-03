@@ -92,6 +92,15 @@
     "accounts": {
       "title": "Comptes",
       "search": "Rechercher par email",
+      "export": "Exporter (CSV)",
+      "filterAll": "Tous",
+      "filterVerified": "Vérifiés",
+      "filterUnverified": "Non vérifiés",
+      "filterDeleting": "En suppression",
+      "sortLabel": "Trier",
+      "sortEmail": "Tri : email",
+      "sortLeads": "Tri : pistes",
+      "sortCreated": "Tri : récents",
       "email": "Email",
       "status": "Statut",
       "orgs": "Organisations",
@@ -115,6 +124,15 @@
         "ERROR": "En erreur",
         "REVOKED": "Révoquée"
       }
+    },
+    "audit": {
+      "title": "Journal d'audit",
+      "hint": "Actions sensibles tracées (hors tenant) : connexions admin, suppressions, réinitialisations 2FA.",
+      "when": "Quand",
+      "actor": "Acteur",
+      "action": "Action",
+      "target": "Cible",
+      "empty": "Aucune entrée."
     }
   },
   "notifications": {

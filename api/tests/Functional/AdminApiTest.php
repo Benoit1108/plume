@@ -158,6 +158,64 @@ final class AdminApiTest extends ApiTestCase
         self::assertResponseStatusCodeSame(403);
         $client->request('GET', '/api/v1/admin/metrics', ['auth_bearer' => $token]);
         self::assertResponseStatusCodeSame(403);
+        $client->request('GET', '/api/v1/admin/audit', ['auth_bearer' => $token]);
+        self::assertResponseStatusCodeSame(403);
+        $client->request('GET', '/api/v1/admin/accounts/export', ['auth_bearer' => $token]);
+        self::assertResponseStatusCodeSame(403);
+    }
+
+    public function testAuditLogIsListedAndFilterable(): void
+    {
+        $this->createAdmin();
+        $this->connection->executeStatement(
+            "INSERT INTO audit_log (id, actor, action, target, details, occurred_at) VALUES
+             (?, 'admin@plume.test', 'account.deletion_requested', 'tenant-x', '{\"by\":\"support\"}', NOW()),
+             (?, 'admin@plume.test', 'account.2fa_reset', 'tenant-y', '{}', NOW() - INTERVAL '1 hour')",
+            [Uuid::v7()->toRfc4122(), Uuid::v7()->toRfc4122()],
+        );
+
+        $client = static::createClient();
+        $token = $this->adminToken($client);
+
+        /** @var array{entries: list<array{action: string, target: string, details: array<string, mixed>}>} $all */
+        $all = $client->request('GET', '/api/v1/admin/audit', ['auth_bearer' => $token])->toArray();
+        self::assertCount(2, $all['entries']);
+        self::assertSame('account.deletion_requested', $all['entries'][0]['action']); // le plus récent d'abord
+        self::assertSame('support', $all['entries'][0]['details']['by']);
+
+        /** @var array{entries: list<array{action: string}>} $filtered */
+        $filtered = $client->request('GET', '/api/v1/admin/audit?action=account.2fa_reset', ['auth_bearer' => $token])->toArray();
+        self::assertCount(1, $filtered['entries']);
+        self::assertSame('account.2fa_reset', $filtered['entries'][0]['action']);
+    }
+
+    public function testAccountsCanBeFilteredByStatus(): void
+    {
+        $this->createAdmin();
+        $this->createUser('verified@plume.test');
+        $unverified = $this->createUser('pending@plume.test');
+        $this->connection->executeStatement('UPDATE app_user SET email_verified = false WHERE tenant_id = ?', [$unverified]);
+
+        $client = static::createClient();
+        $token = $this->adminToken($client);
+
+        /** @var array{accounts: list<array{email: string}>} $data */
+        $data = $client->request('GET', '/api/v1/admin/accounts?status=unverified', ['auth_bearer' => $token])->toArray();
+        self::assertSame(['pending@plume.test'], array_column($data['accounts'], 'email'));
+    }
+
+    public function testAccountsExportCsv(): void
+    {
+        $this->createAdmin();
+        $this->createUser('exported@plume.test');
+
+        $client = static::createClient();
+        $response = $client->request('GET', '/api/v1/admin/accounts/export', ['auth_bearer' => $this->adminToken($client)]);
+        self::assertResponseIsSuccessful();
+        self::assertStringContainsString('text/csv', $response->getHeaders()['content-type'][0] ?? '');
+        $body = $response->getContent();
+        self::assertStringContainsString('Email', $body);
+        self::assertStringContainsString('exported@plume.test', $body);
     }
 
     public function testMetricsReportsAccountsAndSignups(): void

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { AdminAccount } from '~/types/admin'
+import type { AdminAccount, AdminAuditEntry } from '~/types/admin'
 
 /**
  * Back-office (ROLE_ADMIN). L'entrée nav n'apparaît qu'aux admins ; l'autorité reste l'API
@@ -40,11 +40,54 @@ function backlogLabel(seconds: number): string {
 
 const search = ref('')
 const debouncedSearch = useDebounced(search, 300)
+const statusFilter = ref('all')
+const sortBy = ref('email')
+const statusOptions = computed(() => [
+  { value: 'all', label: t('admin.accounts.filterAll') },
+  { value: 'verified', label: t('admin.accounts.filterVerified') },
+  { value: 'unverified', label: t('admin.accounts.filterUnverified') },
+  { value: 'deleting', label: t('admin.accounts.filterDeleting') },
+])
+const sortOptions = computed(() => [
+  { value: 'email', label: t('admin.accounts.sortEmail') },
+  { value: 'leads', label: t('admin.accounts.sortLeads') },
+  { value: 'created', label: t('admin.accounts.sortCreated') },
+])
 const { data: accountsData, isPending: accountsLoading } = useQuery({
-  queryKey: computed(() => [...queryKeys.adminAccounts, debouncedSearch.value] as const),
-  queryFn: () => adminApi.accounts(debouncedSearch.value),
+  queryKey: computed(() => [...queryKeys.adminAccounts, debouncedSearch.value, statusFilter.value, sortBy.value] as const),
+  queryFn: () => adminApi.accounts(debouncedSearch.value, statusFilter.value, sortBy.value),
 })
 const accounts = computed<AdminAccount[]>(() => accountsData.value ?? [])
+
+const exporting = ref(false)
+async function exportAccounts(): Promise<void> {
+  if (exporting.value) return
+  exporting.value = true
+  try {
+    const blob = await adminApi.accountsExport(debouncedSearch.value, statusFilter.value, sortBy.value)
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `plume-comptes-${new Date().toISOString().slice(0, 10)}.csv`
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+    setTimeout(() => { URL.revokeObjectURL(url) }, 60_000)
+  }
+  catch {
+    toast.add({ title: t('common.error'), color: 'error' })
+  }
+  finally {
+    exporting.value = false
+  }
+}
+
+// Journal d'audit (hors tenant) : les 100 dernières actions sensibles.
+const { data: auditData } = useQuery({ queryKey: queryKeys.adminAudit, queryFn: () => adminApi.audit() })
+const auditEntries = computed<AdminAuditEntry[]>(() => auditData.value ?? [])
+function formatDateTime(iso: string): string {
+  return new Date(iso).toLocaleString(locale.value, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
+}
 
 // Suppression RGPD côté support — confirmation obligatoire (action grave).
 const target = ref<AdminAccount | null>(null)
@@ -224,14 +267,21 @@ const failedDepth = computed(() => overview.value?.queues.failed ?? 0)
     <section class="mt-8" :aria-label="t('admin.accounts.title')">
       <div class="flex items-center gap-3 flex-wrap">
         <h2 class="text-sm font-semibold">{{ t('admin.accounts.title') }}</h2>
-        <UInput
-          v-model="search"
-          icon="i-lucide-search"
-          :placeholder="t('admin.accounts.search')"
-          :aria-label="t('admin.accounts.search')"
-          size="sm"
-          class="ml-auto w-64"
-        />
+        <div class="ml-auto flex items-center gap-2 flex-wrap">
+          <UInput
+            v-model="search"
+            icon="i-lucide-search"
+            :placeholder="t('admin.accounts.search')"
+            :aria-label="t('admin.accounts.search')"
+            size="sm"
+            class="w-52"
+          />
+          <USelect v-model="statusFilter" :items="statusOptions" value-key="value" size="sm" :aria-label="t('admin.accounts.status')" class="w-40" />
+          <USelect v-model="sortBy" :items="sortOptions" value-key="value" size="sm" :aria-label="t('admin.accounts.sortLabel')" class="w-40" />
+          <UButton size="sm" color="neutral" variant="outline" icon="i-lucide-download" :loading="exporting" @click="exportAccounts">
+            {{ t('admin.accounts.export') }}
+          </UButton>
+        </div>
       </div>
 
       <div v-if="accountsLoading" role="status" class="mt-3">
@@ -289,6 +339,35 @@ const failedDepth = computed(() => overview.value?.queues.failed ?? 0)
                   @click="askDeletion(account)"
                 />
               </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Journal d'audit (hors tenant) : actions sensibles tracées -->
+    <section class="mt-8" :aria-label="t('admin.audit.title')">
+      <h2 class="text-sm font-semibold">{{ t('admin.audit.title') }}</h2>
+      <p class="text-xs text-muted mt-1">{{ t('admin.audit.hint') }}</p>
+      <div class="mt-3 border border-default rounded-xl overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-default text-left text-xs text-muted">
+              <th class="px-3 py-2 font-medium">{{ t('admin.audit.when') }}</th>
+              <th class="px-3 py-2 font-medium">{{ t('admin.audit.actor') }}</th>
+              <th class="px-3 py-2 font-medium">{{ t('admin.audit.action') }}</th>
+              <th class="px-3 py-2 font-medium">{{ t('admin.audit.target') }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-if="auditEntries.length === 0">
+              <td colspan="4" class="px-3 py-6 text-center text-muted">{{ t('admin.audit.empty') }}</td>
+            </tr>
+            <tr v-for="entry in auditEntries" :key="entry.id" class="border-b border-default last:border-0">
+              <td class="px-3 py-2 text-muted whitespace-nowrap">{{ formatDateTime(entry.occurredAt) }}</td>
+              <td class="px-3 py-2">{{ entry.actor }}</td>
+              <td class="px-3 py-2 font-mono text-xs">{{ entry.action }}</td>
+              <td class="px-3 py-2 font-mono text-xs text-muted">{{ entry.target }}</td>
             </tr>
           </tbody>
         </table>

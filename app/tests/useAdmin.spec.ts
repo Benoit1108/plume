@@ -16,17 +16,46 @@ describe('useAdmin', () => {
     expect((apiMock.mock.calls[0] as [string])[0]).toBe('/api/v1/admin/overview')
   })
 
-  it('accounts transmet la recherche et déballe la liste', async () => {
+  it('accounts transmet recherche/filtre/tri et déballe la liste', async () => {
     apiMock.mockResolvedValueOnce({ accounts: [{ email: 'a@plume.test' }] })
-    await expect(useAdmin().accounts('ali')).resolves.toHaveLength(1)
+    await expect(useAdmin().accounts('ali', 'unverified', 'leads')).resolves.toHaveLength(1)
     const [path, options] = apiMock.mock.calls[0] as [string, { query: Record<string, string> }]
     expect(path).toBe('/api/v1/admin/accounts')
-    expect(options.query).toEqual({ q: 'ali' })
+    expect(options.query).toEqual({ q: 'ali', status: 'unverified', sort: 'leads' })
 
+    // Sans recherche : `q` est omis, filtre/tri gardent leurs défauts.
     apiMock.mockResolvedValueOnce({ accounts: [] })
     await useAdmin().accounts()
     const [, empty] = apiMock.mock.calls[1] as [string, { query: Record<string, string> }]
-    expect(empty.query).toEqual({})
+    expect(empty.query).toEqual({ status: 'all', sort: 'email' })
+  })
+
+  it('audit déballe les entrées (avec et sans filtre d\'action)', async () => {
+    apiMock.mockResolvedValueOnce({ entries: [{ id: '1', action: 'account.2fa_reset' }] })
+    await expect(useAdmin().audit('account.2fa_reset')).resolves.toHaveLength(1)
+    const [path, options] = apiMock.mock.calls[0] as [string, { query: Record<string, string> }]
+    expect(path).toBe('/api/v1/admin/audit')
+    expect(options.query).toEqual({ action: 'account.2fa_reset' })
+
+    apiMock.mockResolvedValueOnce({ entries: [] })
+    await useAdmin().audit()
+    const [, noFilter] = apiMock.mock.calls[1] as [string, { query: Record<string, string> }]
+    expect(noFilter.query).toEqual({})
+  })
+
+  it('accountsExport renvoie un blob CSV avec les filtres', async () => {
+    apiMock.mockResolvedValueOnce(new Blob())
+    await useAdmin().accountsExport('ali', 'deleting', 'created')
+    const [path, options] = apiMock.mock.calls[0] as [string, { responseType: string, query: Record<string, string> }]
+    expect(path).toBe('/api/v1/admin/accounts/export')
+    expect(options.responseType).toBe('blob')
+    expect(options.query).toEqual({ q: 'ali', status: 'deleting', sort: 'created' })
+
+    // Sans recherche : `q` omis.
+    apiMock.mockResolvedValueOnce(new Blob())
+    await useAdmin().accountsExport()
+    const [, noQ] = apiMock.mock.calls[1] as [string, { query: Record<string, string> }]
+    expect(noQ.query).toEqual({ status: 'all', sort: 'email' })
   })
 
   it('status lit l\'état opérationnel', async () => {
