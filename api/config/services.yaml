@@ -188,6 +188,9 @@ services:
         arguments:
             $apiKey: '%drafting.anthropic_api_key%'
             $model: '%drafting.model%'
+    # V2.2 abonnement : état par tenant (essai/actif/impayé/résilié/offert) + garde lecture seule.
+    App\Billing\Application\Subscriptions: '@App\Billing\Infrastructure\Persistence\DoctrineSubscriptions'
+
     # Garde-fou de coût IA : coupe-circuit + plafond mensuel de jetons (0 = illimité).
     App\Drafting\Application\AiBudget: '@App\Drafting\Infrastructure\Budget\DoctrineAiBudget'
     App\Drafting\Infrastructure\Budget\DoctrineAiBudget:

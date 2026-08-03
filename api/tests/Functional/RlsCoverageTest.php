@@ -15,8 +15,13 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
  */
 final class RlsCoverageTest extends KernelTestCase
 {
-    /** Exclusions ASSUMÉES (ADR-0023 §4) : lu avant le tenant, au login → jamais de RLS. */
-    private const array EXCLUDED = ['app_user'];
+    /**
+     * Exclusions ASSUMÉES (ADR-0023 §4) — tables tenantées écrites/lues AVANT le tenant, donc jamais RLS :
+     *  - app_user     : lu au login (avant tout contexte tenant) ;
+     *  - subscription : écrite à l'inscription publique (sans tenant) et par les webhooks Stripe (V2.2) ;
+     *                   toujours filtrée par tenant_id EXPLICITE côté code.
+     */
+    private const array EXCLUDED = ['app_user', 'subscription'];
 
     public function testEveryTenantScopedTableHasRlsAndPolicy(): void
     {

@@ -13,7 +13,8 @@ doctrine:
                 #   - notification       : projection du centre de notifications (DBAL pur, V2)
                 #   - audit_log          : journal d'audit hors tenant (DBAL pur, V2 back-office)
                 #   - ai_usage           : compteur de coût IA hors tenant (DBAL pur, garde-fou budget)
-                schema_filter: '~^(?!(messenger_messages|interaction|raw_alert|notification|audit_log|ai_usage)$)~'
+                #   - subscription       : état d'abonnement par tenant (DBAL pur, hors RLS — V2.2)
+                schema_filter: '~^(?!(messenger_messages|interaction|raw_alert|notification|audit_log|ai_usage|subscription)$)~'
             # Connexion RÉSERVÉE au back-office (contexte Admin) : rôle PROPRIÉTAIRE, contourne la
             # RLS — l'admin est un lecteur CROSS-TENANT légitime, même catégorie que le scheduler
             # (ADR-0023). Injectée UNIQUEMENT dans les services Admin (routes ROLE_ADMIN) via

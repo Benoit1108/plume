@@ -232,6 +232,14 @@ actifs/semaine 12 sem. + entonnoir inscription→vérifié→1re piste→actif 3
 (`GET /admin/accounts/{tenantId}` : état, `last_login_at` (colonne hors-ORM posée au login réel via
 `LastLoginListener`), 2FA, digest, boîte, volumétrie ; modal au clic sur un email). UI : sections dédiées + modal.
 
-**Prochaine grande étape** : V2.2 abonnement Stripe (attend décisions paiement + compte Stripe de Benoit) ;
-site vitrine/démo.
+**V2.2 abonnement EN COURS** (cadré : Stripe FR, essai 14 j sans carte, fin d'essai/impayé → lecture seule,
+1 plan + compte offert ; ADR-0033). **Slice 1/4 LIVRÉE — socle + garde lecture seule** : contexte `Billing`,
+table `subscription` (hors RLS comme app_user — écrite à l'inscription/webhooks, filtrée tenant explicite,
+exclue de RlsCoverageTest), port `Subscriptions` (startTrial idempotent à l'inscription + isEntitled : active/
+comped→oui, trialing→si non expiré, past_due/canceled→non, **aucun abo→oui = grandfathered**, fail-open),
+garde `ReadOnlyGuardListener` sur kernel.controller (402 `subscription_required` sur écritures produit hors
+liste blanche auth/account/profile/admin/billing). Reste : 2/ Stripe réel (checkout/webhooks/portail, factice
+sans clés) · 3/ UI abonnement + bandeaux lecture seule (gère le 402) · 4/ back-office billing + bascule comped.
+
+**Prochaine grande étape** : finir V2.2 (slices 2-4) ; puis site vitrine/démo.
 enfin « à concevoir » (back-office v2 widgets, plafond budget IA global, site vitrine/démo).
