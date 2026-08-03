@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Interaction, Lead, LeadAction } from '~/types/leads'
+import type { Lead, LeadAction } from '~/types/leads'
 
 const route = useRoute()
 const id = route.params.id as string
@@ -14,16 +14,18 @@ const queryClient = useQueryClient()
 const { data: leadData, isPending: loading, isError, refetch } = useQuery({ queryKey: queryKeys.lead(id), queryFn: () => leads.get(id) })
 const lead = computed<Lead | null>(() => leadData.value ?? null)
 
-const { data: interactionsData } = useQuery({ queryKey: queryKeys.leadTimeline(id), queryFn: () => leads.timeline(id) })
-const interactions = computed<Interaction[]>(() => interactionsData.value ?? [])
-
 // Une transition impacte la fiche, le kanban, l'écran du jour ET les KPI du tableau de bord.
 async function refresh(): Promise<void> {
   await invalidateLeadRelated(queryClient, id)
 }
-async function refreshTimeline(): Promise<void> {
-  await queryClient.invalidateQueries({ queryKey: queryKeys.leadTimeline(id) })
+// Le journal (LeadTimeline) gère sa propre query + rattrapage : on lui demande de se rafraîchir.
+const timeline = ref<{ refresh: () => void } | null>(null)
+function refreshTimeline(): void {
+  timeline.value?.refresh()
 }
+
+// Génération de brouillons possible tant que la piste n'est pas terminale/en pause.
+const canGenerate = computed(() => Boolean(lead.value && !['WON', 'LOST', 'PAUSED'].includes(lead.value.status)))
 
 // Valeur estimée du deal (euros) — saisie inline.
 const estimatedValueInput = ref<number | null>(null)
@@ -49,8 +51,6 @@ async function saveEstimatedValue(): Promise<void> {
 const transitioning = ref(false)
 const confirmLose = ref(false)
 const confirmContactWithoutContact = ref(false)
-const noteText = ref('')
-const savingNote = ref(false)
 
 function onAction(action: LeadAction): void {
   if (action === 'lose') {
@@ -70,8 +70,8 @@ async function applyAction(action: LeadAction): Promise<void> {
   transitioning.value = true
   try {
     await leads.transition(id, action)
-    await Promise.all([refresh(), refreshTimeline()])
-    scheduleTimelineCatchUp()
+    await refresh()
+    refreshTimeline()
     toast.add({ title: t('pipeline.toasts.updated'), color: 'success' })
   }
   catch (error) {
@@ -82,113 +82,9 @@ async function applyAction(action: LeadAction): Promise<void> {
   }
 }
 
-async function submitNote(): Promise<void> {
-  if (!noteText.value.trim()) return
-  savingNote.value = true
-  try {
-    await leads.addNote(id, noteText.value)
-    noteText.value = ''
-    await refreshTimeline()
-    scheduleTimelineCatchUp()
-    toast.add({ title: t('pipeline.toasts.noteAdded'), color: 'success' })
-  }
-  catch (error) {
-    toast.add({ title: errorToastTitle(t, error), color: 'error' })
-  }
-  finally {
-    savingNote.value = false
-  }
-}
-
-/** La projection du journal est asynchrone (worker) : on repasse chercher les retardataires. */
-const timelineCatchUp = useCatchUpRefresh(() => { void refreshTimeline() }, { schedule: [1500] })
-function scheduleTimelineCatchUp(): void {
-  timelineCatchUp.trigger()
-}
-
-/** La section Brouillons a produit de l'activité (génération) : timeline à jour. */
-function onDraftActivity(): void {
-  void refreshTimeline()
-  scheduleTimelineCatchUp()
-}
-
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString(locale.value, { day: 'numeric', month: 'short', year: 'numeric' })
 }
-
-function timelineLabel(interaction: Interaction): string {
-  return t(`pipeline.timeline.${interaction.type}`, interaction.type)
-}
-
-const timelineIcon: Record<Interaction['type'], string> = {
-  created: 'i-lucide-sparkles',
-  contacted: 'i-lucide-send',
-  back_to_contact: 'i-lucide-undo-2',
-  reply: 'i-lucide-mail-open',
-  sample_test: 'i-lucide-flask-conical',
-  won: 'i-lucide-trophy',
-  lost: 'i-lucide-x-circle',
-  paused: 'i-lucide-pause',
-  resumed: 'i-lucide-play',
-  note: 'i-lucide-sticky-note',
-  follow_up_scheduled: 'i-lucide-alarm-clock',
-  followed_up: 'i-lucide-alarm-clock-check',
-  follow_up_cancelled: 'i-lucide-alarm-clock-off',
-  draft_generated: 'i-lucide-feather',
-  email_sent: 'i-lucide-mail-check',
-  email_send_failed: 'i-lucide-mail-x',
-}
-
-// ----- Relance (bloc « Prochaine relance ») -----
-const scheduling = ref(false)
-const scheduleDate = ref('')
-const scheduleLabel = ref('')
-const savingSchedule = ref(false)
-
-function openScheduler(): void {
-  scheduleDate.value = lead.value?.nextFollowUpAt?.slice(0, 10) ?? new Date().toISOString().slice(0, 10)
-  scheduleLabel.value = lead.value?.nextFollowUpLabel ?? ''
-  scheduling.value = true
-}
-
-async function saveSchedule(): Promise<void> {
-  savingSchedule.value = true
-  try {
-    await leads.scheduleFollowUp(id, scheduleDate.value, scheduleLabel.value || null)
-    scheduling.value = false
-    await Promise.all([refresh(), refreshTimeline()])
-    scheduleTimelineCatchUp()
-    toast.add({ title: t('pipeline.toasts.followUpScheduled'), color: 'success' })
-  }
-  catch (error) {
-    toast.add({ title: errorToastTitle(t, error), color: 'error' })
-  }
-  finally {
-    savingSchedule.value = false
-  }
-}
-
-async function cancelSchedule(): Promise<void> {
-  try {
-    await leads.cancelFollowUp(id)
-    await Promise.all([refresh(), refreshTimeline()])
-    scheduleTimelineCatchUp()
-    toast.add({ title: t('pipeline.toasts.followUpCancelled'), color: 'success' })
-  }
-  catch (error) {
-    toast.add({ title: errorToastTitle(t, error), color: 'error' })
-  }
-}
-
-const followUpOverdue = computed(() => {
-  const due = lead.value?.nextFollowUpAt
-  return Boolean(due && due.slice(0, 10) < new Date().toISOString().slice(0, 10))
-})
-
-const canScheduleFollowUp = computed(() =>
-  Boolean(lead.value && !['WON', 'LOST', 'PAUSED'].includes(lead.value.status)),
-)
-
 </script>
 
 <template>
@@ -277,106 +173,16 @@ const canScheduleFollowUp = computed(() =>
         </div>
       </section>
 
-      <!-- Prochaine relance -->
-      <section v-if="canScheduleFollowUp" class="mt-8 border border-default rounded-xl p-4 bg-elevated/40">
-        <div class="flex items-center gap-3 flex-wrap">
-          <UIcon name="i-lucide-alarm-clock" class="text-primary shrink-0" aria-hidden="true" />
-          <p class="text-sm font-semibold">{{ t('pipeline.followUpBlock.title') }}</p>
-          <template v-if="lead.nextFollowUpAt">
-            <span class="text-sm" :class="followUpOverdue ? 'text-error font-medium' : 'text-muted'">
-              {{ followUpOverdue
-                ? t('pipeline.followUpBlock.overdue', { date: formatDate(lead.nextFollowUpAt) })
-                : t('pipeline.followUpBlock.dueOn', { date: formatDate(lead.nextFollowUpAt) }) }}
-            </span>
-            <span v-if="lead.nextFollowUpLabel" class="text-sm text-dimmed">— {{ lead.nextFollowUpLabel }}</span>
-          </template>
-          <span v-else class="text-sm text-dimmed">{{ t('pipeline.followUpBlock.none') }}</span>
-          <div class="ml-auto flex gap-2">
-            <UButton size="xs" variant="outline" icon="i-lucide-calendar" @click="openScheduler">
-              {{ t('pipeline.followUpBlock.reschedule') }}
-            </UButton>
-            <UButton
-              v-if="lead.nextFollowUpAt"
-              size="xs"
-              variant="ghost"
-              color="neutral"
-              icon="i-lucide-alarm-clock-off"
-              @click="cancelSchedule"
-            >
-              {{ t('pipeline.followUpBlock.cancel') }}
-            </UButton>
-          </div>
-        </div>
-      </section>
+      <FollowUpBlock :lead-id="id" :lead="lead" @changed="refreshTimeline" />
 
       <LeadDraftsSection
         :lead-id="id"
         :language-pair="lead.languagePair"
-        :can-generate="canScheduleFollowUp"
-        @activity="onDraftActivity"
+        :can-generate="canGenerate"
+        @activity="refreshTimeline"
       />
 
-      <section class="mt-10">
-        <p class="text-[11px] uppercase tracking-widest text-dimmed font-semibold">{{ t('pipeline.detail.timeline') }}</p>
-
-        <form class="mt-3 flex gap-2" @submit.prevent="submitNote">
-          <UInput
-            v-model="noteText"
-            :placeholder="t('pipeline.detail.notePlaceholder')"
-            :aria-label="t('pipeline.detail.addNote')"
-            class="flex-1"
-          />
-          <UButton type="submit" size="sm" variant="outline" icon="i-lucide-sticky-note" :loading="savingNote" :disabled="!noteText.trim()">
-            {{ t('pipeline.detail.addNote') }}
-          </UButton>
-        </form>
-
-        <ol class="mt-4 border border-default rounded-lg divide-y divide-[var(--ui-border)]">
-          <li v-for="interaction in interactions" :key="interaction.id" class="p-3 flex gap-3 items-start">
-            <UIcon :name="timelineIcon[interaction.type] ?? 'i-lucide-circle'" class="mt-0.5 text-primary shrink-0" aria-hidden="true" />
-            <div class="min-w-0">
-              <div class="text-sm font-medium">{{ timelineLabel(interaction) }}</div>
-              <p v-if="interaction.type === 'note' && typeof interaction.payload.text === 'string'" class="text-sm text-muted whitespace-pre-line">
-                {{ interaction.payload.text }}
-              </p>
-              <p v-else-if="interaction.type === 'reply' && typeof interaction.payload.preview === 'string'" class="text-sm text-muted italic line-clamp-3">
-                « {{ interaction.payload.preview }} »
-              </p>
-              <p v-else-if="interaction.type === 'email_send_failed' && typeof interaction.payload.reason === 'string'" class="text-sm text-error">
-                {{ t(`mailbox.failures.${interaction.payload.reason}`, t('mailbox.failures.send_failed')) }}
-              </p>
-            </div>
-            <time class="ml-auto text-xs text-dimmed shrink-0 tabular-nums" :datetime="interaction.occurredOn">
-              {{ formatDate(interaction.occurredOn) }}
-            </time>
-          </li>
-          <li v-if="!interactions.length" class="p-6 text-center text-muted text-sm">
-            {{ t('pipeline.detail.noInteractions') }}
-          </li>
-        </ol>
-      </section>
-
-      <!-- Modale de (re)planification -->
-      <UModal v-model:open="scheduling" :title="t('pipeline.followUpBlock.scheduleTitle')">
-        <template #body>
-          <div class="flex flex-col gap-4">
-            <UFormField :label="t('pipeline.followUpBlock.dateLabel')" required>
-              <UInput v-model="scheduleDate" type="date" class="w-full" />
-            </UFormField>
-            <UFormField :label="t('pipeline.followUpBlock.labelLabel')">
-              <UInput v-model="scheduleLabel" class="w-full" />
-            </UFormField>
-          </div>
-        </template>
-        <template #footer>
-          <div class="flex gap-2 justify-end w-full">
-            <UButton color="neutral" variant="ghost" @click="() => { scheduling = false }">{{ t('actions.cancel') }}</UButton>
-            <UButton :loading="savingSchedule" :disabled="!scheduleDate" @click="saveSchedule">
-              {{ t('pipeline.followUpBlock.schedule') }}
-            </UButton>
-          </div>
-        </template>
-      </UModal>
+      <LeadTimeline ref="timeline" :lead-id="id" />
 
       <ConfirmDialog
         v-model:open="confirmLose"
