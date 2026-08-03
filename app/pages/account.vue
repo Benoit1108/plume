@@ -1,89 +1,10 @@
 <script setup lang="ts">
-import type { Profile } from '~/types/leads'
-
+// Page Compte : orchestrateur. Chaque bloc est un composant autonome (identité, mot de passe,
+// sécurité, zone de danger) ; l'export RGPD reste inline (court). Découpage revue santé (lot F).
 const { t } = useI18n()
-const auth = useAuthStore()
-const profileApi = useProfile()
 const accountApi = useAccount()
 const toast = useToast()
 
-const queryClient = useQueryClient()
-const { data: profileData, isPending: loading } = useQuery({ queryKey: queryKeys.profile, queryFn: () => profileApi.get() })
-const profile = computed<Profile | null>(() => profileData.value ?? null)
-async function refresh(): Promise<void> { await queryClient.invalidateQueries({ queryKey: queryKeys.profile }) }
-
-// --- Nom d'affichage ---
-const firstName = ref('')
-const lastName = ref('')
-watch(profile, (value) => {
-  if (!value) return
-  firstName.value = value.firstName ?? ''
-  lastName.value = value.lastName ?? ''
-}, { immediate: true })
-
-const savingIdentity = ref(false)
-async function saveIdentity(): Promise<void> {
-  savingIdentity.value = true
-  try {
-    await profileApi.update({
-      firstName: firstName.value.trim() || null,
-      lastName: lastName.value.trim() || null,
-    })
-    await refresh()
-    toast.add({ title: t('account.toasts.identitySaved'), color: 'success' })
-  }
-  catch (error) {
-    toast.add({ title: errorToastTitle(t, error), color: 'error' })
-  }
-  finally {
-    savingIdentity.value = false
-  }
-}
-
-// --- Mot de passe ---
-const currentPassword = ref('')
-const newPassword = ref('')
-const confirmPassword = ref('')
-const changingPassword = ref(false)
-
-const passwordValid = computed(() =>
-  currentPassword.value !== ''
-  && newPassword.value.length >= 8
-  && newPassword.value === confirmPassword.value,
-)
-
-async function changePassword(): Promise<void> {
-  if (newPassword.value.length < 8) {
-    toast.add({ title: t('account.errors.tooShort'), color: 'error' })
-    return
-  }
-  if (newPassword.value !== confirmPassword.value) {
-    toast.add({ title: t('account.errors.mismatch'), color: 'error' })
-    return
-  }
-  changingPassword.value = true
-  try {
-    await accountApi.changePassword(currentPassword.value, newPassword.value)
-    currentPassword.value = ''
-    newPassword.value = ''
-    confirmPassword.value = ''
-    toast.add({ title: t('account.toasts.passwordChanged'), color: 'success' })
-  }
-  catch (error) {
-    const detail = errorDetail(error)
-    const key = detail === 'invalid_current_password'
-      ? 'account.errors.invalidCurrent'
-      : detail === 'invalid_new_password'
-        ? 'account.errors.tooShort'
-        : 'account.errors.generic'
-    toast.add({ title: t(key), color: 'error' })
-  }
-  finally {
-    changingPassword.value = false
-  }
-}
-
-// --- Export des données (RGPD, portabilité) ---
 const exporting = ref(false)
 async function exportData(): Promise<void> {
   if (exporting.value) return
@@ -100,99 +21,15 @@ async function exportData(): Promise<void> {
     exporting.value = false
   }
 }
-
-// --- Suppression de compte (RGPD, soft-delete) ---
-const deleteModalOpen = ref(false)
-const deletePassword = ref('')
-const deleting = ref(false)
-
-function openDeleteModal(): void {
-  deletePassword.value = ''
-  deleteModalOpen.value = true
-}
-
-async function deleteAccount(): Promise<void> {
-  if (deleting.value || deletePassword.value === '') return
-  deleting.value = true
-  try {
-    await accountApi.deleteAccount(deletePassword.value)
-    deleteModalOpen.value = false
-    toast.add({ title: t('account.danger.done'), color: 'success' })
-    // Purge le cache serveur (TanStack) avant la déconnexion : aucune donnée du compte supprimé
-    // ne doit subsister en mémoire après navigation SPA (poste partagé).
-    queryClient.clear()
-    auth.logout()
-  }
-  catch (error) {
-    const detail = errorDetail(error)
-    const key = detail === 'invalid_current_password'
-      ? 'account.errors.invalidCurrent'
-      : 'account.errors.generic'
-    toast.add({ title: t(key), color: 'error' })
-  }
-  finally {
-    deleting.value = false
-  }
-}
 </script>
 
 <template>
   <PageContainer width="atelier">
     <PageHeader :eyebrow="t('account.eyebrow')" :title="t('account.title')" />
 
-    <div v-if="loading" role="status" class="mt-6 flex flex-col gap-4 max-w-2xl">
-      <span class="sr-only">{{ t('common.loading') }}</span>
-      <USkeleton class="h-40 rounded-xl" />
-      <USkeleton class="h-56 rounded-xl" />
-    </div>
-
-    <div v-else class="mt-6 flex flex-col gap-8 max-w-2xl">
-      <!-- Nom d'affichage -->
-      <form class="border border-default rounded-xl p-4 bg-elevated/40 flex flex-col gap-4" @submit.prevent="saveIdentity">
-        <div>
-          <p class="text-sm font-semibold">{{ t('account.identity.title') }}</p>
-          <p class="text-xs text-muted mt-1">{{ t('account.identity.intro') }}</p>
-        </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <UFormField :label="t('account.identity.firstName')">
-            <UInput v-model="firstName" class="w-full" maxlength="100" autocomplete="given-name" />
-          </UFormField>
-          <UFormField :label="t('account.identity.lastName')">
-            <UInput v-model="lastName" class="w-full" maxlength="100" autocomplete="family-name" />
-          </UFormField>
-        </div>
-        <div class="flex justify-end">
-          <UButton type="submit" :loading="savingIdentity">{{ t('actions.save') }}</UButton>
-        </div>
-      </form>
-
-      <!-- Connexion + mot de passe -->
-      <section class="border border-default rounded-xl p-4 bg-elevated/40 flex flex-col gap-4">
-        <p class="text-sm font-semibold">{{ t('account.login.title') }}</p>
-        <UFormField :label="t('account.login.email')" :hint="t('account.login.emailHint')">
-          <UInput :model-value="auth.email ?? ''" disabled readonly class="w-full" />
-        </UFormField>
-
-        <form class="flex flex-col gap-4 border-t border-default pt-4" @submit.prevent="changePassword">
-          <p class="text-sm font-semibold">{{ t('account.password.title') }}</p>
-          <UFormField :label="t('account.password.current')">
-            <UInput v-model="currentPassword" type="password" autocomplete="current-password" class="w-full" />
-          </UFormField>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <UFormField :label="t('account.password.new')" :hint="t('account.password.hint')">
-              <UInput v-model="newPassword" type="password" autocomplete="new-password" class="w-full" />
-            </UFormField>
-            <UFormField :label="t('account.password.confirm')">
-              <UInput v-model="confirmPassword" type="password" autocomplete="new-password" class="w-full" />
-            </UFormField>
-          </div>
-          <div class="flex justify-end">
-            <UButton type="submit" :loading="changingPassword" :disabled="!passwordValid">
-              {{ t('account.password.submit') }}
-            </UButton>
-          </div>
-        </form>
-      </section>
+    <div class="mt-6 flex flex-col gap-8 max-w-2xl">
+      <IdentityForm />
+      <PasswordChangeForm />
 
       <!-- Sécurité : 2FA + sessions actives -->
       <SecuritySection />
@@ -210,39 +47,7 @@ async function deleteAccount(): Promise<void> {
         </div>
       </section>
 
-      <!-- Zone de danger : suppression de compte (RGPD) -->
-      <section class="border border-error/40 rounded-xl p-4 bg-error/5 flex flex-col gap-3">
-        <div>
-          <p class="text-sm font-semibold text-error">{{ t('account.danger.title') }}</p>
-          <p class="text-xs text-muted mt-1">{{ t('account.danger.intro') }}</p>
-        </div>
-        <div class="flex justify-end">
-          <UButton color="error" variant="soft" icon="i-lucide-trash-2" @click="openDeleteModal">
-            {{ t('account.danger.button') }}
-          </UButton>
-        </div>
-      </section>
+      <AccountDangerZone />
     </div>
-
-    <UModal v-model:open="deleteModalOpen" :title="t('account.danger.modalTitle')" :description="t('account.danger.modalIntro')">
-      <template #body>
-        <form class="flex flex-col gap-4" @submit.prevent="deleteAccount">
-          <UFormField :label="t('account.danger.passwordLabel')">
-            <UInput v-model="deletePassword" type="password" autocomplete="current-password" autofocus class="w-full" />
-          </UFormField>
-          <button type="submit" class="hidden" aria-hidden="true" tabindex="-1" />
-        </form>
-      </template>
-      <template #footer>
-        <div class="flex gap-2 justify-end w-full">
-          <UButton color="neutral" variant="ghost" @click="() => { deleteModalOpen = false }">
-            {{ t('actions.cancel') }}
-          </UButton>
-          <UButton color="error" :loading="deleting" :disabled="deletePassword === ''" @click="deleteAccount">
-            {{ t('account.danger.confirm') }}
-          </UButton>
-        </div>
-      </template>
-    </UModal>
   </PageContainer>
 </template>

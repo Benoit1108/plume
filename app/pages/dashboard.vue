@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import type { Dashboard, DashboardPeriod } from '~/types/dashboard'
-import type { LeadStatus } from '~/types/leads'
 
 const { t, locale } = useI18n()
-const { statusLabel } = useLeadLabels()
 const { segmentLabel } = useDirectoryLabels()
 const dashboardApi = useDashboard()
 
@@ -46,22 +44,6 @@ async function exportCsv(): Promise<void> {
   finally {
     exporting.value = false
   }
-}
-
-/** Teintes par statut — mêmes familles que les badges du kanban. */
-const STATUS_TINTS: Record<LeadStatus, string> = {
-  TO_CONTACT: 'bg-neutral-400 dark:bg-neutral-500',
-  CONTACTED: 'bg-primary/70',
-  FOLLOWED_UP: 'bg-primary',
-  IN_DISCUSSION: 'bg-info-500',
-  SAMPLE_TEST: 'bg-warning-500',
-  PAUSED: 'bg-neutral-300 dark:bg-neutral-600',
-  WON: 'bg-success-500',
-  LOST: 'bg-error-400',
-}
-
-function weekLabel(weekStart: string): string {
-  return new Date(`${weekStart}T00:00:00`).toLocaleDateString(locale.value, { day: 'numeric', month: 'short' })
 }
 
 function segmentRate(contacted: number, replied: number): string {
@@ -119,105 +101,38 @@ const hasActivity = computed(() =>
         </p>
         <!-- KPIs -->
         <section class="mt-4 grid grid-cols-2 lg:grid-cols-4 gap-3 rise-stagger">
-          <div class="border border-default rounded-xl p-4 bg-elevated/40">
-            <p class="text-xs text-dimmed font-semibold uppercase tracking-wide">{{ t('dashboard.kpis.responseRate') }}</p>
-            <p class="mt-1 font-serif text-3xl font-semibold tabular-nums">
-              {{ responseRate === null ? '—' : percentFormat.format(responseRate) }}
-            </p>
-            <p class="text-xs text-muted mt-1">
-              {{ board.contacted === 0
-                ? t('dashboard.kpis.noneContacted')
-                : t('dashboard.kpis.responseRateDetail', { replied: board.replied, contacted: board.contacted }) }}
-            </p>
-          </div>
-          <div class="border border-default rounded-xl p-4 bg-elevated/40">
-            <p class="text-xs text-dimmed font-semibold uppercase tracking-wide">{{ t('dashboard.kpis.conversion') }}</p>
-            <p class="mt-1 font-serif text-3xl font-semibold tabular-nums">
-              {{ conversion === null ? '—' : percentFormat.format(conversion) }}
-            </p>
-            <p class="text-xs text-muted mt-1">
-              {{ decided === 0
-                ? t('dashboard.kpis.noneDecided')
-                : t('dashboard.kpis.conversionDetail', { won: board.won, decided }) }}
-            </p>
-          </div>
-          <div class="border border-default rounded-xl p-4 bg-elevated/40">
-            <p class="text-xs text-dimmed font-semibold uppercase tracking-wide">{{ t('dashboard.kpis.outreachThisMonth') }}</p>
-            <p class="mt-1 font-serif text-3xl font-semibold tabular-nums">{{ board.outreachThisMonth }}</p>
-            <p class="text-xs text-muted mt-1">{{ t('dashboard.kpis.outreachHint') }}</p>
-          </div>
-          <div class="border border-default rounded-xl p-4 bg-elevated/40">
-            <p class="text-xs text-dimmed font-semibold uppercase tracking-wide">{{ t('dashboard.kpis.activeLeads') }}</p>
-            <p class="mt-1 font-serif text-3xl font-semibold tabular-nums">{{ board.activeLeads }}</p>
-            <p class="text-xs text-muted mt-1">{{ t('dashboard.pipeline.total', { count: totalLeads }, totalLeads) }}</p>
-          </div>
-          <div class="border border-default rounded-xl p-4 bg-elevated/40">
-            <p class="text-xs text-dimmed font-semibold uppercase tracking-wide">{{ t('dashboard.kpis.firstResponse') }}</p>
-            <p class="mt-1 font-serif text-3xl font-semibold tabular-nums">
-              {{ firstResponseDelay === null ? '—' : t('dashboard.kpis.firstResponseDays', { days: firstResponseDelay }) }}
-            </p>
-            <p class="text-xs text-muted mt-1">{{ t('dashboard.kpis.firstResponseHint') }}</p>
-          </div>
-          <div class="border border-default rounded-xl p-4 bg-elevated/40">
-            <p class="text-xs text-dimmed font-semibold uppercase tracking-wide">{{ t('dashboard.kpis.pipelineValue') }}</p>
-            <p class="mt-1 font-serif text-3xl font-semibold tabular-nums">{{ euroFormat.format(board.pipelineValue) }}</p>
-            <p class="text-xs text-muted mt-1">{{ t('dashboard.kpis.wonValue', { value: euroFormat.format(board.wonValue) }) }}</p>
-          </div>
+          <DashboardKpiCard
+            :label="t('dashboard.kpis.responseRate')"
+            :value="responseRate === null ? '—' : percentFormat.format(responseRate)"
+            :hint="board.contacted === 0 ? t('dashboard.kpis.noneContacted') : t('dashboard.kpis.responseRateDetail', { replied: board.replied, contacted: board.contacted })"
+          />
+          <DashboardKpiCard
+            :label="t('dashboard.kpis.conversion')"
+            :value="conversion === null ? '—' : percentFormat.format(conversion)"
+            :hint="decided === 0 ? t('dashboard.kpis.noneDecided') : t('dashboard.kpis.conversionDetail', { won: board.won, decided })"
+          />
+          <DashboardKpiCard :label="t('dashboard.kpis.outreachThisMonth')" :value="String(board.outreachThisMonth)" :hint="t('dashboard.kpis.outreachHint')" />
+          <DashboardKpiCard :label="t('dashboard.kpis.activeLeads')" :value="String(board.activeLeads)" :hint="t('dashboard.pipeline.total', { count: totalLeads }, totalLeads)" />
+          <DashboardKpiCard
+            :label="t('dashboard.kpis.firstResponse')"
+            :value="firstResponseDelay === null ? '—' : t('dashboard.kpis.firstResponseDays', { days: firstResponseDelay })"
+            :hint="t('dashboard.kpis.firstResponseHint')"
+          />
+          <DashboardKpiCard
+            :label="t('dashboard.kpis.pipelineValue')"
+            :value="euroFormat.format(board.pipelineValue)"
+            :hint="t('dashboard.kpis.wonValue', { value: euroFormat.format(board.wonValue) })"
+          />
         </section>
 
-        <!-- Pipeline : barre segmentée + légende (les valeurs sont en texte, a11y) -->
-        <section v-if="board.pipeline.length" class="mt-8 border border-default rounded-xl p-4 bg-elevated/40">
-          <p class="text-sm font-semibold">{{ t('dashboard.pipeline.title') }}</p>
-          <div
-            class="mt-3 flex h-3 rounded-full overflow-hidden"
-            role="img"
-            :aria-label="board.pipeline.map(slice => `${statusLabel(slice.status)} : ${slice.count}`).join(', ')"
-          >
-            <div
-              v-for="(slice, i) in board.pipeline"
-              :key="slice.status"
-              class="grow-x"
-              :class="STATUS_TINTS[slice.status]"
-              :style="{ width: `${(slice.count / Math.max(1, totalLeads)) * 100}%`, animationDelay: `${i * 0.05}s` }"
-            />
-          </div>
-          <ul class="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs">
-            <li v-for="slice in board.pipeline" :key="slice.status" class="flex items-center gap-1.5">
-              <span class="size-2 rounded-full inline-block" :class="STATUS_TINTS[slice.status]" aria-hidden="true" />
-              <span class="text-muted">{{ statusLabel(slice.status) }}</span>
-              <span class="font-mono tabular-nums">{{ slice.count }}</span>
-            </li>
-          </ul>
-        </section>
+        <DashboardPipelineBar :pipeline="board.pipeline" :total="totalLeads" />
 
-        <!-- Activité hebdomadaire : barres maison + ligne d'objectif -->
-        <section class="mt-8 border border-default rounded-xl p-4 bg-elevated/40">
-          <div class="flex items-baseline gap-3 flex-wrap">
-            <p class="text-sm font-semibold">{{ t('dashboard.weekly.title') }}</p>
-            <p class="text-xs text-dimmed">{{ t('dashboard.weekly.goalLine', { goal: board.weeklyTarget }) }}</p>
-          </div>
-          <div class="mt-4 relative">
-            <!-- Zone des barres = h-24 en haut de chaque colonne : l'overlay s'y superpose. -->
-            <div class="absolute inset-x-0 top-0 h-24 pointer-events-none" aria-hidden="true">
-              <div class="absolute inset-x-0 border-t border-dashed border-primary/60" :style="{ bottom: `${goalLinePercent}%` }" />
-            </div>
-            <ol class="grid grid-cols-8 gap-1 sm:gap-2 items-end">
-              <li v-for="(week, i) in board.weeklyActivity" :key="week.weekStart" class="flex flex-col items-center gap-1">
-                <div class="h-24 w-full flex items-end">
-                  <div
-                    class="w-full rounded-t-sm min-h-0.5 grow-y"
-                    :class="week.acts >= board.weeklyTarget ? 'bg-primary' : 'bg-primary/35'"
-                    :style="{ height: `${barHeightPercent(week.acts)}%`, animationDelay: `${i * 0.05}s` }"
-                    role="img"
-                    :aria-label="`${t('dashboard.weekly.weekOf', { date: weekLabel(week.weekStart) })} : ${t('dashboard.weekly.acts', { count: week.acts }, week.acts)}`"
-                  />
-                </div>
-                <span class="font-mono tabular-nums text-xs">{{ week.acts }}</span>
-                <span class="text-[10px] text-dimmed whitespace-nowrap">{{ weekLabel(week.weekStart) }}</span>
-              </li>
-            </ol>
-          </div>
-        </section>
+        <DashboardWeeklyActivityChart
+          :weeks="board.weeklyActivity"
+          :target="board.weeklyTarget"
+          :bar-height-percent="barHeightPercent"
+          :goal-line-percent="goalLinePercent"
+        />
 
         <!-- Par segment -->
         <section v-if="board.segments.length" class="mt-8 border border-default rounded-xl p-4 bg-elevated/40">
