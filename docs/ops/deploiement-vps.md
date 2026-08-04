@@ -8,7 +8,9 @@ Runbook : d'une VM nue à Plume en ligne pour la première utilisatrice. Complè
 > On les déroule ensemble sur la vraie VM — c'est l'étape de validation.
 
 ## 0. Prérequis
-- VM **Ubuntu 24.04 LTS**, ~2 vCPU / 4 Go / 40 Go (OVH/Scaleway).
+- VM **Ubuntu LTS 24.04 ou 26.04**, ≥ 2 vCPU / 4 Go / 40 Go (OVH/Scaleway). Repère confortable :
+  **VPS-2 OVH** = 4 vCPU / 8 Go / 75 Go. Tout Plume tourne dans Docker → la version de l'hôte importe
+  peu, il doit juste faire tourner Docker.
 - **Domaine** : un enregistrement **A** `plume.exemple.fr` (et `www`) → IP publique du VPS.
 - **Ports 80 + 443 ouverts** (Let's Encrypt + HTTPS).
 
@@ -17,6 +19,13 @@ Runbook : d'une VM nue à Plume en ligne pour la première utilisatrice. Complè
 curl -fsSL https://get.docker.com | sh
 sudo usermod -aG docker "$USER"   # puis se reconnecter
 ```
+> **(optionnel, utile si la VM a < 8 Go de RAM)** ajouter 2 Go de swap pour absorber le pic mémoire du
+> build front (`nuxt generate`). Inutile sur un VPS-2 (8 Go), recommandé sur un VPS-1 (4 Go) :
+> ```bash
+> sudo fallocate -l 2G /swapfile && sudo chmod 600 /swapfile
+> sudo mkswap /swapfile && sudo swapon /swapfile
+> echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+> ```
 
 ## 2. Récupérer le code
 ```bash
@@ -27,12 +36,14 @@ git clone <url-du-dépôt> /opt/plume && cd /opt/plume
 ## 3. Configurer les secrets
 ```bash
 cp api/.env.prod.example api/.env.local     # gitignoré
-# Générer les secrets :
-php -r "echo 'APP_SECRET='.bin2hex(random_bytes(32)).PHP_EOL;"
-php -r "echo 'MAILBOX_ENCRYPTION_KEY='.base64_encode(random_bytes(32)).PHP_EOL;"
-php -r "echo 'TOTP_ENCRYPTION_KEY='.base64_encode(random_bytes(32)).PHP_EOL;"
-# Éditer api/.env.local : SERVER_NAME + DEFAULT_URI + APP_FRONTEND_URL + CORS = ton domaine ;
-# mots de passe DB (owner `plume` et runtime `plume_app`) ; MAILER_DSN + MAIL_FROM.
+# Générer les secrets (openssl est présent par défaut — pas besoin de PHP sur l'hôte) :
+echo "APP_SECRET=$(openssl rand -hex 32)"
+echo "MAILBOX_ENCRYPTION_KEY=$(openssl rand -base64 32)"
+echo "TOTP_ENCRYPTION_KEY=$(openssl rand -base64 32)"
+echo "JWT_PASSPHRASE=$(openssl rand -base64 24)"
+# Reporter ces 4 valeurs dans api/.env.local, puis éditer aussi : SERVER_NAME + DEFAULT_URI +
+# APP_FRONTEND_URL + CORS = ton domaine ; mots de passe DB (owner `plume` et runtime `plume_app`) ;
+# MAILER_DSN + MAIL_FROM.
 ```
 
 ## 4. Démarrer la stack
