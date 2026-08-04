@@ -7830,6 +7830,10 @@
                         "default": 120,
                         "type": "integer"
                     },
+                    "weeklyReportEnabled": {
+                        "default": true,
+                        "type": "boolean"
+                    },
                     "timezone": {
                         "default": "Europe/Paris",
                         "type": "string"
@@ -7924,6 +7928,10 @@
                         "maximum": 730,
                         "default": 120,
                         "type": "integer"
+                    },
+                    "weeklyReportEnabled": {
+                        "default": true,
+                        "type": "boolean"
                     },
                     "digestFrequency": {
                         "enum": [
@@ -8023,6 +8031,10 @@
                                 "maximum": 730,
                                 "default": 120,
                                 "type": "integer"
+                            },
+                            "weeklyReportEnabled": {
+                                "default": true,
+                                "type": "boolean"
                             },
                             "timezone": {
                                 "default": "Europe/Paris",

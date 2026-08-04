@@ -13,6 +13,7 @@ use App\Account\Domain\Profile\Event\ProfileCreated;
 use App\Account\Domain\Profile\Event\ProfileIdentityChanged;
 use App\Account\Domain\Profile\Event\ProfilePresentationChanged;
 use App\Account\Domain\Profile\Event\WeeklyGoalChanged;
+use App\Account\Domain\Profile\Event\WeeklyReportPreferenceChanged;
 use App\Shared\Domain\AggregateRoot;
 use App\Shared\Domain\Exception\InvalidValue;
 use App\Shared\Domain\ValueObject\TenantId;
@@ -32,6 +33,8 @@ final class Profile extends AggregateRoot
     public const int DEFAULT_DORMANT_THRESHOLD_DAYS = 120;
     /** 0 = réactivation désactivée ; borne haute pragmatique (2 ans). */
     private const int DORMANT_MAX_DAYS = 730;
+    /** Bilan hebdomadaire par email activé par défaut (opt-out dans les Réglages). */
+    public const bool DEFAULT_WEEKLY_REPORT_ENABLED = true;
 
     private const int CADENCE_MAX_STEPS = 10;
     private const int CADENCE_MAX_DAYS = 365;
@@ -53,6 +56,7 @@ final class Profile extends AggregateRoot
         /** @var array<string, array{inApp: bool, email: bool}> COUPURES par type (défaut = tout activé) */
         private array $notificationPreferences = [],
         private int $dormantClientThresholdDays = self::DEFAULT_DORMANT_THRESHOLD_DAYS,
+        private bool $weeklyReportEnabled = self::DEFAULT_WEEKLY_REPORT_ENABLED,
     ) {
     }
 
@@ -188,6 +192,17 @@ final class Profile extends AggregateRoot
         $this->recordEvent(new DormantClientThresholdChanged($this->tenantId->toString(), $days, $now));
     }
 
+    /** Bilan hebdomadaire par email (opt-out). Sans changement, aucun event. */
+    public function changeWeeklyReportEnabled(bool $enabled, \DateTimeImmutable $now): void
+    {
+        if ($enabled === $this->weeklyReportEnabled) {
+            return;
+        }
+
+        $this->weeklyReportEnabled = $enabled;
+        $this->recordEvent(new WeeklyReportPreferenceChanged($this->tenantId->toString(), $enabled, $now));
+    }
+
     /** Présentation (bio, spécialités, signature) — sans changement, aucun event. */
     public function changePresentation(?string $bio, ?string $specialties, ?string $signature, \DateTimeImmutable $now): void
     {
@@ -243,6 +258,11 @@ final class Profile extends AggregateRoot
     public function dormantClientThresholdDays(): int
     {
         return $this->dormantClientThresholdDays;
+    }
+
+    public function weeklyReportEnabled(): bool
+    {
+        return $this->weeklyReportEnabled;
     }
 
     public function timezone(): string

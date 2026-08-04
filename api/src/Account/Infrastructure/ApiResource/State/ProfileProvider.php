@@ -40,6 +40,7 @@ final class ProfileProvider implements ProviderInterface
         $resource->pipelineLabels = $view->pipelineLabels;
         $resource->notificationPreferences = $view->notificationPreferences;
         $resource->dormantClientThresholdDays = $view->dormantClientThresholdDays;
+        $resource->weeklyReportEnabled = $view->weeklyReportEnabled;
 
         return $resource;
     }

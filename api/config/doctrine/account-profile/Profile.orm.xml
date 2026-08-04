@@ -20,5 +20,6 @@
         <field name="pipelineLabels" type="json" column="pipeline_labels"/>
         <field name="notificationPreferences" type="json" column="notification_preferences"/>
         <field name="dormantClientThresholdDays" type="integer" column="dormant_client_threshold_days"/>
+        <field name="weeklyReportEnabled" type="boolean" column="weekly_report_enabled"/>
     </entity>
 </doctrine-mapping>

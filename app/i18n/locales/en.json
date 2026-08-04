@@ -856,6 +856,10 @@
       "preview": "Reminder after {days} days of silence.",
       "disabled": "Reactivation disabled."
     },
+    "weeklyReport": {
+      "label": "Weekly report by email",
+      "hint": "Every Monday, a recap of your prospecting week (outreach, replies)."
+    },
     "digest": {
       "title": "Email digest",
       "label": "Receive a notifications summary",

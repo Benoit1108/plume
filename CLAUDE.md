@@ -288,5 +288,10 @@ contexte `Template` complet CRUD + fusion `{{…}}`). **Réactivation des client
 dernière interaction — `MAX(interaction.occurred_on)`, journal indexé — dépasse le seuil), exposé dans **Aujourd'hui**
 (section « À réactiver ») ; tick quotidien `NotifyDormantClientsHandler` (notif `client_dormant`, idempotent
 `dormant:<lead>:<YYYY-MM>` = 1 rappel/client/mois, réutilise le patron INSERT…SELECT owner). Réglage dans Réglages,
-type ajouté à la matrice de préférences de notif + à la cloche + cible piste. Reste V2.4 : bilan hebdo par email, PWA
-installable (l'**objectif hebdo + série** existent déjà dans Aujourd'hui).
+type ajouté à la matrice de préférences de notif + à la cloche + cible piste. **Bilan hebdo par email LIVRÉ** :
+préférence `profile.weekly_report_enabled` (opt-out ; champ d'agrégat + event) ; tick quotidien
+`SendWeeklyReportsHandler` agissant le **lundi** (fenêtre glissante 7 j, aucun état) → email bilingue via
+`AccountMailer.sendWeeklyReport` (chiffres AGRÉGÉS sans PII : démarches + réponses + objectif) ; n'envoie rien une
+semaine sans activité / hors lundi / aux comptes coupés-supprimés-non vérifiés ; case à cocher dans Réglages. Reste
+V2.4 : **PWA installable** (l'**objectif hebdo + série** existent déjà dans Aujourd'hui ; « Modèles de messages »
+déjà livrée).

@@ -2039,6 +2039,8 @@ export interface components {
             weeklyGoal: number;
             /** @default 120 */
             dormantClientThresholdDays: number;
+            /** @default true */
+            weeklyReportEnabled: boolean;
             /** @default Europe/Paris */
             timezone: string;
             /**
@@ -2077,6 +2079,8 @@ export interface components {
             weeklyGoal: number;
             /** @default 120 */
             dormantClientThresholdDays: number;
+            /** @default true */
+            weeklyReportEnabled: boolean;
             /**
              * @default DAILY
              * @enum {string}
@@ -2115,6 +2119,8 @@ export interface components {
             weeklyGoal: number;
             /** @default 120 */
             dormantClientThresholdDays: number;
+            /** @default true */
+            weeklyReportEnabled: boolean;
             /** @default Europe/Paris */
             timezone: string;
             /**

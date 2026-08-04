@@ -36,6 +36,7 @@ final class UpdateProfileHandler implements CommandHandler
         $profile->changePipelineLabels($command->pipelineLabels, $now);
         $profile->changeNotificationPreferences($command->notificationPreferences, $now);
         $profile->changeDormantClientThreshold($command->dormantClientThresholdDays, $now);
+        $profile->changeWeeklyReportEnabled($command->weeklyReportEnabled, $now);
 
         $this->profiles->save($profile);
         $this->eventBus->publish(...$profile->pullDomainEvents());

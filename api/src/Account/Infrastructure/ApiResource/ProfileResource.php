@@ -42,6 +42,10 @@ final class ProfileResource
     #[Groups(['profile:read', 'profile:write'])]
     public int $dormantClientThresholdDays = 120;
 
+    /** Bilan hebdomadaire par email (opt-out). */
+    #[Groups(['profile:read', 'profile:write'])]
+    public bool $weeklyReportEnabled = true;
+
     #[Groups(['profile:read'])]
     public string $timezone = 'Europe/Paris';
 

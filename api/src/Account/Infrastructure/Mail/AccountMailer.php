@@ -105,6 +105,37 @@ final class AccountMailer
         );
     }
 
+    /**
+     * Bilan HEBDOMADAIRE (récap bilingue des 7 derniers jours). Chiffres agrégés uniquement — jamais
+     * de contenu de piste (minimisation). Pour entretenir la régularité du démarchage.
+     */
+    public function sendWeeklyReport(string $email, int $outreach, int $replies, int $goal): void
+    {
+        $app = rtrim($this->frontendUrl, '/');
+        $goalFr = $goal > 0 ? sprintf(' (objectif : %d/semaine)', $goal) : '';
+        $goalEn = $goal > 0 ? sprintf(' (goal: %d/week)', $goal) : '';
+
+        $this->mailer->send(
+            (new Email())
+                ->from($this->from)
+                ->to($email)
+                ->subject('Votre semaine sur Plume / Your week on Plume')
+                ->text(
+                    "Bonjour,\n\nVotre semaine de prospection :\n"
+                    .'• '.$outreach.' démarche(s)'.$goalFr."\n"
+                    .'• '.$replies.' réponse(s) reçue(s)'."\n\n"
+                    .'Continuez sur votre lancée : '.$app."\n\n"
+                    ."(Pour couper ce bilan : Réglages.)\n\n"
+                    ."— \n\n"
+                    ."Hello,\n\nYour prospecting week:\n"
+                    .'• '.$outreach.' outreach action(s)'.$goalEn."\n"
+                    .'• '.$replies.' reply(ies) received'."\n\n"
+                    .'Keep the momentum: '.$app."\n\n"
+                    ."(To turn this off: Settings.)\n",
+                ),
+        );
+    }
+
     /** @var array<string, array{0: string, 1: string}> type => [libellé FR, libellé EN] */
     private const array DIGEST_LABELS = [
         'reply_received' => ['réponse(s) reçue(s)', 'reply(ies) received'],

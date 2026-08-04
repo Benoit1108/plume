@@ -15,6 +15,8 @@ const bio = ref('')
 const specialties = ref('')
 const signature = ref('')
 const digestFrequency = ref<'NONE' | 'DAILY' | 'WEEKLY'>('DAILY')
+/** Bilan hebdomadaire par email (opt-out). */
+const weeklyReport = ref(true)
 /** Seuil de dormance des clients gagnés en jours (0 = réactivation désactivée). */
 const dormantThreshold = ref(120)
 /** Saisie libre « 7, 21, 45 » ; parsée en jours à l'enregistrement. */
@@ -32,6 +34,7 @@ watch(profile, (value) => {
   specialties.value = value.specialties ?? ''
   signature.value = value.signature ?? ''
   digestFrequency.value = value.digestFrequency
+  weeklyReport.value = value.weeklyReportEnabled
   dormantThreshold.value = value.dormantClientThresholdDays
   cadenceInput.value = value.followUpCadence.join(', ')
   pipelineLabels.value = Object.fromEntries(LEAD_STATUSES.map(s => [s, value.pipelineLabels[s] ?? '']))
@@ -69,6 +72,7 @@ async function save(): Promise<void> {
       specialties: specialties.value.trim() || null,
       signature: signature.value.trim() || null,
       digestFrequency: digestFrequency.value,
+      weeklyReportEnabled: weeklyReport.value,
       dormantClientThresholdDays: Number.isInteger(dormantThreshold.value) ? dormantThreshold.value : 120,
       followUpCadence: parsedCadence.value,
       pipelineLabels: Object.fromEntries(Object.entries(pipelineLabels.value).filter(([, v]) => v.trim() !== '')),
@@ -130,6 +134,8 @@ async function save(): Promise<void> {
       <UFormField :label="t('settings.digest.label')" :hint="t('settings.digest.hint')" class="mt-3">
         <USelect v-model="digestFrequency" :items="digestOptions" value-key="value" class="w-56" />
       </UFormField>
+      <UCheckbox v-model="weeklyReport" :label="t('settings.weeklyReport.label')" class="mt-4" />
+      <p class="text-xs text-muted mt-1">{{ t('settings.weeklyReport.hint') }}</p>
     </section>
 
     <!-- Préférences fines de notification : matrice type × canal (in-app / email), défaut = tout activé -->

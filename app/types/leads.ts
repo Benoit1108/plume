@@ -71,4 +71,6 @@ export interface Profile {
   notificationPreferences: Record<string, { inApp: boolean, email: boolean }>
   /** Seuil de dormance des clients gagnés en jours (0 = réactivation désactivée). */
   dormantClientThresholdDays: number
+  /** Bilan hebdomadaire par email (opt-out). */
+  weeklyReportEnabled: boolean
 }

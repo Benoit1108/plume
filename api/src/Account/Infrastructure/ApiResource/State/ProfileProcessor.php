@@ -42,6 +42,7 @@ final class ProfileProcessor implements ProcessorInterface
             $data->pipelineLabels,
             $data->notificationPreferences,
             $data->dormantClientThresholdDays,
+            $data->weeklyReportEnabled,
         ));
 
         return $data;

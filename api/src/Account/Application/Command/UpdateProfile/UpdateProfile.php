@@ -26,6 +26,8 @@ final class UpdateProfile implements Command
         public readonly array $notificationPreferences = [],
         /** Seuil de dormance des clients gagnés en jours (0 = désactivé). */
         public readonly int $dormantClientThresholdDays = 120,
+        /** Bilan hebdomadaire par email (opt-out). */
+        public readonly bool $weeklyReportEnabled = true,
     ) {
     }
 }

@@ -856,6 +856,10 @@
       "preview": "Rappel après {days} jours de silence.",
       "disabled": "Réactivation désactivée."
     },
+    "weeklyReport": {
+      "label": "Bilan hebdomadaire par email",
+      "hint": "Chaque lundi, un récap de votre semaine de prospection (démarches, réponses)."
+    },
     "digest": {
       "title": "Digest email",
       "label": "Recevoir un récap des notifications",

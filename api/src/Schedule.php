@@ -12,6 +12,7 @@ use App\Notification\Infrastructure\Scheduler\NotifyDormantClientsTick;
 use App\Notification\Infrastructure\Scheduler\NotifyDueFollowUpsTick;
 use App\Notification\Infrastructure\Scheduler\PurgeOldNotificationsTick;
 use App\Notification\Infrastructure\Scheduler\SendNotificationDigestsTick;
+use App\Notification\Infrastructure\Scheduler\SendWeeklyReportsTick;
 use App\Sourcing\Infrastructure\Scheduler\PollAllSourcesTick;
 use App\Sourcing\Infrastructure\Scheduler\PurgeRawAlertsTick;
 use Symfony\Component\Console\Messenger\RunCommandMessage;
@@ -68,6 +69,9 @@ class Schedule implements ScheduleProviderInterface
 
             // Digest email des notifications non lues, par tenant selon sa préférence (V2).
             // Quotidien : DAILY chaque jour (fenêtre 24 h), WEEKLY le lundi (fenêtre 7 j).
-            ->add(RecurringMessage::every('1 day', new SendNotificationDigestsTick()));
+            ->add(RecurringMessage::every('1 day', new SendNotificationDigestsTick()))
+
+            // Bilan hebdomadaire par email — quotidien mais n'agit que le lundi (fenêtre 7 j, V2.4).
+            ->add(RecurringMessage::every('1 day', new SendWeeklyReportsTick()));
     }
 }

@@ -149,6 +149,27 @@ final class ProfileApiTest extends ApiTestCase
         self::assertResponseStatusCodeSame(422);
     }
 
+    public function testTogglesWeeklyReportPreference(): void
+    {
+        $this->createUser('a@plume.test');
+        $client = static::createClient();
+        $token = $this->tokenFor($client, 'a@plume.test');
+
+        // Activé par défaut.
+        $before = $client->request('GET', '/api/v1/profile', ['auth_bearer' => $token, 'headers' => ['Accept' => 'application/ld+json']])->toArray();
+        self::assertTrue($before['weeklyReportEnabled'] ?? null);
+
+        // Opt-out.
+        $client->request('PATCH', '/api/v1/profile', [
+            'auth_bearer' => $token,
+            'headers' => ['Content-Type' => 'application/merge-patch+json'],
+            'json' => ['weeklyReportEnabled' => false],
+        ]);
+        self::assertResponseIsSuccessful();
+        $after = $client->request('GET', '/api/v1/profile', ['auth_bearer' => $token, 'headers' => ['Accept' => 'application/ld+json']])->toArray();
+        self::assertFalse($after['weeklyReportEnabled'] ?? null);
+    }
+
     public function testAcceptsValidNotificationPreferencesAndRejectsMalformedShape(): void
     {
         $this->createUser('a@plume.test');

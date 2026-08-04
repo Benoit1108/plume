@@ -27,7 +27,7 @@ final class DoctrineProfileSettings implements ProfileSettings
         $tenant = $this->tenantContext->require();
 
         $row = $this->connection->fetchAssociative(
-            'SELECT weekly_goal, timezone, bio, specialties, signature, first_name, last_name, digest_frequency, follow_up_cadence, pipeline_labels, notification_preferences, dormant_client_threshold_days FROM profile WHERE tenant_id = :tenant',
+            'SELECT weekly_goal, timezone, bio, specialties, signature, first_name, last_name, digest_frequency, follow_up_cadence, pipeline_labels, notification_preferences, dormant_client_threshold_days, weekly_report_enabled FROM profile WHERE tenant_id = :tenant',
             ['tenant' => $tenant->toString()],
         );
 
@@ -48,6 +48,7 @@ final class DoctrineProfileSettings implements ProfileSettings
             $this->labelsOf($row['pipeline_labels'] ?? null),
             $this->prefsOf($row['notification_preferences'] ?? null),
             is_numeric($row['dormant_client_threshold_days'] ?? null) ? (int) $row['dormant_client_threshold_days'] : Profile::DEFAULT_DORMANT_THRESHOLD_DAYS,
+            !isset($row['weekly_report_enabled']) || (bool) $row['weekly_report_enabled'],
         );
     }
 

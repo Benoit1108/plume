@@ -7,7 +7,7 @@ export function useProfile() {
 
   return {
     get: () => api<Profile>('/api/v1/profile', { headers: { Accept: 'application/ld+json' } }),
-    update: (data: Partial<Pick<Profile, 'weeklyGoal' | 'bio' | 'specialties' | 'signature' | 'firstName' | 'lastName' | 'digestFrequency' | 'followUpCadence' | 'pipelineLabels' | 'notificationPreferences' | 'dormantClientThresholdDays'>>) =>
+    update: (data: Partial<Pick<Profile, 'weeklyGoal' | 'bio' | 'specialties' | 'signature' | 'firstName' | 'lastName' | 'digestFrequency' | 'followUpCadence' | 'pipelineLabels' | 'notificationPreferences' | 'dormantClientThresholdDays' | 'weeklyReportEnabled'>>) =>
       api<Profile>('/api/v1/profile', { method: 'PATCH', body: data, headers: patch }),
   }
 }
