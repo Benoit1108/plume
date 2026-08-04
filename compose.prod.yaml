@@ -1,0 +1,84 @@
+# Stack de PRODUCTION Plume (VPS + Docker Compose).
+# ⚠️ Brouillon prêt à l'emploi — à VALIDER au 1er déploiement (TLS réel, migrations, flux cookie).
+# Secrets : copier api/.env.prod.example -> api/.env.local (sur le serveur, gitignoré) et remplir.
+# Lancement : docker compose -f compose.prod.yaml up -d --build
+name: plume
+
+x-app-env: &app-env
+  env_file:
+    - ./api/.env.local
+
+services:
+  database:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: plume
+      POSTGRES_USER: plume
+      # POSTGRES_PASSWORD vient de api/.env.local (= mot de passe du rôle propriétaire `plume`).
+    env_file:
+      - ./api/.env.local
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U plume"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+    # Pas d'exposition réseau : la base n'est jointe que par les autres conteneurs.
+
+  app:
+    image: plume-app
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    <<: *app-env
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - caddy-data:/data          # certificats Let's Encrypt persistés
+      - jwt-keys:/app/config/jwt   # clés JWT (générées une fois, survivent aux rebuilds)
+    depends_on:
+      database:
+        condition: service_healthy
+    restart: unless-stopped
+
+  worker:
+    image: plume-app
+    command: ["php", "bin/console", "messenger:consume", "async", "-vv", "--time-limit=3600"]
+    healthcheck:
+      disable: true
+    <<: *app-env
+    depends_on:
+      database:
+        condition: service_healthy
+    restart: unless-stopped
+
+  worker_io:
+    image: plume-app
+    command: ["php", "bin/console", "messenger:consume", "io", "-vv", "--time-limit=3600"]
+    healthcheck:
+      disable: true
+    <<: *app-env
+    depends_on:
+      database:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Exemplaire UNIQUE (ne pas répliquer) — rôle propriétaire, fan-out cross-tenant.
+  scheduler:
+    image: plume-app
+    command: ["php", "bin/console", "messenger:consume", "scheduler_default", "-vv"]
+    healthcheck:
+      disable: true
+    <<: *app-env
+    depends_on:
+      database:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  db-data:
+  caddy-data:
+  jwt-keys:

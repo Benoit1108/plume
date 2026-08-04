@@ -1,0 +1,39 @@
+{
+	frankenphp
+	order php_server before file_server
+}
+
+# {$SERVER_NAME} = domaine de prod → Caddy obtient un certificat Let's Encrypt automatiquement
+# (le domaine doit pointer sur l'IP du serveur, ports 80/443 ouverts).
+{$SERVER_NAME} {
+	encode zstd br gzip
+
+	# En-têtes de sécurité communs.
+	header {
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		-Server
+		-X-Powered-By
+	}
+
+	# --- API + docs → Symfony (public/) ---
+	@api path /api/* /docs*
+	handle @api {
+		root * /app/public
+		# L'API ne sert que du JSON : CSP verrouillée.
+		header Content-Security-Policy "default-src 'none'; frame-ancestors 'none'"
+		php_server
+	}
+
+	# --- SPA (tout le reste) : fichiers statiques + fallback client-side ---
+	handle {
+		root * /app/frontend
+		# CSP du SPA : à AFFINER au 1er déploiement (Nuxt UI utilise des styles inline ; connect-src = self
+		# pour /api same-origin). Point de départ raisonnable :
+		header Content-Security-Policy "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self'; font-src 'self' data:; frame-ancestors 'none'; base-uri 'self'"
+		try_files {path} /index.html
+		file_server
+	}
+}

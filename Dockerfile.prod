@@ -1,0 +1,36 @@
+# Image de PRODUCTION Plume (contexte de build = racine du dépôt).
+# Un seul conteneur sert l'API Symfony + le SPA statique + le HTTPS (Caddy/FrankenPHP).
+# ⚠️ Brouillon prêt à l'emploi — à VALIDER au 1er déploiement (build + flux cookie same-origin + TLS réel).
+# Build :  docker build -f Dockerfile.prod -t plume-app .
+
+# --- Étape 1 : build du front (SPA statique, ssr:false) ---
+FROM node:24-alpine AS front
+WORKDIR /front
+# .npmrc porte legacy-peer-deps=true (peer typescript de openapi-typescript non à jour pour TS 6).
+COPY app/package.json app/package-lock.json app/.npmrc ./
+RUN npm ci
+COPY app/ ./
+# nuxt generate → .output/public (statique + fallback SPA). apiBase='' → le SPA appelle /api en same-origin,
+# routé vers l'API par Caddy (cookies httpOnly préservés — pas de proxy Nitro nécessaire ici).
+RUN npm run generate
+
+# --- Étape 2 : API FrankenPHP + front servi + workers (même image) ---
+FROM dunglas/frankenphp:php8.5
+RUN install-php-extensions pdo_pgsql intl opcache zip
+COPY --from=composer/composer:2-bin /composer /usr/bin/composer
+
+WORKDIR /app
+COPY api/frankenphp/Caddyfile.prod /etc/frankenphp/Caddyfile
+
+# Dépendances PHP prod d'abord (cache Docker), puis le code.
+COPY api/composer.json api/composer.lock api/symfony.lock ./
+RUN composer install --no-dev --no-scripts --no-interaction --optimize-autoloader --no-progress
+COPY api/ ./
+RUN composer dump-autoload --no-dev --classmap-authoritative --no-interaction
+
+# SPA statique servi par Caddy (cf. Caddyfile.prod : tout hors /api → /app/frontend).
+COPY --from=front /front/.output/public /app/frontend
+
+# Le cache Symfony prod est réchauffé au démarrage (entrypoint/runbook) : cache:warmup a besoin des
+# secrets d'env, absents au build.
+EXPOSE 80 443
