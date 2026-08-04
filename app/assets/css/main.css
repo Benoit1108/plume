@@ -114,3 +114,12 @@ h1, h2, h3, .font-display { font-family: var(--font-serif); }
 @media (prefers-reduced-motion: reduce) {
   .ink-draw { animation: none !important; stroke-dashoffset: 0; }
 }
+
+/* Révélations au scroll de la vitrine (classe .in posée par IntersectionObserver, cf.
+   useLandingMotion). Global car partagé par plusieurs sous-composants du domaine landing. */
+.reveal { opacity: 0; transform: translateY(26px); transition: opacity 0.7s cubic-bezier(0.2, 0.7, 0.2, 1), transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1); }
+.reveal.in { opacity: 1; transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+}
