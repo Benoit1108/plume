@@ -19,6 +19,10 @@ export default defineNuxtConfig({
   // @nuxtjs/i18n : UI bilingue FR/EN (cf. ADR-0011).
   modules: ['@nuxt/ui', '@nuxt/eslint', '@pinia/nuxt', '@nuxtjs/i18n'],
 
+  // Composants rangés par DOMAINE en sous-dossiers (components/admin, /lead, /ui…). pathPrefix:false
+  // → le nom reste le nom de fichier (pas de préfixe de chemin) : le sous-dossiering ne renomme rien.
+  components: [{ path: '~/components', pathPrefix: false }],
+
   // Auto-import des hooks TanStack Query (chantier 3, lot D) — évite un import par page.
   imports: {
     presets: [{ from: '@tanstack/vue-query', imports: ['useQuery', 'useMutation', 'useQueryClient'] }],
