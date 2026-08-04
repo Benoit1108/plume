@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { notificationTarget, unreadBadge, unreadCount } from '../utils/notifications'
+import { notificationTarget, unreadBadge, unreadCount } from '../utils/notification/notifications'
 
 const apiMock = vi.fn()
 vi.stubGlobal('useApi', () => apiMock)
 
-const { useNotifications } = await import('../composables/useNotifications')
+const { useNotifications } = await import('../composables/notification/useNotifications')
 
 describe('useNotifications', () => {
   beforeEach(() => {

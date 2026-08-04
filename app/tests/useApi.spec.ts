@@ -10,7 +10,7 @@ vi.stubGlobal('$fetch', fetchMock)
 vi.stubGlobal('useRuntimeConfig', () => ({ public: { apiBase: '' } }))
 vi.stubGlobal('useAuthStore', () => auth)
 
-const { useApi } = await import('../composables/useApi')
+const { useApi } = await import('../composables/core/useApi')
 
 function http401(): Error {
   return Object.assign(new Error('401'), { response: { status: 401 } })

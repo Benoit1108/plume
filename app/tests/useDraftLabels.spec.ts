@@ -14,7 +14,7 @@ vi.stubGlobal('useI18n', () => ({
   },
 }))
 
-const { useDraftLabels, DRAFT_TYPES } = await import('../composables/useDraftLabels')
+const { useDraftLabels, DRAFT_TYPES } = await import('../composables/lead/useDraftLabels')
 
 describe('useDraftLabels', () => {
   it('traduit types et statuts, retombe sur la clé inconnue', () => {

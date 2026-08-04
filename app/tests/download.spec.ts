@@ -12,7 +12,7 @@ vi.stubGlobal('document', { createElement: vi.fn(() => link), body: { appendChil
 // les méthodes statiques absentes en env node.
 vi.stubGlobal('URL', Object.assign(globalThis.URL, { createObjectURL, revokeObjectURL }))
 
-const { downloadBlob } = await import('../utils/download')
+const { downloadBlob } = await import('../utils/core/download')
 
 describe('downloadBlob', () => {
   beforeEach(() => {

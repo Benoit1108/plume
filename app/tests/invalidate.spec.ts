@@ -1,6 +1,6 @@
 import type { QueryClient } from '@tanstack/vue-query'
 import { describe, expect, it, vi } from 'vitest'
-import { invalidateLeadRelated } from '../utils/invalidate'
+import { invalidateLeadRelated } from '../utils/core/invalidate'
 
 function fakeClient(): { qc: QueryClient, keys: unknown[] } {
   const keys: unknown[] = []

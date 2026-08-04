@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { queryKeys } from '../utils/queryKeys'
+import { queryKeys } from '../utils/core/queryKeys'
 
 describe('queryKeys', () => {
   it('expose des clés statiques stables', () => {

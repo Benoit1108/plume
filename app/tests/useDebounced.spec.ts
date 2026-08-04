@@ -5,7 +5,7 @@ vi.stubGlobal('ref', ref)
 vi.stubGlobal('watch', watch)
 vi.stubGlobal('readonly', readonly)
 
-const { useDebounced } = await import('../composables/useDebounced')
+const { useDebounced } = await import('../composables/core/useDebounced')
 
 describe('useDebounced', () => {
   beforeEach(() => {

@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 const apiMock = vi.fn()
 vi.stubGlobal('useApi', () => apiMock)
 
-const { useMailbox } = await import('../composables/useMailbox')
+const { useMailbox } = await import('../composables/mailbox/useMailbox')
 
 describe('useMailbox', () => {
   beforeEach(() => {

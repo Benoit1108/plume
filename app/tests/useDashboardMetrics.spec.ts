@@ -5,7 +5,7 @@ import type { Dashboard } from '../types/dashboard'
 vi.stubGlobal('computed', computed)
 vi.stubGlobal('ref', ref)
 
-const { useDashboardMetrics } = await import('../composables/useDashboardMetrics')
+const { useDashboardMetrics } = await import('../composables/dashboard/useDashboardMetrics')
 
 function aBoard(overrides: Partial<Dashboard> = {}): Dashboard {
   return {

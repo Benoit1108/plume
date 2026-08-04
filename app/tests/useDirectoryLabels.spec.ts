@@ -6,7 +6,7 @@ vi.stubGlobal('useI18n', () => ({
   t: (key: string, fallback?: string) => (key === 'directory.types.PUBLISHER' ? 'Éditeur' : fallback ?? key),
 }))
 
-const { useDirectoryLabels, ORGANIZATION_TYPES, SEGMENTS } = await import('../composables/useDirectoryLabels')
+const { useDirectoryLabels, ORGANIZATION_TYPES, SEGMENTS } = await import('../composables/directory/useDirectoryLabels')
 
 describe('useDirectoryLabels', () => {
   it('traduit un type connu et retombe sur la valeur brute sinon', () => {

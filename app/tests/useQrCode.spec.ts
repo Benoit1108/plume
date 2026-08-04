@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from 'vitest'
 const toDataURL = vi.fn((_text: string, _opts?: Record<string, unknown>) => Promise.resolve('data:image/png;base64,AAAA'))
 vi.mock('qrcode', () => ({ default: { toDataURL } }))
 
-const { useQrCode } = await import('../composables/useQrCode')
+const { useQrCode } = await import('../composables/core/useQrCode')
 
 describe('useQrCode', () => {
   it('encode le texte en data-URL PNG avec des options locales', async () => {

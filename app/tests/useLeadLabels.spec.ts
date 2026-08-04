@@ -11,7 +11,7 @@ vi.stubGlobal('useProfile', () => ({ get: () => Promise.resolve(profileData) }))
 vi.stubGlobal('useQuery', () => ({ data: { get value() { return profileData } } }))
 vi.stubGlobal('queryKeys', { profile: ['profile'] })
 
-const { useLeadLabels, LEAD_PRIORITIES, LEAD_SOURCES } = await import('../composables/useLeadLabels')
+const { useLeadLabels, LEAD_PRIORITIES, LEAD_SOURCES } = await import('../composables/lead/useLeadLabels')
 
 describe('useLeadLabels', () => {
   beforeEach(() => {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { computeOnboardingSteps, isOnboardingComplete, onboardingStorageKey } from '../utils/onboarding'
+import { computeOnboardingSteps, isOnboardingComplete, onboardingStorageKey } from '../utils/account/onboarding'
 
 const emptyInputs = {
   profile: null,

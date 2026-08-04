@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 // Le composable appelle onUnmounted (auto-importé Nuxt) : en env node, on le neutralise.
 vi.stubGlobal('onUnmounted', vi.fn())
 
-const { useCatchUpRefresh } = await import('../composables/useCatchUpRefresh')
+const { useCatchUpRefresh } = await import('../composables/core/useCatchUpRefresh')
 
 describe('useCatchUpRefresh', () => {
   beforeEach(() => {

@@ -4,7 +4,7 @@ const apiMock = vi.fn()
 vi.stubGlobal('useApi', () => apiMock)
 vi.stubGlobal('useState', (_key: string, init: () => unknown) => ({ value: init() }))
 
-const { useSourcing } = await import('../composables/useSourcing')
+const { useSourcing } = await import('../composables/sourcing/useSourcing')
 
 describe('useSourcing', () => {
   beforeEach(() => {

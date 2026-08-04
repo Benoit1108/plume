@@ -24,7 +24,10 @@ export default defineNuxtConfig({
   components: [{ path: '~/components', pathPrefix: false }],
 
   // Auto-import des hooks TanStack Query (chantier 3, lot D) — évite un import par page.
+  // `dirs` en globs récursifs : composables/ et utils/ sont rangés par domaine en sous-dossiers, or
+  // l'auto-import Nuxt n'est PAS récursif par défaut → on l'étend explicitement.
   imports: {
+    dirs: ['composables/**', 'utils/**'],
     presets: [{ from: '@tanstack/vue-query', imports: ['useQuery', 'useMutation', 'useQueryClient'] }],
   },
 

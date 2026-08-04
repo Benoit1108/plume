@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { toOrganizationInput } from '../utils/organization-form'
+import { toOrganizationInput } from '../utils/directory/organization-form'
 
 describe('toOrganizationInput', () => {
   it('normalise la saisie complète', () => {

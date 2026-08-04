@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { errorDetail, errorToastTitle, isConflict } from '../utils/apiError'
+import { errorDetail, errorToastTitle, isConflict } from '../utils/core/apiError'
 
 const t = (key: string): string => key
 

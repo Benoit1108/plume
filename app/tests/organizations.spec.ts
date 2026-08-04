@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { suggestDuplicateOrganizations } from '../utils/organizations'
+import { suggestDuplicateOrganizations } from '../utils/directory/organizations'
 
 const orgs = [
   { id: '1', name: 'Éditions du Nord' },

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { Lead, LeadAction, LeadStatus } from '../types/leads'
-import { ACTION_FOR_STATUS, kanbanActionFor } from '../utils/kanban'
+import { ACTION_FOR_STATUS, kanbanActionFor } from '../utils/lead/kanban'
 
 /** Fabrique une piste minimale pour la logique DnD (seuls statut + actions comptent). */
 function lead(status: LeadStatus, allowedActions: LeadAction[]): Pick<Lead, 'status' | 'allowedActions'> {
