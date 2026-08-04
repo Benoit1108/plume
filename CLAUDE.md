@@ -45,6 +45,12 @@ Cœur métier = **pipeline de prospection + relances**. Voir `README.md` et `doc
 - VOs immuables, validation dans le constructeur (échec = `InvalidValue`).
 - Nommage du **code en anglais** (classes, méthodes, events, propriétés) via la table de correspondance du glossaire ; **pas d'identifiants accentués**. Le vocabulaire **métier reste français** dans l'UI et la doc.
 - Front : TypeScript strict, ESLint, composants Vue en `<script setup>`, libellés métier centralisés (`useDirectoryLabels` + locales i18n).
+- **Structure front par DOMAINE** : `components/`, `composables/`, `utils/` sont rangés en sous-dossiers par domaine
+  (`ui`/`core` pour le transverse, puis `admin`, `lead`, `directory`, `settings`, `dashboard`…). L'auto-import Nuxt le
+  permet via `components.pathPrefix: false` (le nom reste le nom de fichier) et `imports.dirs: ['composables/**', 'utils/**']`
+  (scan récursif). `types/` sépare `generated/` (contrat OpenAPI, **ne pas éditer**, régénéré par `gen:types`) de
+  `domain/` (contrats applicatifs à la main). `pages/` reste plat (routing par fichier Nuxt). **Nouveau fichier → dans le
+  sous-dossier de son domaine** ; les tests vitest importent en relatif (`../composables/<domaine>/…`).
 
 ## Tests
 
