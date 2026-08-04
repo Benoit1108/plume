@@ -87,3 +87,30 @@ h1, h2, h3, .font-display { font-family: var(--font-serif); }
   .grow-y,
   .grow-x { transition: none !important; animation: none !important; }
 }
+
+/* ---------------------------------------------------------------------------
+   Vitrine — signature « encre » : halo radial derrière le hero + tracé de
+   l'arabesque de plume au chargement. Sobre, sur-mesure de la marque violette.
+--------------------------------------------------------------------------- */
+.ink-bloom {
+  background:
+    radial-gradient(52% 46% at 50% -6%, color-mix(in oklab, var(--color-plume-500) 20%, transparent), transparent 72%),
+    radial-gradient(36% 30% at 84% 6%, color-mix(in oklab, var(--color-plume-400) 12%, transparent), transparent 70%);
+}
+.dark .ink-bloom {
+  background:
+    radial-gradient(52% 46% at 50% -6%, color-mix(in oklab, var(--color-plume-400) 26%, transparent), transparent 72%),
+    radial-gradient(36% 30% at 84% 6%, color-mix(in oklab, var(--color-plume-500) 18%, transparent), transparent 70%);
+}
+
+/* Arabesque qui se dessine (pathLength normalisé à 1 côté SVG). */
+@keyframes plume-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+.ink-draw {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: plume-draw 1.2s cubic-bezier(0.65, 0, 0.35, 1) 0.35s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ink-draw { animation: none !important; stroke-dashoffset: 0; }
+}

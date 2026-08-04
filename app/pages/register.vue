@@ -59,7 +59,9 @@ async function resend(): Promise<void> {
     </div>
     <UCard class="w-full max-w-sm">
       <div class="flex flex-col gap-1.5">
-        <PlumeMark :size="30" />
+        <NuxtLink to="/" class="inline-flex w-fit rounded-md focus-visible:outline-2 focus-visible:outline-primary" :aria-label="t('nav.home')">
+          <PlumeMark :size="30" />
+        </NuxtLink>
         <p class="text-sm text-muted">{{ t('auth.register.intro') }}</p>
       </div>
 

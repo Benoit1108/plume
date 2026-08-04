@@ -774,6 +774,8 @@
       "demoNote": "ou testez la démo, sans inscription"
     },
     "features": {
+      "eyebrow": "Fonctionnalités",
+      "title": "Tout ce qu'il faut pour prospecter sans y penser",
       "pipeline": { "icon": "i-lucide-target", "title": "Pipeline & relances", "text": "Un tableau clair de vos pistes, des relances automatiques au bon rythme, et l'écran « Aujourd'hui » qui vous dit quoi faire." },
       "replies": { "icon": "i-lucide-mail-check", "title": "Réponses captées", "text": "Vos messages partent de votre propre boîte ; les réponses se rattachent automatiquement à la bonne piste." },
       "drafting": { "icon": "i-lucide-sparkles", "title": "Rédaction assistée", "text": "Des brouillons personnalisés à partir de votre profil — à vous de peaufiner, jamais de page blanche." },
@@ -781,6 +783,9 @@
       "dashboard": { "icon": "i-lucide-line-chart", "title": "Tableau de bord", "text": "Taux de réponse, conversion, valeur du pipeline, régularité : vous savez ce qui marche." }
     },
     "pricing": {
+      "eyebrow": "Tarif",
+      "title": "Un seul plan, tout compris",
+      "trust": "Sans engagement, résiliation en un clic.",
       "planName": "Pro",
       "badge": "Essai 14 j",
       "monthly": "12 €",
@@ -797,6 +802,34 @@
     },
     "demo": {
       "error": "Impossible de lancer la démo. Réessayez."
+    },
+    "how": {
+      "eyebrow": "Comment ça marche",
+      "title": "Trois gestes, au même endroit",
+      "find": { "icon": "i-lucide-search", "title": "Repérez", "text": "Ajoutez vos maisons d'édition, studios et agences — ou laissez le sourcing vous les apporter." },
+      "write": { "icon": "i-lucide-pen-line", "title": "Écrivez & relancez", "text": "Des brouillons prêts à peaufiner, envoyés depuis votre boîte, relancés au bon rythme." },
+      "track": { "icon": "i-lucide-list-checks", "title": "Suivez", "text": "Chaque réponse se rattache à la bonne piste ; « Aujourd'hui » vous dit quoi faire ensuite." }
+    },
+    "preview": {
+      "title": "Aujourd'hui",
+      "caption": "Ce que Plume vous dit de faire aujourd'hui",
+      "goal": "Objectif de la semaine",
+      "status": {
+        "due": "Relance à envoyer",
+        "replied": "Réponse reçue",
+        "dormant": "À réactiver"
+      }
+    },
+    "audience": {
+      "eyebrow": "Pour qui",
+      "title": "Pensé pour les traductrices indépendantes",
+      "editorial": { "icon": "i-lucide-book-open", "title": "Édition", "text": "Romans, essais, jeunesse : suivez maisons et collections sans rien oublier." },
+      "audiovisual": { "icon": "i-lucide-clapperboard", "title": "Audiovisuel", "text": "Doublage et sous-titrage : gardez le fil des studios et des projets." },
+      "technical": { "icon": "i-lucide-wrench", "title": "Technique", "text": "Agences et clients directs : un pipeline clair, des relances qui tiennent." }
+    },
+    "cta": {
+      "title": "Prête à décrocher plus de clients ?",
+      "text": "Commencez l'essai gratuit — 14 jours, sans carte. Ou testez la démo tout de suite."
     }
   },
   "billing": {

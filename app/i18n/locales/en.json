@@ -774,6 +774,8 @@
       "demoNote": "or try the demo, no sign-up"
     },
     "features": {
+      "eyebrow": "Features",
+      "title": "Everything you need to prospect with ease",
       "pipeline": { "icon": "i-lucide-target", "title": "Pipeline & follow-ups", "text": "A clear board of your leads, automatic follow-ups at the right pace, and a « Today » screen that tells you what to do." },
       "replies": { "icon": "i-lucide-mail-check", "title": "Replies captured", "text": "Your messages go out from your own inbox; replies attach automatically to the right lead." },
       "drafting": { "icon": "i-lucide-sparkles", "title": "AI-assisted drafting", "text": "Personalized drafts from your profile — you refine, never a blank page." },
@@ -781,6 +783,9 @@
       "dashboard": { "icon": "i-lucide-line-chart", "title": "Dashboard", "text": "Response rate, conversion, pipeline value, consistency: you know what works." }
     },
     "pricing": {
+      "eyebrow": "Pricing",
+      "title": "One plan, everything included",
+      "trust": "No commitment, cancel in one click.",
       "planName": "Pro",
       "badge": "14-day trial",
       "monthly": "€12",
@@ -797,6 +802,34 @@
     },
     "demo": {
       "error": "Could not start the demo. Please try again."
+    },
+    "how": {
+      "eyebrow": "How it works",
+      "title": "Three moves, all in one place",
+      "find": { "icon": "i-lucide-search", "title": "Find", "text": "Add your publishers, studios and agencies — or let sourcing bring them to you." },
+      "write": { "icon": "i-lucide-pen-line", "title": "Write & follow up", "text": "Drafts ready to polish, sent from your own inbox, followed up at the right pace." },
+      "track": { "icon": "i-lucide-list-checks", "title": "Track", "text": "Every reply attaches to the right lead; « Today » tells you what to do next." }
+    },
+    "preview": {
+      "title": "Today",
+      "caption": "What Plume tells you to do today",
+      "goal": "This week's goal",
+      "status": {
+        "due": "Follow-up due",
+        "replied": "Replied",
+        "dormant": "Re-engage"
+      }
+    },
+    "audience": {
+      "eyebrow": "Who it's for",
+      "title": "Built for freelance translators",
+      "editorial": { "icon": "i-lucide-book-open", "title": "Publishing", "text": "Fiction, essays, children's books: track publishers and imprints without dropping a thread." },
+      "audiovisual": { "icon": "i-lucide-clapperboard", "title": "Audiovisual", "text": "Dubbing and subtitling: keep track of studios and projects." },
+      "technical": { "icon": "i-lucide-wrench", "title": "Technical", "text": "Agencies and direct clients: a clear pipeline, follow-ups that hold." }
+    },
+    "cta": {
+      "title": "Ready to win more clients?",
+      "text": "Start your free trial — 14 days, no card. Or try the demo right now."
     }
   },
   "billing": {
