@@ -842,7 +842,10 @@
       "dashboardCaption": "Vous savez ce qui marche",
       "kpiResponse": "Taux de réponse",
       "kpiFollowups": "Relances / sem.",
-      "kpiPipeline": "Pipeline actif"
+      "kpiPipeline": "Pipeline actif",
+      "tagNovel": "Édition · roman",
+      "tagChildren": "Édition · jeunesse",
+      "tagDubbing": "Doublage"
     }
   },
   "billing": {

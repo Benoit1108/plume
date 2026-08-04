@@ -31,9 +31,9 @@ const todayRows = [
   { name: 'Agence Verba', status: 'dormant', color: 'neutral', icon: 'i-lucide-moon' },
 ] as const
 
-const pipelineCols: { key: string, count: number, cards: { name: string, meta?: string }[] }[] = [
-  { key: 'colToContact', count: 4, cards: [{ name: 'Éditions Margelle' }, { name: 'Maison Aster' }] },
-  { key: 'colInTalks', count: 2, cards: [{ name: 'Studio Bleu Nuit' }] },
+const pipelineCols: { key: string, count: number, cards: { name: string, meta?: string, metaKey?: string }[] }[] = [
+  { key: 'colToContact', count: 4, cards: [{ name: 'Éditions Margelle', metaKey: 'landing.showcase.tagNovel' }, { name: 'Maison Aster', metaKey: 'landing.showcase.tagChildren' }] },
+  { key: 'colInTalks', count: 2, cards: [{ name: 'Studio Bleu Nuit', metaKey: 'landing.showcase.tagDubbing' }] },
   { key: 'colWon', count: 3, cards: [{ name: 'Agence Verba', meta: '2 400 €' }] },
 ]
 
@@ -161,24 +161,26 @@ onMounted(() => {
       const seed = () => {
         w = canvas.width = window.innerWidth
         h = canvas.height = window.innerHeight
-        dust = Array.from({ length: 64 }, () => ({
+        dust = Array.from({ length: 90 }, () => ({
           x: Math.random() * w,
           y: Math.random() * h,
-          r: Math.random() * 1.8 + 0.4,
-          s: Math.random() * 0.25 + 0.05,
-          a: Math.random() * 0.35 + 0.05,
-          d: (Math.random() - 0.5) * 0.2,
+          r: Math.random() * 2.2 + 0.5,
+          s: Math.random() * 0.28 + 0.05,
+          a: Math.random() * 0.4 + 0.14,
+          d: (Math.random() - 0.5) * 0.22,
         }))
       }
       const loop = () => {
         ctx.clearRect(0, 0, w, h)
+        // Couleur selon le thème : violet clair sur fond sombre, violet profond sur fond clair.
+        const rgb = document.documentElement.classList.contains('dark') ? '176, 158, 246' : '104, 80, 194'
         for (const p of dust) {
           p.y -= p.s
           p.x += p.d
           if (p.y < -5) { p.y = h + 5; p.x = Math.random() * w }
           ctx.beginPath()
           ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2)
-          ctx.fillStyle = `rgba(155, 135, 217, ${p.a})`
+          ctx.fillStyle = `rgba(${rgb}, ${p.a})`
           ctx.fill()
         }
         raf = requestAnimationFrame(loop)
@@ -198,7 +200,7 @@ onBeforeUnmount(() => { cleanups.forEach(fn => fn()); cleanups = [] })
 <template>
   <div ref="root" class="relative min-h-screen bg-default text-default flex flex-col">
     <div ref="progress" class="fixed top-0 left-0 h-0.5 w-0 z-[60]" style="background: linear-gradient(90deg, var(--color-plume-600), var(--color-plume-300))" aria-hidden="true" />
-    <canvas ref="motes" class="pointer-events-none fixed inset-0 z-0 opacity-70" aria-hidden="true" />
+    <canvas ref="motes" class="pointer-events-none fixed inset-0 z-0" aria-hidden="true" />
 
     <!-- Marque « plume » réutilisable (fond ambiant + bandeau CTA) -->
     <svg class="hidden" aria-hidden="true">
@@ -240,14 +242,14 @@ onBeforeUnmount(() => { cleanups.forEach(fn => fn()); cleanups = [] })
           aria-hidden="true"
         ><use href="#plume-quill" /></svg>
 
-        <div class="relative z-10 max-w-3xl mx-auto px-4 sm:px-8 pt-24 pb-8 text-center">
+        <div class="relative z-10 max-w-4xl mx-auto px-4 sm:px-8 pt-24 pb-8 text-center">
           <p class="enter font-mono text-xs uppercase tracking-[0.2em] text-primary" style="animation-delay: 0.05s">{{ t('landing.hero.eyebrow') }}</p>
           <div class="relative mt-4 inline-block">
             <h1 class="font-serif text-4xl sm:text-6xl font-semibold text-balance leading-[1.05]">
               <span v-for="(w, i) in titleWords" :key="i" class="word" :style="{ animationDelay: `${0.12 + i * 0.06}s` }">{{ w }}</span>
             </h1>
             <svg
-              class="ink-draw pointer-events-none absolute left-1/2 top-full w-48 sm:w-64 -translate-x-1/2 mt-3 text-primary/70"
+              class="ink-draw pointer-events-none absolute left-1/2 top-full w-48 sm:w-64 -translate-x-1/2 mt-5 text-primary/70"
               viewBox="0 0 320 28"
               fill="none"
               aria-hidden="true"
@@ -255,7 +257,7 @@ onBeforeUnmount(() => { cleanups.forEach(fn => fn()); cleanups = [] })
               <path d="M8 18C70 6 138 5 184 13S276 22 312 9" stroke="currentColor" stroke-width="3" stroke-linecap="round" pathLength="1" />
             </svg>
           </div>
-          <p class="enter mt-6 text-lg text-muted max-w-2xl mx-auto text-pretty" style="animation-delay: 0.5s">{{ t('landing.hero.subtitle') }}</p>
+          <p class="enter mt-12 text-lg text-muted max-w-2xl mx-auto text-pretty" style="animation-delay: 0.5s">{{ t('landing.hero.subtitle') }}</p>
           <div class="enter mt-8 flex items-center justify-center gap-3 flex-wrap" style="animation-delay: 0.6s">
             <UButton to="/register" size="lg" icon="i-lucide-arrow-right" trailing>{{ t('landing.hero.cta') }}</UButton>
             <UButton size="lg" color="neutral" variant="outline" icon="i-lucide-play" :loading="enteringDemo" @click="tryDemo">{{ t('landing.hero.demoCta') }}</UButton>
@@ -264,7 +266,7 @@ onBeforeUnmount(() => { cleanups.forEach(fn => fn()); cleanups = [] })
         </div>
 
         <!-- Vitrine produit : carrousel -->
-        <div ref="showcase" class="relative z-10 max-w-2xl mx-auto px-4 sm:px-8 pb-20 [perspective:1400px]">
+        <div ref="showcase" class="relative z-10 max-w-3xl mx-auto px-4 sm:px-8 pb-20 [perspective:1400px]">
           <div ref="frame" class="frame rounded-2xl border border-default bg-elevated shadow-2xl shadow-primary/10 overflow-hidden will-change-transform">
             <div class="flex items-center gap-1.5 h-10 px-4 border-b border-default bg-muted/50">
               <span class="size-2.5 rounded-full bg-default/60" aria-hidden="true" />
@@ -308,7 +310,7 @@ onBeforeUnmount(() => { cleanups.forEach(fn => fn()); cleanups = [] })
                     </div>
                     <div v-for="c in col.cards" :key="c.name" class="rounded-md bg-muted/60 p-2 mb-1.5">
                       <div class="text-xs font-medium truncate">{{ c.name }}</div>
-                      <div v-if="c.meta" class="text-[11px] text-dimmed mt-0.5 font-mono">{{ c.meta }}</div>
+                      <div v-if="c.metaKey || c.meta" class="text-[11px] text-dimmed mt-0.5 truncate" :class="{ 'font-mono': c.meta }">{{ c.metaKey ? t(c.metaKey) : c.meta }}</div>
                     </div>
                   </div>
                 </div>
@@ -354,9 +356,10 @@ onBeforeUnmount(() => { cleanups.forEach(fn => fn()); cleanups = [] })
           <ol class="mt-12 grid gap-8 sm:grid-cols-3">
             <li v-for="(s, i) in steps" :key="s" class="reveal" :style="{ transitionDelay: `${i * 0.1}s` }">
               <div class="flex items-center gap-3">
+                <span class="grid size-10 place-items-center rounded-xl bg-primary/10 text-primary shrink-0">
+                  <UIcon :name="t(`landing.how.${s}.icon`)" class="size-5" aria-hidden="true" />
+                </span>
                 <span class="font-mono text-sm text-primary tabular-nums">0{{ i + 1 }}</span>
-                <span class="h-px flex-1 bg-default" aria-hidden="true" />
-                <UIcon :name="t(`landing.how.${s}.icon`)" class="size-5 text-primary" aria-hidden="true" />
               </div>
               <h3 class="mt-4 font-serif text-xl font-semibold">{{ t(`landing.how.${s}.title`) }}</h3>
               <p class="mt-2 text-sm text-muted text-pretty">{{ t(`landing.how.${s}.text`) }}</p>

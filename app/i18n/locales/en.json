@@ -842,7 +842,10 @@
       "dashboardCaption": "You know what works",
       "kpiResponse": "Response rate",
       "kpiFollowups": "Follow-ups / wk",
-      "kpiPipeline": "Active pipeline"
+      "kpiPipeline": "Active pipeline",
+      "tagNovel": "Publishing · novel",
+      "tagChildren": "Publishing · kids",
+      "tagDubbing": "Dubbing"
     }
   },
   "billing": {
