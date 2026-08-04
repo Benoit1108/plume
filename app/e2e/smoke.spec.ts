@@ -29,7 +29,8 @@ test('« Essayer la démo » monte un compte éphémère et connecte le visiteur
   const errors = watchConsole(page)
 
   await page.goto('/')
-  await page.getByRole('button', { name: /essayer la démo|try the demo/i }).click()
+  // Le bouton « Essayer la démo » figure dans le hero ET le bandeau CTA de bas de page.
+  await page.getByRole('button', { name: /essayer la démo|try the demo/i }).first().click()
 
   // Login sans mot de passe : l'API pose les cookies et on arrive dans l'app.
   await page.waitForURL('**/today')
