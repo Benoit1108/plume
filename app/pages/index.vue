@@ -65,12 +65,12 @@ async function tryDemo() {
           <div class="relative mt-4 inline-block">
             <h1 class="font-serif text-4xl sm:text-6xl font-semibold text-balance leading-[1.05]">{{ t('landing.hero.title') }}</h1>
             <svg
-              class="ink-draw pointer-events-none absolute left-1/2 bottom-0 w-56 sm:w-72 -translate-x-1/2 translate-y-3 text-primary/80"
-              viewBox="0 0 320 40"
+              class="ink-draw pointer-events-none absolute left-1/2 top-full w-48 sm:w-64 -translate-x-1/2 mt-3 text-primary/70"
+              viewBox="0 0 320 28"
               fill="none"
               aria-hidden="true"
             >
-              <path d="M8 27C64 9 132 8 180 21S276 33 312 13" stroke="currentColor" stroke-width="3" stroke-linecap="round" pathLength="1" />
+              <path d="M8 18C70 6 138 5 184 13S276 22 312 9" stroke="currentColor" stroke-width="3" stroke-linecap="round" pathLength="1" />
             </svg>
           </div>
           <p class="mt-6 text-lg text-muted max-w-2xl mx-auto text-pretty">{{ t('landing.hero.subtitle') }}</p>
