@@ -292,6 +292,7 @@ type ajouté à la matrice de préférences de notif + à la cloche + cible pist
 préférence `profile.weekly_report_enabled` (opt-out ; champ d'agrégat + event) ; tick quotidien
 `SendWeeklyReportsHandler` agissant le **lundi** (fenêtre glissante 7 j, aucun état) → email bilingue via
 `AccountMailer.sendWeeklyReport` (chiffres AGRÉGÉS sans PII : démarches + réponses + objectif) ; n'envoie rien une
-semaine sans activité / hors lundi / aux comptes coupés-supprimés-non vérifiés ; case à cocher dans Réglages. Reste
-V2.4 : **PWA installable** (l'**objectif hebdo + série** existent déjà dans Aujourd'hui ; « Modèles de messages »
-déjà livrée).
+semaine sans activité / hors lundi / aux comptes coupés-supprimés-non vérifiés ; case à cocher dans Réglages.
+**→ V2.4 complète côté buildable** (Modèles + Objectif/série existaient déjà ; Dormants + Bilan hebdo livrés). **PWA
+(installable + push) REPORTÉE à l'hébergement** (décision Benoit) : push = VAPID + HTTPS stable, et icônes maskable
+192/512 manquantes (public/ vide) → regroupée avec la mise en prod.

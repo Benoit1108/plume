@@ -147,7 +147,8 @@ Fondations techniques.
 - [~] **V2.4** Accélérer & fidéliser : **modèles de messages** ✅ (contexte `Template`, champs de fusion) +
       **réactivation des clients dormants** ✅ (seuil par tenant, section « À réactiver » dans Aujourd'hui, tick de
       rappel mensuel `client_dormant`) + **objectif hebdo & série** ✅ (Aujourd'hui) + **bilan hebdo par email** ✅
-      (tick du lundi, récap agrégé bilingue, opt-out). Reste : PWA installable.
+      (tick du lundi, récap agrégé bilingue, opt-out). **PWA (installable + push) REPORTÉE à l'hébergement** (décision
+      Benoit) : le push exige VAPID + HTTPS stable, et les icônes maskable manquent → regroupée avec la mise en prod.
 - [~] **V2.3** Enrichissement : **séquences de relance configurables** ✅ + **annuaire pré-rempli** ✅ +
       **pipeline personnalisable** ✅ (libellés d'étapes, machine à états figée — ADR-0031) +
       **dashboard enrichi** ✅ (délai moyen de 1re réponse + export CSV + **valeur estimée** des pistes +
