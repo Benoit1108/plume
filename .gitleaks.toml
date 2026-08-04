@@ -1,0 +1,17 @@
+# Configuration gitleaks — étend les règles par défaut (aucune règle retirée).
+#
+# Seul ajout : le MODÈLE d'environnement de prod est mis en allowlist. Ce fichier
+# ne contient QUE des placeholders (les vraies valeurs vivent dans api/.env.local,
+# gitignoré + présent dans .dockerignore). La règle par défaut generic-api-key y
+# produit un faux positif en matchant à cheval sur deux lignes
+# (« ANTHROPIC_API_KEY= » vide, suivi de « AI_GENERATION_ENABLED=1 »).
+title = "Plume gitleaks config"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Modèle d'environnement de prod (placeholders uniquement, jamais de vraie valeur)"
+paths = [
+  '''api/\.env\.prod\.example''',
+]
