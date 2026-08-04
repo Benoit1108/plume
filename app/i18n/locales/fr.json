@@ -830,6 +830,19 @@
     "cta": {
       "title": "Prête à décrocher plus de clients ?",
       "text": "Commencez l'essai gratuit — 14 jours, sans carte. Ou testez la démo tout de suite."
+    },
+    "showcase": {
+      "todayTab": "Aujourd'hui",
+      "pipelineTab": "Pipeline",
+      "dashboardTab": "Tableau de bord",
+      "pipelineCaption": "Votre pipeline, d'un coup d'œil",
+      "colToContact": "À contacter",
+      "colInTalks": "En discussion",
+      "colWon": "Gagné",
+      "dashboardCaption": "Vous savez ce qui marche",
+      "kpiResponse": "Taux de réponse",
+      "kpiFollowups": "Relances / sem.",
+      "kpiPipeline": "Pipeline actif"
     }
   },
   "billing": {

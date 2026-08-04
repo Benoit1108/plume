@@ -830,6 +830,19 @@
     "cta": {
       "title": "Ready to win more clients?",
       "text": "Start your free trial — 14 days, no card. Or try the demo right now."
+    },
+    "showcase": {
+      "todayTab": "Today",
+      "pipelineTab": "Pipeline",
+      "dashboardTab": "Dashboard",
+      "pipelineCaption": "Your pipeline at a glance",
+      "colToContact": "To contact",
+      "colInTalks": "In talks",
+      "colWon": "Won",
+      "dashboardCaption": "You know what works",
+      "kpiResponse": "Response rate",
+      "kpiFollowups": "Follow-ups / wk",
+      "kpiPipeline": "Active pipeline"
     }
   },
   "billing": {
