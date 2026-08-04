@@ -1,6 +1,5 @@
 <script setup lang="ts">
 const { t } = useI18n()
-const auth = useAuthStore()
 const route = useRoute()
 
 const navOpen = ref(false)
@@ -51,14 +50,7 @@ watch(() => route.path, () => {
         <NotificationBell />
         <LocaleSwitcher />
         <ThemeToggle />
-        <UButton
-          color="neutral"
-          variant="ghost"
-          size="sm"
-          icon="i-lucide-log-out"
-          :aria-label="t('auth.logout')"
-          @click="auth.logout()"
-        />
+        <AccountMenu />
       </header>
       <main class="flex-1 min-w-0">
         <DemoBanner />

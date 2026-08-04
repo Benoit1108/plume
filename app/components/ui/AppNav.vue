@@ -18,7 +18,7 @@ const nav = computed((): { label: string, to: string, icon: string, badge?: numb
   { label: t('nav.directory'), to: '/organizations', icon: 'i-lucide-building-2' },
   { label: t('nav.templates'), to: '/templates', icon: 'i-lucide-file-text' },
   { label: t('nav.settings'), to: '/settings', icon: 'i-lucide-settings' },
-  { label: t('nav.account'), to: '/account', icon: 'i-lucide-circle-user' },
+  // Le compte n'est plus un onglet : il vit dans le menu avatar de l'en-tête (AccountMenu).
   // Back-office : visible pour les admins seulement (l'autorité reste l'API — ROLE_ADMIN).
   ...(auth.isAdmin ? [{ label: t('nav.admin'), to: '/admin', icon: 'i-lucide-shield' }] : []),
 ])
