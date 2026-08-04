@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { AdminAuditEntry } from '~/types/admin'
+import type { AdminAuditEntry } from '~/types/domain/admin'
 
 /** Back-office — journal d'audit hors tenant : les 100 dernières actions sensibles. */
 const { t, locale } = useI18n()

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Lead, LeadAction } from '~/types/leads'
+import type { Lead, LeadAction } from '~/types/domain/leads'
 
 const route = useRoute()
 const id = route.params.id as string

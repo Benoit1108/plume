@@ -1,4 +1,4 @@
-import type { Schemas } from './api-schemas'
+import type { Schemas } from '../generated/api-schemas'
 
 // Type stable dérivé du contrat OpenAPI (drift détecté si le back change).
 export type NotificationType = Schemas['Notification-notification.read']['type']

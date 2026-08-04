@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Dashboard, DashboardPeriod } from '~/types/dashboard'
+import type { Dashboard, DashboardPeriod } from '~/types/domain/dashboard'
 
 const { t, locale } = useI18n()
 const { segmentLabel } = useDirectoryLabels()

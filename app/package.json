@@ -8,7 +8,7 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "gen:types": "openapi-typescript ../api/openapi.json -o types/api-generated.ts",
+    "gen:types": "openapi-typescript ../api/openapi.json -o types/generated/api-generated.ts",
     "lint": "eslint .",
     "type-check": "nuxt typecheck",
     "test": "vitest run",

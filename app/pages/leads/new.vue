@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { Organization, Segment } from '~/types/directory'
-import type { LeadInput, LeadPriority, LeadSource } from '~/types/leads'
+import type { Organization, Segment } from '~/types/domain/directory'
+import type { LeadInput, LeadPriority, LeadSource } from '~/types/domain/leads'
 
 const { t } = useI18n()
 const { segmentOptions } = useDirectoryLabels()

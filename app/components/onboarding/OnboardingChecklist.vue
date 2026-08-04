@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Profile } from '~/types/leads'
+import type { Profile } from '~/types/domain/leads'
 
 /**
  * Checklist « Bien démarrer » (onboarding V2.1) sur Aujourd'hui. Les étapes sont dérivées des

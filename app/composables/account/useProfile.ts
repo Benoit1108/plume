@@ -1,4 +1,4 @@
-import type { Profile } from '~/types/leads'
+import type { Profile } from '~/types/domain/leads'
 
 /** Profil (objectif hebdomadaire, fuseau, présentation pour la rédaction assistée). */
 export function useProfile() {

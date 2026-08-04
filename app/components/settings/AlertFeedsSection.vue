@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { AlertFeed } from '~/types/sourcing'
+import type { AlertFeed } from '~/types/domain/sourcing'
 
 /** Réglages — sources d'annonces (M3.1b) : flux RSS relevés dans « À trier ». */
 const { t } = useI18n()

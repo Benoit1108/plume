@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Organization } from '~/types/directory'
+import type { Organization } from '~/types/domain/directory'
 
 const { t } = useI18n()
 const { typeLabel, segmentLabel, typeOptions } = useDirectoryLabels()

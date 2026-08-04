@@ -1,4 +1,4 @@
-import type { Lead, LeadAction, LeadStatus } from '~/types/leads'
+import type { Lead, LeadAction, LeadStatus } from '~/types/domain/leads'
 
 /**
  * Statut cible d'une colonne kanban -> action métier qui y mène.

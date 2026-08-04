@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { CatalogEntry } from '~/types/directory'
+import type { CatalogEntry } from '~/types/domain/directory'
 
 /** Annuaire suggéré : cibles de référence à ajouter au Répertoire en un clic. */
 const { t } = useI18n()

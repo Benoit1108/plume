@@ -1,4 +1,4 @@
-import type { OrganizationInput, OrganizationType } from '~/types/directory'
+import type { OrganizationInput, OrganizationType } from '~/types/domain/directory'
 
 /** État interne du formulaire organisation (chaînes brutes de saisie). */
 export interface OrgFormModel {

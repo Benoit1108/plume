@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Profile } from '~/types/leads'
+import type { Profile } from '~/types/domain/leads'
 
 /** Réglages du profil (objectif, cadence, digest, préférences de notif, libellés pipeline, présentation). */
 const { t } = useI18n()

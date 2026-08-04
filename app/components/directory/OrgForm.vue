@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { OrganizationInput } from '~/types/directory'
+import type { OrganizationInput } from '~/types/domain/directory'
 import type { OrgFormModel } from '~/utils/directory/organization-form'
 
 const props = defineProps<{

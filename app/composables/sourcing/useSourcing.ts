@@ -1,5 +1,5 @@
-import type { JsonLdCollection } from '~/types/api'
-import type { AlertFeed, AlertFeedInput, CandidateAcceptInput, CandidateLead, CandidateMergeInput } from '~/types/sourcing'
+import type { JsonLdCollection } from '~/types/domain/api'
+import type { AlertFeed, AlertFeedInput, CandidateAcceptInput, CandidateLead, CandidateMergeInput } from '~/types/domain/sourcing'
 
 /** Client de la file de tri (Sourcing, M3). `pendingCount` est partagé (badge de nav). */
 export function useSourcing() {

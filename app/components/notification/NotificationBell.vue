@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { AppNotification } from '~/types/notifications'
+import type { AppNotification } from '~/types/domain/notifications'
 
 /**
  * Cloche du centre de notifications (header). Rafraîchi en douceur par polling (60 s) — le badge

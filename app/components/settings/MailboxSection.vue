@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Mailbox } from '~/types/mailbox'
+import type { Mailbox } from '~/types/domain/mailbox'
 
 /** Réglages — boîte email connectée (M2.1) : connexion OAuth, relèves manuelles, révocation. */
 const { t, locale } = useI18n()

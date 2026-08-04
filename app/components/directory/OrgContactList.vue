@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Contact, ContactInput } from '~/types/directory'
+import type { Contact, ContactInput } from '~/types/domain/directory'
 
 /**
  * Répertoire — liste des contacts d'une organisation + CRUD (ajout / édition inline / suppression).

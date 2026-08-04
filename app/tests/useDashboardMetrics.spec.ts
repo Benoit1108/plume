@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { computed, ref } from 'vue'
-import type { Dashboard } from '../types/dashboard'
+import type { Dashboard } from '../types/domain/dashboard'
 
 vi.stubGlobal('computed', computed)
 vi.stubGlobal('ref', ref)

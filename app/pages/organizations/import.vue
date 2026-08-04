@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ImportResult } from '~/types/directory'
+import type { ImportResult } from '~/types/domain/directory'
 
 const { t } = useI18n()
 const directory = useDirectory()

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { AdminAlerts } from '~/types/admin'
+import type { AdminAlerts } from '~/types/domain/admin'
 
 /** Back-office — santé & alertes : la liste « à regarder » (inactifs, boîtes en erreur, vérifs en souffrance). */
 const { t } = useI18n()

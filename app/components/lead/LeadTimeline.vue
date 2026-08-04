@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Interaction } from '~/types/leads'
+import type { Interaction } from '~/types/domain/leads'
 
 /**
  * Journal d'une piste : ajout de note + liste des interactions. Auto-suffisant (query + rattrapage

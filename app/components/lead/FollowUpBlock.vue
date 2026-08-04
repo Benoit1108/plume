@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Lead } from '~/types/leads'
+import type { Lead } from '~/types/domain/leads'
 
 /**
  * Bloc « Prochaine relance » d'une piste : état de la relance planifiée + (re)planification / annulation.

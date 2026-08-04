@@ -1,5 +1,5 @@
-import type { Interaction, Lead, LeadAction, LeadInput } from '~/types/leads'
-import type { JsonLdCollection } from '~/types/api'
+import type { Interaction, Lead, LeadAction, LeadInput } from '~/types/domain/leads'
+import type { JsonLdCollection } from '~/types/domain/api'
 
 
 /** Client de l'API Pipeline (via useApi : Bearer + proxy /api en dev). */

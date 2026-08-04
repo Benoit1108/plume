@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Subscription } from '~/types/billing'
+import type { Subscription } from '~/types/domain/billing'
 
 /** Bandeau « lecture seule » (V2.2) : visible quand l'abonnement ne donne plus le droit d'écrire. */
 const { t } = useI18n()

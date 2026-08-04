@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { AdminAccount } from '~/types/admin'
+import type { AdminAccount } from '~/types/domain/admin'
 
 /**
  * Back-office — table des comptes : recherche/filtre/tri/export + actions (reset 2FA, suppression RGPD

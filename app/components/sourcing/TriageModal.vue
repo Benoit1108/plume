@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import type { Organization, OrganizationType, Segment } from '~/types/directory'
-import type { LeadPriority } from '~/types/leads'
-import type { CandidateLead } from '~/types/sourcing'
+import type { Organization, OrganizationType, Segment } from '~/types/domain/directory'
+import type { LeadPriority } from '~/types/domain/leads'
+import type { CandidateLead } from '~/types/domain/sourcing'
 
 /**
  * Tri d'un candidat : accepter (nouvelle organisation) ou fusionner (organisation existante).

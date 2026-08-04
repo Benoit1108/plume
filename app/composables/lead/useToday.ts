@@ -1,4 +1,4 @@
-import type { Today } from '~/types/leads'
+import type { Today } from '~/types/domain/leads'
 
 /** L'écran « Aujourd'hui » (relances dues, à contacter, progression hebdo). */
 export function useToday() {

@@ -1,5 +1,5 @@
-import type { AppNotification } from '~/types/notifications'
-import type { JsonLdCollection } from '~/types/api'
+import type { AppNotification } from '~/types/domain/notifications'
+import type { JsonLdCollection } from '~/types/domain/api'
 
 /** Centre de notifications : liste (50 dernières) + marquage lu. */
 export function useNotifications() {

@@ -1,5 +1,5 @@
-import type { Contact, ImportResult, Organization } from '~/types/directory'
-import type { JsonLdCollection } from '~/types/api'
+import type { Contact, ImportResult, Organization } from '~/types/domain/directory'
+import type { JsonLdCollection } from '~/types/domain/api'
 
 /** Client de l'API Répertoire (via useApi : Bearer + proxy /api en dev). */
 export function useDirectory() {

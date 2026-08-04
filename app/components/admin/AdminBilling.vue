@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { AdminBilling } from '~/types/admin'
+import type { AdminBilling } from '~/types/domain/admin'
 
 /** Back-office — abonnés par statut + revenu mensuel estimé (MRR). */
 const { t, locale } = useI18n()

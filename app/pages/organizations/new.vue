@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { OrganizationInput } from '~/types/directory'
+import type { OrganizationInput } from '~/types/domain/directory'
 
 const { t } = useI18n()
 const directory = useDirectory()

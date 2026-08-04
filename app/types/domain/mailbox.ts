@@ -1,4 +1,4 @@
-import type { Schemas } from './api-schemas'
+import type { Schemas } from '../generated/api-schemas'
 
 // Enum dérivé du contrat OpenAPI (durcissement) → drift détecté si le back change.
 export type MailboxStatus = Schemas['Mailbox-mailbox.read']['status']

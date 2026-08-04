@@ -1,5 +1,5 @@
-import type { Draft, DraftType, Template, TemplateInput } from '~/types/drafting'
-import type { JsonLdCollection } from '~/types/api'
+import type { Draft, DraftType, Template, TemplateInput } from '~/types/domain/drafting'
+import type { JsonLdCollection } from '~/types/domain/api'
 
 
 /** Client de l'API Rédaction assistée (brouillons + gabarits). */

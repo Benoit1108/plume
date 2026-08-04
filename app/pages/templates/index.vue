@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Template, TemplateInput } from '~/types/drafting'
+import type { Template, TemplateInput } from '~/types/domain/drafting'
 
 type TemplateForm = Omit<TemplateInput, 'subject'> & { subject: string }
 

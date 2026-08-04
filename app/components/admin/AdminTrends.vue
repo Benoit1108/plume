@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { AdminTrends } from '~/types/admin'
+import type { AdminTrends } from '~/types/domain/admin'
 
 /** Back-office — croissance & acquisition : comptes actifs par semaine + entonnoir d'inscription. */
 const { t, locale } = useI18n()

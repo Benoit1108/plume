@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { DraftType, Template } from '~/types/drafting'
+import type { DraftType, Template } from '~/types/domain/drafting'
 
 /**
  * Modale « Générer un brouillon » : type + langue cible + modèle, puis demande de génération

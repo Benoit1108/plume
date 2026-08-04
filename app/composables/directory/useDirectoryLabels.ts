@@ -1,4 +1,4 @@
-import type { OrganizationType } from '~/types/directory'
+import type { OrganizationType } from '~/types/domain/directory'
 
 export const ORGANIZATION_TYPES: OrganizationType[] = ['PUBLISHER', 'AV_STUDIO', 'AGENCY', 'OTHER']
 export const SEGMENTS = ['PUBLISHING', 'AUDIOVISUAL', 'TECHNICAL', 'OTHER'] as const

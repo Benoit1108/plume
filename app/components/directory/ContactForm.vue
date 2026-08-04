@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Contact, ContactInput } from '~/types/directory'
+import type { Contact, ContactInput } from '~/types/domain/directory'
 
 const props = defineProps<{
   initial?: Partial<Contact>

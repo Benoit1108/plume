@@ -1,4 +1,4 @@
-import type { LeadStatus } from '~/types/leads'
+import type { LeadStatus } from '~/types/domain/leads'
 
 /** Fenêtre temporelle des métriques du journal (taux, segments, délai). `all` = depuis le début. */
 export type DashboardPeriod = 'all' | '30d' | '90d' | '12m'

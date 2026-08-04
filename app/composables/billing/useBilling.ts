@@ -1,4 +1,4 @@
-import type { Subscription } from '~/types/billing'
+import type { Subscription } from '~/types/domain/billing'
 
 /** Abonnement (V2.2) : état + démarrage de paiement + portail de gestion. */
 export function useBilling() {

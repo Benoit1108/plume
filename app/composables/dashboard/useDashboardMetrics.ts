@@ -1,4 +1,4 @@
-import type { Dashboard } from '~/types/dashboard'
+import type { Dashboard } from '~/types/domain/dashboard'
 
 /**
  * Les calculs du tableau de bord, extraits de la page pour être testés :

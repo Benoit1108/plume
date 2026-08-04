@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Organization, OrganizationInput } from '~/types/directory'
+import type { Organization, OrganizationInput } from '~/types/domain/directory'
 
 const route = useRoute()
 const id = route.params.id as string

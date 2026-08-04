@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { LeadStatus } from '~/types/leads'
+import type { LeadStatus } from '~/types/domain/leads'
 
 /** Tableau de bord — pipeline : barre segmentée + légende (valeurs en texte pour l'a11y). */
 const props = defineProps<{ pipeline: { status: LeadStatus, count: number }[], total: number }>()

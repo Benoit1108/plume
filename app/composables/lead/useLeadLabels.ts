@@ -1,4 +1,4 @@
-import type { LeadPriority, LeadSource, LeadStatus } from '~/types/leads'
+import type { LeadPriority, LeadSource, LeadStatus } from '~/types/domain/leads'
 
 export const LEAD_STATUSES: LeadStatus[] = ['TO_CONTACT', 'CONTACTED', 'FOLLOWED_UP', 'IN_DISCUSSION', 'SAMPLE_TEST', 'WON', 'LOST', 'PAUSED']
 export const LEAD_PRIORITIES: LeadPriority[] = ['LOW', 'MEDIUM', 'HIGH']

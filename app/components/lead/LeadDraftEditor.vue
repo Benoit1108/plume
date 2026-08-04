@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Draft } from '~/types/drafting'
+import type { Draft } from '~/types/domain/drafting'
 
 /**
  * Éditeur de brouillon (relecture humaine, draft-first) : sujet + corps,

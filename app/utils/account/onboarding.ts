@@ -1,5 +1,5 @@
-import type { Profile } from '~/types/leads'
-import type { MailboxStatus } from '~/types/mailbox'
+import type { Profile } from '~/types/domain/leads'
+import type { MailboxStatus } from '~/types/domain/mailbox'
 
 /**
  * Onboarding (V2.1) : logique PURE de la checklist « Bien démarrer » affichée sur Aujourd'hui.

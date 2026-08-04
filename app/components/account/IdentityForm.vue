@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Profile } from '~/types/leads'
+import type { Profile } from '~/types/domain/leads'
 
 /** Compte — nom d'affichage (prénom / nom), matière première des signatures et du profil. */
 const { t } = useI18n()

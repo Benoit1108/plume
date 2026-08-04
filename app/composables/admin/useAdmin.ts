@@ -1,4 +1,4 @@
-import type { AdminAccount, AdminAccountDetail, AdminAlerts, AdminAuditEntry, AdminBilling, AdminMetrics, AdminOverview, AdminStatus, AdminTrends } from '~/types/admin'
+import type { AdminAccount, AdminAccountDetail, AdminAlerts, AdminAuditEntry, AdminBilling, AdminMetrics, AdminOverview, AdminStatus, AdminTrends } from '~/types/domain/admin'
 
 /** Back-office (ROLE_ADMIN) : vue d'ensemble, comptes, audit, actions support. */
 export function useAdmin() {

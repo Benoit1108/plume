@@ -1,4 +1,4 @@
-import type { CatalogEntry } from '~/types/directory'
+import type { CatalogEntry } from '~/types/domain/directory'
 
 /** Annuaire suggéré : catalogue de cibles de référence + ajout au Répertoire (endpoint interne). */
 export function useDirectoryCatalog() {

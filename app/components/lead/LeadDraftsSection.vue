@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { Draft, DraftType } from '~/types/drafting'
-import type { Mailbox } from '~/types/mailbox'
+import type { Draft, DraftType } from '~/types/domain/drafting'
+import type { Mailbox } from '~/types/domain/mailbox'
 
 const props = defineProps<{
   leadId: string

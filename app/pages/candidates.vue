@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { Organization } from '~/types/directory'
-import type { CandidateLead } from '~/types/sourcing'
+import type { Organization } from '~/types/domain/directory'
+import type { CandidateLead } from '~/types/domain/sourcing'
 
 const { t, locale } = useI18n()
 const { sourceLabel, pairLabel } = useLeadLabels()

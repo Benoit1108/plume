@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Subscription } from '~/types/billing'
+import type { Subscription } from '~/types/domain/billing'
 
 /** Réglages — abonnement (V2.2) : état + s'abonner / gérer. Masqué si aucun abonnement (grandfathered). */
 const { t } = useI18n()

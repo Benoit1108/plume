@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { AdminAccountDetail } from '~/types/admin'
+import type { AdminAccountDetail } from '~/types/domain/admin'
 
 /**
  * Back-office — fiche compte détaillée (support) : ouverte au clic sur un email. Charge le détail à

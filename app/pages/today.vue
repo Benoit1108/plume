@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Lead, Profile, Today } from '~/types/leads'
+import type { Lead, Profile, Today } from '~/types/domain/leads'
 
 const { t, locale } = useI18n()
 const { pairLabel, priorityLabel } = useLeadLabels()

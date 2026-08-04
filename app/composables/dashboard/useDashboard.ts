@@ -1,4 +1,4 @@
-import type { Dashboard, DashboardPeriod } from '~/types/dashboard'
+import type { Dashboard, DashboardPeriod } from '~/types/domain/dashboard'
 
 /** Client de l'API Tableau de bord (lecture seule). */
 export function useDashboard() {

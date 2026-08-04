@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { AdminAccount } from '~/types/admin'
+import type { AdminAccount } from '~/types/domain/admin'
 
 /**
  * Back-office (ROLE_ADMIN). L'entrée nav n'apparaît qu'aux admins ; l'autorité reste l'API (403 sinon).

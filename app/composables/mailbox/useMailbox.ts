@@ -1,4 +1,4 @@
-import type { Mailbox } from '~/types/mailbox'
+import type { Mailbox } from '~/types/domain/mailbox'
 
 /** Client de l'API Passerelle email (connexion OAuth, état, révocation). */
 export function useMailbox() {

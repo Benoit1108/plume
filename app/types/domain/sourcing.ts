@@ -1,4 +1,4 @@
-import type { Schemas } from './api-schemas'
+import type { Schemas } from '../generated/api-schemas'
 
 // Enums dérivés du contrat OpenAPI (durcissement) → drift détecté si le back change.
 export type CandidateSource = Schemas['CandidateLead-candidate.read']['source']

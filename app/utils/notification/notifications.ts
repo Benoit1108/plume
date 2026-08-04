@@ -1,4 +1,4 @@
-import type { AppNotification } from '~/types/notifications'
+import type { AppNotification } from '~/types/domain/notifications'
 
 /** Logique PURE du centre de notifications (testée — l'affichage reste dans le composant). */
 

@@ -1,4 +1,4 @@
-import type { DraftStatus, DraftType } from '~/types/drafting'
+import type { DraftStatus, DraftType } from '~/types/domain/drafting'
 
 export const DRAFT_TYPES: DraftType[] = ['APPLICATION_EMAIL', 'COVER_LETTER', 'FOLLOW_UP_EMAIL']
 

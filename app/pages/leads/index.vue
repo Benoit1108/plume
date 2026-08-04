@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Lead, LeadStatus } from '~/types/leads'
+import type { Lead, LeadStatus } from '~/types/domain/leads'
 
 const { t } = useI18n()
 const route = useRoute()
