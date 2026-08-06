@@ -100,6 +100,33 @@ final class DemoApiTest extends ApiTestCase
         self::assertFalse($this->policy()->allowsPaidGeneration()); // démo → repli canned gratuit
     }
 
+    /**
+     * Revue SEC-P2b : la session démo est ouverte à un VISITEUR ANONYME. Elle ne doit pas pouvoir
+     * enregistrer une URL arbitraire ni la faire relever par le serveur (requête sortante émise par
+     * Plume vers l'hôte choisi). La LECTURE de l'écran Sources, elle, reste ouverte : c'est ce qu'on
+     * montre en démonstration.
+     */
+    public function testDemoSessionCannotReachOutwardThroughSources(): void
+    {
+        $client = static::createClient();
+        $client->request('POST', '/api/v1/demo', ['json' => []]); // pose les cookies de session démo
+        self::assertResponseIsSuccessful();
+
+        $response = $client->request('POST', '/api/v1/sources', ['json' => ['source' => 'RSS', 'url' => 'https://exfil.example/rss']]);
+        self::assertSame(403, $response->getStatusCode());
+        self::assertStringContainsString('demo_restricted', $response->getContent(false));
+
+        $client->request('POST', '/api/v1/sources/poll', ['json' => []]);
+        self::assertResponseStatusCodeSame(403);
+
+        $client->request('DELETE', '/api/v1/sources/00000000-0000-0000-0000-000000000000');
+        self::assertResponseStatusCodeSame(403);
+
+        // Lecture : toujours permise (l'écran Réglages « Sources » reste visitable).
+        $client->request('GET', '/api/v1/sources');
+        self::assertResponseIsSuccessful();
+    }
+
     public function testPaidGenerationAllowedForRegularTenant(): void
     {
         $tenant = Uuid::v7()->toRfc4122();

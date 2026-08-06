@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Admin\Infrastructure\Http;
 
 use App\Admin\Infrastructure\ReadModel\AccountDirectory;
+use App\Shared\Infrastructure\Export\CsvCell;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\AsController;
@@ -38,7 +39,8 @@ final class AdminAccountsExportController
 
         fputcsv($csv, ['Email', 'Vérifié', 'En suppression', 'Créé le', 'Organisations', 'Pistes', 'Boîte'], $sep, $enc, $esc);
         foreach ($rows as $row) {
-            fputcsv($csv, [
+            // Neutralisation des formules : l'email vient d'une inscription publique (revue P3).
+            fputcsv($csv, CsvCell::safeRow([
                 $row['email'],
                 $row['emailVerified'] ? 'oui' : 'non',
                 null !== $row['deletionRequestedAt'] ? 'oui' : 'non',
@@ -46,7 +48,7 @@ final class AdminAccountsExportController
                 $row['organizations'],
                 $row['leads'],
                 $row['mailboxStatus'],
-            ], $sep, $enc, $esc);
+            ]), $sep, $enc, $esc);
         }
 
         rewind($csv);

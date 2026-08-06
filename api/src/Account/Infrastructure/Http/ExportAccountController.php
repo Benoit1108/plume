@@ -8,6 +8,7 @@ use App\Account\Infrastructure\Export\SensitiveColumns;
 use App\Account\Infrastructure\Persistence\User;
 use App\Shared\Application\Clock;
 use App\Shared\Infrastructure\Doctrine\Tenancy\TenantContext;
+use App\Shared\Infrastructure\Export\CsvCell;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\HeaderUtils;
@@ -173,7 +174,8 @@ final class ExportAccountController
         // Escape vide : pas de déséchappement backslash (recommandé, PHP 8.4+).
         fputcsv($handle, $header, ',', '"', '');
         foreach ($rows as $row) {
-            fputcsv($handle, $row, ',', '"', '');
+            // Neutralisation des formules (revue P3) : ces valeurs sont des saisies libres.
+            fputcsv($handle, CsvCell::safeRow($row), ',', '"', '');
         }
         rewind($handle);
         $csv = (string) stream_get_contents($handle);

@@ -23,7 +23,7 @@ final class AccountStatusCheckerTest extends TestCase
         $user->requestDeletion(new \DateTimeImmutable('2026-07-24T10:00:00'));
 
         $this->expectException(CustomUserMessageAccountStatusException::class);
-        (new AccountStatusChecker())->checkPreAuth($user);
+        (new AccountStatusChecker())->checkPostAuth($user);
     }
 
     public function testRejectsUnverifiedEmail(): void
@@ -32,7 +32,7 @@ final class AccountStatusCheckerTest extends TestCase
         $user->requireEmailVerification();
 
         $this->expectException(CustomUserMessageAccountStatusException::class);
-        (new AccountStatusChecker())->checkPreAuth($user);
+        (new AccountStatusChecker())->checkPostAuth($user);
     }
 
     public function testAllowsActiveVerifiedUser(): void
@@ -40,13 +40,13 @@ final class AccountStatusCheckerTest extends TestCase
         // Par défaut un User est vérifié (création opérateur/CLI/test).
         $user = new User(Uuid::v7(), Uuid::v7(), 'active@plume.test');
 
-        (new AccountStatusChecker())->checkPreAuth($user);
+        (new AccountStatusChecker())->checkPostAuth($user);
         $this->addToAssertionCount(1);
     }
 
     public function testIgnoresOtherUserTypes(): void
     {
-        (new AccountStatusChecker())->checkPreAuth(new InMemoryUser('x@plume.test', null));
+        (new AccountStatusChecker())->checkPostAuth(new InMemoryUser('x@plume.test', null));
         $this->addToAssertionCount(1);
     }
 }

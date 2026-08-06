@@ -111,6 +111,9 @@ services:
     App\Mailbox\Infrastructure\OAuth\OAuthStateCodec:
         arguments:
             $appSecret: '%env(string:APP_SECRET)%'
+            # États déjà consommés (anti-rejeu) : même pool que les limiteurs de débit, donc
+            # Redis-ready en multi-instances comme eux (paramètre app.cache_adapter).
+            $usedStates: '@cache.rate_limiter'
     # Registres par fournisseur (D1 : Gmail + Outlook ; factice sans identifiants).
     App\Mailbox\Application\MailboxConnectorRegistry: '@App\Mailbox\Infrastructure\OAuth\ProviderMailboxConnectorRegistry'
     App\Mailbox\Infrastructure\OAuth\ProviderMailboxConnectorRegistry:

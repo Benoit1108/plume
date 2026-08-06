@@ -81,7 +81,8 @@ when@test:
 
 when@prod:
     security:
-        # En prod, le contrat OpenAPI n'est PAS public (docs = ROLE_USER).
+        # En prod, le contrat OpenAPI n'est PAS public. Il est même réservé à l'ADMIN (revue P3) :
+        # un compte gratuit suffisait à obtenir la carte complète de l'API.
         access_control:
             - { path: ^/api/v1/health$, roles: PUBLIC_ACCESS }
             - { path: ^/api/v1/login_check$, roles: PUBLIC_ACCESS }
@@ -91,5 +92,5 @@ when@prod:
             - { path: ^/api/v1/demo$, roles: PUBLIC_ACCESS }
             - { path: ^/api/v1/billing/webhook$, roles: PUBLIC_ACCESS }
             - { path: ^/api/v1/admin, roles: ROLE_ADMIN }
-            - { path: ^/api/(v1/)?docs, roles: ROLE_USER }
+            - { path: ^/api/(v1/)?docs, roles: ROLE_ADMIN }
             - { path: ^/api/v1, roles: ROLE_USER }

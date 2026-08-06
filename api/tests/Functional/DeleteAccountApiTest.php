@@ -72,9 +72,15 @@ final class DeleteAccountApiTest extends ApiTestCase
         self::assertResponseStatusCodeSame(204);
 
         // Le compte est désactivé immédiatement : même le bon mot de passe ne connecte plus.
-        $client->request('POST', '/api/v1/login_check', [
+        $response = $client->request('POST', '/api/v1/login_check', [
             'json' => ['email' => 'del@plume.test', 'password' => self::PASSWORD],
         ]);
+        self::assertSame(401, $response->getStatusCode());
+        self::assertStringContainsString('account_deleted', $response->getContent(false));
+
+        // ET le JWT déjà émis ne vaut plus rien : le contrôle d'état s'applique à CHAQUE requête
+        // (garde-fou de la revue SEC-P2a, qui a déplacé ce contrôle en post-authentification).
+        $client->request('GET', '/api/v1/me', ['auth_bearer' => $token]);
         self::assertResponseStatusCodeSame(401);
     }
 

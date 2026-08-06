@@ -21,6 +21,10 @@ www.{$SERVER_NAME} {
 		X-Frame-Options "DENY"
 		Referrer-Policy "strict-origin-when-cross-origin"
 		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		# Isolation d'origine (revue P3) : une fenêtre ouverte par la nôtre ne garde aucune
+		# référence exploitable, et aucun autre site ne peut charger nos réponses.
+		Cross-Origin-Opener-Policy "same-origin"
+		Cross-Origin-Resource-Policy "same-origin"
 		-Server
 		-X-Powered-By
 	}
@@ -38,8 +42,9 @@ www.{$SERVER_NAME} {
 	handle {
 		root * /app/frontend
 		# CSP du SPA : à AFFINER au 1er déploiement (Nuxt UI utilise des styles inline ; connect-src = self
-		# pour /api same-origin). Point de départ raisonnable :
-		header Content-Security-Policy "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self'; font-src 'self' data:; frame-ancestors 'none'; base-uri 'self'"
+		# pour /api same-origin). `form-action` et `object-src` sont explicites : ils ne retombent PAS
+		# sur `default-src` (revue P3) — sans eux, un formulaire injecté pourrait poster ailleurs.
+		header Content-Security-Policy "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self'; font-src 'self' data:; object-src 'none'; form-action 'self'; frame-ancestors 'none'; base-uri 'self'"
 
 		# Les bundles de `_nuxt/` portent un hash de contenu : immuables, donc cachables un an.
 		@immutable path /_nuxt/*

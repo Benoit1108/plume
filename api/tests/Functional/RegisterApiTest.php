@@ -39,6 +39,35 @@ final class RegisterApiTest extends ApiTestCase
         ]);
     }
 
+    /**
+     * Revue SEC-P2a : un mot de passe QUELCONQUE ne doit rien apprendre sur l'existence du compte.
+     * Les contrôles d'état (non vérifié, en suppression) étaient évalués AVANT la vérification du
+     * mot de passe : `email_not_verified` sur un email inscrit contre « Identifiants invalides » sur
+     * un email libre suffisait à énumérer les comptes — alors que le mot de passe oublié répond
+     * délibérément la même chose dans tous les cas.
+     */
+    public function testWrongPasswordRevealsNothingAboutAnUnverifiedAccount(): void
+    {
+        $this->register('quiet@plume.test');
+
+        $client = static::createClient();
+        $response = $client->request('POST', '/api/v1/login_check', ['json' => ['email' => 'quiet@plume.test', 'password' => 'totalement-faux']]);
+        self::assertSame(401, $response->getStatusCode());
+        $existing = $response->getContent(false);
+
+        $response = $client->request('POST', '/api/v1/login_check', ['json' => ['email' => 'jamais-inscrit@plume.test', 'password' => 'totalement-faux']]);
+        self::assertSame(401, $response->getStatusCode());
+        $unknown = $response->getContent(false);
+
+        self::assertStringNotContainsString('email_not_verified', $existing);
+        self::assertSame($unknown, $existing, 'un compte inscrit et un email libre doivent répondre à l\'identique');
+
+        // En revanche, avec le BON mot de passe, le code stable revient : le front propose le renvoi.
+        $response = $client->request('POST', '/api/v1/login_check', ['json' => ['email' => 'quiet@plume.test', 'password' => 'secret-Test-123']]);
+        self::assertSame(401, $response->getStatusCode());
+        self::assertStringContainsString('email_not_verified', $response->getContent(false));
+    }
+
     public function testRegisterCreatesUnverifiedAccountThenVerificationUnlocksLogin(): void
     {
         $client = static::createClient();

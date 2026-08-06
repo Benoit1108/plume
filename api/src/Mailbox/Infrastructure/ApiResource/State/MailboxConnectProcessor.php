@@ -39,11 +39,13 @@ final class MailboxConnectProcessor implements ProcessorInterface
     {
         $tenant = $this->tenantContext->require();
 
-        if (!$this->stateCodec->isValidFor($data->state, $tenant->toString())) {
-            throw InvalidValue::because('Invalid or expired OAuth state.');
-        }
+        // `consume` et non `isValidFor` : le state est BRÛLÉ ici — un rejeu dans sa fenêtre de
+        // validité (10 min) est refusé comme un state invalide (revue P3).
         $provider = $this->stateCodec->providerFrom($data->state)
             ?? throw InvalidValue::because('OAuth state carries no provider.');
+        if (!$this->stateCodec->consume($data->state, $tenant->toString())) {
+            throw InvalidValue::because('Invalid, expired or already used OAuth state.');
+        }
 
         $this->commandBus->dispatch(new ConnectMailbox(
             $this->ids->generate(),
