@@ -1,8 +1,21 @@
 # Revue critique globale — 2026-08-06
 
-> **Statut : REVUE LIVRÉE, remédiation non commencée.** 1 P1 · 11 P2 · 7 P3. Aucun P0, aucune faille
-> exploitable à distance sans compte. Le produit est sain ; ce qui suit est ce qui manque **avant
-> d'ouvrir au public**, plus la dette d'ergonomie et d'exploitation.
+> **Statut : REMÉDIATION COMPLÈTE (lots A→F).** 1 P1 · 11 P2 · 7 P3, tous traités. Aucun P0, aucune
+> faille exploitable à distance sans compte.
+>
+> | Lot | Contenu | Commit |
+> |---|---|---|
+> | **A** | UX-P1 (défilement mobile, deux causes) · UX-P2c (contrastes) · TEST-P2a/b (garde-fous étendus) | `9cd3ddf` |
+> | **B** | SEC-P2a (énumération) · SEC-P2b (démo) · CSV · state OAuth · /docs · CSP | `c6f584a` |
+> | **C** | UX-P2a (erreur ≠ vide) · UX-P2b (402/429/403/422 parlants) | `26c89ed` |
+> | **D** | UX-P2d (lien d'évitement, focus) · UX-P2e (priorité) · délai en heures | `58bcb1b` |
+> | **E** | BACK-P2a (emails idempotents) · PERF-P2a (index) · OPS-P2a (sauvegardes) | `da742d5` |
+> | **F** | Design : hiérarchie du tableau de bord, signature de marque dans l'app | `02b2826` |
+>
+> Deux P3 restent OUVERTS, assumés : l'avis `npm audit` **low** sur esbuild (serveur de dev, Windows
+> uniquement, transitif via `fontless` — rien à corriger côté produit), et l'affinage de la CSP du
+> SPA au premier déploiement réel (déjà annoté dans `Caddyfile.prod`). Le troncage de la table
+> « segments » sur mobile a été laissé tel quel : le conteneur défile, c'est le comportement voulu.
 
 Demandée après les lots « navigation », « alignement », « densité » et « onglets » : pousser au
 maximum les retours critiques (sécurité, UX/UI, design, archi, tests, exploitation).
