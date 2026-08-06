@@ -135,6 +135,17 @@ h1, h2, h3, .font-display { font-family: var(--font-serif); }
     radial-gradient(36% 30% at 84% 6%, color-mix(in oklab, var(--color-plume-500) 18%, transparent), transparent 70%);
 }
 
+/* Variante DISCRÈTE du halo, pour l'application (revue design) : la signature de marque
+   s'arrêtait à la vitrine et à /login, alors que c'est dans l'app qu'on passe ses journées.
+   Assez présente pour que l'écran « Aujourd'hui » ne soit pas une grille de cartes de plus,
+   assez sobre pour ne jamais concurrencer le travail. Aucune animation. */
+.ink-bloom-soft {
+  background: radial-gradient(58% 120% at 10% 0%, color-mix(in oklab, var(--color-plume-500) 9%, transparent), transparent 72%);
+}
+.dark .ink-bloom-soft {
+  background: radial-gradient(58% 120% at 10% 0%, color-mix(in oklab, var(--color-plume-400) 12%, transparent), transparent 72%);
+}
+
 /* Arabesque qui se dessine (pathLength normalisé à 1 côté SVG). */
 @keyframes plume-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
 .ink-draw {

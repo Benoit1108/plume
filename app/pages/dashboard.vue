@@ -99,14 +99,17 @@ const hasActivity = computed(() =>
         <p v-if="period !== 'all'" class="mt-6 text-xs text-muted">
           {{ t('dashboard.period.scope', { period: periodItems.find(p => p.value === period)?.label }) }}
         </p>
-        <!-- KPIs -->
+        <!-- KPIs — les deux premiers portent la thèse du produit (obtient-on des réponses, et
+             les transforme-t-on ?) et dominent ; les quatre autres complètent (revue design). -->
         <section class="mt-4 grid grid-cols-2 lg:grid-cols-4 gap-3 rise-stagger">
           <DashboardKpiCard
+            emphasis
             :label="t('dashboard.kpis.responseRate')"
             :value="responseRate === null ? '—' : percentFormat.format(responseRate)"
             :hint="board.contacted === 0 ? t('dashboard.kpis.noneContacted') : t('dashboard.kpis.responseRateDetail', { replied: board.replied, contacted: board.contacted })"
           />
           <DashboardKpiCard
+            emphasis
             :label="t('dashboard.kpis.conversion')"
             :value="conversion === null ? '—' : percentFormat.format(conversion)"
             :hint="decided === 0 ? t('dashboard.kpis.noneDecided') : t('dashboard.kpis.conversionDetail', { won: board.won, decided })"
