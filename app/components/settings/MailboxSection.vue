@@ -7,7 +7,7 @@ const mailboxApi = useMailbox()
 const toast = useToast()
 const queryClient = useQueryClient()
 
-const { data: mailboxData, isPending: mailboxLoading } = useQuery({ queryKey: queryKeys.mailbox, queryFn: () => mailboxApi.get() })
+const { data: mailboxData, isPending: mailboxLoading, isError: mailboxFailed, refetch: refetchMailbox } = useQuery({ queryKey: queryKeys.mailbox, queryFn: () => mailboxApi.get() })
 const mailbox = computed<Mailbox | null>(() => mailboxData.value ?? null)
 async function refreshMailbox(): Promise<void> { await queryClient.invalidateQueries({ queryKey: queryKeys.mailbox }) }
 
@@ -93,6 +93,10 @@ function formatDate(iso: string): string {
       <span class="sr-only">{{ t('common.loading') }}</span>
       {{ t('common.loading') }}
     </div>
+
+    <!-- Une panne de chargement n'est pas « aucune boîte connectée » : l'utilisatrice croirait sa
+         connexion perdue et la referait (revue UX-P2a). -->
+    <QueryError v-else-if="mailboxFailed" class="mt-3" @retry="() => { void refetchMailbox() }" />
 
     <template v-else-if="mailbox && (mailbox.status === 'CONNECTED' || mailbox.status === 'ERROR')">
       <div class="mt-3 flex items-center gap-3 flex-wrap text-sm">

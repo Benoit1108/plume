@@ -288,6 +288,11 @@
     "showMore": "Voir 1 autre | Voir {count} autres",
     "showLess": "Voir moins"
   },
+  "errors": {
+    "subscriptionRequired": "Votre accès est en lecture seule — abonnez-vous pour reprendre les modifications.",
+    "tooManyRequests": "Trop de tentatives. Patientez quelques minutes avant de réessayer.",
+    "demoRestricted": "Action désactivée dans la démonstration. Créez un compte pour l'utiliser."
+  },
   "directory": {
     "eyebrow": "Atelier · cibles",
     "title": "Répertoire",

@@ -288,6 +288,11 @@
     "showMore": "Show 1 more | Show {count} more",
     "showLess": "Show less"
   },
+  "errors": {
+    "subscriptionRequired": "Your access is read-only — subscribe to make changes again.",
+    "tooManyRequests": "Too many attempts. Wait a few minutes before trying again.",
+    "demoRestricted": "This action is disabled in the demo. Create an account to use it."
+  },
   "directory": {
     "eyebrow": "Studio · targets",
     "title": "Directory",

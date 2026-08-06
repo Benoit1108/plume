@@ -7,7 +7,7 @@ const sourcingApi = useSourcing()
 const toast = useToast()
 const queryClient = useQueryClient()
 
-const { data: feedsData, isPending: feedsLoading } = useQuery({ queryKey: queryKeys.feeds, queryFn: () => sourcingApi.feeds() })
+const { data: feedsData, isPending: feedsLoading, isError: feedsFailed, refetch: refetchFeeds } = useQuery({ queryKey: queryKeys.feeds, queryFn: () => sourcingApi.feeds() })
 const feeds = computed<AlertFeed[]>(() => feedsData.value ?? [])
 async function refreshFeeds(): Promise<void> { await queryClient.invalidateQueries({ queryKey: queryKeys.feeds }) }
 
@@ -84,6 +84,9 @@ async function doRemoveFeed(): Promise<void> {
       <span class="sr-only">{{ t('common.loading') }}</span>
       {{ t('common.loading') }}
     </div>
+
+    <!-- Une panne de chargement n'est pas « aucun flux configuré » (revue UX-P2a). -->
+    <QueryError v-else-if="feedsFailed" class="mt-3" @retry="() => { void refetchFeeds() }" />
 
     <ul v-else-if="feeds.length" class="mt-3 flex flex-col gap-2">
       <li

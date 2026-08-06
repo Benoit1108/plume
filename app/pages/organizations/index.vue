@@ -24,7 +24,7 @@ const page = ref(1)
 watch([type, qDebounced], () => { page.value = 1 }) // un filtre change → on repart de la page 1
 
 // Clé réactive : filtre + page en font partie → refetch au changement.
-const { data: orgsData, isPending: loading } = useQuery({
+const { data: orgsData, isPending: loading, isError, refetch } = useQuery({
   queryKey: computed(() => ['organizations', type.value, qDebounced.value, page.value]),
   queryFn: () => directory.page({
     type: type.value !== TYPE_ALL ? type.value : undefined,
@@ -73,6 +73,10 @@ const rangeEnd = computed(() => Math.min(page.value * PER_PAGE, total.value))
         <span class="sr-only">{{ t('common.loading') }}</span>
         <USkeleton v-for="i in 6" :key="i" class="h-16 rounded-xl" />
       </div>
+
+      <!-- Une panne de chargement n'est PAS un répertoire vide : le dire, et proposer de réessayer
+           (revue UX-P2a — l'état vide invitait à re-créer des données qui existent). -->
+      <QueryError v-else-if="isError" @retry="() => { void refetch() }" />
 
       <div v-else-if="!organizations.length" class="py-16 flex flex-col items-center gap-3 text-center border border-default rounded-xl">
         <p class="text-muted max-w-md">{{ t('directory.list.empty') }}</p>

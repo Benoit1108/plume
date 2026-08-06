@@ -10,7 +10,7 @@ const { segmentLabel, segmentOptions } = useDirectoryLabels()
 const toast = useToast()
 
 const queryClient = useQueryClient()
-const { data: templatesData, isPending: loading } = useQuery({ queryKey: queryKeys.templates, queryFn: () => drafts.templates() })
+const { data: templatesData, isPending: loading, isError, refetch } = useQuery({ queryKey: queryKeys.templates, queryFn: () => drafts.templates() })
 const templates = computed<Template[]>(() => templatesData.value ?? [])
 async function refresh(): Promise<void> { await queryClient.invalidateQueries({ queryKey: queryKeys.templates }) }
 
@@ -119,6 +119,9 @@ async function removeTemplate(): Promise<void> {
       <span class="sr-only">{{ t('common.loading') }}</span>
       <USkeleton v-for="i in 4" :key="i" class="h-16 rounded-xl" />
     </div>
+
+    <!-- Une panne de chargement n'est pas « aucun modèle » (revue UX-P2a). -->
+    <QueryError v-else-if="isError" class="mt-6" @retry="() => { void refetch() }" />
 
     <ul v-else-if="templates.length" class="mt-6 border border-default rounded-xl divide-y divide-[var(--ui-border)]">
       <li v-for="template in templates" :key="template.id" class="p-4 flex items-center gap-3 flex-wrap">

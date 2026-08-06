@@ -10,7 +10,7 @@ const directory = useDirectory()
 const toast = useToast()
 
 const queryClient = useQueryClient()
-const { data: orgData, isPending: loading } = useQuery({ queryKey: queryKeys.organization(id), queryFn: () => directory.get(id) })
+const { data: orgData, isPending: loading, isError, refetch } = useQuery({ queryKey: queryKeys.organization(id), queryFn: () => directory.get(id) })
 const org = computed<Organization | null>(() => orgData.value ?? null)
 
 // Une mutation du répertoire touche la fiche, la liste ET les pistes (hasReachableContact).
@@ -104,6 +104,9 @@ async function applyDoNotContact(flag: boolean): Promise<void> {
       <USkeleton class="h-9 w-64 rounded" />
       <USkeleton class="h-32 rounded-xl" />
     </div>
+    <!-- Distinguer « n'existe pas » d'« a échoué » (revue UX-P2a). -->
+    <QueryError v-else-if="isError" @retry="() => { void refetch() }" />
+
     <div v-else-if="!org" class="text-muted py-12">{{ t('directory.detail.notFound') }}</div>
 
     <template v-else>
