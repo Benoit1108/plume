@@ -61,14 +61,24 @@ async function resendVerification(): Promise<void> {
 </script>
 
 <template>
-  <div class="min-h-screen grid place-items-center p-6">
-    <div class="absolute top-4 right-4 flex gap-2">
+  <div class="relative min-h-screen grid place-items-center overflow-hidden p-6">
+    <!-- Décor de marque volontairement INERTE (halo + plume en filigrane) : cette page est vue
+         quotidiennement, un mouvement continu y deviendrait une nuisance. Seule une entrée en fondu
+         au chargement, qui ne se répète pas pendant l'usage. -->
+    <div class="ink-bloom pointer-events-none absolute inset-x-0 top-0 h-80" aria-hidden="true" />
+    <LandingFeather class="pointer-events-none absolute top-10 -right-6 w-[130px] md:w-[170px] rotate-8 text-primary opacity-[0.13]" />
+
+    <div class="absolute top-4 right-4 z-10 flex gap-2">
       <LocaleSwitcher />
       <ThemeToggle />
     </div>
-    <UCard class="w-full max-w-sm">
+    <UCard class="rise relative w-full max-w-sm">
       <div class="flex flex-col gap-1.5">
-        <PlumeMark :size="30" />
+        <!-- Seule sortie de cette page : sans elle, un visiteur venu de la vitrine est dans un
+             cul-de-sac (aucun lien de retour, et pas de flèche visible sur mobile). -->
+        <NuxtLink to="/" class="inline-flex w-fit rounded-md focus-visible:outline-2 focus-visible:outline-primary" :aria-label="t('nav.home')">
+          <PlumeMark :size="30" />
+        </NuxtLink>
         <p class="text-sm text-muted">{{ t('auth.tagline') }}</p>
       </div>
 

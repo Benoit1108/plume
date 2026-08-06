@@ -39,7 +39,9 @@ async function add(entry: CatalogEntry): Promise<void> {
 </script>
 
 <template>
-  <PageContainer>
+  <!-- `atelier` comme le Répertoire dont on vient : la prop oubliée retombait sur `reading`
+       (880 px au lieu de 1120), et la page semblait désalignée à l'arrivée. -->
+  <PageContainer width="atelier">
     <PageHeader :eyebrow="t('directory.eyebrow')" :title="t('directory.catalog.title')">
       <UButton color="neutral" variant="outline" icon="i-lucide-arrow-left" to="/organizations">
         {{ t('directory.catalog.backToDirectory') }}

@@ -83,7 +83,8 @@ function safeUrl(url?: string | null): string | null {
 </script>
 
 <template>
-  <PageContainer width="reading">
+  <!-- `atelier` : c'est une page de données (file de tri), comme le Répertoire et les Modèles. -->
+  <PageContainer width="atelier">
     <div ref="topRef" tabindex="-1" class="outline-none">
       <PageHeader :eyebrow="t('sourcing.eyebrow')" :title="t('sourcing.title')">
         <template #subtitle>
