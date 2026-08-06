@@ -140,10 +140,29 @@ h1, h2, h3, .font-display { font-family: var(--font-serif); }
    Assez présente pour que l'écran « Aujourd'hui » ne soit pas une grille de cartes de plus,
    assez sobre pour ne jamais concurrencer le travail. Aucune animation. */
 .ink-bloom-soft {
-  background: radial-gradient(58% 120% at 10% 0%, color-mix(in oklab, var(--color-plume-500) 9%, transparent), transparent 72%);
+  position: relative;
+  isolation: isolate;
 }
-.dark .ink-bloom-soft {
-  background: radial-gradient(58% 120% at 10% 0%, color-mix(in oklab, var(--color-plume-400) 12%, transparent), transparent 72%);
+/* Le halo est PEINT PAR-DESSOUS, en débordant sur les côtés et en s'éteignant vers le bas : pas de
+   bord, pas de coin arrondi — une lumière, pas une carte. `mask-image` évite la ligne de coupe
+   franche que laissait un simple dégradé radial dans un bloc. */
+.ink-bloom-soft::before {
+  content: "";
+  position: absolute;
+  inset: -2.5rem -50vw auto;
+  height: 22rem;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(38% 70% at 22% 22%, color-mix(in oklab, var(--color-plume-500) 16%, transparent), transparent 70%),
+    radial-gradient(30% 55% at 62% 0%, color-mix(in oklab, var(--color-plume-400) 10%, transparent), transparent 72%);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 45%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 45%, transparent 100%);
+}
+.dark .ink-bloom-soft::before {
+  background:
+    radial-gradient(38% 70% at 22% 22%, color-mix(in oklab, var(--color-plume-400) 20%, transparent), transparent 70%),
+    radial-gradient(30% 55% at 62% 0%, color-mix(in oklab, var(--color-plume-500) 16%, transparent), transparent 72%);
 }
 
 /* Arabesque qui se dessine (pathLength normalisé à 1 côté SVG). */

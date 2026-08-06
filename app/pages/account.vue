@@ -13,7 +13,7 @@ const tab = useRouteTab(['profile', 'security', 'data'])
 </script>
 
 <template>
-  <PageContainer width="atelier">
+  <PageContainer width="reading">
     <PageHeader :eyebrow="t('account.eyebrow')" :title="t('account.title')" />
 
     <!-- unmount-on-hide="false" : changer d'onglet ne doit jamais faire perdre une saisie en cours. -->
@@ -23,23 +23,23 @@ const tab = useRouteTab(['profile', 'security', 'data'])
       :unmount-on-hide="false"
       variant="link"
       class="mt-6 gap-6"
-      :ui="{ list: 'overflow-x-auto', trigger: 'shrink-0' }"
+      :ui="{ list: 'overflow-x-auto overflow-y-hidden', trigger: 'shrink-0', indicator: 'h-0.5 rounded-full' }"
     >
       <template #profile>
-        <div class="flex flex-col gap-6 max-w-2xl">
+        <div class="flex flex-col gap-6">
           <IdentityForm />
         </div>
       </template>
 
       <template #security>
-        <div class="flex flex-col gap-6 max-w-2xl">
+        <div class="flex flex-col gap-6">
           <PasswordChangeForm />
           <SecuritySection />
         </div>
       </template>
 
       <template #data>
-        <div class="flex flex-col gap-6 max-w-2xl">
+        <div class="flex flex-col gap-6">
           <DataExportSection />
           <AccountDangerZone />
         </div>

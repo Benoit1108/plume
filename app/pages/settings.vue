@@ -25,7 +25,7 @@ const tab = useRouteTab(() => items.value.map(item => item.value))
 </script>
 
 <template>
-  <PageContainer width="atelier">
+  <PageContainer width="reading">
     <PageHeader :eyebrow="t('settings.eyebrow')" :title="t('settings.title')" />
 
     <!-- unmount-on-hide="false" : changer d'onglet ne doit jamais faire perdre une saisie en cours. -->
@@ -35,7 +35,7 @@ const tab = useRouteTab(() => items.value.map(item => item.value))
       :unmount-on-hide="false"
       variant="link"
       class="mt-6 gap-6"
-      :ui="{ list: 'overflow-x-auto', trigger: 'shrink-0' }"
+      :ui="{ list: 'overflow-x-auto overflow-y-hidden', trigger: 'shrink-0', indicator: 'h-0.5 rounded-full' }"
     >
       <template #profile><PresentationForm /></template>
       <template #prospecting><ProspectingSettingsForm /></template>

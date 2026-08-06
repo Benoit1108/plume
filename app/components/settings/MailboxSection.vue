@@ -75,7 +75,7 @@ function formatDate(iso: string): string {
 </script>
 
 <template>
-  <section class="border border-default rounded-xl p-4 bg-elevated/40 max-w-2xl">
+  <section class="border border-default rounded-xl p-4 bg-elevated/40">
     <div class="flex items-center gap-2 flex-wrap">
       <h2 class="text-sm font-semibold">{{ t('mailbox.title') }}</h2>
       <UBadge

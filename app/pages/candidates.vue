@@ -83,8 +83,10 @@ function safeUrl(url?: string | null): string | null {
 </script>
 
 <template>
-  <!-- `atelier` : c'est une page de données (file de tri), comme le Répertoire et les Modèles. -->
   <PageContainer width="atelier">
+    <!-- `atelier` : page de données (file de tri), comme le Répertoire et les Modèles.
+         Ce commentaire est DANS la racine à dessein : au-dessus, il compte comme un second nœud
+         racine, Nuxt renonce à la transition de page et l'écran suivant reste VIDE. -->
     <div ref="topRef" tabindex="-1" class="outline-none">
       <PageHeader :eyebrow="t('sourcing.eyebrow')" :title="t('sourcing.title')">
         <template #subtitle>

@@ -59,7 +59,7 @@ function isOverdue(lead: Lead): boolean {
     <!-- Halo d'encre : le seul écran du produit à porter la signature de marque. « Aujourd'hui »
          a un rôle unique — dire quoi faire maintenant — et mérite d'être reconnaissable au premier
          coup d'œil, sans ajouter d'ornement ailleurs (revue design). -->
-    <div class="ink-bloom-soft rounded-2xl px-4 pt-4 pb-5 -mx-4">
+    <div class="ink-bloom-soft pb-2">
       <PageHeader :eyebrow="t('today.eyebrow')" :title="t('today.title')">
         <template v-if="firstName" #subtitle>
           <p class="mt-1 text-muted">{{ t('today.greeting', { name: firstName }) }}</p>

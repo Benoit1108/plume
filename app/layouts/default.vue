@@ -68,7 +68,10 @@ watch(() => route.path, () => {
         <ThemeToggle />
         <AccountMenu />
       </header>
-      <main id="contenu" ref="mainRef" tabindex="-1" class="flex-1 min-w-0 outline-none">
+      <!-- `overflow-x-clip` : le halo d'« Aujourd'hui » déborde volontairement sur les côtés ;
+           on le coupe ici plutôt que de laisser la PAGE défiler (clip, pas hidden : aucun
+           conteneur de défilement créé, les éléments collants restent collants). -->
+      <main id="contenu" ref="mainRef" tabindex="-1" class="flex-1 min-w-0 overflow-x-clip outline-none">
         <DemoBanner />
         <SubscriptionBanner />
         <slot />

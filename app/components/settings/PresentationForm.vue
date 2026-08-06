@@ -27,12 +27,12 @@ async function submit(): Promise<void> {
 </script>
 
 <template>
-  <div v-if="loading" role="status" class="flex flex-col gap-4 max-w-2xl">
+  <div v-if="loading" role="status" class="flex flex-col gap-4">
     <span class="sr-only">{{ t('common.loading') }}</span>
     <USkeleton class="h-72 rounded-xl" />
   </div>
 
-  <form v-else class="flex flex-col gap-6 max-w-2xl" @submit.prevent="submit">
+  <form v-else class="flex flex-col gap-6" @submit.prevent="submit">
     <section class="border border-default rounded-xl p-4 bg-elevated/40 flex flex-col gap-4">
       <div>
         <h2 class="text-sm font-semibold">{{ t('settings.presentation.title') }}</h2>
