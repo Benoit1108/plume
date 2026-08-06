@@ -72,8 +72,10 @@ export function useLandingMotion(refs: {
         let h = 0
         let dust: Array<{ x: number, y: number, r: number, s: number, a: number, d: number }> = []
         const seed = () => {
-          w = canvas.width = window.innerWidth
-          h = canvas.height = window.innerHeight
+          // clientWidth (et non innerWidth) : si la page déborde, innerWidth suivrait le
+          // débordement et le canvas l'amplifierait.
+          w = canvas.width = document.documentElement.clientWidth
+          h = canvas.height = document.documentElement.clientHeight
           dust = Array.from({ length: 90 }, () => ({
             x: Math.random() * w,
             y: Math.random() * h,

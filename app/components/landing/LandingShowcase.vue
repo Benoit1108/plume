@@ -131,6 +131,37 @@ onMounted(() => {
   const onVisibility = () => { suspended.value = document.hidden }
   document.addEventListener('visibilitychange', onVisibility)
   cleanups.push(() => document.removeEventListener('visibilitychange', onVisibility))
+
+  // Balayage tactile : au doigt, les pastilles de 24 px étaient le SEUL moyen de changer d'écran.
+  // `pointer*` couvre tactile et stylet ; on ne réagit qu'aux gestes franchement horizontaux pour
+  // ne pas voler le défilement vertical de la page.
+  if (frameEl.value) {
+    const fr = frameEl.value
+    let startX = 0
+    let startY = 0
+    let tracking = false
+    const onDown = (e: PointerEvent) => {
+      if (e.pointerType === 'mouse') return
+      startX = e.clientX
+      startY = e.clientY
+      tracking = true
+    }
+    const onUp = (e: PointerEvent) => {
+      if (!tracking) return
+      tracking = false
+      const dx = e.clientX - startX
+      const dy = e.clientY - startY
+      if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy)) return
+      selectSlide(activeSlide.value + (dx < 0 ? 1 : -1))
+    }
+    fr.addEventListener('pointerdown', onDown, { passive: true })
+    fr.addEventListener('pointerup', onUp, { passive: true })
+    fr.addEventListener('pointercancel', () => { tracking = false }, { passive: true })
+    cleanups.push(() => {
+      fr.removeEventListener('pointerdown', onDown)
+      fr.removeEventListener('pointerup', onUp)
+    })
+  }
 })
 
 onBeforeUnmount(() => { cleanups.forEach(fn => fn()); cleanups = [] })
@@ -147,7 +178,7 @@ onBeforeUnmount(() => { cleanups.forEach(fn => fn()); cleanups = [] })
       </div>
       <div class="relative h-[336px]">
         <!-- Écran 1 : Aujourd'hui -->
-        <div :id="panelId(0)" role="tabpanel" :aria-labelledby="tabId(0)" :inert="activeSlide !== 0" class="slide p-5" :class="{ active: activeSlide === 0 }">
+        <div :id="panelId(0)" role="tabpanel" :aria-labelledby="tabId(0)" :inert="activeSlide !== 0" class="slide overflow-y-auto p-5" :class="{ active: activeSlide === 0 }">
           <p class="text-sm text-muted">{{ t('landing.preview.caption') }}</p>
           <ul class="mt-4 flex flex-col gap-2">
             <li v-for="row in todayRows" :key="row.name" class="flex items-center gap-3 rounded-lg border border-default bg-default px-3 py-2.5">
@@ -171,9 +202,9 @@ onBeforeUnmount(() => { cleanups.forEach(fn => fn()); cleanups = [] })
         </div>
 
         <!-- Écran 2 : Pipeline -->
-        <div :id="panelId(1)" role="tabpanel" :aria-labelledby="tabId(1)" :inert="activeSlide !== 1" class="slide p-5" :class="{ active: activeSlide === 1 }">
+        <div :id="panelId(1)" role="tabpanel" :aria-labelledby="tabId(1)" :inert="activeSlide !== 1" class="slide overflow-y-auto p-5" :class="{ active: activeSlide === 1 }">
           <p class="text-sm text-muted">{{ t('landing.showcase.pipelineCaption') }}</p>
-          <div class="mt-4 grid grid-cols-3 gap-2.5">
+          <div class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-2.5">
             <div v-for="col in pipelineCols" :key="col.key" class="rounded-lg border border-default bg-default p-2.5">
               <div class="flex items-center justify-between text-xs text-muted mb-2">
                 <span class="truncate">{{ t(`landing.showcase.${col.key}`) }}</span>
@@ -188,11 +219,11 @@ onBeforeUnmount(() => { cleanups.forEach(fn => fn()); cleanups = [] })
         </div>
 
         <!-- Écran 3 : Tableau de bord -->
-        <div :id="panelId(2)" role="tabpanel" :aria-labelledby="tabId(2)" :inert="activeSlide !== 2" class="slide p-5" :class="{ active: activeSlide === 2 }">
+        <div :id="panelId(2)" role="tabpanel" :aria-labelledby="tabId(2)" :inert="activeSlide !== 2" class="slide overflow-y-auto p-5" :class="{ active: activeSlide === 2 }">
           <p class="text-sm text-muted">{{ t('landing.showcase.dashboardCaption') }}</p>
-          <div class="mt-4 grid grid-cols-3 gap-2.5">
+          <div class="mt-4 grid grid-cols-3 gap-2 sm:gap-2.5">
             <div v-for="(k, i) in kpis" :key="k.key" class="rounded-lg border border-default bg-default p-3">
-              <div class="font-serif text-2xl tabular-nums">{{ formatKpi(i) }}</div>
+              <div class="font-serif text-lg sm:text-2xl tabular-nums">{{ formatKpi(i) }}</div>
               <div class="text-[11px] text-muted">{{ t(`landing.showcase.${k.key}`) }}</div>
             </div>
           </div>

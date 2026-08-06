@@ -24,7 +24,9 @@ const { t } = useI18n()
     <div class="flex-1" />
     <LocaleSwitcher />
     <ThemeToggle />
-    <UButton to="/login" color="neutral" variant="ghost" size="sm">{{ t('landing.nav.login') }}</UButton>
+    <!-- « Se connecter » masqué sous sm : à 390 px les cinq éléments ne tiennent pas et faisaient
+         déborder la page. Le lien reste atteignable dans le pied de page. -->
+    <UButton to="/login" color="neutral" variant="ghost" size="sm" class="hidden sm:inline-flex">{{ t('landing.nav.login') }}</UButton>
     <UButton to="/register" size="sm">{{ t('landing.nav.signup') }}</UButton>
   </header>
 </template>

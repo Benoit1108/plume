@@ -34,7 +34,10 @@ useLandingMotion({ root, canvas: motes, progress })
       style="background: linear-gradient(90deg, var(--color-plume-600), var(--color-plume-300))"
       aria-hidden="true"
     />
-    <canvas ref="motes" class="pointer-events-none fixed inset-0 z-0" aria-hidden="true" />
+    <!-- `size-full` est indispensable : un <canvas> est un élément REMPLACÉ, `inset-0` seul ne
+         contraint pas sa taille — il s'affichait à la largeur de son bitmap et débordait la page
+         (455 px pour un viewport de 390), créant un défilement horizontal. -->
+    <canvas ref="motes" class="pointer-events-none fixed inset-0 z-0 size-full" aria-hidden="true" />
 
     <LandingHeader />
 
