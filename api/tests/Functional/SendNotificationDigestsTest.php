@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Functional;
 
 use App\Account\Infrastructure\Mail\AccountMailer;
+use App\Notification\Infrastructure\Mail\EmailDispatchLedger;
 use App\Notification\Infrastructure\Scheduler\SendNotificationDigestsHandler;
 use App\Notification\Infrastructure\Scheduler\SendNotificationDigestsTick;
 use App\Tests\Support\FixedClock;
@@ -32,7 +33,7 @@ final class SendNotificationDigestsTest extends KernelTestCase
         $connection = static::getContainer()->get(Connection::class);
         \assert($connection instanceof Connection);
         $this->connection = $connection;
-        $this->connection->executeStatement('TRUNCATE TABLE notification, profile, app_user RESTART IDENTITY CASCADE');
+        $this->connection->executeStatement('TRUNCATE TABLE notification, profile, app_user, email_dispatch RESTART IDENTITY CASCADE');
     }
 
     public function testSendsDigestsOnlyToDueOptedInAccountsWithFreshUnread(): void
@@ -54,7 +55,7 @@ final class SendNotificationDigestsTest extends KernelTestCase
 
         $mailer = static::getContainer()->get(AccountMailer::class);
         \assert($mailer instanceof AccountMailer);
-        $handler = new SendNotificationDigestsHandler($this->connection, $mailer, new FixedClock(new \DateTimeImmutable(self::MONDAY)));
+        $handler = new SendNotificationDigestsHandler($this->connection, $mailer, new FixedClock(new \DateTimeImmutable(self::MONDAY)), new EmailDispatchLedger($this->connection));
         ($handler)(new SendNotificationDigestsTick());
 
         // On assère l'ENSEMBLE des destinataires (chaque envoi émet 2 MessageEvent — queued + sent —
@@ -110,7 +111,7 @@ final class SendNotificationDigestsTest extends KernelTestCase
 
         $mailer = static::getContainer()->get(AccountMailer::class);
         \assert($mailer instanceof AccountMailer);
-        $handler = new SendNotificationDigestsHandler($this->connection, $mailer, new FixedClock(new \DateTimeImmutable(self::MONDAY)));
+        $handler = new SendNotificationDigestsHandler($this->connection, $mailer, new FixedClock(new \DateTimeImmutable(self::MONDAY)), new EmailDispatchLedger($this->connection));
         ($handler)(new SendNotificationDigestsTick());
 
         self::assertCount(0, self::getMailerMessages()); // rien à résumer : le seul type est coupé en email

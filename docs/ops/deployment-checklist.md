@@ -77,7 +77,9 @@ Puis l'**API + les workers** tournent sous `plume_app` (runtime, RLS active) —
 automatique : ils l'obtiennent par un second `env_file` (`api/.env.runtime.local`) qui surcharge
 `DATABASE_URL`, cf. `compose.prod.yaml` et l'amendement 2026-08-06 d'ADR-0023. Sans ce fichier,
 l'API refuse de démarrer (`RlsRuntimeRoleGuard`) au lieu de servir sans isolation. Sauvegardes DB
-**chiffrées** + testées (restauration). Rotation périodique des secrets ci-dessus.
+**chiffrées** (age, clé privée hors serveur), **copiées hors machine** (rclone) et **vérifiées**
+mensuellement (`scripts/backup-db.sh --verify` restaure dans une base jetable) — cf.
+`deploiement-vps.md` § 7. Rotation périodique des secrets ci-dessus.
 
 Créer le (ou les) **administrateur du back-office** : `php bin/console app:admin:create <email>`
 (compte hors tenant, ROLE_ADMIN — jamais créé par l'inscription publique).

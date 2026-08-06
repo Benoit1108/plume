@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Notification\Infrastructure\Scheduler;
 
 use App\Account\Infrastructure\Mail\AccountMailer;
+use App\Notification\Infrastructure\Mail\EmailDispatchLedger;
 use App\Shared\Application\Clock;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -27,6 +28,7 @@ final class SendNotificationDigestsHandler
         private readonly Connection $connection,
         private readonly AccountMailer $mailer,
         private readonly Clock $clock,
+        private readonly EmailDispatchLedger $ledger,
     ) {
     }
 
@@ -45,7 +47,7 @@ final class SendNotificationDigestsHandler
         /** @var list<array<string, mixed>> $rows */
         $rows = $this->connection->fetchAllAssociative(
             <<<'SQL'
-                SELECT u.email AS email, n.type AS type, COUNT(*) AS cnt
+                SELECT n.tenant_id AS tenant_id, u.email AS email, n.type AS type, COUNT(*) AS cnt
                 FROM notification n
                 JOIN app_user u ON u.tenant_id = n.tenant_id
                 JOIN profile p ON p.tenant_id = n.tenant_id
@@ -56,25 +58,31 @@ final class SendNotificationDigestsHandler
                   AND u.email_verified = true
                   -- Préférences fines : on exclut les types dont le canal email est coupé (défaut = inclus).
                   AND COALESCE((p.notification_preferences -> n.type ->> 'email')::boolean, true) = true
-                GROUP BY u.email, n.type
+                GROUP BY n.tenant_id, u.email, n.type
                 ORDER BY u.email
                 SQL,
             ['since' => $since->format('Y-m-d H:i:s'), 'freq' => $frequency],
         );
 
-        /** @var array<string, array<string, int>> $byUser */
+        /** @var array<string, array{tenant: string, counts: array<string, int>}> $byUser */
         $byUser = [];
         foreach ($rows as $row) {
             $email = \is_string($row['email'] ?? null) ? $row['email'] : '';
             $type = \is_string($row['type'] ?? null) ? $row['type'] : '';
-            if ('' === $email || '' === $type) {
+            $tenantId = \is_string($row['tenant_id'] ?? null) ? $row['tenant_id'] : '';
+            if ('' === $email || '' === $type || '' === $tenantId) {
                 continue;
             }
-            $byUser[$email][$type] = is_numeric($row['cnt'] ?? null) ? (int) $row['cnt'] : 0;
+            $byUser[$email]['tenant'] = $tenantId;
+            $byUser[$email]['counts'][$type] = is_numeric($row['cnt'] ?? null) ? (int) $row['cnt'] : 0;
         }
 
-        foreach ($byUser as $email => $counts) {
-            $this->mailer->sendNotificationDigest($email, $counts);
+        foreach ($byUser as $email => $entry) {
+            // Un digest par tenant, par fréquence et par période : un rejeu ne réexpédie rien.
+            if (!$this->ledger->claim(EmailDispatchLedger::digestKey($entry['tenant'], $frequency, $this->clock->now()))) {
+                continue;
+            }
+            $this->mailer->sendNotificationDigest($email, $entry['counts']);
         }
     }
 }

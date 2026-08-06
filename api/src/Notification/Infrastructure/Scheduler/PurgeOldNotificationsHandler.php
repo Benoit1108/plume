@@ -28,5 +28,10 @@ final class PurgeOldNotificationsHandler
         $this->connection->executeStatement(
             'DELETE FROM password_reset_token WHERE expires_at < NOW()',
         );
+        // Registre d'idempotence des emails périodiques : au-delà de 90 jours, plus rien à
+        // dédoublonner (la plus longue période couverte est la semaine).
+        $this->connection->executeStatement(
+            "DELETE FROM email_dispatch WHERE sent_at < NOW() - INTERVAL '90 days'",
+        );
     }
 }

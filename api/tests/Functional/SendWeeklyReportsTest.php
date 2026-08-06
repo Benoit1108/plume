@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Functional;
 
 use App\Account\Infrastructure\Mail\AccountMailer;
+use App\Notification\Infrastructure\Mail\EmailDispatchLedger;
 use App\Notification\Infrastructure\Scheduler\SendWeeklyReportsHandler;
 use App\Notification\Infrastructure\Scheduler\SendWeeklyReportsTick;
 use App\Tests\Support\FixedClock;
@@ -33,7 +34,7 @@ final class SendWeeklyReportsTest extends KernelTestCase
         $connection = static::getContainer()->get(Connection::class);
         \assert($connection instanceof Connection);
         $this->connection = $connection;
-        $this->connection->executeStatement('TRUNCATE TABLE interaction, profile, app_user RESTART IDENTITY CASCADE');
+        $this->connection->executeStatement('TRUNCATE TABLE interaction, profile, app_user, email_dispatch RESTART IDENTITY CASCADE');
     }
 
     public function testSendsMondayReportsOnlyToActiveOptedInAccounts(): void
@@ -49,7 +50,7 @@ final class SendWeeklyReportsTest extends KernelTestCase
         // E : email non vérifié → exclu.
         $this->seed('e@plume.test', activityAt: '2026-07-31 09:00:00', emailVerified: false);
 
-        $handler = new SendWeeklyReportsHandler($this->connection, $this->mailer(), new FixedClock(new \DateTimeImmutable(self::MONDAY)));
+        $handler = new SendWeeklyReportsHandler($this->connection, $this->mailer(), new FixedClock(new \DateTimeImmutable(self::MONDAY)), new EmailDispatchLedger($this->connection));
         ($handler)(new SendWeeklyReportsTick());
 
         $recipients = [];
@@ -61,11 +62,27 @@ final class SendWeeklyReportsTest extends KernelTestCase
         self::assertSame(['a@plume.test'], $recipients);
     }
 
+    /**
+     * Revue BACK-P2a : le transport Messenger rejoue (max_retries: 3) et le scheduler peut rejouer
+     * une occurrence manquée. Sans registre, chaque rejeu réexpédiait le bilan à tout le monde.
+     */
+    public function testReplayingTheTickSendsNothingTwice(): void
+    {
+        $this->seed('replay@plume.test', activityAt: '2026-07-31 09:00:00');
+
+        $handler = new SendWeeklyReportsHandler($this->connection, $this->mailer(), new FixedClock(new \DateTimeImmutable(self::MONDAY)), new EmailDispatchLedger($this->connection));
+        $handler(new SendWeeklyReportsTick());
+        self::assertEmailCount(1);
+
+        $handler(new SendWeeklyReportsTick()); // rejeu du MÊME tick, même semaine
+        self::assertEmailCount(1); // toujours un seul email
+    }
+
     public function testSendsNothingOutsideMonday(): void
     {
         $this->seed('a@plume.test', activityAt: '2026-08-03 09:00:00');
 
-        $handler = new SendWeeklyReportsHandler($this->connection, $this->mailer(), new FixedClock(new \DateTimeImmutable(self::TUESDAY)));
+        $handler = new SendWeeklyReportsHandler($this->connection, $this->mailer(), new FixedClock(new \DateTimeImmutable(self::TUESDAY)), new EmailDispatchLedger($this->connection));
         ($handler)(new SendWeeklyReportsTick());
 
         self::assertCount(0, self::getMailerMessages()); // le bilan n'est envoyé que le lundi

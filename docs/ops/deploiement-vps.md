@@ -84,11 +84,40 @@ Points à valider ce jour-là : certificat Let's Encrypt OK, le SPA se charge, *
 cookie httpOnly** (même origine via `/api`), pas d'erreur CSP en console (sinon affiner la CSP du SPA
 dans `Caddyfile.prod`).
 
-## 7. Sauvegardes (cron)
+## 7. Sauvegardes (cron) — chiffrées, hors machine, vérifiées
+
+La sauvegarde contient **tout le carnet d'adresses des clientes**. Trois exigences, dans cet ordre :
+elle doit être **chiffrée** (un serveur compromis ne doit pas livrer les données), **stockée
+ailleurs** (la perte du serveur ne doit pas l'emporter) et **testée** (une restauration jamais
+essayée n'est pas une sauvegarde).
+
 ```bash
+# 1) Clé de chiffrement : générée SUR TON POSTE, pas sur le serveur.
+age-keygen -o plume-backup-key.txt        # garde ce fichier hors du serveur (gestionnaire de mots de passe)
+grep 'public key' plume-backup-key.txt    # -> age1... : c'est la clé PUBLIQUE à mettre sur le serveur
+
+# 2) Sur le serveur : dépendances + configuration
+apt install -y age rclone
+rclone config                             # crée une destination, ex. « plume-backups » (S3/B2/Scaleway)
+
 chmod +x scripts/backup-db.sh
-( crontab -l 2>/dev/null; echo "0 3 * * * PLUME_COMPOSE_FILE=/opt/plume/compose.prod.yaml /opt/plume/scripts/backup-db.sh >> /var/log/plume-backup.log 2>&1" ) | crontab -
+cat >> /etc/environment <<'EOF'
+PLUME_BACKUP_AGE_RECIPIENT=age1xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+PLUME_BACKUP_REMOTE=plume-backups:plume/db
+EOF
+
+# 3) Cron : sauvegarde quotidienne + vérification de restauration le 1er du mois
+( crontab -l 2>/dev/null
+  echo "0 3 * * * PLUME_COMPOSE_FILE=/opt/plume/compose.prod.yaml /opt/plume/scripts/backup-db.sh >> /var/log/plume-backup.log 2>&1"
+  echo "0 4 1 * * PLUME_COMPOSE_FILE=/opt/plume/compose.prod.yaml PLUME_BACKUP_AGE_IDENTITY=/root/plume-backup-key.txt /opt/plume/scripts/backup-db.sh --verify >> /var/log/plume-backup.log 2>&1"
+) | crontab -
 ```
+
+Sans `PLUME_BACKUP_AGE_RECIPIENT` ni `PLUME_BACKUP_REMOTE`, le script fonctionne mais **le dit** :
+il écrit un avertissement à chaque exécution. La vérification (`--verify`) restaure le dernier dump
+dans une base jetable, compte les tables et la supprime — elle exige la clé privée, à ne déposer sur
+le serveur que si tu acceptes ce compromis (sinon, lance-la depuis ton poste).
+
 
 ## 8. Mettre à jour (déploiement suivant)
 ```bash

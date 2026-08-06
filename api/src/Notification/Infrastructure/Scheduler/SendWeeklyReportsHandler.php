@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Notification\Infrastructure\Scheduler;
 
 use App\Account\Infrastructure\Mail\AccountMailer;
+use App\Notification\Infrastructure\Mail\EmailDispatchLedger;
 use App\Shared\Application\Clock;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -25,6 +26,7 @@ final class SendWeeklyReportsHandler
         private readonly Connection $connection,
         private readonly AccountMailer $mailer,
         private readonly Clock $clock,
+        private readonly EmailDispatchLedger $ledger,
     ) {
     }
 
@@ -40,6 +42,7 @@ final class SendWeeklyReportsHandler
         $rows = $this->connection->fetchAllAssociative(
             <<<'SQL'
                 SELECT
+                    p.tenant_id AS tenant_id,
                     u.email AS email,
                     p.weekly_goal AS goal,
                     COUNT(*) FILTER (WHERE i.type IN ('contacted', 'followed_up')) AS outreach,
@@ -50,7 +53,7 @@ final class SendWeeklyReportsHandler
                 WHERE p.weekly_report_enabled = true
                   AND u.deletion_requested_at IS NULL
                   AND u.email_verified = true
-                GROUP BY u.email, p.weekly_goal
+                GROUP BY p.tenant_id, u.email, p.weekly_goal
                 HAVING COUNT(*) FILTER (WHERE i.type IN ('contacted', 'followed_up', 'reply')) > 0
                 ORDER BY u.email
                 SQL,
@@ -59,7 +62,12 @@ final class SendWeeklyReportsHandler
 
         foreach ($rows as $row) {
             $email = \is_string($row['email'] ?? null) ? $row['email'] : '';
-            if ('' === $email) {
+            $tenantId = \is_string($row['tenant_id'] ?? null) ? $row['tenant_id'] : '';
+            if ('' === $email || '' === $tenantId) {
+                continue;
+            }
+            // Un bilan par tenant et par semaine : un rejeu du message ne réexpédie rien.
+            if (!$this->ledger->claim(EmailDispatchLedger::weeklyReportKey($tenantId, $now))) {
                 continue;
             }
             $this->mailer->sendWeeklyReport(
