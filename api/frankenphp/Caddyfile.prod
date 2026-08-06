@@ -3,6 +3,13 @@
 	order php_server before file_server
 }
 
+# `www` → apex, en 301. Sans ce bloc, une requête sur www.domaine.fr n'est servie par AUCUN site :
+# Caddy ne demanderait même pas de certificat pour ce nom, donc l'échec serait un avertissement TLS
+# du navigateur — alors que le runbook demande un enregistrement A pour `www`.
+www.{$SERVER_NAME} {
+	redir https://{$SERVER_NAME}{uri} permanent
+}
+
 # {$SERVER_NAME} = domaine de prod → Caddy obtient un certificat Let's Encrypt automatiquement
 # (le domaine doit pointer sur l'IP du serveur, ports 80/443 ouverts).
 {$SERVER_NAME} {
@@ -33,7 +40,34 @@
 		# CSP du SPA : à AFFINER au 1er déploiement (Nuxt UI utilise des styles inline ; connect-src = self
 		# pour /api same-origin). Point de départ raisonnable :
 		header Content-Security-Policy "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self'; font-src 'self' data:; frame-ancestors 'none'; base-uri 'self'"
-		try_files {path} /index.html
-		file_server
+
+		# Les bundles de `_nuxt/` portent un hash de contenu : immuables, donc cachables un an.
+		@immutable path /_nuxt/*
+		header @immutable Cache-Control "public, max-age=31536000, immutable"
+
+		# `route` (et non des directives libres) : Caddy trie les directives par ordre canonique, ce qui
+		# ferait passer `try_files` AVANT le test ci-dessous — le chemin serait déjà réécrit en
+		# /index.html et le fichier « existerait » toujours. `route` impose l'ordre écrit.
+		route {
+			# 1) Le fichier demandé existe → on le sert tel quel.
+			@exists file
+			handle @exists {
+				file_server
+			}
+
+			# 2) Le chemin ressemble à un FICHIER (extension) mais il est absent → 404 franc.
+			#    Sinon un asset manquant après déploiement renvoie la coquille HTML en 200 : le
+			#    navigateur échoue sur une erreur de parsing de module, indéchiffrable à distance.
+			@looksLikeFile path_regexp \.[a-zA-Z0-9]{2,6}$
+			handle @looksLikeFile {
+				error 404
+			}
+
+			# 3) Sinon c'est une ROUTE applicative : le SPA la résout côté client.
+			handle {
+				rewrite * /index.html
+				file_server
+			}
+		}
 	}
 }

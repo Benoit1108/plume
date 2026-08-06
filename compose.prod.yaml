@@ -52,6 +52,10 @@ services:
     volumes:
       - caddy-data:/data          # certificats Let's Encrypt persistés
       - jwt-keys:/app/config/jwt   # clés JWT (générées une fois, survivent aux rebuilds)
+      # `var/` porte le cache Symfony ET les exports RGPD (APP_SHARE_DIR) : sans volume, un
+      # redéploiement effacerait une archive d'export en cours de téléchargement, et le cache
+      # gonflerait la couche d'écriture du conteneur.
+      - app-var:/app/var
     depends_on:
       database:
         condition: service_healthy
@@ -95,3 +99,4 @@ volumes:
   db-data:
   caddy-data:
   jwt-keys:
+  app-var:
