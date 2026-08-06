@@ -145,11 +145,8 @@ async function onDrop(targetStatus: LeadStatus): Promise<void> {
         <section
           v-for="column in COLUMNS"
           :key="column"
-          class="flex-1 min-w-[78vw] sm:min-w-40 snap-start rounded-xl motion-safe:transition-[opacity,box-shadow]"
-          :class="[
-            dragging && isLegalTarget(column) ? 'ring-2 ring-primary/60' : '',
-            dragging && !isLegalTarget(column) && dragging.status !== column ? 'opacity-40' : '',
-          ]"
+          class="flex-1 min-w-[78vw] sm:min-w-40 snap-start rounded-xl motion-safe:transition-opacity"
+          :class="dragging && !isLegalTarget(column) && dragging.status !== column ? 'opacity-40' : ''"
           :aria-label="statusLabel(column)"
           @dragover.prevent="dragOver = isLegalTarget(column) ? column : null"
           @drop.prevent="onDrop(column)"
@@ -158,9 +155,15 @@ async function onDrop(targetStatus: LeadStatus): Promise<void> {
             {{ statusLabel(column) }}
             <span class="font-mono tabular-nums text-muted">{{ byStatus.get(column)?.length ?? 0 }}</span>
           </h2>
+          <!-- Le surlignage porte sur la ZONE DE DÉPÔT, pas sur la colonne entière : le contour
+               enveloppait aussi le titre, qui s'y retrouvait collé — d'où l'impression d'un cadre
+               tronqué en haut. Deux états distincts : atteignable, puis survolée. -->
           <ul
             class="mt-2 flex flex-col gap-2 min-h-24 rounded-xl border border-default p-2 motion-safe:transition-colors"
-            :class="dragOver === column ? 'bg-primary/10 border-primary/50' : 'bg-elevated/30'"
+            :class="[
+              dragOver === column ? 'bg-primary/10 border-primary ring-2 ring-primary' : 'bg-elevated/30',
+              dragging && isLegalTarget(column) && dragOver !== column ? 'border-primary/40 ring-1 ring-primary/30' : '',
+            ]"
           >
             <li v-for="lead in byStatus.get(column)" :key="lead.id">
               <!-- `relative` : le libellé de priorité en `sr-only` est ABSOLU. Sans ancêtre

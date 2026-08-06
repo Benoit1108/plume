@@ -13,11 +13,35 @@ onMounted(() => {
   void sourcing.refreshCount()
 })
 
-// Le contenu principal reçoit le focus à chaque navigation : en SPA, sans ça, le focus reste sur
-// le lien cliqué et un lecteur d'écran ne signale pas qu'on a changé d'écran (revue UX-P2d).
+/**
+ * Le contenu principal reçoit le focus à chaque navigation : en SPA, sans ça, le focus reste sur
+ * le lien cliqué et un lecteur d'écran ne signale pas qu'on a changé d'écran (revue UX-P2d).
+ *
+ * Mais ce focus doit être TRANSITOIRE. S'il reste sur `<main>`, l'ouverture d'une boîte de dialogue
+ * (qui masque l'arrière-plan par `aria-hidden`) porterait sur un conteneur qui détient le focus —
+ * ce que le navigateur refuse à juste titre : « Blocked aria-hidden on an element because its
+ * descendant retained focus ». On relâche donc dès la première interaction de l'utilisatrice.
+ */
 const mainRef = ref<HTMLElement | null>(null)
 function focusMain(): void {
-  void nextTick(() => mainRef.value?.focus())
+  void nextTick(() => {
+    const main = mainRef.value
+    if (!main) return
+    // `tabindex` posé puis RETIRÉ : tant qu'il est là, un clic dans une zone non focusable du
+    // contenu renvoie le focus sur `<main>` (le navigateur remonte au premier ancêtre focusable).
+    // Le retirer suffit à rendre le focus vraiment transitoire.
+    main.setAttribute('tabindex', '-1')
+    main.focus({ preventScroll: true })
+
+    const release = (): void => {
+      main.removeAttribute('tabindex')
+      if (document.activeElement === main) main.blur()
+      document.removeEventListener('pointerdown', release, true)
+      document.removeEventListener('keydown', release, true)
+    }
+    document.addEventListener('pointerdown', release, true)
+    document.addEventListener('keydown', release, true)
+  })
 }
 
 // Ferme le tiroir dès qu'on change de page, et repositionne le focus sur le contenu.
@@ -71,7 +95,7 @@ watch(() => route.path, () => {
       <!-- `overflow-x-clip` : le halo d'« Aujourd'hui » déborde volontairement sur les côtés ;
            on le coupe ici plutôt que de laisser la PAGE défiler (clip, pas hidden : aucun
            conteneur de défilement créé, les éléments collants restent collants). -->
-      <main id="contenu" ref="mainRef" tabindex="-1" class="flex-1 min-w-0 overflow-x-clip outline-none">
+      <main id="contenu" ref="mainRef" class="flex-1 min-w-0 overflow-x-clip outline-none">
         <DemoBanner />
         <SubscriptionBanner />
         <slot />

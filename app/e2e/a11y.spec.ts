@@ -76,6 +76,27 @@ for (const theme of THEMES) {
   })
 }
 
+/**
+ * Le focus posé sur le contenu à chaque navigation (annonce du changement d'écran) doit être
+ * TRANSITOIRE. S'il persiste, toute boîte de dialogue ouverte ensuite masque par `aria-hidden` un
+ * conteneur qui détient le focus — le navigateur refuse, à raison : « Blocked aria-hidden on an
+ * element because its descendant retained focus ».
+ */
+test('le focus de navigation est relâché à la première interaction', async ({ page }) => {
+  await login(page)
+  await page.goto('/organizations')
+  await waitForHydration(page)
+
+  await page.getByRole('link', { name: /modèles|templates/i }).click()
+  await page.waitForURL('**/templates')
+  await expect.poll(() => page.evaluate(() => document.activeElement?.id)).toBe('contenu')
+
+  // Une TOUCHE plutôt qu'un clic : le résultat ne dépend pas de ce qui se trouve sous le curseur
+  // (un clic peut atterrir sur un lien et renavigation → focus repositionné, test instable).
+  await page.keyboard.press('Tab')
+  expect(await page.evaluate(() => document.activeElement?.id)).not.toBe('contenu')
+})
+
 test('le carrousel est pausable et ne reprend pas la main (WCAG 2.2.2)', async ({ page }) => {
   const errors: string[] = []
   page.on('pageerror', e => errors.push(e.message))
