@@ -27,14 +27,34 @@ describe('useDirectory', () => {
     await expect(useDirectory().list()).resolves.toEqual([])
   })
 
-  it('list transmet les filtres en query', async () => {
+  it('list transmet les filtres en query, bornée à la taille de page max de l\'API', async () => {
     apiMock.mockResolvedValueOnce({ member: [] })
 
     await useDirectory().list({ type: 'PUBLISHER', q: 'actes' })
 
-    const [path, options] = apiMock.mock.calls[0] as [string, { query: Record<string, string> }]
+    const [path, options] = apiMock.mock.calls[0] as [string, { query: Record<string, string | number> }]
     expect(path).toBe('/api/v1/organizations')
-    expect(options.query).toEqual({ type: 'PUBLISHER', q: 'actes' })
+    expect(options.query).toEqual({ type: 'PUBLISHER', q: 'actes', itemsPerPage: 100 })
+  })
+
+  it('page transmet le numéro de page et remonte le total (pagination numérotée)', async () => {
+    apiMock.mockResolvedValueOnce({ member: [{ id: '1', name: 'Actes Sud' }], totalItems: 42 })
+
+    const result = await useDirectory().page({ page: 2, itemsPerPage: 25, q: 'actes' })
+
+    const [path, options] = apiMock.mock.calls[0] as [string, { query: Record<string, string | number> }]
+    expect(path).toBe('/api/v1/organizations')
+    expect(options.query).toEqual({ page: 2, itemsPerPage: 25, q: 'actes' })
+    expect(result.items).toHaveLength(1)
+    expect(result.total).toBe(42)
+  })
+
+  it('page retombe sur les alias hydra puis sur une page vide', async () => {
+    apiMock.mockResolvedValueOnce({ 'hydra:member': [{ id: '1', name: 'X' }], 'hydra:totalItems': 7 })
+    await expect(useDirectory().page()).resolves.toEqual({ items: [{ id: '1', name: 'X' }], total: 7 })
+
+    apiMock.mockResolvedValueOnce({})
+    await expect(useDirectory().page()).resolves.toEqual({ items: [], total: 0 })
   })
 
   it('importCsv poste le contenu brut', async () => {

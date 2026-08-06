@@ -1,3 +1,5 @@
+import type { Session } from '~/types/domain/account'
+
 /** Compte utilisateur (authentification) : changement de mot de passe. */
 export function useAccount() {
   const api = useApi()
@@ -53,7 +55,7 @@ export function useAccount() {
       api<unknown>('/api/v1/account/2fa/disable', { method: 'POST', body: { currentPassword } }),
 
     // --- Sessions actives (sous /token : le cookie refresh y est path-restreint) ---
-    sessions: () => api<{ sessions: { id: number, expiresAt: string | null, current: boolean }[] }>('/api/v1/token/sessions'),
+    sessions: () => api<{ sessions: Session[] }>('/api/v1/token/sessions'),
     revokeSession: (id: number) => api<unknown>(`/api/v1/token/sessions/${id}`, { method: 'DELETE' }),
     revokeOtherSessions: () => api<unknown>('/api/v1/token/sessions/revoke-others', { method: 'POST', body: {} }),
   }

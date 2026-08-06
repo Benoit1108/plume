@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { Session } from '~/types/domain/account'
+
 /** Page Compte — sécurité : 2FA TOTP (enrôlement en 2 temps, codes de secours) + sessions actives. */
 const { t, locale } = useI18n()
 const accountApi = useAccount()
@@ -169,22 +171,33 @@ function formatDate(iso: string | null): string {
         {{ t('account.sessions.revokeOthers') }}
       </UButton>
     </div>
-    <ul class="flex flex-col gap-2">
-      <li v-for="session in sessions" :key="session.id" class="flex items-center gap-3 text-sm">
-        <UIcon name="i-lucide-monitor-smartphone" class="size-4 text-muted" aria-hidden="true" />
-        <span>{{ t('account.sessions.expires', { date: formatDate(session.expiresAt) }) }}</span>
-        <UBadge v-if="session.current" color="primary" variant="soft" size="sm">{{ t('account.sessions.current') }}</UBadge>
-        <UButton
-          v-else
-          size="xs"
-          variant="ghost"
-          color="error"
-          class="ml-auto"
-          :aria-label="t('account.sessions.revoke')"
-          icon="i-lucide-x"
-          @click="revoke(session.id)"
-        />
-      </li>
-    </ul>
+    <!-- Plafonnée à 5 : au-delà, un dépliage qui annonce combien de sessions restent. -->
+    <ShowMoreList :items="sessions" :initial="5" :item-key="(session: Session) => session.id">
+      <template #default="{ item }">
+        <div class="flex items-center gap-3 text-sm">
+          <UIcon name="i-lucide-monitor-smartphone" class="size-4 text-muted shrink-0" aria-hidden="true" />
+          <div class="min-w-0">
+            <p class="font-medium truncate">{{ formatSessionDevice(item, t('account.sessions.unknownDevice')) }}</p>
+            <p class="text-xs text-muted">
+              <template v-if="item.lastSeenAt">{{ t('account.sessions.lastSeen', { date: formatDate(item.lastSeenAt) }) }} · </template>
+              {{ t('account.sessions.expires', { date: formatDate(item.expiresAt) }) }}
+            </p>
+          </div>
+          <UBadge v-if="item.current" color="primary" variant="soft" size="sm" class="ml-auto shrink-0">
+            {{ t('account.sessions.current') }}
+          </UBadge>
+          <UButton
+            v-else
+            size="xs"
+            variant="ghost"
+            color="error"
+            class="ml-auto shrink-0"
+            :aria-label="t('account.sessions.revoke')"
+            icon="i-lucide-x"
+            @click="revoke(item.id)"
+          />
+        </div>
+      </template>
+    </ShowMoreList>
   </section>
 </template>

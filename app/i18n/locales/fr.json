@@ -284,7 +284,9 @@
     "conflict": "Action impossible dans l'état actuel — la page vient peut-être de changer.",
     "loadError": "Le chargement a échoué.",
     "retry": "Réessayer",
-    "loadErrorHint": "Vérifiez votre connexion et réessayez."
+    "loadErrorHint": "Vérifiez votre connexion et réessayez.",
+    "showMore": "Voir 1 autre | Voir {count} autres",
+    "showLess": "Voir moins"
   },
   "directory": {
     "eyebrow": "Atelier · cibles",
@@ -314,7 +316,9 @@
       "colContacts": "Contacts",
       "empty": "Aucune organisation. Créez votre première cible.",
       "contactsCount": "aucun contact | {count} contact | {count} contacts",
-      "openOrganization": "Ouvrir {name}"
+      "openOrganization": "Ouvrir {name}",
+      "range": "{from}–{to} sur {total}",
+      "pagination": "Pagination du répertoire"
     },
     "catalog": {
       "title": "Annuaire suggéré",
@@ -764,7 +768,9 @@
       "current": "Cet appareil",
       "revoke": "Révoquer cette session",
       "revokeOthers": "Déconnecter les autres appareils",
-      "othersRevoked": "Les autres sessions ont été déconnectées."
+      "othersRevoked": "Les autres sessions ont été déconnectées.",
+      "unknownDevice": "Appareil inconnu",
+      "lastSeen": "Dernière activité le {date}"
     }
   },
   "landing": {

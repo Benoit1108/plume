@@ -25,7 +25,10 @@ Tenants, utilisateurs, authentification, profil de la Traductrice.
 - **2FA TOTP + sessions (V2.1)** : enrôlement 2 temps, anti-rejeu (`totp_last_used_step`), codes de secours
   sha256, librairie `spomky-labs/otphp` — [ADR-0027](../../../docs/architecture/decisions/0027-2fa-totp.md).
   Gestion des **sessions actives** (liste, révocation unitaire / des autres) ; activation/désactivation 2FA
-  **révoque les sessions**.
+  **révoque les sessions**. Chaque session porte son **appareil** (`refresh_tokens.user_agent`, résumé par
+  `DeviceLabel`) et sa **dernière activité** (`last_seen_at`, posés par `StampRefreshTokenListener`) — sans
+  quoi les lignes sont interchangeables. `PruneSessionsListener` ferme les expirées et plafonne les vivantes
+  (10) à chaque authentification.
 - **RGPD (V2.0-a)** : suppression de compte (soft-delete + purge 30 j) + export ZIP —
   [ADR-0025](../../../docs/architecture/decisions/0025-rgpd-suppression-export.md).
 - Écran **Compte** (front) : identité, mot de passe, **section Sécurité** (2FA + sessions), export, suppression.

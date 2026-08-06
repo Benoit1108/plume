@@ -6,5 +6,10 @@
     <!-- Entité concrète héritant de la mapped-superclass gesdinet (champs id/refreshToken/username/valid). -->
     <entity name="App\Account\Infrastructure\Auth\RefreshToken"
             table="refresh_tokens"
-            repository-class="Gesdinet\JWTRefreshTokenBundle\Entity\RefreshTokenRepository"/>
+            repository-class="Gesdinet\JWTRefreshTokenBundle\Entity\RefreshTokenRepository">
+        <!-- Identification des sessions sur la page Compte (lot « densité ») : appareil + activité.
+             Nullable : les lignes créées avant la migration n'ont ni l'un ni l'autre. -->
+        <field name="userAgent" column="user_agent" type="string" length="255" nullable="true"/>
+        <field name="lastSeenAt" column="last_seen_at" type="datetime_immutable" nullable="true"/>
+    </entity>
 </doctrine-mapping>

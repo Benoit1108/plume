@@ -284,7 +284,9 @@
     "conflict": "This action conflicts with the current state — the page may have just changed.",
     "loadError": "Loading failed.",
     "retry": "Retry",
-    "loadErrorHint": "Check your connection and try again."
+    "loadErrorHint": "Check your connection and try again.",
+    "showMore": "Show 1 more | Show {count} more",
+    "showLess": "Show less"
   },
   "directory": {
     "eyebrow": "Studio · targets",
@@ -314,7 +316,9 @@
       "colContacts": "Contacts",
       "empty": "No organizations yet. Create your first target.",
       "contactsCount": "no contacts | {count} contact | {count} contacts",
-      "openOrganization": "Open {name}"
+      "openOrganization": "Open {name}",
+      "range": "{from}–{to} of {total}",
+      "pagination": "Directory pagination"
     },
     "catalog": {
       "title": "Suggested directory",
@@ -764,7 +768,9 @@
       "current": "This device",
       "revoke": "Revoke this session",
       "revokeOthers": "Sign out other devices",
-      "othersRevoked": "Other sessions have been signed out."
+      "othersRevoked": "Other sessions have been signed out.",
+      "unknownDevice": "Unknown device",
+      "lastSeen": "Last activity on {date}"
     }
   },
   "landing": {

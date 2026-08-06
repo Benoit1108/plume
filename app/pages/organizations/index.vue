@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { keepPreviousData } from '@tanstack/vue-query'
 import type { Organization } from '~/types/domain/directory'
 
 const { t } = useI18n()
@@ -16,15 +17,29 @@ const typeFilterItems = computed(() => [
   ...typeOptions.value,
 ])
 
-// Clé réactive : le filtre (type + recherche) fait partie de la clé → refetch au changement.
+// Pagination NUMÉROTÉE (et non un scroll infini) : sur une liste de travail, on doit pouvoir
+// revenir où on était et partager un lien — l'API pagine déjà, on expose ses numéros.
+const PER_PAGE = 25
+const page = ref(1)
+watch([type, qDebounced], () => { page.value = 1 }) // un filtre change → on repart de la page 1
+
+// Clé réactive : filtre + page en font partie → refetch au changement.
 const { data: orgsData, isPending: loading } = useQuery({
-  queryKey: computed(() => ['organizations', type.value, qDebounced.value]),
-  queryFn: () => directory.list({
+  queryKey: computed(() => ['organizations', type.value, qDebounced.value, page.value]),
+  queryFn: () => directory.page({
     type: type.value !== TYPE_ALL ? type.value : undefined,
     q: qDebounced.value || undefined,
+    page: page.value,
+    itemsPerPage: PER_PAGE,
   }),
+  // La page précédente reste affichée pendant le chargement de la suivante : sans ça, chaque clic
+  // sur un numéro remplace le tableau par des squelettes et la page « saute ».
+  placeholderData: keepPreviousData,
 })
-const organizations = computed<Organization[]>(() => orgsData.value ?? [])
+const organizations = computed<Organization[]>(() => orgsData.value?.items ?? [])
+const total = computed(() => orgsData.value?.total ?? 0)
+const rangeStart = computed(() => (total.value === 0 ? 0 : (page.value - 1) * PER_PAGE + 1))
+const rangeEnd = computed(() => Math.min(page.value * PER_PAGE, total.value))
 </script>
 
 <template>
@@ -147,6 +162,21 @@ const organizations = computed<Organization[]>(() => orgsData.value ?? [])
             </NuxtLink>
           </li>
         </ul>
+
+        <!-- Numéros de page : visibles dès qu'il y a plus d'une page. -->
+        <div v-if="total > PER_PAGE" class="mt-4 flex items-center justify-between gap-3 flex-wrap">
+          <p class="text-xs text-muted tabular-nums">
+            {{ t('directory.list.range', { from: rangeStart, to: rangeEnd, total }) }}
+          </p>
+          <UPagination
+            v-model:page="page"
+            :total="total"
+            :items-per-page="PER_PAGE"
+            :sibling-count="1"
+            size="sm"
+            :aria-label="t('directory.list.pagination')"
+          />
+        </div>
       </template>
     </div>
   </PageContainer>

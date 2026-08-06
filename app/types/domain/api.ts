@@ -2,4 +2,6 @@
 export interface JsonLdCollection<T> {
   'member'?: T[]
   'hydra:member'?: T[]
+  'totalItems'?: number
+  'hydra:totalItems'?: number
 }

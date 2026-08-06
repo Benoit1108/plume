@@ -274,7 +274,7 @@ Le vocabulaire métier ci-dessous est **contractuel** et reste en **français** 
 | **Email vérifié** (`email_verified`) | Défaut **`true`** (zéro-ripple : CLI/seed/tests de confiance) ; seule l'inscription publique appelle `requireEmailVerification()`. Refus de login : code stable `email_not_verified`. |
 | **2FA / Double authentification** (TOTP) | Librairie `spomky-labs/otphp`. **Enrôlement 2 temps** (setup → confirm). **Anti-rejeu** (`totp_last_used_step`). Codes stables `2fa_required` / `2fa_invalid` (ADR-0027). |
 | **Codes de secours** (`backup codes`) | Repli si perte de l'appareil : entropie 64 bits, usage unique, stockés en **sha256**. Affichés une seule fois. |
-| **Session active** | Un refresh token = une session. L'utilisatrice les liste et **révoque** (unitaire / les autres). Activation/désactivation 2FA **révoque** les sessions. |
+| **Session active** | Un refresh token = une session, **identifiée** par son appareil (navigateur/plateforme résumés du User-Agent) et sa dernière activité. L'utilisatrice les liste et **révoque** (unitaire / les autres). Activation/désactivation 2FA **révoque** les sessions. Hygiène : à chaque authentification, les sessions expirées sont fermées et les vivantes plafonnées à 10. |
 | **Suppression de compte** | Soft-delete immédiat (accès coupé, relèves stoppées) + **purge à 30 j** (ADR-0025). Code de refus login : `account_deleted`. |
 | **Export des données** (`GET /account/export`) | Archive ZIP (`export.json` + CSV), scopée tenant, **secrets exclus par motif** (portabilité RGPD). |
 
