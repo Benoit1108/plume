@@ -32,9 +32,10 @@ function hasPresentation(profile: OnboardingInputs['profile']): boolean {
 
 export function computeOnboardingSteps(inputs: OnboardingInputs): OnboardingStep[] {
   return [
-    { id: 'presentation', done: hasPresentation(inputs.profile), to: '/settings' },
-    { id: 'mailbox', done: inputs.mailboxStatus === 'CONNECTED', to: '/settings' },
-    { id: 'feed', done: inputs.feedCount > 0, to: '/settings' },
+    // Réglages est à onglets : chaque étape vise le sien, sinon on retombe sur « Profil ».
+    { id: 'presentation', done: hasPresentation(inputs.profile), to: '/settings?tab=profile' },
+    { id: 'mailbox', done: inputs.mailboxStatus === 'CONNECTED', to: '/settings?tab=mailbox' },
+    { id: 'feed', done: inputs.feedCount > 0, to: '/settings?tab=sources' },
     { id: 'directory', done: inputs.organizationCount > 0, to: '/organizations' },
   ]
 }

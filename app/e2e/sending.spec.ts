@@ -8,7 +8,7 @@ test('envoi : boîte connectée → brouillon relu → Envoyer → journal + pis
   await login(page)
 
   // Boîte connectée (consentement factice, redirection immédiate).
-  await page.goto('/settings')
+  await page.goto('/settings?tab=mailbox')
   await waitForHydration(page)
   const connectButton = page.getByRole('button', { name: /connecter gmail|connect gmail/i })
   const connectedBadge = page.getByText(/^connectée$|^connected$/i)
@@ -16,7 +16,7 @@ test('envoi : boîte connectée → brouillon relu → Envoyer → journal + pis
   await expect(connectButton.or(connectedBadge).first()).toBeVisible()
   if (await connectButton.isVisible()) {
     await connectButton.click()
-    await page.waitForURL('**/settings')
+    await page.waitForURL(/\/settings/)
   }
   await expect(connectedBadge).toBeVisible()
 
@@ -62,7 +62,7 @@ test('envoi : boîte connectée → brouillon relu → Envoyer → journal + pis
 
   // M2.3 — la boucle se ferme : relève manuelle → réponse captée (fetcher factice)
   // → piste en discussion, aperçu au journal.
-  await page.goto('/settings')
+  await page.goto('/settings?tab=mailbox')
   await waitForHydration(page)
   await page.getByRole('button', { name: /relever les réponses|fetch replies/i }).click()
   await expect(page.getByText(/relève effectuée|fetch done/i).first()).toBeVisible()

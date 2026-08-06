@@ -5,6 +5,8 @@ import { login, waitForHydration, watchConsole } from './helpers'
  * Smoke de la page Compte (P0-5 de la revue globale : le socle d'ouverture — 2FA, sessions,
  * export, suppression — n'était couvert que par des tests d'API, jamais par le rendu réel).
  *
+ * La page est à ONGLETS (?tab=) : on vise l'onglet dans l'URL, comme le font les liens entrants.
+ *
  * NON DESTRUCTIF : on partage le tenant e2e avec les autres fichiers. On NE change PAS le mot de
  * passe, on N'active PAS la 2FA (on s'arrête à l'affichage de la clé), on NE supprime PAS le compte.
  */
@@ -16,22 +18,36 @@ test('la page Compte affiche toutes ses sections de sécurité sans erreur conso
   expect(response?.status()).toBe(200)
   await waitForHydration(page)
 
-  // Rendu complet : identité, 2FA, sessions, export RGPD, zone dangereuse.
   // Sélecteurs BILINGUES : le build E2E peut rendre en fr OU en en (locale du navigateur).
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+
+  // Onglet Identité (par défaut) → puis Sécurité → puis Mes données.
+  await expect(page.getByText(/Nom d'affichage|Display name/i)).toBeVisible()
+
+  await page.getByRole('tab', { name: /Sécurité|Security/i }).click()
   await expect(page.getByText(/Double authentification|Two-factor authentication/i)).toBeVisible()
   await expect(page.getByText(/Sessions actives|Active sessions/i)).toBeVisible()
+
+  await page.getByRole('tab', { name: /Mes données|My data/i }).click()
   await expect(page.getByRole('button', { name: /Exporter mes données|Export my data/i })).toBeVisible()
   await expect(page.getByRole('button', { name: /Supprimer mon compte|Delete my account/i })).toBeVisible()
 
   expect(errors).toEqual([])
 })
 
+test('un lien peut viser directement un onglet du Compte', async ({ page }) => {
+  await login(page)
+  await page.goto('/account?tab=data')
+  await waitForHydration(page)
+
+  await expect(page.getByRole('button', { name: /Exporter mes données|Export my data/i })).toBeVisible()
+})
+
 test('l\'enrôlement 2FA révèle une clé secrète et reste abandonnable', async ({ page }) => {
   const errors = watchConsole(page)
 
   await login(page)
-  await page.goto('/account')
+  await page.goto('/account?tab=security')
   await waitForHydration(page)
 
   // Attendre que la section Sécurité soit RENDUE avant de tester la présence du bouton : son contenu

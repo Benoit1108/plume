@@ -49,7 +49,11 @@ export async function createLeadViaUi(page: Page, orgName: string): Promise<void
   await page.waitForURL(/\/leads\/[0-9a-f-]+$/)
 }
 
-/** Un toast (le titre apparaît aussi en région aria-live : viser le premier). */
+/**
+ * Un toast (le titre apparaît aussi en région aria-live : viser le premier VISIBLE).
+ * Le filtre de visibilité est indispensable depuis les pages à onglets : les panneaux inactifs
+ * restent dans le DOM (pour ne pas perdre les saisies) et peuvent contenir le même texte.
+ */
 export async function expectToast(page: Page, pattern: RegExp): Promise<void> {
-  await expect(page.getByText(pattern).first()).toBeVisible()
+  await expect(page.getByText(pattern).filter({ visible: true }).first()).toBeVisible()
 }

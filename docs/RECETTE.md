@@ -76,7 +76,7 @@ Après `make seed`, le tenant `recette@plume.fr` contient :
       → Message d'erreur clair, pas de connexion. (Après plusieurs essais : limitation de débit.)
 - [ ] **A3 — Nom d'affichage.** Menu **Compte** → renseigner Prénom/Nom → enregistrer.
       → Toast de succès ; le nom s'affiche dans l'interface.
-- [ ] **A4 — Changer le mot de passe.** Compte → changer le mot de passe (l'actuel est requis).
+- [ ] **A4 — Changer le mot de passe.** Compte → onglet **Sécurité** → changer le mot de passe (l'actuel est requis).
       → Succès. **Vérif sécurité** : les autres sessions sont **déconnectées** (les jetons de
       rafraîchissement sont révoqués) — se reconnecter avec le nouveau mot de passe.
 - [ ] **A5 — Déconnexion.** → Retour à `/login`, les cookies de session sont effacés.
@@ -127,7 +127,7 @@ Après `make seed`, le tenant `recette@plume.fr` contient :
       automatiquement ; la faire → suivante à **J+21**, puis **J+45**.
 - [ ] **D3 — Une seule relance en attente.** Replanifier une relance. → L'ancienne est
       **remplacée**, jamais empilée.
-- [ ] **D4 — Objectif & série.** Réglages → changer l'objectif hebdomadaire (1–99). Réaliser des
+- [ ] **D4 — Objectif & série.** Réglages → onglet **Prospection** → changer l'objectif hebdomadaire (1–99). Réaliser des
       actes (contacts / relances). → La progression et la **série** (semaines consécutives à
       l'objectif) se mettent à jour.
 
@@ -158,12 +158,12 @@ Après `make seed`, le tenant `recette@plume.fr` contient :
 - [ ] **F2 — Envoyer un brouillon.** Sur une piste au brouillon **Prêt à relire** → « Envoyer »
       (confirmation *draft-first*). → Journal **email envoyé** ; la piste **avance**
       (candidature → Contactée, relance → relance faite).
-- [ ] **F3 — Relève des réponses.** Réglages → « Relever maintenant » (ou attendre le Scheduler
+- [ ] **F3 — Relève des réponses.** Réglages → **Boîte email** → « Relever maintenant » (ou attendre le Scheduler
       ~5 min). → Une réponse captée fait passer la piste **En discussion** (aperçu au journal).
       La relève ne lit **que les fils initiés par l'app** (minimisation).
 - [ ] **F4 — Relance dans le fil.** Rédiger une relance depuis « Aujourd'hui » → envoyée **dans
       le fil** d'origine.
-- [ ] **F5 — Révoquer.** Réglages → « Déconnecter » (confirmation). → Boîte déconnectée, jetons
+- [ ] **F5 — Révoquer.** Réglages → **Boîte email** → « Déconnecter » (confirmation). → Boîte déconnectée, jetons
       effacés (aucun token en clair, jamais).
 
 ### G. Tableau de bord

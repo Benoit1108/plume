@@ -9,7 +9,7 @@ test('rédaction assistée : réglages profil → génération canned → relect
   await login(page)
 
   // Réglages : bio + signature (matière première du prompt).
-  await page.goto('/settings')
+  await page.goto('/settings?tab=profile')
   await waitForHydration(page)
   await page.getByRole('textbox', { name: /^bio$/i }).fill('Traductrice indépendante EN>FR, dix ans en littérature jeunesse.')
   await page.getByRole('textbox', { name: /signature/i }).fill('Marie E2E')

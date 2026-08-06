@@ -41,7 +41,7 @@ async function manageBilling(): Promise<void> {
 </script>
 
 <template>
-  <section v-if="subscription && subscription.status !== 'none'" class="mt-6 border border-default rounded-xl p-4 bg-elevated/40 max-w-2xl">
+  <section v-if="subscription && subscription.status !== 'none'" class="border border-default rounded-xl p-4 bg-elevated/40 max-w-2xl">
     <div class="flex items-center gap-2 flex-wrap">
       <h2 class="text-sm font-semibold">{{ t('settings.billing.title') }}</h2>
       <UBadge :color="subscription.entitled ? 'success' : 'error'" variant="soft" size="sm">

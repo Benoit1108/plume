@@ -28,7 +28,7 @@ const readOnly = computed<boolean>(() => {
     class="rounded-none border-x-0 border-t-0"
   >
     <template #actions>
-      <UButton size="xs" color="warning" to="/settings">{{ t('billing.banner.cta') }}</UButton>
+      <UButton size="xs" color="warning" to="/settings?tab=billing">{{ t('billing.banner.cta') }}</UButton>
     </template>
   </UAlert>
 </template>

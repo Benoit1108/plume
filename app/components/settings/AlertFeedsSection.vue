@@ -76,7 +76,7 @@ async function doRemoveFeed(): Promise<void> {
 </script>
 
 <template>
-  <section class="mt-8 border border-default rounded-xl p-4 bg-elevated/40 max-w-2xl">
+  <section class="border border-default rounded-xl p-4 bg-elevated/40 max-w-2xl">
     <h2 ref="sourcesRef" tabindex="-1" class="text-sm font-semibold outline-none">{{ t('sourcing.feeds.title') }}</h2>
     <p class="text-xs text-muted mt-1">{{ t('sourcing.feeds.intro') }}</p>
 

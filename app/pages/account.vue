@@ -1,53 +1,49 @@
 <script setup lang="ts">
-// Page Compte : orchestrateur. Chaque bloc est un composant autonome (identité, mot de passe,
-// sécurité, zone de danger) ; l'export RGPD reste inline (court). Découpage revue santé (lot F).
+// Page Compte : orchestrateur en ONGLETS (identité / sécurité / mes données). Chaque bloc est un
+// composant autonome ; l'onglet actif vit dans l'URL (?tab=), comme sur Réglages.
 const { t } = useI18n()
-const accountApi = useAccount()
-const toast = useToast()
 
-const exporting = ref(false)
-async function exportData(): Promise<void> {
-  if (exporting.value) return
-  exporting.value = true
-  try {
-    const blob = await accountApi.exportData()
-    downloadBlob(blob, `plume-export-${new Date().toISOString().slice(0, 10)}.zip`)
-    toast.add({ title: t('account.export.done'), color: 'success' })
-  }
-  catch {
-    toast.add({ title: t('account.export.error'), color: 'error' })
-  }
-  finally {
-    exporting.value = false
-  }
-}
+const items = computed(() => [
+  { value: 'profile', slot: 'profile', label: t('account.tabs.profile'), icon: 'i-lucide-circle-user' },
+  { value: 'security', slot: 'security', label: t('account.tabs.security'), icon: 'i-lucide-shield-check' },
+  { value: 'data', slot: 'data', label: t('account.tabs.data'), icon: 'i-lucide-database' },
+])
+
+const tab = useRouteTab(['profile', 'security', 'data'])
 </script>
 
 <template>
   <PageContainer width="atelier">
     <PageHeader :eyebrow="t('account.eyebrow')" :title="t('account.title')" />
 
-    <div class="mt-6 flex flex-col gap-8 max-w-2xl">
-      <IdentityForm />
-      <PasswordChangeForm />
-
-      <!-- Sécurité : 2FA + sessions actives -->
-      <SecuritySection />
-
-      <!-- Mes données : export RGPD (portabilité) -->
-      <section class="border border-default rounded-xl p-4 bg-elevated/40 flex flex-col gap-3">
-        <div>
-          <p class="text-sm font-semibold">{{ t('account.export.title') }}</p>
-          <p class="text-xs text-muted mt-1">{{ t('account.export.intro') }}</p>
+    <!-- unmount-on-hide="false" : changer d'onglet ne doit jamais faire perdre une saisie en cours. -->
+    <UTabs
+      v-model="tab"
+      :items="items"
+      :unmount-on-hide="false"
+      variant="link"
+      class="mt-6 gap-6"
+      :ui="{ list: 'overflow-x-auto', trigger: 'shrink-0' }"
+    >
+      <template #profile>
+        <div class="flex flex-col gap-6 max-w-2xl">
+          <IdentityForm />
         </div>
-        <div class="flex justify-end">
-          <UButton variant="soft" icon="i-lucide-download" :loading="exporting" @click="exportData">
-            {{ t('account.export.button') }}
-          </UButton>
-        </div>
-      </section>
+      </template>
 
-      <AccountDangerZone />
-    </div>
+      <template #security>
+        <div class="flex flex-col gap-6 max-w-2xl">
+          <PasswordChangeForm />
+          <SecuritySection />
+        </div>
+      </template>
+
+      <template #data>
+        <div class="flex flex-col gap-6 max-w-2xl">
+          <DataExportSection />
+          <AccountDangerZone />
+        </div>
+      </template>
+    </UTabs>
   </PageContainer>
 </template>

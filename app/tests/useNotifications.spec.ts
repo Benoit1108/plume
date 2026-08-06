@@ -45,8 +45,8 @@ describe('notificationTarget', () => {
   })
 
   it('mène aux Réglages pour une reconnexion de boîte (peu importe le payload)', () => {
-    expect(notificationTarget({ type: 'mailbox_disconnected', payload: { leadId: 'L42' } })).toBe('/settings')
-    expect(notificationTarget({ type: 'mailbox_disconnected', payload: {} })).toBe('/settings')
+    expect(notificationTarget({ type: 'mailbox_disconnected', payload: { leadId: 'L42' } })).toBe('/settings?tab=mailbox')
+    expect(notificationTarget({ type: 'mailbox_disconnected', payload: {} })).toBe('/settings?tab=mailbox')
   })
 
   it('mène à la file de tri pour un nouveau candidat', () => {

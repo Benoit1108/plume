@@ -693,6 +693,11 @@
   "account": {
     "eyebrow": "Account",
     "title": "Account",
+    "tabs": {
+      "profile": "Identity",
+      "security": "Security",
+      "data": "My data"
+    },
     "identity": {
       "title": "Display name",
       "intro": "Used to greet you and personalise the interface.",
@@ -883,6 +888,14 @@
   "settings": {
     "eyebrow": "Preferences",
     "title": "Settings",
+    "tabs": {
+      "profile": "Profile",
+      "prospecting": "Prospecting",
+      "notifications": "Notifications",
+      "mailbox": "Mailbox",
+      "sources": "Sources",
+      "billing": "Subscription"
+    },
     "billing": {
       "title": "Subscription",
       "status": {

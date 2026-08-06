@@ -8,7 +8,7 @@ test('Réglages : ajouter puis retirer un flux d\'annonces RSS', async ({ page }
   const errors = watchConsole(page)
 
   await login(page)
-  await page.goto('/settings')
+  await page.goto('/settings?tab=sources')
   await waitForHydration(page)
 
   await expect(page.getByText(/sources d'annonces|announcement sources/i)).toBeVisible()

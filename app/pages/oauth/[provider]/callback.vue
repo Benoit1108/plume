@@ -22,7 +22,7 @@ onMounted(async () => {
   try {
     await mailbox.connect(code, state)
     toast.add({ title: t('mailbox.toasts.connected'), color: 'success' })
-    await navigateTo('/settings')
+    await navigateTo('/settings?tab=mailbox')
   }
   catch {
     failed.value = true
@@ -41,7 +41,7 @@ onMounted(async () => {
       </template>
       <template v-else>
         <UAlert color="error" variant="soft" icon="i-lucide-alert-triangle" :title="t('mailbox.callback.failed')" />
-        <UButton class="mt-4" variant="outline" to="/settings">{{ t('mailbox.callback.backToSettings') }}</UButton>
+        <UButton class="mt-4" variant="outline" to="/settings?tab=mailbox">{{ t('mailbox.callback.backToSettings') }}</UButton>
       </template>
     </div>
   </UContainer>

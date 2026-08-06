@@ -96,7 +96,7 @@ function isOverdue(lead: Lead): boolean {
             color="neutral"
             icon="i-lucide-pencil"
             :aria-label="t('today.goal.edit')"
-            to="/settings"
+            to="/settings?tab=prospecting"
           />
         </div>
         <UProgress :model-value="progress" class="mt-3" :aria-label="t('today.goal.title')" />
