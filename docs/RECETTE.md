@@ -4,9 +4,14 @@
 > Chaque scénario donne le **but**, les **étapes**, les **données à utiliser** et le **résultat
 > attendu**. Coche au fur et à mesure. Le métier est en **français**, l'app est bilingue **FR/EN**.
 >
-> Deux façons de recetter :
-> - **avec le jeu de démonstration** (`make seed`) — recommandé : tout est déjà rempli (Marie
->   Lefèvre, éditeurs, pistes réparties sur tout le pipeline, annonces à trier) ;
+> Trois façons de recetter :
+> - **avec le jeu de démonstration** (`make seed`) — tout est déjà rempli (Marie Lefèvre, éditeurs,
+>   pistes réparties sur tout le pipeline, annonces à trier) ; c'est ce jeu que décrivent les
+>   scénarios ci-dessous, qui citent des organisations par leur nom ;
+> - **avec du VOLUME** (`make seed-full`) — le même jeu, plus ~40 organisations et leurs pistes,
+>   une cloche pleine et des valeurs estimées : indispensable pour juger ce qui ne se voit qu'en
+>   nombre (pagination du répertoire sur 3 pages, kanban dense, longues listes d'« Aujourd'hui »,
+>   clients dormants à réactiver). Déterministe : deux exécutions donnent le même jeu ;
 > - **à froid** (base vide) — pour vérifier les écrans vides et la création pas à pas.
 
 ---

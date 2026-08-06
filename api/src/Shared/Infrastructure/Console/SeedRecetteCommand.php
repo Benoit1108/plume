@@ -47,6 +47,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -95,6 +96,17 @@ final class SeedRecetteCommand extends Command
         parent::__construct();
     }
 
+    protected function configure(): void
+    {
+        $this->addOption(
+            'volume',
+            null,
+            InputOption::VALUE_REQUIRED,
+            'Organisations SUPPLÉMENTAIRES à générer (0 = jeu de recette seul ; 40 → 3 pages de répertoire).',
+            '0',
+        );
+    }
+
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
@@ -117,13 +129,25 @@ final class SeedRecetteCommand extends Command
         $counts = $this->seedLeads($tenantId, $organizations);
         $this->seedCandidates($tenantId);
 
+        /** @var string $volumeOption */
+        $volumeOption = $input->getOption('volume');
+        $volume = max(0, (int) $volumeOption);
+        if ($volume > 0) {
+            $extra = $this->seedVolume($tenantId, $volume);
+            $counts['leads'] += $extra['leads'];
+            $counts['interactions'] += $extra['interactions'];
+            $organizations += $extra['organizations'];
+        }
+        $notifications = $this->seedNotifications($tenantId);
+
         $io->success(sprintf(
-            "Recette prête : %d organisations, %d pistes, %d interactions, %d brouillons, %d envois.\nConnexion : %s / %s",
+            "Recette prête : %d organisations, %d pistes, %d interactions, %d brouillons, %d envois, %d notifications.\nConnexion : %s / %s",
             \count($organizations),
             $counts['leads'],
             $counts['interactions'],
             $counts['drafts'],
             $counts['emails'],
+            $notifications,
             self::EMAIL,
             self::PASSWORD,
         ));
@@ -153,7 +177,7 @@ final class SeedRecetteCommand extends Command
     {
         $this->connection->executeStatement(
             'TRUNCATE TABLE "candidate_lead", "outbound_message", "connected_mailbox", "draft", "template", '
-            .'"interaction", "lead", "organization", "profile" RESTART IDENTITY CASCADE',
+            .'"interaction", "lead", "organization", "profile", "notification" RESTART IDENTITY CASCADE',
         );
     }
 
@@ -499,6 +523,279 @@ final class SeedRecetteCommand extends Command
         }
 
         return $added;
+    }
+
+    /**
+     * VOLUME (option `--volume`) : ajoute des organisations et des pistes en nombre, PAR-DESSUS le
+     * jeu de recette curaté — qui reste identique, car la recette documentée s'y réfère par nom.
+     *
+     * Objectif : voir comment les écrans réagissent quand il y a vraiment des données (pagination
+     * du répertoire, kanban dense, tableau de bord, file de tri, clients dormants). Déterministe
+     * (graine fixe) : deux exécutions donnent le même jeu, donc une recette reproductible.
+     *
+     * @return array{organizations: array<string, array<string, mixed>>, leads: int, interactions: int}
+     */
+    private function seedVolume(TenantId $tenantId, int $count): array
+    {
+        mt_srand(2026); // reproductible d'une exécution à l'autre
+
+        $organizations = [];
+        $leads = 0;
+        $interactions = 0;
+
+        foreach ($this->volumeSpecs($count) as $index => $spec) {
+            $org = Organization::create(
+                OrganizationId::fromString($this->ids->generate()),
+                $tenantId,
+                $spec['name'],
+                $spec['type'],
+                $this->daysAgo(mt_rand(30, 400)),
+                null,
+                CountryCode::fromString($spec['country']),
+                array_map(static fn (string $l): LanguageCode => LanguageCode::fromString($l), $spec['languages']),
+                [$spec['segment']],
+            );
+
+            $contactId = null;
+            if (null !== $spec['contact']) {
+                $contactId = ContactId::fromString($this->ids->generate());
+                $org->addContact(new Contact(
+                    $contactId,
+                    $spec['contact'],
+                    $spec['role'],
+                    EmailAddress::fromString($spec['email']),
+                ), $this->now);
+            }
+            // Une organisation sur huit est marquée « ne pas démarcher » : le drapeau doit se voir
+            // dans une longue liste, pas seulement sur un exemple isolé.
+            if (0 === $index % 8 && 0 !== $index) {
+                $org->markDoNotContact($this->now);
+            }
+            $this->organizations->save($org);
+            $organizations[$spec['name']] = ['id' => $org->id()->toString(), 'name' => $spec['name']];
+
+            // Pas de piste sur les organisations « ne pas démarcher » ni sur celles sans contact :
+            // un répertoire réel contient aussi des cibles repérées mais pas encore travaillées.
+            if (null === $contactId || (0 === $index % 8 && 0 !== $index) || 0 === $index % 5) {
+                continue;
+            }
+
+            $result = $this->volumeLead($tenantId, $org->id()->toString(), $contactId->toString(), $spec);
+            ++$leads;
+            $interactions += $result;
+        }
+
+        return ['organizations' => $organizations, 'leads' => $leads, 'interactions' => $interactions];
+    }
+
+    /**
+     * Fiches d'organisations plausibles et VARIÉES (types, pays, segments, langues), assemblées à
+     * partir de fragments — donc toutes distinctes, ce qu'exige l'unicité du nom par tenant.
+     *
+     * @return list<array{name: string, type: OrganizationType, country: string, languages: list<string>, segment: Segment, contact: ?string, role: ?string, email: string, pair: string}>
+     */
+    private function volumeSpecs(int $count): array
+    {
+        $publishers = ['Éditions du Ruisseau', 'Éditions Marelle', 'Presses de la Colline', 'Éditions Vent Debout', 'Maison Aurore', 'Éditions Papier Bleu', 'Le Chat Curieux', 'Éditions Nord Lumière', 'Presses du Fleuve', 'Éditions Sablier', 'Petite Ourse Éditions', 'Éditions Grand Large', 'Éditions Carnet Rouge', 'Presses de l\'Ourcq', 'Éditions Bel Été', 'Maison Ficelle'];
+        $studios = ['Studio Vocalis', 'Atelier Doublage Lyon', 'Studio Bord de Seine', 'Sonoris Post', 'Studio Kaléido', 'Média Sonore Bruxelles', 'Studio Alcyon', 'Voxa Productions', 'Studio Cinquième Avenue', 'Atelier Sous-Titres', 'Studio Halo', 'Post-Prod Garonne', 'Studio Mistral', 'Atelier Voix du Nord'];
+        $agencies = ['Agence Verbatim', 'Lingua Nord', 'Traduco Plus', 'Mots & Mesures', 'Agence Passerelle', 'Global Words Paris', 'Trad Atlantique', 'Agence Boréale', 'Localis Partners', 'Verbe & Cie', 'Agence Méridien', 'Lingua Rhône', 'Trad Cévennes', 'Agence Quatre Vents'];
+        $others = ['Institut Mémoire Vive', 'Fondation Horizon', "Musée de l'Estampe", 'Association Kernel', 'Observatoire des Usages', 'Centre Culturel Lumen', 'Fondation Trait d\'Union', 'Institut des Récits'];
+
+        $firstNames = ['Camille', 'Julien', 'Sarah', 'Marc', 'Inès', 'Antoine', 'Laura', 'Nicolas', 'Chloé', 'Hugo', 'Manon', 'Pierre', 'Alice', 'Théo', 'Nadia', 'Vincent'];
+        $lastNames = ['Renard', 'Moreau', 'Lambert', 'Da Silva', 'Klein', 'Bonnet', 'Perrin', 'Nguyen', 'Roche', 'Simon', 'Aubry', 'Leroy', 'Chevalier', 'Barbier', 'Muller', 'Colin'];
+
+        $pools = [
+            [$publishers, OrganizationType::PUBLISHER, Segment::PUBLISHING, ['Éditrice', 'Responsable de collection', 'Directeur littéraire'], 'en>fr'],
+            [$studios, OrganizationType::AV_STUDIO, Segment::AUDIOVISUAL, ['Chef de projet', 'Coordinatrice sous-titrage', 'Responsable localisation'], 'en>fr'],
+            [$agencies, OrganizationType::AGENCY, Segment::TECHNICAL, ['Vendor Manager', 'Chargée de projet', 'Responsable achats'], 'es>fr'],
+            [$others, OrganizationType::OTHER, Segment::OTHER, ['Contact général', 'Chargé de communication', null], 'en>fr'],
+        ];
+        $countries = ['FR', 'FR', 'FR', 'BE', 'CH', 'CA', 'GB', 'DE', 'ES'];
+        $languageSets = [['fr', 'en'], ['fr', 'en', 'es'], ['fr', 'es'], ['fr', 'en', 'de']];
+
+        $available = array_sum(array_map(static fn (array $pool): int => \count($pool[0]), $pools));
+        $target = min($count, $available); // jamais plus de noms qu'il n'en existe : tous distincts
+
+        $specs = [];
+        $cursors = [0, 0, 0, 0];
+        for ($i = 0; \count($specs) < $target; ++$i) {
+            $poolIndex = $i % 4;
+            [$names, $type, $segment, $roles, $pair] = $pools[$poolIndex];
+            $cursor = $cursors[$poolIndex]++;
+            if ($cursor >= \count($names)) {
+                continue; // ce vivier est épuisé ; les autres prennent le relais
+            }
+
+            $name = $names[$cursor];
+            $first = $firstNames[($i * 3) % \count($firstNames)];
+            $last = $lastNames[($i * 5) % \count($lastNames)];
+            $slug = self::slug($name, 'org');
+
+            $specs[] = [
+                'name' => $name,
+                'type' => $type,
+                'country' => $countries[$i % \count($countries)],
+                'languages' => $languageSets[$i % \count($languageSets)],
+                'segment' => $segment,
+                // Une organisation sur sept n'a pas encore de contact identifié.
+                'contact' => 0 === $i % 7 ? null : $first.' '.$last,
+                'role' => $roles[$i % \count($roles)],
+                // Slugifié des DEUX côtés : « Da Silva » ou « Chloé » produisaient sinon une adresse
+                // invalide (espace, accent), refusée par le VO EmailAddress.
+                'email' => self::slug(mb_substr($first, 0, 1), 'x').'.'.self::slug($last, 'contact').'@'.mb_substr($slug, 0, 18).'.example',
+                'pair' => $pair,
+            ];
+        }
+
+        return $specs;
+    }
+
+    /** Translittère en ASCII minuscule sans séparateur — pour composer des adresses valides. */
+    private static function slug(string $value, string $fallback): string
+    {
+        $ascii = iconv('UTF-8', 'ASCII//TRANSLIT', $value);
+        $slug = mb_strtolower((string) preg_replace('/[^a-zA-Z0-9]+/', '', false !== $ascii ? $ascii : ''));
+
+        return '' !== $slug ? $slug : $fallback;
+    }
+
+    /**
+     * Une piste datée sur l'organisation donnée, dans un statut tiré au sort — la répartition
+     * remplit toutes les colonnes du kanban, y compris les cas qui ne se voient qu'en volume :
+     * relances en retard, clients gagnés DORMANTS (« À réactiver »), pistes perdues anciennes.
+     *
+     * @param array{pair: string, segment: Segment, name: string} $spec
+     *
+     * @return int nombre d'interactions écrites
+     */
+    private function volumeLead(TenantId $tenantId, string $orgId, string $contactId, array $spec): int
+    {
+        $outcomes = ['tocontact', 'tocontact', 'contacted', 'contacted', 'contacted', 'followed', 'followed', 'discussion', 'sample', 'paused', 'won', 'won', 'lost', 'dormant'];
+        $outcome = $outcomes[mt_rand(0, \count($outcomes) - 1)];
+        $priorities = [Priority::LOW, Priority::MEDIUM, Priority::MEDIUM, Priority::HIGH];
+        $sources = [LeadSource::DIRECT, LeadSource::REFERRAL, LeadSource::JOB_BOARD, LeadSource::OTHER];
+
+        $contactDaysAgo = 'tocontact' === $outcome ? null : ('dormant' === $outcome ? mt_rand(200, 320) : mt_rand(4, 60));
+        $createdAt = $this->daysAgo(null !== $contactDaysAgo ? $contactDaysAgo + mt_rand(1, 6) : mt_rand(1, 10));
+
+        $leadId = $this->ids->generate();
+        $lead = Lead::create(
+            LeadId::fromString($leadId),
+            $tenantId,
+            $orgId,
+            $contactId,
+            LanguagePair::fromString($spec['pair']),
+            $sources[mt_rand(0, 3)],
+            $priorities[mt_rand(0, 3)],
+            $spec['segment'],
+            $createdAt,
+        );
+        $interactions = $this->interaction($leadId, 'created', $createdAt, ['organizationId' => $orgId]);
+
+        if (null !== $contactDaysAgo) {
+            $contactAt = $this->daysAgo($contactDaysAgo);
+            $lead->contact($contactAt, $this->followUpIds);
+            $interactions += $this->interaction($leadId, 'contacted', $contactAt);
+
+            if (\in_array($outcome, ['followed', 'discussion', 'sample', 'won', 'lost', 'dormant'], true)) {
+                $fuAt = $this->daysAgo(max(1, $contactDaysAgo - 7));
+                $lead->recordFollowUp($fuAt, $this->followUpIds);
+                $interactions += $this->interaction($leadId, 'followed_up', $fuAt);
+            }
+
+            if (\in_array($outcome, ['discussion', 'sample', 'won', 'dormant'], true)) {
+                $replyAt = $this->daysAgo(max(1, $contactDaysAgo - 10));
+                $lead->recordReply($replyAt, 'Bonjour, merci de votre message — nous revenons vers vous rapidement.');
+                $interactions += $this->interaction($leadId, 'reply', $replyAt, ['preview' => 'Bonjour, merci de votre message — nous revenons vers vous rapidement.']);
+            }
+
+            if ('sample' === $outcome) {
+                $at = $this->daysAgo(max(1, $contactDaysAgo - 12));
+                $lead->moveToSampleTest($at);
+                $interactions += $this->interaction($leadId, 'sample_test', $at);
+            } elseif (\in_array($outcome, ['won', 'dormant'], true)) {
+                // « dormant » : gagnée il y a longtemps et plus aucune trace depuis — c'est ce que
+                // la section « À réactiver » d'Aujourd'hui doit faire remonter.
+                $at = $this->daysAgo(max(1, $contactDaysAgo - 14));
+                $lead->markWon($at);
+                $interactions += $this->interaction($leadId, 'won', $at);
+            } elseif ('lost' === $outcome) {
+                $at = $this->daysAgo(max(1, $contactDaysAgo - 9));
+                $lead->markLost($at);
+                $interactions += $this->interaction($leadId, 'lost', $at);
+            } elseif ('paused' === $outcome) {
+                $at = $this->daysAgo(max(1, $contactDaysAgo - 5));
+                $lead->pause($at);
+                $interactions += $this->interaction($leadId, 'paused', $at, ['from' => 'CONTACTED']);
+            }
+        }
+
+        // Valeur estimée : sans elle, le tableau de bord affiche « 0 € » de pipeline et l'export CSV
+        // ne montre rien. TOUJOURS sur les pistes gagnées — sinon le KPI « valeur gagnée » reste
+        // vide, alors que c'est le chiffre que l'on regarde en premier.
+        if (\in_array($outcome, ['won', 'dormant'], true) || mt_rand(1, 3) > 1) {
+            $lead->changeEstimatedValue(mt_rand(4, 60) * 250, $this->now);
+        }
+
+        $this->leads->save($lead);
+
+        return $interactions;
+    }
+
+    /**
+     * Centre de notifications peuplé : la cloche ne se juge qu'avec du volume (badge « 9+ », lues
+     * et non lues mêlées, cibles variées). Écrit directement dans la projection, comme le ferait
+     * le projecteur sur les domain events.
+     */
+    private function seedNotifications(TenantId $tenantId): int
+    {
+        /** @var list<array{id: string, name: string}> $leads */
+        $leads = $this->connection->fetchAllAssociative(
+            'SELECT l.id, o.name FROM lead l JOIN organization o ON o.id = l.organization_id
+             WHERE l.tenant_id = :tenant ORDER BY l.created_at DESC LIMIT 12',
+            ['tenant' => $tenantId->toString()],
+        );
+        if ([] === $leads) {
+            return 0;
+        }
+
+        // [type, payload, jours, lue ?]
+        $specs = [];
+        foreach ($leads as $i => $lead) {
+            $type = match ($i % 4) {
+                0 => 'reply_received',
+                1 => 'followup_due',
+                2 => 'client_dormant',
+                default => 'email_send_failed',
+            };
+            $payload = match ($type) {
+                'reply_received' => ['leadId' => $lead['id'], 'preview' => 'Bonjour, merci pour votre message — pouvons-nous en discuter cette semaine ?'],
+                // `orgName` — la clé EXACTE écrite par les ticks (`NotifyDueFollowUpsHandler`,
+                // `NotifyDormantClientsHandler`) ; avec une autre, la cloche affiche « — ? ».
+                'followup_due' => ['leadId' => $lead['id'], 'orgName' => $lead['name'], 'label' => null],
+                'client_dormant' => ['leadId' => $lead['id'], 'orgName' => $lead['name']],
+                default => ['leadId' => $lead['id'], 'reason' => 'quota_exceeded'],
+            };
+            // Les quatre plus anciennes sont déjà lues : la liste doit montrer les DEUX états.
+            $specs[] = [$type, $payload, $i, $i >= 8];
+        }
+        $specs[] = ['candidate_to_triage', ['candidateLeadId' => $this->ids->generate(), 'source' => 'LINKEDIN'], 1, false];
+        $specs[] = ['mailbox_disconnected', ['reason' => 'invalid_grant'], 3, false];
+
+        foreach ($specs as [$type, $payload, $daysAgo, $read]) {
+            $occurredOn = $this->daysAgo($daysAgo)->modify('+'.mt_rand(0, 8).' hours');
+            $this->connection->insert('notification', [
+                'id' => Uuid::v7()->toRfc4122(),
+                'event_id' => Uuid::v7()->toRfc4122(),
+                'tenant_id' => $tenantId->toString(),
+                'type' => $type,
+                'payload' => json_encode($payload, \JSON_THROW_ON_ERROR),
+                'read_at' => $read ? $occurredOn->modify('+2 hours')->format('Y-m-d H:i:s') : null,
+                'occurred_on' => $occurredOn->format('Y-m-d H:i:s.u'),
+            ]);
+        }
+
+        return \count($specs);
     }
 
     /** @param array<string, mixed> $payload @return int toujours 1 (pour cumuler le compteur) */

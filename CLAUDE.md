@@ -73,6 +73,7 @@ make cs-fix         # PHP-CS-Fixer
 make openapi        # régénère api/openapi.json (obligatoire après tout changement d'API)
 make hooks          # installe le hook git pre-commit
 make seed           # jeu de données de RECETTE (dev only : recette@plume.fr / recette-2026)
+make seed-full      # idem + VOLUME (~50 organisations, cloche pleine) : pagination, listes longues
 
 cd app && npm run dev          # front (http://localhost:3000, proxy /api vers l'API)
 cd app && npm run test:coverage / lint / type-check

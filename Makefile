@@ -47,6 +47,9 @@ migrate: ## Applique les migrations Doctrine + crée les transports Messenger (p
 seed: ## Jeu de données de RECETTE (dev only : recette@plume.fr / recette-2026)
 	$(PHP_DB) php bin/console app:dev:seed
 
+seed-full: ## Recette AVEC VOLUME (~50 organisations : pagination, kanban dense, cloche pleine)
+	$(PHP_DB) php bin/console app:dev:seed --volume=40
+
 hooks: ## Installe le hook git pre-commit (cs-fixer + eslint)
 	git config core.hooksPath .githooks
 	chmod +x .githooks/pre-commit
