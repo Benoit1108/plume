@@ -252,6 +252,7 @@
     "label": "Langue"
   },
   "nav": {
+    "skipToContent": "Aller au contenu",
     "menu": "Navigation",
     "admin": "Back-office",
     "openMenu": "Ouvrir le menu",
@@ -426,6 +427,11 @@
       "WON": "Gagnée",
       "LOST": "Perdue",
       "PAUSED": "En pause"
+    },
+    "priorityInitials": {
+      "HIGH": "H",
+      "MEDIUM": "M",
+      "LOW": "B"
     },
     "priorities": {
       "LOW": "Basse",
@@ -1008,7 +1014,9 @@
       "outreachHint": "contacts + relances",
       "activeLeads": "Pistes actives",
       "firstResponse": "Délai de 1re réponse",
-      "firstResponseDays": "{days} j",
+      "firstResponseDays": "{value} j",
+      "firstResponseHours": "{value} h",
+      "firstResponseMinutes": "{value} min",
       "firstResponseHint": "moyenne, du 1er contact à la réponse",
       "pipelineValue": "Valeur du pipeline",
       "wonValue": "gagné : {value}"

@@ -13,14 +13,30 @@ onMounted(() => {
   void sourcing.refreshCount()
 })
 
-// Ferme le tiroir dès qu'on change de page.
+// Le contenu principal reçoit le focus à chaque navigation : en SPA, sans ça, le focus reste sur
+// le lien cliqué et un lecteur d'écran ne signale pas qu'on a changé d'écran (revue UX-P2d).
+const mainRef = ref<HTMLElement | null>(null)
+function focusMain(): void {
+  void nextTick(() => mainRef.value?.focus())
+}
+
+// Ferme le tiroir dès qu'on change de page, et repositionne le focus sur le contenu.
 watch(() => route.path, () => {
   navOpen.value = false
+  focusMain()
 })
 </script>
 
 <template>
   <div class="min-h-screen flex bg-default text-default">
+    <!-- Lien d'évitement : au clavier, la barre latérale (7 liens) était retraversée à CHAQUE page
+         avant d'atteindre le contenu (revue UX-P2d). Invisible tant qu'il n'a pas le focus. -->
+    <a
+      href="#contenu"
+      class="sr-only focus:not-sr-only focus:fixed focus:z-50 focus:top-3 focus:left-3 focus:px-3 focus:py-2 focus:rounded-lg focus:bg-elevated focus:text-default focus:outline-2 focus:outline-primary"
+      @click="focusMain"
+    >{{ t('nav.skipToContent') }}</a>
+
     <aside
       class="shrink-0 border-r border-default hidden md:flex flex-col motion-safe:transition-[width] motion-safe:duration-200"
       :class="navCollapsed ? 'w-16 px-2 py-4' : 'w-56 p-4'"
@@ -52,7 +68,7 @@ watch(() => route.path, () => {
         <ThemeToggle />
         <AccountMenu />
       </header>
-      <main class="flex-1 min-w-0">
+      <main id="contenu" ref="mainRef" tabindex="-1" class="flex-1 min-w-0 outline-none">
         <DemoBanner />
         <SubscriptionBanner />
         <slot />

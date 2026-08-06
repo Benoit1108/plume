@@ -115,7 +115,7 @@ const hasActivity = computed(() =>
           <DashboardKpiCard :label="t('dashboard.kpis.activeLeads')" :value="String(board.activeLeads)" :hint="t('dashboard.pipeline.total', { count: totalLeads }, totalLeads)" />
           <DashboardKpiCard
             :label="t('dashboard.kpis.firstResponse')"
-            :value="firstResponseDelay === null ? '—' : t('dashboard.kpis.firstResponseDays', { days: firstResponseDelay })"
+            :value="formatResponseDelay(firstResponseDelay, (unit, value) => t(`dashboard.kpis.firstResponse${unit === 'days' ? 'Days' : unit === 'hours' ? 'Hours' : 'Minutes'}`, { value }, value))"
             :hint="t('dashboard.kpis.firstResponseHint')"
           />
           <DashboardKpiCard

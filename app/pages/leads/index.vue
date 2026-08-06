@@ -4,7 +4,7 @@ import type { Lead, LeadStatus } from '~/types/domain/leads'
 const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
-const { statusLabel, priorityLabel, pairLabel } = useLeadLabels()
+const { statusLabel, priorityLabel, priorityInitial, pairLabel } = useLeadLabels()
 const { segmentLabel, segmentOptions } = useDirectoryLabels()
 const leadsApi = useLeads()
 const toast = useToast()
@@ -41,10 +41,13 @@ const byStatus = computed(() => {
   return groups
 })
 
+// Priorité : la couleur SEULE ne suffit pas (WCAG 1.4.1 — revue UX-P2e). Un daltonien voyant ne
+// distinguait rien : le `sr-only` sert les lecteurs d'écran, pas les yeux. On ajoute une initiale
+// dans la pastille, qui reste discrète mais lisible.
 const priorityDot: Record<string, string> = {
-  HIGH: 'bg-error',
-  MEDIUM: 'bg-warning',
-  LOW: 'bg-elevated',
+  HIGH: 'bg-error text-inverted',
+  MEDIUM: 'bg-warning text-inverted',
+  LOW: 'bg-elevated text-muted',
 }
 
 // --- Glisser-déposer : déplacer une piste d'une colonne à l'autre. ---
@@ -173,11 +176,11 @@ async function onDrop(targetStatus: LeadStatus): Promise<void> {
               >
                 <div class="flex items-center gap-2">
                   <span
-                    class="w-2 h-2 rounded-full shrink-0"
+                    class="w-4 h-4 rounded-full shrink-0 inline-flex items-center justify-center text-[9px] font-semibold leading-none"
                     :class="priorityDot[lead.priority]"
                     :title="priorityLabel(lead.priority)"
                     aria-hidden="true"
-                  />
+                  >{{ priorityInitial(lead.priority) }}</span>
                   <span class="font-medium text-sm truncate">{{ lead.organizationName }}</span>
                 </div>
                 <div class="mt-1.5 flex items-center gap-1.5 flex-wrap">

@@ -15,6 +15,8 @@ export function useLeadLabels() {
 
   const statusLabel = (status: string): string => customStatusLabels.value[status] || t(`pipeline.statuses.${status}`, status)
   const priorityLabel = (priority: string): string => t(`pipeline.priorities.${priority}`, priority)
+  /** Initiale portée par la pastille du kanban : la couleur seule n'informe pas un daltonien. */
+  const priorityInitial = (priority: string): string => t(`pipeline.priorityInitials.${priority}`, '')
   const sourceLabel = (source: string): string => t(`pipeline.sources.${source}`, source)
   const actionLabel = (action: string): string => t(`pipeline.actions.${action}`, action)
 
@@ -24,5 +26,5 @@ export function useLeadLabels() {
   /** « en>fr » → « en → fr » (affichage). */
   const pairLabel = (pair: string): string => pair.replace('>', ' → ')
 
-  return { statusLabel, priorityLabel, sourceLabel, actionLabel, pairLabel, priorityOptions, sourceOptions }
+  return { statusLabel, priorityLabel, priorityInitial, sourceLabel, actionLabel, pairLabel, priorityOptions, sourceOptions }
 }
