@@ -7,7 +7,7 @@ const titleWords = computed(() => t('landing.hero.title').split(' '))
   <section class="relative overflow-hidden">
     <div class="ink-bloom pointer-events-none absolute inset-x-0 top-0 h-[520px]" data-parallax="0.12" aria-hidden="true" />
     <LandingFeather
-      class="pointer-events-none absolute top-8 -right-4 w-[130px] md:w-[170px] text-primary opacity-[0.15] will-change-transform"
+      class="pointer-events-none absolute top-8 right-10 w-[110px] md:w-[140px] text-primary opacity-[0.15] will-change-transform"
       data-parallax="-0.22"
       data-mouse="16"
       data-rot="8"
