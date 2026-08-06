@@ -1,4 +1,10 @@
 {
+  "seo": {
+    "landingTitle": "Plume — le CRM de prospection des traductrices",
+    "landingDescription": "Repérez les bonnes maisons d'édition, studios et agences, écrivez des messages qui sonnent juste, relancez au bon moment et suivez chaque réponse. Essai 14 jours, sans carte bancaire.",
+    "loginTitle": "Connexion",
+    "registerTitle": "Créer un compte"
+  },
   "auth": {
     "tagline": "L'atelier de prospection des traducteurs.",
     "email": "Email",
@@ -25,6 +31,7 @@
       "submit": "Créer mon compte",
       "haveAccount": "J'ai déjà un compte",
       "acceptTerms": "J'accepte les {terms} et la {privacy}.",
+      "emailRequired": "Renseignez votre email.",
       "mustAccept": "Vous devez accepter les conditions.",
       "emailTaken": "Un compte existe déjà avec cet email.",
       "error": "L'inscription a échoué. Réessayez.",
@@ -248,6 +255,7 @@
     "menu": "Navigation",
     "admin": "Back-office",
     "openMenu": "Ouvrir le menu",
+    "skipToContent": "Aller au contenu",
     "home": "Accueil",
     "collapse": "Réduire le menu",
     "expand": "Déplier le menu",
@@ -843,6 +851,10 @@
       "kpiResponse": "Taux de réponse",
       "kpiFollowups": "Relances / sem.",
       "kpiPipeline": "Pipeline actif",
+      "tablistLabel": "Aperçu du produit",
+      "pause": "Mettre l'aperçu en pause",
+      "play": "Reprendre l'aperçu",
+      "scrollHint": "Voir comment ça marche",
       "tagNovel": "Édition · roman",
       "tagChildren": "Édition · jeunesse",
       "tagDubbing": "Doublage"

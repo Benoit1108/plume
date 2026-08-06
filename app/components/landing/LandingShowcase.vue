@@ -54,12 +54,40 @@ const goalWidth = computed(() => (mounted.value && activeSlide.value === 0) ? '6
 
 watch(activeSlide, (n) => { if (n === 2) animateCounters() })
 
+// Contrôle du défilement (WCAG 2.2.2 « Pause, Stop, Hide ») : un contenu qui bouge seul plus de
+// 5 s doit être arrêtable. `paused` est l'état PILOTÉ (bouton, ou première interaction avec les
+// onglets : l'utilisateur a pris la main, on ne lui reprend pas). `suspended` est temporaire
+// (survol / focus clavier) et ne change pas l'intention.
+const paused = ref(false)
+const suspended = ref(false)
+const reducedMotion = ref(false)
+const running = computed(() => !paused.value && !suspended.value && !reducedMotion.value)
+
+const tabId = (i: number) => `showcase-tab-${i}`
+const panelId = (i: number) => `showcase-panel-${i}`
+
+function selectSlide(index: number): void {
+  activeSlide.value = (index + slides.length) % slides.length
+  paused.value = true // interaction explicite : on cesse de bousculer l'utilisateur
+}
+
+const tabEls = ref<HTMLElement[]>([])
+function onTabKeydown(event: KeyboardEvent, index: number): void {
+  const step = { ArrowRight: 1, ArrowLeft: -1, Home: -index, End: slides.length - 1 - index }[event.key]
+  if (undefined === step) return
+  event.preventDefault()
+  const next = (index + step + slides.length) % slides.length
+  selectSlide(next)
+  tabEls.value[next]?.focus() // tabindex mobile : le focus suit l'onglet actif
+}
+
 const showcaseEl = ref<HTMLElement>()
 const frameEl = ref<HTMLElement>()
 let cleanups: Array<() => void> = []
 
 onMounted(() => {
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  reducedMotion.value = reduced
   mounted.value = true
   if (reduced) counts.value = kpis.map(k => k.target)
 
@@ -78,17 +106,31 @@ onMounted(() => {
     cleanups.push(() => { sc.removeEventListener('mousemove', onFrame); sc.removeEventListener('mouseleave', onLeave) })
   }
 
+  // Le défilement est piloté par `running` : plus de start/stop dispersés, un seul point de vérité.
   let timer: ReturnType<typeof setInterval> | undefined
-  const start = () => { if (!reduced) timer = setInterval(() => { activeSlide.value = (activeSlide.value + 1) % slides.length }, 3600) }
-  const stop = () => { if (timer) clearInterval(timer) }
-  start()
+  const stop = () => { if (timer) { clearInterval(timer); timer = undefined } }
+  const sync = () => {
+    stop()
+    if (running.value) timer = setInterval(() => { activeSlide.value = (activeSlide.value + 1) % slides.length }, 3600)
+  }
+  const unwatch = watch(running, sync, { immediate: true })
+  cleanups.push(() => { unwatch(); stop() })
+
   if (showcaseEl.value) {
     const sc = showcaseEl.value
-    sc.addEventListener('mouseenter', stop)
-    sc.addEventListener('mouseleave', start)
-    cleanups.push(() => { sc.removeEventListener('mouseenter', stop); sc.removeEventListener('mouseleave', start) })
+    const on = () => { suspended.value = true }
+    const off = () => { suspended.value = false }
+    // Le focus clavier suspend aussi : au clavier, le survol n'existe pas (WCAG 2.2.2).
+    for (const [event, handler] of [['mouseenter', on], ['mouseleave', off], ['focusin', on], ['focusout', off]] as const) {
+      sc.addEventListener(event, handler)
+      cleanups.push(() => sc.removeEventListener(event, handler))
+    }
   }
-  cleanups.push(stop)
+
+  // Onglet masqué : rien ne sert à animer (CPU/batterie).
+  const onVisibility = () => { suspended.value = document.hidden }
+  document.addEventListener('visibilitychange', onVisibility)
+  cleanups.push(() => document.removeEventListener('visibilitychange', onVisibility))
 })
 
 onBeforeUnmount(() => { cleanups.forEach(fn => fn()); cleanups = [] })
@@ -105,7 +147,7 @@ onBeforeUnmount(() => { cleanups.forEach(fn => fn()); cleanups = [] })
       </div>
       <div class="relative h-[336px]">
         <!-- Écran 1 : Aujourd'hui -->
-        <div class="slide p-5" :class="{ active: activeSlide === 0 }">
+        <div :id="panelId(0)" role="tabpanel" :aria-labelledby="tabId(0)" :inert="activeSlide !== 0" class="slide p-5" :class="{ active: activeSlide === 0 }">
           <p class="text-sm text-muted">{{ t('landing.preview.caption') }}</p>
           <ul class="mt-4 flex flex-col gap-2">
             <li v-for="row in todayRows" :key="row.name" class="flex items-center gap-3 rounded-lg border border-default bg-default px-3 py-2.5">
@@ -129,7 +171,7 @@ onBeforeUnmount(() => { cleanups.forEach(fn => fn()); cleanups = [] })
         </div>
 
         <!-- Écran 2 : Pipeline -->
-        <div class="slide p-5" :class="{ active: activeSlide === 1 }">
+        <div :id="panelId(1)" role="tabpanel" :aria-labelledby="tabId(1)" :inert="activeSlide !== 1" class="slide p-5" :class="{ active: activeSlide === 1 }">
           <p class="text-sm text-muted">{{ t('landing.showcase.pipelineCaption') }}</p>
           <div class="mt-4 grid grid-cols-3 gap-2.5">
             <div v-for="col in pipelineCols" :key="col.key" class="rounded-lg border border-default bg-default p-2.5">
@@ -146,7 +188,7 @@ onBeforeUnmount(() => { cleanups.forEach(fn => fn()); cleanups = [] })
         </div>
 
         <!-- Écran 3 : Tableau de bord -->
-        <div class="slide p-5" :class="{ active: activeSlide === 2 }">
+        <div :id="panelId(2)" role="tabpanel" :aria-labelledby="tabId(2)" :inert="activeSlide !== 2" class="slide p-5" :class="{ active: activeSlide === 2 }">
           <p class="text-sm text-muted">{{ t('landing.showcase.dashboardCaption') }}</p>
           <div class="mt-4 grid grid-cols-3 gap-2.5">
             <div v-for="(k, i) in kpis" :key="k.key" class="rounded-lg border border-default bg-default p-3">
@@ -161,23 +203,51 @@ onBeforeUnmount(() => { cleanups.forEach(fn => fn()); cleanups = [] })
       </div>
     </div>
 
-    <div class="mt-4 flex justify-center gap-2">
-      <button
-        v-for="(s, i) in slides"
-        :key="s"
-        type="button"
-        class="h-2 rounded-full transition-all"
-        :class="activeSlide === i ? 'w-5 bg-primary' : 'w-2 bg-muted hover:bg-primary/50'"
-        :aria-label="t(`landing.showcase.${s}Tab`)"
-        @click="activeSlide = i"
+    <div class="mt-4 flex items-center justify-center gap-1">
+      <!-- Vrais onglets : rôles ARIA + flèches + tabindex mobile (un seul onglet dans l'ordre de
+           tabulation). Zone cliquable de 24×24 px minimum (WCAG 2.5.8) via le padding du bouton,
+           la pastille n'étant que le repère visuel. -->
+      <div role="tablist" :aria-label="t('landing.showcase.tablistLabel')" class="flex items-center">
+        <button
+          v-for="(s, i) in slides"
+          :id="tabId(i)"
+          :key="s"
+          :ref="el => { if (el) tabEls[i] = el as HTMLElement }"
+          type="button"
+          role="tab"
+          :aria-selected="activeSlide === i"
+          :aria-controls="panelId(i)"
+          :tabindex="activeSlide === i ? 0 : -1"
+          class="grid size-6 place-items-center rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          :title="t(`landing.showcase.${s}Tab`)"
+          @click="selectSlide(i)"
+          @keydown="onTabKeydown($event, i)"
+        >
+          <span class="sr-only">{{ t(`landing.showcase.${s}Tab`) }}</span>
+          <span
+            class="block h-2 rounded-full transition-all"
+            :class="activeSlide === i ? 'w-5 bg-primary' : 'w-2 bg-[var(--ui-text-dimmed)]'"
+            aria-hidden="true"
+          />
+        </button>
+      </div>
+      <UButton
+        color="neutral"
+        variant="ghost"
+        size="xs"
+        :icon="paused ? 'i-lucide-play' : 'i-lucide-pause'"
+        :aria-label="paused ? t('landing.showcase.play') : t('landing.showcase.pause')"
+        :title="paused ? t('landing.showcase.play') : t('landing.showcase.pause')"
+        class="ml-1"
+        @click="paused = !paused"
       />
     </div>
 
-    <!-- Indice de scroll (idée 2) -->
+    <!-- Indice de scroll (idée 2) : intitulé explicite, cible 36 px. -->
     <a
       href="#how"
-      class="mt-10 mx-auto flex size-9 items-center justify-center rounded-full border border-default text-dimmed hover:text-primary hover:border-primary/40 transition-colors motion-safe:animate-bounce"
-      :aria-label="t('landing.how.eyebrow')"
+      class="mt-10 mx-auto flex size-9 items-center justify-center rounded-full border border-default text-muted hover:text-primary hover:border-primary/40 transition-colors motion-safe:animate-bounce focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+      :aria-label="t('landing.showcase.scrollHint')"
     >
       <UIcon name="i-lucide-chevron-down" class="size-5" aria-hidden="true" />
     </a>

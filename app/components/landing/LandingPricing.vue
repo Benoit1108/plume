@@ -13,7 +13,9 @@ const included = ['pipeline', 'drafting', 'mailbox', 'sourcing', 'dashboard', 's
       <div class="border border-primary/40 rounded-2xl p-6 bg-elevated/40">
         <div class="flex items-baseline justify-between">
           <h3 class="font-serif text-xl font-semibold">{{ t('landing.pricing.planName') }}</h3>
-          <UBadge color="primary" variant="soft">{{ t('landing.pricing.badge') }}</UBadge>
+          <!-- `outline` et non `soft` : le fond teinté du `soft` fait tomber le violet sous 4,5:1
+               en thème sombre (mesuré 4,30). Sur fond nu, l'accent tient (5,25). -->
+          <UBadge color="primary" variant="outline">{{ t('landing.pricing.badge') }}</UBadge>
         </div>
         <p class="mt-4">
           <span class="font-serif text-4xl font-semibold tabular-nums">{{ t('landing.pricing.monthly') }}</span>

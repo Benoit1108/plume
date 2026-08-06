@@ -6,6 +6,8 @@ const auth = useAuthStore()
 const accountApi = useAccount()
 const toast = useToast()
 
+useSeoMeta({ title: () => `${t('seo.loginTitle')} · Plume` })
+
 const email = ref('')
 const password = ref('')
 const otp = ref('')
@@ -84,9 +86,9 @@ async function resendVerification(): Promise<void> {
           <UInput v-model="otp" inputmode="numeric" autocomplete="one-time-code" required autofocus class="w-full" />
         </UFormField>
 
-        <UAlert v-if="error" color="error" variant="subtle" :description="error" />
+        <UAlert v-if="error" role="alert" color="error" variant="subtle" :description="error" />
 
-        <UAlert v-if="needsVerification" color="warning" variant="subtle" :description="t('auth.verify.needed')">
+        <UAlert v-if="needsVerification" role="alert" color="warning" variant="subtle" :description="t('auth.verify.needed')">
           <template #actions>
             <UButton size="xs" variant="soft" @click="resendVerification">{{ t('auth.verify.resend') }}</UButton>
           </template>

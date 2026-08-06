@@ -35,8 +35,8 @@ onMounted(async () => {
         <div v-if="state === 'verifying'" role="status" class="text-sm text-muted">
           {{ t('auth.verify.verifying') }}
         </div>
-        <UAlert v-else-if="state === 'ok'" color="success" variant="subtle" :description="t('auth.verify.ok')" />
-        <UAlert v-else color="error" variant="subtle" :description="t('auth.verify.error')" />
+        <UAlert v-else-if="state === 'ok'" role="status" color="success" variant="subtle" :description="t('auth.verify.ok')" />
+        <UAlert v-else role="alert" color="error" variant="subtle" :description="t('auth.verify.error')" />
 
         <NuxtLink to="/login" class="text-sm text-muted hover:text-default text-center">
           {{ t('auth.backToLogin') }}

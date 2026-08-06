@@ -12,11 +12,12 @@ const steps = ['find', 'write', 'track'] as const
       </div>
       <ol class="mt-12 grid gap-8 sm:grid-cols-3">
         <li v-for="(s, i) in steps" :key="s" class="reveal" :style="{ transitionDelay: `${i * 0.1}s` }">
-          <div class="flex items-center gap-3">
+          <div class="flex items-center gap-4">
+            <span class="font-mono text-sm text-primary tabular-nums">0{{ i + 1 }}</span>
+            <span class="h-px flex-1 bg-gradient-to-r from-primary/45 to-primary/10" aria-hidden="true" />
             <span class="grid size-10 place-items-center rounded-xl bg-primary/10 text-primary shrink-0">
               <UIcon :name="t(`landing.how.${s}.icon`)" class="size-5" aria-hidden="true" />
             </span>
-            <span class="font-mono text-sm text-primary tabular-nums">0{{ i + 1 }}</span>
           </div>
           <h3 class="mt-4 font-serif text-xl font-semibold">{{ t(`landing.how.${s}.title`) }}</h3>
           <p class="mt-2 text-sm text-muted text-pretty">{{ t(`landing.how.${s}.text`) }}</p>

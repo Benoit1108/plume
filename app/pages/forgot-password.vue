@@ -37,7 +37,7 @@ async function onSubmit(): Promise<void> {
       </div>
 
       <div v-if="sent" class="mt-6 flex flex-col gap-4">
-        <UAlert color="success" variant="subtle" :description="t('auth.forgot.sent')" />
+        <UAlert role="status" color="success" variant="subtle" :description="t('auth.forgot.sent')" />
         <NuxtLink to="/login" class="text-sm text-muted hover:text-default text-center">
           {{ t('auth.backToLogin') }}
         </NuxtLink>

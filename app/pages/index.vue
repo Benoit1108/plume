@@ -4,10 +4,20 @@
 // Sections découpées par domaine (components/landing/*) ; mouvement ambiant dans useLandingMotion.
 definePageMeta({ layout: false })
 
+const { t } = useI18n()
 const auth = useAuthStore()
 if (auth.isAuthenticated) {
   await navigateTo('/today', { replace: true })
 }
+
+// Surcharge côté client (onglet + bascule FR/EN) ; l'HTML généré porte déjà le head statique
+// de nuxt.config, seul lu par les robots et les aperçus de lien.
+useSeoMeta({
+  title: () => t('seo.landingTitle'),
+  description: () => t('seo.landingDescription'),
+  ogTitle: () => t('seo.landingTitle'),
+  ogDescription: () => t('seo.landingDescription'),
+})
 
 const root = ref<HTMLElement>()
 const motes = ref<HTMLCanvasElement>()
@@ -17,7 +27,7 @@ useLandingMotion({ root, canvas: motes, progress })
 </script>
 
 <template>
-  <div ref="root" class="relative min-h-screen bg-default text-default flex flex-col">
+  <div ref="root" class="landing-page relative min-h-screen bg-default text-default flex flex-col">
     <div
       ref="progress"
       class="fixed top-0 left-0 h-0.5 w-0 z-[60]"
@@ -28,7 +38,7 @@ useLandingMotion({ root, canvas: motes, progress })
 
     <LandingHeader />
 
-    <main class="relative z-10 flex-1">
+    <main id="main" class="relative z-10 flex-1">
       <LandingHero />
       <LandingShowcase />
       <LandingHowItWorks />

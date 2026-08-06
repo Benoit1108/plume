@@ -1,4 +1,10 @@
 {
+  "seo": {
+    "landingTitle": "Plume — the prospecting CRM for translators",
+    "landingDescription": "Find the right publishers, studios and agencies, write messages that ring true, follow up at the right time and track every reply. 14-day trial, no credit card.",
+    "loginTitle": "Log in",
+    "registerTitle": "Create account"
+  },
   "auth": {
     "tagline": "The translator's prospecting studio.",
     "email": "Email",
@@ -25,6 +31,7 @@
       "submit": "Create my account",
       "haveAccount": "I already have an account",
       "acceptTerms": "I accept the {terms} and {privacy}.",
+      "emailRequired": "Enter your email address.",
       "mustAccept": "You must accept the terms.",
       "emailTaken": "An account already exists with this email.",
       "error": "Registration failed. Please try again.",
@@ -248,6 +255,7 @@
     "menu": "Navigation",
     "admin": "Back office",
     "openMenu": "Open menu",
+    "skipToContent": "Skip to content",
     "home": "Home",
     "collapse": "Collapse menu",
     "expand": "Expand menu",
@@ -843,6 +851,10 @@
       "kpiResponse": "Response rate",
       "kpiFollowups": "Follow-ups / wk",
       "kpiPipeline": "Active pipeline",
+      "tablistLabel": "Product preview",
+      "pause": "Pause the preview",
+      "play": "Resume the preview",
+      "scrollHint": "See how it works",
       "tagNovel": "Publishing · novel",
       "tagChildren": "Publishing · kids",
       "tagDubbing": "Dubbing"

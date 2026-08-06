@@ -5,6 +5,8 @@ const { t } = useI18n()
 const accountApi = useAccount()
 const toast = useToast()
 
+useSeoMeta({ title: () => `${t('seo.registerTitle')} · Plume` })
+
 const email = ref('')
 const password = ref('')
 const confirmPassword = ref('')
@@ -13,15 +15,9 @@ const loading = ref(false)
 const error = ref('')
 const done = ref(false)
 
-const valid = computed(() =>
-  email.value.trim() !== ''
-  && password.value.length >= 8
-  && password.value === confirmPassword.value
-  && acceptTerms.value,
-)
-
 async function onSubmit(): Promise<void> {
   error.value = ''
+  if (email.value.trim() === '') { error.value = t('auth.register.emailRequired'); return }
   if (password.value.length < 8) { error.value = t('account.errors.tooShort'); return }
   if (password.value !== confirmPassword.value) { error.value = t('account.errors.mismatch'); return }
   if (!acceptTerms.value) { error.value = t('auth.register.mustAccept'); return }
@@ -66,7 +62,7 @@ async function resend(): Promise<void> {
       </div>
 
       <div v-if="done" class="mt-6 flex flex-col gap-4">
-        <UAlert color="success" variant="subtle" :title="t('auth.register.checkEmailTitle')" :description="t('auth.register.checkEmail')" />
+        <UAlert role="status" color="success" variant="subtle" :title="t('auth.register.checkEmailTitle')" :description="t('auth.register.checkEmail')" />
         <div class="flex flex-col gap-1.5 text-center">
           <button type="button" class="text-sm text-muted hover:text-default" @click="resend">
             {{ t('auth.verify.resend') }}
@@ -97,9 +93,11 @@ async function resend(): Promise<void> {
           </template>
         </UCheckbox>
 
-        <UAlert v-if="error" color="error" variant="subtle" :description="error" />
+        <UAlert v-if="error" role="alert" color="error" variant="subtle" :description="error" />
 
-        <UButton type="submit" :loading="loading" :disabled="!valid" block>
+        <!-- Volontairement PAS `:disabled` : un bouton grisé ne dit pas ce qui manque et rend les
+             messages ci-dessous inatteignables (WCAG 3.3.1). onSubmit valide et explique. -->
+        <UButton type="submit" :loading="loading" block>
           {{ t('auth.register.submit') }}
         </UButton>
         <NuxtLink to="/login" class="text-sm text-muted hover:text-default text-center">

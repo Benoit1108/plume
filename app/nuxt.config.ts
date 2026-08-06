@@ -13,6 +13,26 @@ export default defineNuxtConfig({
   // via les classes .page-* de main.css (neutralisées sous mouvement réduit).
   app: {
     pageTransition: { name: 'page', mode: 'out-in' },
+
+    // `head` STATIQUE : en SPA (ssr:false) c'est le seul <head> présent dans l'HTML généré, donc
+    // le seul que voient les robots et les aperçus de lien (LinkedIn/WhatsApp/Slack n'exécutent
+    // pas de JS). Les surcharges par page (`useSeoMeta`) ne servent qu'à l'onglet côté client.
+    // Valeurs en français = locale par défaut ; `lang` est réaligné au runtime dans app.vue.
+    head: {
+      htmlAttrs: { lang: 'fr' },
+      title: 'Plume — le CRM de prospection des traductrices',
+      meta: [
+        { name: 'description', content: 'Repérez les bonnes maisons d\'édition, studios et agences, écrivez des messages qui sonnent juste, relancez au bon moment et suivez chaque réponse. Essai 14 jours, sans carte bancaire.' },
+        { property: 'og:site_name', content: 'Plume' },
+        { property: 'og:type', content: 'website' },
+        { property: 'og:locale', content: 'fr_FR' },
+        { property: 'og:title', content: 'Plume — le CRM de prospection des traductrices' },
+        { property: 'og:description', content: 'Décrochez plus de clients, sans y passer vos journées. Essai 14 jours, sans carte bancaire.' },
+        { name: 'twitter:card', content: 'summary_large_image' },
+        // og:url + og:image (absolus) : à renseigner au 1er déploiement, quand le domaine existe
+        // (cf. docs/ops/deploiement-vps.md) — un aperçu de lien sans image reste valide.
+      ],
+    },
   },
 
   // @nuxt/ui : composants + thème clair/sombre (color-mode) + design tokens.

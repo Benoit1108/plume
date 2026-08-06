@@ -101,7 +101,20 @@ export function useLandingMotion(refs: {
         seed()
         loop()
         window.addEventListener('resize', onResize)
-        cleanups.push(() => { cancelAnimationFrame(raf); window.removeEventListener('resize', onResize) })
+
+        // Onglet masqué : on suspend la boucle. Sans cela, 90 particules continuent d'être
+        // redessinées en arrière-plan (CPU/batterie) alors que personne ne les voit.
+        const onVisibility = () => {
+          cancelAnimationFrame(raf)
+          if (!document.hidden) loop()
+        }
+        document.addEventListener('visibilitychange', onVisibility)
+
+        cleanups.push(() => {
+          cancelAnimationFrame(raf)
+          window.removeEventListener('resize', onResize)
+          document.removeEventListener('visibilitychange', onVisibility)
+        })
       }
     }
   })

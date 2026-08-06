@@ -18,7 +18,12 @@ const titleWords = computed(() => t('landing.hero.title').split(' '))
       <p class="enter font-mono text-xs uppercase tracking-[0.2em] text-primary" style="animation-delay: 0.05s">{{ t('landing.hero.eyebrow') }}</p>
       <div class="relative mt-4 inline-block">
         <h1 class="font-serif text-4xl sm:text-6xl font-semibold text-balance leading-[1.05]">
-          <span v-for="(w, i) in titleWords" :key="i" class="word" :style="{ animationDelay: `${0.12 + i * 0.06}s` }">{{ w }}</span>
+          <!-- Un nœud texte d'espace EXPLICITE entre les mots : les `inline-block` avalent l'espace
+               blanc du template, ce qui collait les mots (titre copié illisible + nom accessible
+               du h1 erroné). L'espace reste sécable, contrairement à une marge CSS. -->
+          <template v-for="(w, i) in titleWords" :key="i">
+            <span class="word" :style="{ animationDelay: `${0.12 + i * 0.06}s` }">{{ w }}</span>{{ ' ' }}
+          </template>
         </h1>
         <svg
           class="ink-draw pointer-events-none absolute left-1/2 top-full w-48 sm:w-64 -translate-x-1/2 mt-5 text-primary/70"
@@ -41,8 +46,7 @@ const titleWords = computed(() => t('landing.hero.title').split(' '))
 .enter { opacity: 0; animation: enter 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
 @keyframes enter { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
 
-/* margin-inline-end remplace l'espace : inline-block avale l'espace blanc entre les mots. */
-.word { display: inline-block; opacity: 0; margin-inline-end: 0.25em; animation: wordin 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.word { display: inline-block; opacity: 0; animation: wordin 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
 @keyframes wordin { from { opacity: 0; transform: translateY(18px); filter: blur(6px); } to { opacity: 1; transform: none; filter: none; } }
 
 @media (prefers-reduced-motion: reduce) {

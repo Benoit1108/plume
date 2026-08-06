@@ -47,7 +47,7 @@ async function onSubmit(): Promise<void> {
         <p class="text-sm text-muted">{{ t('auth.reset.intro') }}</p>
       </div>
 
-      <UAlert v-if="token === ''" color="error" variant="subtle" class="mt-6" :description="t('auth.reset.invalidToken')" />
+      <UAlert v-if="token === ''" role="alert" color="error" variant="subtle" class="mt-6" :description="t('auth.reset.invalidToken')" />
 
       <form v-else method="post" class="mt-6 flex flex-col gap-4" @submit.prevent="onSubmit">
         <UFormField :label="t('account.password.new')" :hint="t('account.password.hint')">
@@ -57,7 +57,7 @@ async function onSubmit(): Promise<void> {
           <UInput v-model="confirmPassword" type="password" autocomplete="new-password" required class="w-full" />
         </UFormField>
 
-        <UAlert v-if="error" color="error" variant="subtle" :description="error" />
+        <UAlert v-if="error" role="alert" color="error" variant="subtle" :description="error" />
 
         <UButton type="submit" :loading="loading" :disabled="!valid" block>
           {{ t('auth.reset.submit') }}

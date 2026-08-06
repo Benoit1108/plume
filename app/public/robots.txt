@@ -1,0 +1,22 @@
+# Plume — seule la vitrine publique est indexable ; tout l'espace authentifié est exclu.
+User-agent: *
+Allow: /$
+Allow: /legal/
+Disallow: /today
+Disallow: /dashboard
+Disallow: /leads
+Disallow: /candidates
+Disallow: /organizations
+Disallow: /templates
+Disallow: /settings
+Disallow: /account
+Disallow: /admin
+Disallow: /login
+Disallow: /register
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /verify-email
+Disallow: /oauth
+Disallow: /api/
+
+# Sitemap: https://<domaine-de-prod>/sitemap.xml  (à activer au 1er déploiement)
