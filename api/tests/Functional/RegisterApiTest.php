@@ -101,6 +101,21 @@ final class RegisterApiTest extends ApiTestCase
         self::assertResponseStatusCodeSame(409);
     }
 
+    /** Revue « politique de mot de passe » : le refus doit NOMMER les règles non tenues. */
+    public function testRejectsAWeakPasswordAndNamesTheUnmetRules(): void
+    {
+        $client = static::createClient();
+        $response = $client->request('POST', '/api/v1/register', [
+            'json' => ['email' => 'weak@plume.test', 'password' => 'bonjour123', 'acceptTerms' => true],
+        ]);
+
+        self::assertSame(422, $response->getStatusCode());
+        /** @var array{detail: string, rules: list<string>} $body */
+        $body = $response->toArray(false);
+        self::assertSame('invalid_password', $body['detail']);
+        self::assertSame(['missing_uppercase', 'missing_special'], $body['rules']);
+    }
+
     public function testRejectsInvalidInput(): void
     {
         $client = static::createClient();

@@ -74,6 +74,14 @@
   --ui-info: var(--ui-color-info-400);
 }
 
+/* Gouttière de défilement RÉSERVÉE : un onglet dont le contenu dépasse la fenêtre fait apparaître
+   la barre de défilement, ce qui rétrécit la zone utile d'une quinzaine de pixels — toute la page
+   se décale latéralement au changement d'onglet (et seulement sur les onglets « longs », d'où
+   l'impression de bug intermittent). La gouttière est donc toujours réservée. */
+html {
+  scrollbar-gutter: stable;
+}
+
 /* Titres en serif éditoriale */
 h1, h2, h3, .font-display { font-family: var(--font-serif); }
 

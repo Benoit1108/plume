@@ -7,6 +7,7 @@ namespace App\Account\Infrastructure\Http;
 use App\Account\Infrastructure\Mail\AccountMailer;
 use App\Account\Infrastructure\Persistence\User;
 use App\Account\Infrastructure\Security\EmailVerificationSigner;
+use App\Account\Infrastructure\Security\PasswordPolicy;
 use App\Billing\Application\Subscriptions;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
@@ -30,9 +31,6 @@ use Symfony\Component\Uid\Uuid;
 #[AsController]
 final class RegisterController
 {
-    private const int MIN_PASSWORD = 8;
-    private const int MAX_PASSWORD = 4096;
-
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly UserPasswordHasherInterface $hasher,
@@ -58,9 +56,11 @@ final class RegisterController
         if ('' === $email || false === filter_var($email, \FILTER_VALIDATE_EMAIL) || mb_strlen($email) > 180) {
             return new JsonResponse(['detail' => 'invalid_email'], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
-        $length = mb_strlen($password);
-        if ($length < self::MIN_PASSWORD || $length > self::MAX_PASSWORD) {
-            return new JsonResponse(['detail' => 'invalid_password'], Response::HTTP_UNPROCESSABLE_ENTITY);
+        $violations = PasswordPolicy::violations($password);
+        if ([] !== $violations) {
+            // `rules` : les règles NON tenues, en codes stables — le front coche la même liste que
+            // celle qu'il affiche en direct, plutôt que d'annoncer un refus sans dire lequel.
+            return new JsonResponse(['detail' => 'invalid_password', 'rules' => $violations], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
         if (!$acceptTerms) {
             return new JsonResponse(['detail' => 'terms_not_accepted'], Response::HTTP_UNPROCESSABLE_ENTITY);

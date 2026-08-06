@@ -12,13 +12,13 @@ const changingPassword = ref(false)
 
 const passwordValid = computed(() =>
   currentPassword.value !== ''
-  && newPassword.value.length >= 8
+  && assessPassword(newPassword.value).satisfied
   && newPassword.value === confirmPassword.value,
 )
 
 async function changePassword(): Promise<void> {
-  if (newPassword.value.length < 8) {
-    toast.add({ title: t('account.errors.tooShort'), color: 'error' })
+  if (!assessPassword(newPassword.value).satisfied) {
+    toast.add({ title: t('account.errors.weakPassword'), color: 'error' })
     return
   }
   if (newPassword.value !== confirmPassword.value) {
@@ -38,7 +38,7 @@ async function changePassword(): Promise<void> {
     const key = detail === 'invalid_current_password'
       ? 'account.errors.invalidCurrent'
       : detail === 'invalid_new_password'
-        ? 'account.errors.tooShort'
+        ? 'account.errors.weakPassword'
         : 'account.errors.generic'
     toast.add({ title: t(key), color: 'error' })
   }
@@ -57,17 +57,21 @@ async function changePassword(): Promise<void> {
 
     <form class="flex flex-col gap-4 border-t border-default pt-4" @submit.prevent="changePassword">
       <p class="text-sm font-semibold">{{ t('account.password.title') }}</p>
+      <!-- Identité rattachée au mot de passe : invisible, mais attendue par les gestionnaires de
+           mots de passe (ils enregistrent sinon une entrée sans compte) et signalée par Chrome. -->
+      <input type="text" name="username" autocomplete="username" :value="auth.email ?? ''" hidden readonly>
       <UFormField :label="t('account.password.current')">
         <UInput v-model="currentPassword" type="password" autocomplete="current-password" class="w-full" />
       </UFormField>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <UFormField :label="t('account.password.new')" :hint="t('account.password.hint')">
+        <UFormField :label="t('account.password.new')">
           <UInput v-model="newPassword" type="password" autocomplete="new-password" class="w-full" />
         </UFormField>
         <UFormField :label="t('account.password.confirm')">
           <UInput v-model="confirmPassword" type="password" autocomplete="new-password" class="w-full" />
         </UFormField>
       </div>
+      <PasswordStrength :password="newPassword" />
       <div class="flex justify-end">
         <UButton type="submit" :loading="changingPassword" :disabled="!passwordValid">
           {{ t('account.password.submit') }}

@@ -721,6 +721,21 @@
       "emailHint": "Used as your identifier. Not editable for now."
     },
     "password": {
+      "requirements": "Password requirements",
+      "ruleMet": "met",
+      "ruleUnmet": "not met",
+      "rules": {
+        "length": "At least {count} characters",
+        "lowercase": "One lowercase letter",
+        "uppercase": "One uppercase letter",
+        "special": "One special character (!, ?, #…)"
+      },
+      "strength": {
+        "weak": "Weak",
+        "fair": "Fair",
+        "good": "Good",
+        "strong": "Strong"
+      },
       "title": "Password",
       "current": "Current password",
       "new": "New password",
@@ -734,7 +749,8 @@
     },
     "errors": {
       "invalidCurrent": "Current password is incorrect.",
-      "tooShort": "The new password must be at least 8 characters.",
+      "tooShort": "The password doesn't meet all the requirements shown.",
+      "weakPassword": "The password doesn't meet all the requirements shown.",
       "mismatch": "The two passwords don't match.",
       "generic": "Couldn't change the password."
     },

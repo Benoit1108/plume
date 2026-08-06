@@ -51,6 +51,9 @@ test('la vitrine publique ne déborde pas non plus à 390 px', async ({ page }) 
     await waitForHydration(page)
     const overflow = await page.evaluate(() =>
       document.documentElement.scrollWidth - document.documentElement.clientWidth)
-    expect(overflow, `${path} déborde de ${overflow}px`).toBe(0)
+    // `<= 0` et non `=== 0` : la gouttière de défilement réservée (`scrollbar-gutter: stable`)
+    // rend `clientWidth` plus PETIT que `scrollWidth` sur une page qui ne défile pas. Seul un
+    // débordement POSITIF fait défiler la page latéralement.
+    expect(overflow, `${path} déborde de ${overflow}px`).toBeLessThanOrEqual(0)
   }
 })

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Account\Infrastructure\Console;
 
 use App\Account\Infrastructure\Persistence\User;
+use App\Account\Infrastructure\Security\PasswordPolicy;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -50,6 +51,13 @@ final class CreateUserCommand extends Command
 
             return Command::FAILURE;
         }
+        // La CLI n'IMPOSE pas la politique de mot de passe : c'est l'outil qui crée les comptes de
+        // service, de recette et d'E2E, dont les mots de passe vivent dans des fichiers de config.
+        // Elle le SIGNALE, en revanche — un compte humain créé ici mérite les mêmes exigences.
+        if (!PasswordPolicy::isSatisfiedBy($plain)) {
+            $io->warning('Ce mot de passe ne respecte pas la politique du produit (8 caractères, minuscule, majuscule, caractère spécial).');
+        }
+
         /** @var string|null $tenantOpt */
         $tenantOpt = $input->getOption('tenant');
 

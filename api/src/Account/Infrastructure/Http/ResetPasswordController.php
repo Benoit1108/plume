@@ -7,6 +7,7 @@ namespace App\Account\Infrastructure\Http;
 use App\Account\Infrastructure\Auth\RefreshToken;
 use App\Account\Infrastructure\Persistence\PasswordResetToken;
 use App\Account\Infrastructure\Persistence\User;
+use App\Account\Infrastructure\Security\PasswordPolicy;
 use App\Shared\Application\Clock;
 use App\Shared\Infrastructure\Audit\AuditLogger;
 use Doctrine\ORM\EntityManagerInterface;
@@ -25,9 +26,6 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 #[AsController]
 final class ResetPasswordController
 {
-    private const int MIN_LENGTH = 8;
-    private const int MAX_LENGTH = 4096;
-
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly UserPasswordHasherInterface $hasher,
@@ -42,9 +40,9 @@ final class ResetPasswordController
         $token = \is_array($payload) && \is_string($payload['token'] ?? null) ? $payload['token'] : '';
         $new = \is_array($payload) && \is_string($payload['newPassword'] ?? null) ? $payload['newPassword'] : '';
 
-        $length = mb_strlen($new);
-        if ($length < self::MIN_LENGTH || $length > self::MAX_LENGTH) {
-            return new JsonResponse(['detail' => 'invalid_new_password'], Response::HTTP_UNPROCESSABLE_ENTITY);
+        $violations = PasswordPolicy::violations($new);
+        if ([] !== $violations) {
+            return new JsonResponse(['detail' => 'invalid_new_password', 'rules' => $violations], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         $resetToken = '' === $token

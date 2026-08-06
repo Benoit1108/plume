@@ -12,11 +12,11 @@ const confirmPassword = ref('')
 const loading = ref(false)
 const error = ref('')
 
-const valid = computed(() => newPassword.value.length >= 8 && newPassword.value === confirmPassword.value)
+const valid = computed(() => assessPassword(newPassword.value).satisfied && newPassword.value === confirmPassword.value)
 
 async function onSubmit(): Promise<void> {
   error.value = ''
-  if (newPassword.value.length < 8) { error.value = t('account.errors.tooShort'); return }
+  if (!assessPassword(newPassword.value).satisfied) { error.value = t('account.errors.weakPassword'); return }
   if (newPassword.value !== confirmPassword.value) { error.value = t('account.errors.mismatch'); return }
   if (loading.value) return
   loading.value = true
@@ -27,7 +27,7 @@ async function onSubmit(): Promise<void> {
   }
   catch (e) {
     const detail = errorDetail(e)
-    error.value = detail === 'invalid_new_password' ? t('account.errors.tooShort') : t('auth.reset.invalidToken')
+    error.value = detail === 'invalid_new_password' ? t('account.errors.weakPassword') : t('auth.reset.invalidToken')
   }
   finally {
     loading.value = false
@@ -50,12 +50,13 @@ async function onSubmit(): Promise<void> {
       <UAlert v-if="token === ''" role="alert" color="error" variant="subtle" class="mt-6" :description="t('auth.reset.invalidToken')" />
 
       <form v-else method="post" class="mt-6 flex flex-col gap-4" @submit.prevent="onSubmit">
-        <UFormField :label="t('account.password.new')" :hint="t('account.password.hint')">
+        <UFormField :label="t('account.password.new')">
           <UInput v-model="newPassword" type="password" autocomplete="new-password" required autofocus class="w-full" />
         </UFormField>
         <UFormField :label="t('account.password.confirm')">
           <UInput v-model="confirmPassword" type="password" autocomplete="new-password" required class="w-full" />
         </UFormField>
+        <PasswordStrength :password="newPassword" />
 
         <UAlert v-if="error" role="alert" color="error" variant="subtle" :description="error" />
 

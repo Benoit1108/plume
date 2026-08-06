@@ -721,6 +721,21 @@
       "emailHint": "Sert d'identifiant. Non modifiable pour l'instant."
     },
     "password": {
+      "requirements": "Exigences du mot de passe",
+      "ruleMet": "respectée",
+      "ruleUnmet": "non respectée",
+      "rules": {
+        "length": "Au moins {count} caractères",
+        "lowercase": "Une minuscule",
+        "uppercase": "Une majuscule",
+        "special": "Un caractère spécial (!, ?, #…)"
+      },
+      "strength": {
+        "weak": "Faible",
+        "fair": "Moyen",
+        "good": "Bon",
+        "strong": "Solide"
+      },
       "title": "Mot de passe",
       "current": "Mot de passe actuel",
       "new": "Nouveau mot de passe",
@@ -734,7 +749,8 @@
     },
     "errors": {
       "invalidCurrent": "Mot de passe actuel incorrect.",
-      "tooShort": "Le nouveau mot de passe doit faire au moins 8 caractères.",
+      "tooShort": "Le mot de passe ne remplit pas toutes les conditions affichées.",
+      "weakPassword": "Le mot de passe ne remplit pas toutes les conditions affichées.",
       "mismatch": "Les deux mots de passe ne correspondent pas.",
       "generic": "Impossible de changer le mot de passe."
     },

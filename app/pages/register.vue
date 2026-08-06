@@ -18,7 +18,7 @@ const done = ref(false)
 async function onSubmit(): Promise<void> {
   error.value = ''
   if (email.value.trim() === '') { error.value = t('auth.register.emailRequired'); return }
-  if (password.value.length < 8) { error.value = t('account.errors.tooShort'); return }
+  if (!assessPassword(password.value).satisfied) { error.value = t('account.errors.weakPassword'); return }
   if (password.value !== confirmPassword.value) { error.value = t('account.errors.mismatch'); return }
   if (!acceptTerms.value) { error.value = t('auth.register.mustAccept'); return }
   if (loading.value) return
@@ -77,12 +77,13 @@ async function resend(): Promise<void> {
         <UFormField :label="t('auth.email')" name="email">
           <UInput v-model="email" type="email" autocomplete="username" required autofocus class="w-full" />
         </UFormField>
-        <UFormField :label="t('account.password.new')" :hint="t('account.password.hint')">
+        <UFormField :label="t('account.password.new')">
           <UInput v-model="password" type="password" autocomplete="new-password" required class="w-full" />
         </UFormField>
         <UFormField :label="t('account.password.confirm')">
           <UInput v-model="confirmPassword" type="password" autocomplete="new-password" required class="w-full" />
         </UFormField>
+        <PasswordStrength :password="password" />
 
         <UCheckbox v-model="acceptTerms" required>
           <template #label>
