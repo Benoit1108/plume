@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test'
-import { waitForHydration } from './helpers'
+import { login, waitForHydration } from './helpers'
 
 /**
  * Contrastes de texte (WCAG 1.4.3 — AA). Test dédié plutôt que la règle `color-contrast` d'axe :
@@ -14,6 +14,14 @@ import { waitForHydration } from './helpers'
  */
 const PAGES = ['/', '/login', '/register'] as const
 const THEMES = ['light', 'dark'] as const
+
+/** Écrans de travail (derrière l'authentification) — les plus regardés, donc les plus coûteux à rater. */
+const AUTHENTICATED_PAGES = [
+  '/today', '/dashboard', '/leads', '/candidates', '/organizations', '/templates',
+  '/settings?tab=profile', '/settings?tab=prospecting', '/settings?tab=notifications',
+  '/settings?tab=mailbox', '/settings?tab=sources',
+  '/account?tab=profile', '/account?tab=security', '/account?tab=data',
+] as const
 
 /** Nombre minimal d'éléments textuels attendus : garde contre un « 0 échec » obtenu sur une page vide. */
 const MIN_INSPECTED: Record<string, number> = { '/': 40, '/login': 5, '/register': 5 }
@@ -123,4 +131,28 @@ for (const theme of THEMES) {
       expect(failures.map(f => `${f.ratio}:1 < ${f.required}:1 — ${f.fontSize}px « ${f.sample} »`)).toEqual([])
     })
   }
+
+  // L'APPLICATION, pas seulement la vitrine (revue TEST-P2a) : la revue du 2026-08-06 a mesuré ici
+  // deux échecs (bouton d'onboarding 4,18 ; badge « Cet appareil » 4,30) qu'aucun garde-fou ne
+  // voyait. Un seul test par thème (une session, N navigations) pour ne pas alourdir la CI.
+  test(`contrastes des pages authentifiées en thème ${theme}`, async ({ page }) => {
+    test.setTimeout(180_000)
+    await page.addInitScript(t => localStorage.setItem('nuxt-color-mode', t), theme)
+    await page.emulateMedia({ reducedMotion: 'reduce' })
+    await login(page)
+
+    const problems: string[] = []
+    for (const path of AUTHENTICATED_PAGES) {
+      await page.goto(path)
+      await waitForHydration(page)
+      // Attendre le RENDU des données : mesurer des squelettes donnerait un faux « tout va bien ».
+      await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+      await page.waitForLoadState('networkidle')
+      const { failures, inspected } = await page.evaluate(MEASURE)
+      expect(inspected, `page vide ou non chargée : ${path}`).toBeGreaterThanOrEqual(10)
+      problems.push(...failures.map(f => `${path} — ${f.ratio}:1 < ${f.required}:1 (${f.fontSize}px) « ${f.sample} »`))
+    }
+
+    expect(problems).toEqual([])
+  })
 }

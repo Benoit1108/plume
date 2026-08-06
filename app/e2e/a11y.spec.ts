@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright'
 import { expect, test } from '@playwright/test'
-import { waitForHydration } from './helpers'
+import { login, waitForHydration } from './helpers'
 
 /**
  * Garde-fou d'accessibilité automatisé (revue « 10/10 »). La revue manuelle a trouvé sept défauts
@@ -14,6 +14,13 @@ import { waitForHydration } from './helpers'
  */
 const PUBLIC_PAGES = ['/', '/login', '/register'] as const
 const THEMES = ['light', 'dark'] as const
+
+/** Écrans de travail (derrière l'authentification). */
+const AUTHENTICATED_PAGES = [
+  '/today', '/dashboard', '/leads', '/candidates', '/organizations', '/organizations/new',
+  '/templates', '/settings?tab=prospecting', '/settings?tab=notifications', '/settings?tab=mailbox',
+  '/settings?tab=sources', '/account?tab=security', '/account?tab=data', '/leads/new',
+] as const
 
 for (const theme of THEMES) {
   for (const path of PUBLIC_PAGES) {
@@ -41,6 +48,32 @@ for (const theme of THEMES) {
       expect(violations.map(v => `${v.id} (${v.nodes.length})`)).toEqual([])
     })
   }
+
+  // L'APPLICATION (revue TEST-P2a) : le parcours public était gardé, les écrans de travail — où
+  // l'utilisatrice passe ses journées — ne l'étaient pas. Ils sont sains aujourd'hui (scan de la
+  // revue : 0 violation) ; ce test fige cet état. Un seul test par thème, une session, N navigations.
+  test(`accessibilité des pages authentifiées en thème ${theme}`, async ({ page }) => {
+    test.setTimeout(180_000)
+    await page.addInitScript(t => localStorage.setItem('nuxt-color-mode', t), theme)
+    await page.emulateMedia({ reducedMotion: 'reduce' })
+    await login(page)
+
+    const problems: string[] = []
+    for (const path of AUTHENTICATED_PAGES) {
+      await page.goto(path)
+      await waitForHydration(page)
+      // Attendre le RENDU des données : mesurer des squelettes donnerait un faux « tout va bien ».
+      await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+      await page.waitForLoadState('networkidle')
+      const { violations } = await new AxeBuilder({ page })
+        .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+        .disableRules(['color-contrast']) // délégué à contrast.spec.ts (fonds semi-transparents)
+        .analyze()
+      problems.push(...violations.map(v => `${path} — ${v.id} (${v.nodes.length})`))
+    }
+
+    expect(problems).toEqual([])
+  })
 }
 
 test('le carrousel est pausable et ne reprend pas la main (WCAG 2.2.2)', async ({ page }) => {

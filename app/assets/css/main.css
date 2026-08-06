@@ -63,7 +63,11 @@
   --ui-bg-elevated: #2C2834;
   --ui-text-muted: var(--ui-color-neutral-400);
   --ui-text-dimmed: var(--ui-color-neutral-400);
-  --ui-primary: var(--color-plume-400);
+  /* plume-400 tient 5,25 sur le fond de base, mais PAS quand il sert de texte sur une surface
+     teintée `soft` (`primary/10` par-dessus un fond élevé) : mesuré 4,18 sur le bouton d'onboarding
+     et 4,30 sur le badge « Cet appareil » (revue UX-P2c). On monte d'un cran — en solid, plume-300
+     devient un FOND, dont le texte inversé (sombre) ne fait que gagner en contraste. */
+  --ui-primary: var(--color-plume-300);
   --ui-success: var(--ui-color-success-400);
   --ui-warning: var(--ui-color-warning-400);
   --ui-error: var(--ui-color-error-400);

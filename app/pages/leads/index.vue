@@ -116,9 +116,11 @@ async function onDrop(targetStatus: LeadStatus): Promise<void> {
       </template>
     </PageHeader>
 
-    <div v-if="loading" role="status" class="mt-6 flex gap-3">
+    <!-- `overflow-x-auto` comme la vraie liste : sans lui, les 6 colonnes de squelettes (min 160 px)
+         font défiler la PAGE sur mobile pendant tout le chargement (revue UX-P1, second cas). -->
+    <div v-if="loading" role="status" class="mt-6 flex gap-3 overflow-x-auto pb-4">
       <span class="sr-only">{{ t('common.loading') }}</span>
-      <div v-for="i in 6" :key="i" class="flex-1 min-w-40 flex flex-col gap-2">
+      <div v-for="i in 6" :key="i" class="flex-1 min-w-40 shrink-0 flex flex-col gap-2">
         <USkeleton class="h-4 w-24 rounded" />
         <USkeleton class="h-24 rounded-xl" />
         <USkeleton class="h-24 rounded-xl" />
@@ -158,10 +160,13 @@ async function onDrop(targetStatus: LeadStatus): Promise<void> {
             :class="dragOver === column ? 'bg-primary/10 border-primary/50' : 'bg-elevated/30'"
           >
             <li v-for="lead in byStatus.get(column)" :key="lead.id">
+              <!-- `relative` : le libellé de priorité en `sr-only` est ABSOLU. Sans ancêtre
+                   positionné, son bloc conteneur est le document — il échappe alors au clip du
+                   scroller horizontal et fait défiler TOUTE la page sur mobile (revue UX-P1). -->
               <NuxtLink
                 :to="`/leads/${lead.id}`"
                 draggable="true"
-                class="block border border-default rounded-lg p-3 bg-default hover:bg-elevated focus-visible:outline-2 focus-visible:outline-primary cursor-grab active:cursor-grabbing motion-safe:transition-transform motion-safe:hover:-translate-y-0.5"
+                class="relative block border border-default rounded-lg p-3 bg-default hover:bg-elevated focus-visible:outline-2 focus-visible:outline-primary cursor-grab active:cursor-grabbing motion-safe:transition-transform motion-safe:hover:-translate-y-0.5"
                 :class="moving === lead.id ? 'opacity-50 pointer-events-none' : ''"
                 @dragstart="onDragStart(lead, $event)"
                 @dragend="onDragEnd"
