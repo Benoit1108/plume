@@ -15,6 +15,10 @@ import { defineConfig, devices } from '@playwright/test'
  */
 export default defineConfig({
   testDir: './e2e',
+  // `recette.spec.ts` est un scénario de RECETTE local, non versionné (il dépend d'un jeu de données
+  // de démonstration). Sans cette exclusion, tout `npx playwright test` local échoue sur son absence
+  // de prérequis — et on prend l'habitude d'ignorer du rouge, ce qui masque les vraies régressions.
+  testIgnore: ['**/recette.spec.ts'],
   // Tous les tests partagent LE MÊME tenant e2e : il faut sérialiser entre
   // fichiers aussi (fullyParallel:false ne sérialise qu'au sein d'un fichier).
   fullyParallel: false,
