@@ -73,7 +73,10 @@ messenger:setup-transports          # crée messenger_messages + les files async
 app:db:provision-app-role           # crée/actualise plume_app (DML only, soumis à la RLS)
 ```
 
-Puis l'**API + les workers** tournent sous `plume_app` (runtime, RLS active). Sauvegardes DB
+Puis l'**API + les workers** tournent sous `plume_app` (runtime, RLS active) — ce n'est PAS
+automatique : ils l'obtiennent par un second `env_file` (`api/.env.runtime.local`) qui surcharge
+`DATABASE_URL`, cf. `compose.prod.yaml` et l'amendement 2026-08-06 d'ADR-0023. Sans ce fichier,
+l'API refuse de démarrer (`RlsRuntimeRoleGuard`) au lieu de servir sans isolation. Sauvegardes DB
 **chiffrées** + testées (restauration). Rotation périodique des secrets ci-dessus.
 
 Créer le (ou les) **administrateur du back-office** : `php bin/console app:admin:create <email>`

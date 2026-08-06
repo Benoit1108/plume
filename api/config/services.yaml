@@ -277,3 +277,11 @@ when@prod:
                 $dbPassword: '%env(APP_DB_PASSWORD)%'
             tags:
                 - { name: kernel.event_listener, event: kernel.request, priority: 8192 }
+
+        # Fail-fast si l'API tourne sous un rôle SUPERUSER/BYPASSRLS : la RLS serait inerte
+        # SILENCIEUSEMENT (ADR-0023). Priorité juste après la garde des secrets.
+        App\Shared\Infrastructure\Http\RlsRuntimeRoleGuard:
+            # `when@prod` n'hérite pas des _defaults : autowiring explicite (Connection + logger).
+            autowire: true
+            tags:
+                - { name: kernel.event_listener, event: kernel.request, priority: 8191 }

@@ -4,9 +4,22 @@
 # Lancement : docker compose -f compose.prod.yaml up -d --build
 name: plume
 
-x-app-env: &app-env
+# RÔLE BASE PAR PROCESSUS (ADR-0023) — symétrique du dev (cf. compose.yaml) :
+#   - app / worker / worker_io  → rôle RUNTIME `plume_app`, SOUMIS à la RLS (2e ligne de défense
+#     fail-closed : hors tenant, aucune ligne n'est visible).
+#   - scheduler, migrations, console → rôle PROPRIÉTAIRE : maintenance CROSS-TENANT par conception
+#     (énumération des tenants, purges globales, INSERT…SELECT) ; contourne la RLS.
+# Docker Compose applique les env_file dans l'ordre : le SECOND écrase `DATABASE_URL` du premier.
+# Sans `.env.runtime.local`, la stack ne démarre pas — et le garde-fou HTTP refuserait de servir
+# avec une connexion privilégiée (RlsRuntimeRoleGuard), plutôt que de tourner sans isolation.
+x-owner-env: &owner-env
   env_file:
     - ./api/.env.local
+
+x-runtime-env: &runtime-env
+  env_file:
+    - ./api/.env.local
+    - ./api/.env.runtime.local
 
 services:
   database:
@@ -32,7 +45,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.prod
-    <<: *app-env
+    <<: *runtime-env
     ports:
       - "80:80"
       - "443:443"
@@ -49,7 +62,7 @@ services:
     command: ["php", "bin/console", "messenger:consume", "async", "-vv", "--time-limit=3600"]
     healthcheck:
       disable: true
-    <<: *app-env
+    <<: *runtime-env
     depends_on:
       database:
         condition: service_healthy
@@ -60,7 +73,7 @@ services:
     command: ["php", "bin/console", "messenger:consume", "io", "-vv", "--time-limit=3600"]
     healthcheck:
       disable: true
-    <<: *app-env
+    <<: *runtime-env
     depends_on:
       database:
         condition: service_healthy
@@ -72,7 +85,7 @@ services:
     command: ["php", "bin/console", "messenger:consume", "scheduler_default", "-vv"]
     healthcheck:
       disable: true
-    <<: *app-env
+    <<: *owner-env
     depends_on:
       database:
         condition: service_healthy

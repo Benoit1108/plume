@@ -11,7 +11,8 @@ title = "Plume gitleaks config"
 useDefault = true
 
 [[allowlists]]
-description = "Modèle d'environnement de prod (placeholders uniquement, jamais de vraie valeur)"
+description = "Modèles d'environnement de prod (placeholders uniquement, jamais de vraie valeur)"
 paths = [
   '''api/\.env\.prod\.example''',
+  '''api/\.env\.runtime\.example''',
 ]

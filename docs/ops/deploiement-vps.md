@@ -35,7 +35,8 @@ git clone <url-du-dépôt> /opt/plume && cd /opt/plume
 
 ## 3. Configurer les secrets
 ```bash
-cp api/.env.prod.example api/.env.local     # gitignoré
+cp api/.env.prod.example api/.env.local             # gitignoré — défauts + rôle PROPRIÉTAIRE
+cp api/.env.runtime.example api/.env.runtime.local  # gitignoré — rôle RUNTIME (plume_app, RLS active)
 # Générer les secrets (openssl est présent par défaut — pas besoin de PHP sur l'hôte) :
 echo "APP_SECRET=$(openssl rand -hex 32)"
 echo "MAILBOX_ENCRYPTION_KEY=$(openssl rand -base64 32)"
@@ -44,6 +45,7 @@ echo "JWT_PASSPHRASE=$(openssl rand -base64 24)"
 # Reporter ces 4 valeurs dans api/.env.local, puis éditer aussi : SERVER_NAME + DEFAULT_URI +
 # APP_FRONTEND_URL + CORS = ton domaine ; mots de passe DB (owner `plume` et runtime `plume_app`) ;
 # MAILER_DSN + MAIL_FROM.
+# Enfin, reporter le MÊME mot de passe `plume_app` dans api/.env.runtime.local.
 ```
 
 ## 4. Démarrer la stack
@@ -51,6 +53,12 @@ echo "JWT_PASSPHRASE=$(openssl rand -base64 24)"
 docker compose -f compose.prod.yaml up -d --build
 ```
 Services lancés : `database`, `app` (API + SPA + HTTPS), `worker`, `worker_io`, `scheduler`.
+
+> **Rôles base (ADR-0023)** : `app`, `worker` et `worker_io` tournent sous le rôle **non-propriétaire
+> `plume_app`**, donc SOUMIS à la Row-Level Security (isolation multi-tenant fail-closed en base).
+> Le `scheduler`, les migrations et la console gardent le rôle **propriétaire** : leur travail est
+> cross-tenant par conception. Si `api/.env.runtime.local` manque, l'API refuse de servir avec un
+> message explicite — plutôt que de tourner sans isolation, la RLS échouant en silence.
 
 ## 5. Initialiser l'application (une fois)
 ```bash

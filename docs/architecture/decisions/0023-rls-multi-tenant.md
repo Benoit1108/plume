@@ -73,3 +73,44 @@ le `worker` (`plume_app`, tenant activé → RLS appliquée).
   cross-tenant, jamais de logique exposant des données à un utilisateur.
 - Couvert par `RowLevelSecurityTest` (isolation par tenant, fail-closed, rejet `WITH CHECK`) via
   une vraie connexion `plume_app`, et par la suite E2E (API + worker réels sous `plume_app`).
+
+## Amendement (2026-08-06) — le câblage du rôle runtime, et pourquoi il faut une garde
+
+**Ce qui n'allait pas.** La répartition des rôles décrite ci-dessus n'était appliquée QUE par
+`compose.yaml` (dev) et le `Makefile`. Le kit de déploiement (`compose.prod.yaml`) passait le même
+`env_file` aux quatre services : en production, l'API et les workers auraient tourné sous le rôle
+propriétaire — qui est de plus le `POSTGRES_USER` du conteneur, donc **SUPERUSER**. La RLS aurait
+été **totalement inerte**, alors que la checklist de déploiement affirmait le contraire. Mesuré en
+base : 37 pistes visibles sans aucun tenant sous `plume`, 0 sous `plume_app`.
+
+**Décisions.**
+
+1. **Le rôle est une propriété du PROCESSUS, pas de l'application.** `compose.prod.yaml` reproduit le
+   dev : `app`/`worker`/`worker_io` reçoivent un second `env_file` (`api/.env.runtime.local`) qui
+   bascule `DATABASE_URL` sur `plume_app` ; le `scheduler` garde le propriétaire. Le défaut du
+   fichier commun reste le propriétaire, pour que migrations et console fonctionnent sans piège.
+2. **Une garde fail-fast, parce que le mode d'échec est SILENCIEUX.** C'est le point central : un
+   rôle privilégié ne provoque aucune erreur — l'application fonctionne, simplement sans isolation.
+   Une erreur de câblage serait donc invisible. `RlsRuntimeRoleGuard` (listener `kernel.request`,
+   `when@prod`) interroge `pg_roles` une fois par processus et **refuse de servir** si le rôle est
+   `SUPERUSER` ou `BYPASSRLS`. Il reste tolérant si la base est injoignable : une panne ne doit pas
+   se déguiser en erreur de configuration.
+3. **`ENABLE` et non `FORCE` : maintenu.** Le propriétaire doit contourner la RLS (migrations,
+   scheduler, back-office). `FORCE` casserait la maintenance cross-tenant sans rien apporter, dès
+   lors que le runtime n'est plus propriétaire — ce que la garde et les tests vérifient désormais.
+
+**Ce qui est vérifié en CI.** `RlsCoverageTest` teste le **contenu** des policies, pas seulement leur
+existence : une policy `USING (true)`, sur la mauvaise colonne, ou sans `WITH CHECK`, échoue
+maintenant (validé par mutation : table tenantée sans policy → rouge ; policy permissive → rouge).
+Il assert aussi que `plume_app` n'est ni `SUPERUSER`, ni `BYPASSRLS`, ni propriétaire d'une table.
+`RowLevelSecurityTest` couvre deux profils de tables (agrégat ORM + projection DBAL pure) et vérifie
+en plus qu'un tenant ne peut pas **supprimer** les lignes d'un autre. `SubscriptionIsolationTest`
+couvre la table `subscription`, exclue de la RLS : son isolation ne repose que sur un filtrage
+applicatif explicite, or c'est elle qui décide du droit d'accès payant — un webhook Stripe ne peut
+affecter que le tenant propriétaire du client concerné, et aucun identifiant Stripe ne fuite dans le
+snapshot exposé à l'UI.
+
+**Limite assumée.** La suite fonctionnelle tourne toujours sous le propriétaire : elle pose ses
+fixtures hors session tenantée et exercerait mal la RLS. La garantie d'isolation en base est portée
+par les trois tests ci-dessus (connexion réelle `plume_app`) et par l'E2E, pas par les 170 tests
+fonctionnels — dont l'objet est le filtre applicatif, première ligne de défense.
