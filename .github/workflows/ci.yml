@@ -157,6 +157,11 @@ jobs:
       - name: Build
         run: npm run build
 
+      # Le serveur de DEV n'emprunte pas le même chargement de modules que le build de prod : il a
+      # déjà été cassé par un changement de dépendance que build + E2E laissaient passer (2026-08-07).
+      - name: Dev server boots
+        run: npm run check:dev-boot
+
       # test
       - name: Tests (coverage)
         run: npm run test:coverage

@@ -12,7 +12,8 @@
     "lint": "eslint .",
     "type-check": "nuxt typecheck",
     "test": "vitest run",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "check:dev-boot": "node scripts/check-dev-boot.mjs"
   },
   "dependencies": {
     "@fontsource-variable/fraunces": "^5.2.9",
@@ -43,9 +44,6 @@
   "overrides": {
     "postcss": "^8.5.18",
     "brace-expansion@^2.0.0": "2.1.4",
-    "brace-expansion@^5.0.0": "5.0.9",
-    "@nuxtjs/i18n": {
-      "js-yaml": "5.2.3"
-    }
+    "brace-expansion@^5.0.0": "5.0.9"
   }
 }
