@@ -94,11 +94,17 @@ function formatWhen(iso: string): string {
       class="relative"
     >
       <template #trailing>
+        <!-- Pastille NETTEMENT détachée de l'icône : en `size=sm` elle la recouvrait presque
+             entièrement, on ne lisait ni la cloche ni le compte. Plus petite, poussée dans le
+             coin, et cerclée de la couleur du fond pour se décoller du dessin de la cloche. -->
         <UBadge
           v-if="unread > 0"
           color="primary"
-          size="sm"
-          class="absolute -top-1 -right-1 pointer-events-none"
+          variant="solid"
+          size="xs"
+          class="absolute -top-2 -right-2 min-w-4 h-4 px-1 justify-center rounded-full
+                 text-[10px] font-semibold leading-none tabular-nums
+                 ring-2 ring-[var(--ui-bg)] pointer-events-none"
         >
           {{ unreadBadge(unread) }}
         </UBadge>
